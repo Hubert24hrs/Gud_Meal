@@ -27,7 +27,8 @@ async def store(request) -> AsyncIterator[object]:
         return
     from gudmeal_api.repositories.firestore_store import FirestoreDocumentStore
 
-    yield FirestoreDocumentStore.from_project(f"demo-gudmeal-{uuid.uuid4().hex[:8]}")
+    # The emulator runs in single-project mode; collections are unique per test instead.
+    yield FirestoreDocumentStore.from_project(os.environ.get("GCLOUD_PROJECT", "demo-gudmeal-rules"))
 
 
 def col() -> str:

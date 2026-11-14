@@ -1,0 +1,19 @@
+# Builds and pushes both service images to Artifact Registry.
+# gcloud builds submit --config infra/cloudbuild/cloudbuild.yaml --substitutions _REGION=europe-west1,_REPO=gudmeal,_TAG=$SHA .
+steps:
+  - id: api
+    name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-api:${_TAG}", "services/api"]
+  - id: agents
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-agents:${_TAG}", "services/agents"]
+images:
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-api:${_TAG}"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-agents:${_TAG}"
+substitutions:
+  _REGION: europe-west1
+  _REPO: gudmeal
+  _TAG: latest
+options:
+  logging: CLOUD_LOGGING_ONLY

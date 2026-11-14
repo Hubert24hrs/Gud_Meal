@@ -1,0 +1,66 @@
+# Gud Meal — Discover. Order. Eat.
+
+AI-native food delivery for Nigeria (Lagos first): a customer app and website, a restaurant dashboard,
+a rider app, a super-admin Command Centre, a FastAPI core API and a LangGraph multi-agent service —
+one ecosystem sharing identity (Firebase Auth), data (Firestore + PostgreSQL) and business rules.
+
+> “Gud Meal, I have ₦10,000. Find me the best meal for two people, order it, and have it delivered before 8pm.”
+> — the assistant plans options with exact totals, drafts the order, asks you to approve, and hands you a
+> secure payment link. This flow is covered end-to-end by `services/agents/tests/test_agent_flows.py`.
+
+## Repository map
+
+| Path | What | Stack |
+|---|---|---|
+| `services/api` | Core API: catalog, pricing, quotes, orders, payments, ledger, dispatch, admin | Python 3.13, FastAPI, SQLAlchemy, Firestore |
+| `services/agents` | LangGraph orchestrator + 8 specialist agents, 30 approval-gated tools | LangGraph, Gemini |
+| `apps/web` | Customer website (SEO pages, checkout, tracking, AI chat) | Next.js 16, Tailwind 4 |
+| `apps/partner` | Gud Meal Partner — restaurant dashboard | Next.js 16 |
+| `apps/admin` | Gud Meal Command Centre — super admin | Next.js 16 |
+| `mobile/customer` · `mobile/rider` · `mobile/core` | Customer & rider apps + shared package | Flutter, Riverpod, GoRouter, Dio, Freezed |
+| `packages/*` | Design tokens (→ CSS/TS/Dart), typed API client, React UI kit | TypeScript |
+| `firebase/` | Firestore/Storage rules, indexes, emulator config, rules tests | Firebase |
+| `infra/` · `.github/workflows` | Cloud Build, deploy & bootstrap scripts, CI/CD | GCP |
+| `docs/` | Architecture, ADRs, roadmap, deployment, costs, readiness, status | |
+
+## Quick start (local, no cloud account needed)
+
+Prerequisites: Python 3.13 + [uv](https://docs.astral.sh/uv/), Node 22, Flutter 3.47, Firebase CLI.
+
+```bash
+cd services/api && uv sync && cd ../agents && uv sync && cd ../.. && npm install
+```
+
+```bash
+node scripts/dev.mjs auth      # Firebase Auth emulator (no Java needed)
+```
+
+```bash
+node scripts/dev.mjs api       # API on :8000 with Lagos demo data + local payment sandbox
+```
+
+```bash
+npm run dev:web                # customer site on :3000 (also dev:partner :3001, dev:admin :3002)
+```
+
+Seed demo accounts into the emulator (`customer@`, `owner@`, `rider@`, `admin@gudmeal.test`):
+`FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 uv run --directory services/api python scripts/seed_auth_emulator.py`.
+Details: [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
+
+## Tests
+
+| Suite | Command | Result (last run) |
+|---|---|---|
+| API (unit + HTTP integration) | `cd services/api && uv run pytest` | 402 passed |
+| API on PostgreSQL | `TEST_DATABASE_URL=postgresql+asyncpg://… uv run pytest tests/integration` | 40 passed |
+| Agents | `cd services/agents && uv run pytest` | 28 passed (1 live-Gemini test skipped without a key) |
+| Web | `npx vitest run --root packages/api-client` · `--root apps/web` · `npm run build` | 12 passed, 3 builds |
+| Flutter | `flutter test` in `mobile/core`, `mobile/customer`, `mobile/rider` | 23 passed |
+| Firestore/Storage rules | `npm run test:rules` (needs Java 21 for the emulator; runs in CI) | written, CI only |
+
+## Key documents
+
+[Architecture](docs/architecture/overview.md) · [ADRs](docs/adr/README.md) · [Status report](docs/PROGRESS.md) ·
+[Deployment](docs/DEPLOYMENT.md) · [Cost estimate](docs/COST_ESTIMATE.md) · [Production readiness](docs/PRODUCTION_READINESS.md)
+
+Money is always integer **kobo**; the server prices everything; the AI never touches payment amounts.
