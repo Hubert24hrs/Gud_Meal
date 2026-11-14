@@ -28,6 +28,7 @@ class Settings(BaseSettings):
             "http://localhost:3000",  # customer web
             "http://localhost:3001",  # partner dashboard
             "http://localhost:3002",  # command centre
+            "http://localhost:5050",  # Flutter customer app (web debug)
         ]
     )
 

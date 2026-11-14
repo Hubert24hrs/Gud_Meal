@@ -15,7 +15,12 @@ class Settings(BaseSettings):
     environment: Literal["local", "test", "development", "staging", "production"] = "local"
     log_level: str = "INFO"
     cors_origins: list[str] = Field(
-        default_factory=lambda: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"]
+        default_factory=lambda: [
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "http://localhost:3002",
+            "http://localhost:5050",
+        ]
     )
 
     # gudmeal-api (tools call it on behalf of the user)

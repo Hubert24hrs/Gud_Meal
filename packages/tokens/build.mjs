@@ -1,7 +1,7 @@
-// Generates platform outputs from tokens.json:
+// Generates platform outputs from tokens.json (the Dart file is deliberately not named *.g.dart):
 //   packages/tokens/tokens.css           — CSS custom properties (light, dark, data-theme overrides)
 //   packages/tokens/tokens.ts            — typed constants for TS consumers
-//   mobile/core/lib/src/theme/tokens.g.dart — Flutter colours/radii
+//   mobile/core/lib/src/theme/gm_tokens.dart — Flutter colours/radii
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -63,7 +63,7 @@ class GmFonts {
   static const body = '${tokens.font.body}';
 }
 `;
-const dartOut = resolve(here, "../../mobile/core/lib/src/theme/tokens.g.dart");
+const dartOut = resolve(here, "../../mobile/core/lib/src/theme/gm_tokens.dart");
 mkdirSync(dirname(dartOut), { recursive: true });
 writeFileSync(dartOut, dart);
-console.log("tokens: wrote tokens.css, tokens.ts and tokens.g.dart");
+console.log("tokens: wrote tokens.css, tokens.ts and gm_tokens.dart");

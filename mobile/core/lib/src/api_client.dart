@@ -1,0 +1,175 @@
+import 'dart:math';
+
+import 'package:dio/dio.dart';
+
+import 'models.dart';
+
+typedef TokenProvider = Future<String?> Function();
+
+class ApiException implements Exception {
+  ApiException(this.status, this.code, this.message, [this.details = const {}]);
+  final int status;
+  final String code;
+  final String message;
+  final Map<String, dynamic> details;
+
+  factory ApiException.fromDio(DioException e) {
+    final res = e.response;
+    if (res == null) {
+      return ApiException(0, 'network_error', "We couldn't reach Gud Meal. Check your connection and try again.");
+    }
+    final data = res.data;
+    if (data is Map && data['error'] is Map) {
+      final err = Map<String, dynamic>.from(data['error'] as Map);
+      return ApiException(res.statusCode ?? 0, '${err['code'] ?? 'error'}', '${err['message'] ?? 'Something went wrong'}',
+          Map<String, dynamic>.from((err['details'] as Map?) ?? const {}));
+    }
+    if (data is Map && data['detail'] is String) {
+      return ApiException(res.statusCode ?? 0, 'error', data['detail'] as String);
+    }
+    return ApiException(res.statusCode ?? 0, 'error', 'Something went wrong (${res.statusCode})');
+  }
+
+  @override
+  String toString() => message;
+}
+
+String newIdempotencyKey([String prefix = 'app']) {
+  final r = Random.secure();
+  final hex = List.generate(16, (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
+  return '$prefix-$hex';
+}
+
+/// Typed client for gudmeal-api. Every request carries the user's Firebase ID token.
+class GudMealApi {
+  GudMealApi({required String baseUrl, required TokenProvider token, Dio? dio})
+      : _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl, connectTimeout: const Duration(seconds: 10), receiveTimeout: const Duration(seconds: 20))) {
+    _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) async {
+      final t = await token();
+      if (t != null) options.headers['Authorization'] = 'Bearer $t';
+      handler.next(options);
+    }));
+  }
+
+  final Dio _dio;
+
+  Future<T> _call<T>(Future<Response<dynamic>> Function() run, T Function(dynamic data) parse) async {
+    try {
+      final res = await run();
+      return parse(res.data);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Map<String, dynamic> _map(dynamic d) => Map<String, dynamic>.from(d as Map);
+  List<Map<String, dynamic>> _list(dynamic d) => (d as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
+  // ------------------------------------------------------------------- catalog
+  Future<List<RestaurantCard>> restaurants({GeoPoint? near, String? query, String? cuisine}) => _call(
+      () => _dio.get('/v1/restaurants', queryParameters: {
+            if (near != null) 'lat': near.lat,
+            if (near != null) 'lng': near.lng,
+            if (query != null && query.isNotEmpty) 'q': query,
+            'cuisine': ?cuisine,
+          }),
+      (d) => _list(d).map(RestaurantCard.fromJson).toList());
+
+  Future<RestaurantDetail> restaurant(String id, {GeoPoint? near}) => _call(
+      () => _dio.get('/v1/restaurants/$id', queryParameters: {if (near != null) 'lat': near.lat, if (near != null) 'lng': near.lng}),
+      (d) => RestaurantDetail.fromJson(_map(d)));
+
+  // ------------------------------------------------------------------- ordering
+  Future<Quote> quote({required String restaurantId, required List<CartLine> lines, required String fulfillment, DeliveryAddress? address, String? voucher}) =>
+      _call(
+          () => _dio.post('/v1/quotes', data: {
+                'restaurant_id': restaurantId,
+                'lines': lines.map((l) => l.toJson()).toList(),
+                'fulfillment': fulfillment,
+                if (address != null) 'delivery_address': address.toJson(),
+                if (voucher != null && voucher.isNotEmpty) 'voucher_code': voucher,
+              }),
+          (d) => Quote.fromJson(_map(d)));
+
+  Future<Order> createOrder(String quoteId, String idempotencyKey, {String? contactPhone}) => _call(
+      () => _dio.post('/v1/orders',
+          data: {'quote_id': quoteId, 'channel': 'app', 'contact_phone': ?contactPhone},
+          options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => Order.fromJson(_map(d)));
+
+  Future<CheckoutResult> checkout(String orderId, String idempotencyKey) => _call(
+      () => _dio.post('/v1/orders/$orderId/checkout', data: const {}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => CheckoutResult.fromJson(_map(d)));
+
+  Future<String> verifyPayment(String reference) =>
+      _call(() => _dio.post('/v1/payments/verify', data: {'reference': reference}), (d) => '${_map(d)['status']}');
+
+  Future<List<Order>> myOrders() => _call(() => _dio.get('/v1/orders'), (d) => _list(d).map(Order.fromJson).toList());
+  Future<Order> order(String id) => _call(() => _dio.get('/v1/orders/$id'), (d) => Order.fromJson(_map(d)));
+  Future<Tracking> tracking(String id) => _call(() => _dio.get('/v1/orders/$id/tracking'), (d) => Tracking.fromJson(_map(d)));
+  Future<String?> deliveryCode(String id) => _call(() => _dio.get('/v1/orders/$id/codes'), (d) => _map(d)['delivery_code'] as String?);
+  Future<Order> cancel(String id) => _call(() => _dio.post('/v1/orders/$id/cancel', data: {'reason': 'Cancelled in app'}), (d) => Order.fromJson(_map(d)));
+
+  Future<List<DeliveryAddress>> addresses() => _call(() => _dio.get('/v1/me/addresses'), (d) => _list(d).map(DeliveryAddress.fromJson).toList());
+  Future<void> saveAddress(DeliveryAddress a) => _call(() => _dio.post('/v1/me/addresses', data: a.toJson()), (_) {});
+  Future<void> registerDevice(String token, String platform) =>
+      _call(() => _dio.post('/v1/me/devices', data: {'token': token, 'platform': platform}), (_) {});
+
+  // ------------------------------------------------------------------- rider
+  Future<RiderProfile> riderProfile() => _call(() => _dio.get('/v1/rider/profile'), (d) => RiderProfile.fromJson(_map(d)));
+  Future<RiderProfile> setOnline(bool online) =>
+      _call(() => _dio.put('/v1/rider/availability', data: {'online': online}), (d) => RiderProfile.fromJson(_map(d)));
+  Future<void> sendLocation(GeoPoint p, {double? accuracyM}) => _call(
+      () => _dio.post('/v1/rider/location', data: {'lat': p.lat, 'lng': p.lng, 'accuracy_m': ?accuracyM}), (_) {});
+  Future<List<DeliveryOffer>> offers() => _call(() => _dio.get('/v1/rider/offers'), (d) => _list(d).map(DeliveryOffer.fromJson).toList());
+  Future<Order> acceptOffer(String id) => _call(() => _dio.post('/v1/rider/offers/$id/accept'), (d) => Order.fromJson(_map(d)));
+  Future<void> declineOffer(String id, String reason) => _call(() => _dio.post('/v1/rider/offers/$id/decline', data: {'reason': reason}), (_) {});
+  Future<List<Order>> activeDeliveries() => _call(() => _dio.get('/v1/rider/deliveries'), (d) => _list(d).map(Order.fromJson).toList());
+  Future<Order> pickup(String orderId) => _call(() => _dio.post('/v1/rider/deliveries/$orderId/pickup'), (d) => Order.fromJson(_map(d)));
+  Future<Order> inTransit(String orderId) => _call(() => _dio.post('/v1/rider/deliveries/$orderId/in-transit'), (d) => Order.fromJson(_map(d)));
+  Future<Order> deliver(String orderId, String code) =>
+      _call(() => _dio.post('/v1/rider/deliveries/$orderId/deliver', data: {'code': code}), (d) => Order.fromJson(_map(d)));
+  Future<Earnings> earnings() => _call(() => _dio.get('/v1/rider/earnings'), (d) => Earnings.fromJson(_map(d)));
+  Future<void> requestPayout(int amountKobo, String key) => _call(
+      () => _dio.post('/v1/rider/payouts', data: {'amount_kobo': amountKobo}, options: Options(headers: {'Idempotency-Key': key})), (_) {});
+  Future<void> emergency(String description, GeoPoint? at) => _call(
+      () => _dio.post('/v1/rider/emergency', data: {'description': description, if (at != null) 'lat': at.lat, if (at != null) 'lng': at.lng}),
+      (_) {});
+}
+
+/// Client for gudmeal-agents (the LangGraph AI service).
+class GudMealAgentsApi {
+  GudMealAgentsApi({required String baseUrl, required TokenProvider token, Dio? dio})
+      : _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl, receiveTimeout: const Duration(seconds: 60))) {
+    _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) async {
+      final t = await token();
+      if (t != null) options.headers['Authorization'] = 'Bearer $t';
+      handler.next(options);
+    }));
+  }
+
+  final Dio _dio;
+
+  Future<ChatResponse> chat(String message, {String? threadId, DeliveryAddress? address}) async {
+    try {
+      final res = await _dio.post('/v1/chat', data: {
+        'message': message,
+        'channel': 'app',
+        'thread_id': ?threadId,
+        if (address != null && threadId == null) 'delivery_address': address.toJson(),
+      });
+      return ChatResponse.fromJson(Map<String, dynamic>.from(res.data as Map));
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<ChatResponse> decide(String threadId, {required bool approved, required String toolCallId}) async {
+    try {
+      final res = await _dio.post('/v1/chat/$threadId/approval', data: {'approved': approved, 'tool_call_id': toolCallId});
+      return ChatResponse.fromJson(Map<String, dynamic>.from(res.data as Map));
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+}

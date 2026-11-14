@@ -34,6 +34,13 @@ const targets = {
     cwd: join(root, "services/agents"),
     env: { API_BASE_URL: "http://localhost:8000", CHECKPOINTER: "sqlite" },
   },
+  // Serves the last `flutter build web` of the customer app (run that first) for browser testing.
+  "customer-web": {
+    cmd: isWin ? "python" : "python3",
+    args: ["-m", "http.server", "5050", "--bind", "127.0.0.1", "--directory", join(root, "mobile/customer/build/web")],
+    cwd: root,
+    env: {},
+  },
   auth: {
     cmd: isWin ? "firebase.cmd" : "firebase",
     args: ["--non-interactive", "emulators:start", "--only", "auth", "--project", "demo-gudmeal"],

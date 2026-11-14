@@ -1,0 +1,80 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:gud_meal_core/gud_meal_core.dart';
+
+final configProvider = Provider<AppConfig>((ref) => AppConfig.fromEnvironment());
+final authRepositoryProvider = Provider<AuthRepository>((ref) => throw UnimplementedError('override in main'));
+final authStateProvider = StreamProvider<GmUser?>((ref) => ref.watch(authRepositoryProvider).authStateChanges());
+
+final apiProvider = Provider<GudMealApi>((ref) {
+  final auth = ref.watch(authRepositoryProvider);
+  return GudMealApi(baseUrl: ref.watch(configProvider).apiUrl, token: auth.idToken);
+});
+
+/// Location port: Geolocator on devices, a fake in tests.
+abstract class LocationSource {
+  Future<bool> ensurePermission();
+  Stream<(GeoPoint, double)> positions();
+}
+
+class GeolocatorSource implements LocationSource {
+  @override
+  Future<bool> ensurePermission() async {
+    if (!await Geolocator.isLocationServiceEnabled()) return false;
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) permission = await Geolocator.requestPermission();
+    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+  }
+
+  @override
+  Stream<(GeoPoint, double)> positions() => Geolocator.getPositionStream(
+        // Battery-aware: update when the rider moves 25 m; the API rate-limits pings server-side too.
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 25),
+      ).map((p) => (GeoPoint(lat: p.latitude, lng: p.longitude), p.accuracy));
+}
+
+final locationSourceProvider = Provider<LocationSource>((ref) => GeolocatorSource());
+
+final riderProfileProvider = FutureProvider<RiderProfile>((ref) => ref.watch(apiProvider).riderProfile());
+final offersProvider = FutureProvider<List<DeliveryOffer>>((ref) => ref.watch(apiProvider).offers());
+final activeDeliveriesProvider = FutureProvider<List<Order>>((ref) => ref.watch(apiProvider).activeDeliveries());
+final earningsProvider = FutureProvider<Earnings>((ref) => ref.watch(apiProvider).earnings());
+
+/// Streams the rider's GPS position to the API while online. Poor connectivity: failed pings are dropped
+/// (the next position supersedes them) rather than queued, so the server never receives stale bursts.
+class LocationReporter {
+  LocationReporter(this._api, this._source);
+  final GudMealApi _api;
+  final LocationSource _source;
+  StreamSubscription<(GeoPoint, double)>? _sub;
+  GeoPoint? last;
+
+  bool get active => _sub != null;
+
+  Future<bool> start() async {
+    if (_sub != null) return true;
+    if (!await _source.ensurePermission()) return false;
+    _sub = _source.positions().listen((event) async {
+      last = event.$1;
+      try {
+        await _api.sendLocation(event.$1, accuracyM: event.$2);
+      } catch (_) {
+        // Offline or rate limited: skip this ping.
+      }
+    });
+    return true;
+  }
+
+  Future<void> stop() async {
+    await _sub?.cancel();
+    _sub = null;
+  }
+}
+
+final locationReporterProvider = Provider<LocationReporter>((ref) {
+  final reporter = LocationReporter(ref.watch(apiProvider), ref.watch(locationSourceProvider));
+  ref.onDispose(reporter.stop);
+  return reporter;
+});
