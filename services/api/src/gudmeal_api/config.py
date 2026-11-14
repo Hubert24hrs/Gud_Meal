@@ -1,0 +1,120 @@
+"""Runtime configuration (12-factor). Every value can be set through environment variables.
+
+Secrets are `SecretStr` so they never appear in logs or reprs. In staging/production the
+settings are validated strictly at startup (see `Settings.validate_for_environment`).
+"""
+
+from __future__ import annotations
+
+from functools import lru_cache
+from typing import Literal
+
+from pydantic import Field, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+Environment = Literal["local", "test", "development", "staging", "production"]
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
+
+    # --- service ---------------------------------------------------------------------------
+    environment: Environment = "local"
+    service_name: str = "gudmeal-api"
+    log_level: str = "INFO"
+    public_base_url: str = "http://localhost:8000"
+    cors_origins: list[str] = Field(
+        default_factory=lambda: [
+            "http://localhost:3000",  # customer web
+            "http://localhost:3001",  # partner dashboard
+            "http://localhost:3002",  # command centre
+        ]
+    )
+
+    # --- data ------------------------------------------------------------------------------
+    data_backend: Literal["memory", "firestore"] = "memory"
+    seed_demo_data: bool = True  # only honoured with the memory backend
+    gcp_project_id: str = "demo-gudmeal"
+    database_url: str = "sqlite+aiosqlite:///./gudmeal_local.db"
+    database_echo: bool = False
+
+    # --- auth ------------------------------------------------------------------------------
+    firebase_project_id: str = "demo-gudmeal"
+    app_check_enforced: bool = False
+    check_token_revocation: bool = True
+
+    # --- payments --------------------------------------------------------------------------
+    payment_default_provider: Literal["paystack", "flutterwave"] = "paystack"
+    payment_callback_url: str = "http://localhost:3000/checkout/callback"
+    paystack_secret_key: SecretStr | None = None
+    paystack_base_url: str = "https://api.paystack.co"
+    paystack_webhook_ip_allowlist: list[str] = Field(default_factory=list)
+    flutterwave_secret_key: SecretStr | None = None
+    flutterwave_secret_hash: SecretStr | None = None
+    flutterwave_base_url: str = "https://api.flutterwave.com/v3"
+    customer_email_fallback_domain: str = "customers.gudmeal.ng"
+    refund_auto_approve_limit_kobo: int = 0  # 0 = every refund needs finance approval
+    payment_http_timeout_seconds: float = 15.0
+
+    # --- internal endpoints (Pub/Sub push, Cloud Tasks, Scheduler) -----------------------------
+    internal_auth_mode: Literal["shared_secret", "oidc"] = "shared_secret"
+    internal_shared_secret: SecretStr | None = None
+    internal_oidc_audience: str | None = None
+    internal_oidc_service_accounts: list[str] = Field(default_factory=list)
+
+    # --- async infrastructure ----------------------------------------------------------------
+    event_bus: Literal["inprocess", "pubsub"] = "inprocess"
+    pubsub_topic: str = "gudmeal-domain-events"
+    task_queue: Literal["inprocess", "cloudtasks"] = "inprocess"
+    cloud_tasks_location: str = "europe-west1"
+    cloud_tasks_queue: str = "gudmeal-default"
+    cloud_tasks_service_account: str | None = None
+
+    # --- notifications -------------------------------------------------------------------------
+    notifier: Literal["log", "fcm"] = "log"
+
+    # --- business rules -----------------------------------------------------------------------
+    quote_ttl_seconds: int = 600
+    unpaid_order_ttl_seconds: int = 1800
+    restaurant_accept_timeout_seconds: int = 480
+    dispatch_offer_timeout_seconds: int = 45
+    delivery_code_max_attempts: int = 5
+    code_pepper: SecretStr = SecretStr("local-dev-pepper-change-me")
+
+    # --- maps ---------------------------------------------------------------------------------
+    google_maps_api_key: SecretStr | None = None
+
+    @property
+    def is_cloud(self) -> bool:
+        return self.environment in ("development", "staging", "production")
+
+    def validate_for_environment(self) -> None:
+        """Fail fast on unsafe configuration outside local/test."""
+        if self.environment not in ("staging", "production"):
+            return
+        problems: list[str] = []
+        if self.data_backend != "firestore":
+            problems.append("DATA_BACKEND must be 'firestore'")
+        if self.database_url.startswith("sqlite"):
+            problems.append("DATABASE_URL must point to PostgreSQL")
+        if self.internal_auth_mode != "oidc":
+            problems.append("INTERNAL_AUTH_MODE must be 'oidc'")
+        if not self.internal_oidc_audience or not self.internal_oidc_service_accounts:
+            problems.append("INTERNAL_OIDC_AUDIENCE and INTERNAL_OIDC_SERVICE_ACCOUNTS are required")
+        if self.code_pepper.get_secret_value() == "local-dev-pepper-change-me":
+            problems.append("CODE_PEPPER must be set from Secret Manager")
+        if self.payment_default_provider == "paystack" and not self.paystack_secret_key:
+            problems.append("PAYSTACK_SECRET_KEY is required")
+        if self.event_bus != "pubsub" or self.task_queue != "cloudtasks":
+            problems.append("EVENT_BUS=pubsub and TASK_QUEUE=cloudtasks are required")
+        if self.seed_demo_data:
+            problems.append("SEED_DEMO_DATA must be false")
+        if self.environment == "production" and not self.app_check_enforced:
+            problems.append("APP_CHECK_ENFORCED must be true in production")
+        if problems:
+            raise RuntimeError("Unsafe configuration: " + "; ".join(problems))
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

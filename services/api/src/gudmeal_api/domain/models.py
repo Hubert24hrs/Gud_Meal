@@ -1,0 +1,458 @@
+"""Domain models shared by services, repositories and the HTTP layer.
+
+Conventions: money fields are integer kobo and end in `_kobo`; datetimes are timezone-aware UTC.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from enum import StrEnum
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from .geo import GeoPoint
+from .hours import OpeningHours
+from .order_state import ActorType, OrderStatus
+
+
+class Model(BaseModel):
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+
+# ----------------------------------------------------------------------------------------------
+# Catalog
+# ----------------------------------------------------------------------------------------------
+
+
+class RestaurantStatus(StrEnum):
+    PENDING = "pending"
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+
+
+class Restaurant(Model):
+    id: str
+    name: str = Field(min_length=2, max_length=80)
+    slug: str = Field(pattern=r"^[a-z0-9-]{2,80}$")
+    description: str = Field(default="", max_length=500)
+    cuisines: list[str] = Field(default_factory=list, max_length=10)
+    tags: list[str] = Field(default_factory=list, max_length=20)
+    image_url: str | None = None
+    cover_url: str | None = None
+    location: GeoPoint
+    geohash: str = ""
+    address: str = Field(max_length=200)
+    area: str = ""
+    zone_id: str = "lagos"
+    rating: float = Field(default=0.0, ge=0, le=5)
+    rating_count: int = Field(default=0, ge=0)
+    price_level: int = Field(default=2, ge=1, le=4)
+    avg_prep_minutes: int = Field(default=20, ge=1, le=180)
+    opening_hours: OpeningHours = Field(default_factory=OpeningHours)
+    is_accepting_orders: bool = True
+    status: RestaurantStatus = RestaurantStatus.ACTIVE
+    commission_bps: int | None = Field(default=None, ge=0, le=5000)
+    delivery_radius_km: float = Field(default=8.0, gt=0, le=40)
+    min_order_kobo: int = Field(default=0, ge=0)
+    supports_delivery: bool = True
+    supports_pickup: bool = True
+    is_featured: bool = False
+    phone: str | None = None
+    owner_uid: str | None = None
+    created_at: datetime | None = None
+
+
+class MenuCategory(Model):
+    id: str
+    name: str = Field(min_length=1, max_length=60)
+    position: int = 0
+
+
+class ItemKind(StrEnum):
+    MAIN = "main"
+    COMBO = "combo"
+    SIDE = "side"
+    SNACK = "snack"
+    DRINK = "drink"
+    DESSERT = "dessert"
+    EXTRA = "extra"
+
+
+class OptionChoice(Model):
+    id: str
+    name: str = Field(min_length=1, max_length=60)
+    price_delta_kobo: int = Field(default=0, ge=0)
+    is_available: bool = True
+
+
+class OptionGroup(Model):
+    id: str
+    restaurant_id: str
+    name: str = Field(min_length=1, max_length=60)
+    min_select: int = Field(default=0, ge=0, le=20)
+    max_select: int = Field(default=1, ge=1, le=20)
+    choices: list[OptionChoice] = Field(min_length=1, max_length=30)
+
+    @model_validator(mode="after")
+    def _bounds(self) -> OptionGroup:
+        if self.min_select > self.max_select:
+            raise ValueError("min_select cannot exceed max_select")
+        return self
+
+
+class MenuItem(Model):
+    id: str
+    restaurant_id: str
+    category_id: str
+    name: str = Field(min_length=1, max_length=80)
+    description: str = Field(default="", max_length=400)
+    price_kobo: int = Field(gt=0, le=100_000_000)
+    image_url: str | None = None
+    kind: ItemKind = ItemKind.MAIN
+    tags: list[str] = Field(default_factory=list, max_length=15)
+    dietary: list[str] = Field(default_factory=list, max_length=10)
+    allergens: list[str] = Field(default_factory=list, max_length=15)
+    serves: int = Field(default=1, ge=1, le=20)
+    spice_level: int = Field(default=0, ge=0, le=3)
+    is_available: bool = True
+    is_active: bool = True
+    popularity: int = Field(default=0, ge=0)
+    option_group_ids: list[str] = Field(default_factory=list, max_length=10)
+    prep_minutes: int | None = Field(default=None, ge=1, le=180)
+    search_keywords: list[str] = Field(default_factory=list)
+    position: int = 0
+
+
+# ----------------------------------------------------------------------------------------------
+# Cart, quotes and orders
+# ----------------------------------------------------------------------------------------------
+
+
+class Fulfillment(StrEnum):
+    DELIVERY = "delivery"
+    PICKUP = "pickup"
+
+
+class OptionSelection(Model):
+    group_id: str
+    choice_ids: list[str] = Field(default_factory=list, max_length=20)
+
+
+class CartLine(Model):
+    item_id: str
+    quantity: int = Field(ge=1, le=50)
+    selections: list[OptionSelection] = Field(default_factory=list, max_length=10)
+    notes: str | None = Field(default=None, max_length=200)
+
+
+class DeliveryAddress(Model):
+    label: str | None = Field(default=None, max_length=40)
+    line1: str = Field(min_length=3, max_length=200)
+    area: str | None = Field(default=None, max_length=80)
+    city: str = Field(default="Lagos", max_length=60)
+    state: str = Field(default="Lagos", max_length=60)
+    location: GeoPoint
+    instructions: str | None = Field(default=None, max_length=300)
+    contact_phone: str | None = Field(default=None, max_length=20)
+
+
+class QuoteRequest(Model):
+    restaurant_id: str
+    lines: list[CartLine] = Field(min_length=1, max_length=50)
+    fulfillment: Fulfillment = Fulfillment.DELIVERY
+    delivery_address: DeliveryAddress | None = None
+    scheduled_for: datetime | None = None
+    voucher_code: str | None = Field(default=None, max_length=40)
+
+    @model_validator(mode="after")
+    def _address_required(self) -> QuoteRequest:
+        if self.fulfillment == Fulfillment.DELIVERY and self.delivery_address is None:
+            raise ValueError("delivery_address is required for delivery orders")
+        return self
+
+
+class PricedLine(Model):
+    item_id: str
+    name: str
+    kind: ItemKind = ItemKind.MAIN
+    quantity: int
+    unit_price_kobo: int
+    options_unit_price_kobo: int = 0
+    line_total_kobo: int
+    selections: list[OptionSelection] = Field(default_factory=list)
+    selection_labels: list[str] = Field(default_factory=list)
+    notes: str | None = None
+
+
+class PriceBreakdown(Model):
+    subtotal_kobo: int
+    delivery_fee_kobo: int = 0
+    service_fee_kobo: int = 0
+    small_order_fee_kobo: int = 0
+    vat_kobo: int = 0
+    discount_kobo: int = 0
+    total_kobo: int
+    discount_funded_by: Literal["platform", "restaurant"] | None = None
+    voucher_code: str | None = None
+
+
+class SettlementTerms(Model):
+    """Internal money split, frozen at quote time. Never shown to customers."""
+
+    commission_bps: int
+    commission_kobo: int
+    rider_pay_kobo: int = 0
+    restaurant_funded_discount_kobo: int = 0
+    platform_funded_discount_kobo: int = 0
+    restaurant_earning_kobo: int
+
+
+class Quote(Model):
+    id: str
+    customer_id: str
+    restaurant_id: str
+    restaurant_name: str
+    lines: list[PricedLine]
+    breakdown: PriceBreakdown
+    settlement: SettlementTerms
+    fulfillment: Fulfillment
+    delivery_address: DeliveryAddress | None = None
+    distance_km: float | None = None
+    eta_minutes: int
+    estimated_delivery_at: datetime
+    scheduled_for: datetime | None = None
+    pricing_version: int
+    menu_fingerprint: str
+    created_at: datetime
+    expires_at: datetime
+    order_id: str | None = None  # set once an order has been created from the quote
+
+
+class PaymentSummary(Model):
+    provider: str | None = None
+    reference: str | None = None
+    status: Literal["unpaid", "pending", "paid", "failed", "refunded", "partially_refunded"] = "unpaid"
+    paid_at: datetime | None = None
+
+
+class Order(Model):
+    id: str
+    short_code: str
+    customer_id: str
+    customer_name: str | None = None
+    customer_phone: str | None = None
+    restaurant_id: str
+    restaurant_name: str
+    restaurant_location: GeoPoint
+    restaurant_address: str = ""
+    status: OrderStatus
+    fulfillment: Fulfillment
+    lines: list[PricedLine]
+    breakdown: PriceBreakdown
+    settlement: SettlementTerms
+    delivery_address: DeliveryAddress | None = None
+    distance_km: float | None = None
+    scheduled_for: datetime | None = None
+    quote_id: str
+    payment: PaymentSummary = Field(default_factory=PaymentSummary)
+    rider_id: str | None = None
+    rider_name: str | None = None
+    assignment_id: str | None = None
+    dispatch_attempts: int = 0
+    prep_minutes: int | None = None
+    estimated_delivery_at: datetime | None = None
+    accepted_at: datetime | None = None
+    ready_at: datetime | None = None
+    picked_up_at: datetime | None = None
+    delivered_at: datetime | None = None
+    completed_at: datetime | None = None
+    cancelled_at: datetime | None = None
+    cancellation_reason: str | None = None
+    refund_total_kobo: int = 0
+    settled_at: datetime | None = None
+    reviewed: bool = False
+    channel: Literal["app", "web", "ai_agent", "admin"] = "app"
+    created_at: datetime
+    updated_at: datetime
+    version: int = 0
+
+
+class OrderEvent(Model):
+    id: str
+    order_id: str
+    from_status: OrderStatus | None
+    to_status: OrderStatus
+    actor_type: ActorType
+    actor_id: str
+    reason: str | None = None
+    at: datetime
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+# ----------------------------------------------------------------------------------------------
+# Riders & dispatch
+# ----------------------------------------------------------------------------------------------
+
+
+class VehicleType(StrEnum):
+    BICYCLE = "bicycle"
+    MOTORCYCLE = "motorcycle"
+    CAR = "car"
+
+
+class RiderStatus(StrEnum):
+    PENDING = "pending"
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+
+
+class RiderProfile(Model):
+    uid: str
+    name: str
+    phone: str | None = None
+    vehicle: VehicleType = VehicleType.MOTORCYCLE
+    plate_number: str | None = None
+    status: RiderStatus = RiderStatus.PENDING
+    is_online: bool = False
+    rating: float = Field(default=5.0, ge=0, le=5)
+    rating_count: int = 0
+    acceptance_rate: float = Field(default=1.0, ge=0, le=1)
+    offers_received: int = 0
+    offers_accepted: int = 0
+    active_order_ids: list[str] = Field(default_factory=list)
+    completed_deliveries: int = 0
+    zone_id: str = "lagos"
+    last_location: GeoPoint | None = None
+    last_location_at: datetime | None = None
+    geohash: str | None = None
+    created_at: datetime | None = None
+
+
+class AssignmentStatus(StrEnum):
+    OFFERED = "offered"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+    EXPIRED = "expired"
+    CANCELLED = "cancelled"
+    COMPLETED = "completed"
+
+
+class DeliveryAssignment(Model):
+    id: str
+    order_id: str
+    rider_id: str
+    status: AssignmentStatus
+    attempt: int
+    score: float
+    distance_to_restaurant_km: float
+    restaurant_name: str
+    pickup: GeoPoint
+    dropoff: GeoPoint | None
+    dropoff_area: str | None = None
+    payout_kobo: int
+    offered_at: datetime
+    expires_at: datetime
+    responded_at: datetime | None = None
+    decline_reason: str | None = None
+
+
+# ----------------------------------------------------------------------------------------------
+# Customers, engagement, support
+# ----------------------------------------------------------------------------------------------
+
+
+class CustomerProfile(Model):
+    uid: str
+    display_name: str | None = Field(default=None, max_length=80)
+    phone: str | None = None
+    email: str | None = None
+    dietary: list[str] = Field(default_factory=list, max_length=10)
+    allergens: list[str] = Field(default_factory=list, max_length=15)
+    favourite_cuisines: list[str] = Field(default_factory=list, max_length=15)
+    favourite_restaurant_ids: list[str] = Field(default_factory=list, max_length=100)
+    personalisation_consent: bool = True
+    marketing_consent: bool = False
+    loyalty_points: int = 0
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class SavedAddress(DeliveryAddress):
+    id: str
+
+
+class Voucher(Model):
+    code: str = Field(pattern=r"^[A-Z0-9_-]{3,40}$")
+    description: str = ""
+    kind: Literal["percent", "fixed"]
+    value: int = Field(gt=0)  # bps for percent, kobo for fixed
+    max_discount_kobo: int | None = Field(default=None, gt=0)
+    target: Literal["subtotal", "delivery_fee"] = "subtotal"
+    min_subtotal_kobo: int = Field(default=0, ge=0)
+    funded_by: Literal["platform", "restaurant"] = "platform"
+    restaurant_id: str | None = None
+    starts_at: datetime | None = None
+    ends_at: datetime | None = None
+    usage_limit: int | None = Field(default=None, gt=0)
+    per_customer_limit: int = Field(default=1, gt=0)
+    used_count: int = 0
+    is_active: bool = True
+
+
+class Review(Model):
+    id: str
+    order_id: str
+    restaurant_id: str
+    customer_id: str
+    rider_id: str | None = None
+    food_rating: int = Field(ge=1, le=5)
+    delivery_rating: int | None = Field(default=None, ge=1, le=5)
+    comment: str | None = Field(default=None, max_length=1000)
+    created_at: datetime
+
+
+TicketCategory = Literal[
+    "missing_item", "wrong_order", "late_delivery", "payment", "quality", "rider", "account", "other"
+]
+
+
+class SupportTicket(Model):
+    id: str
+    opened_by: str
+    order_id: str | None = None
+    category: TicketCategory
+    description: str = Field(max_length=2000)
+    missing_item_ids: list[str] = Field(default_factory=list)
+    status: Literal["open", "in_progress", "escalated", "resolved", "closed"] = "open"
+    priority: Literal["low", "normal", "high", "urgent"] = "normal"
+    channel: Literal["app", "web", "ai_agent", "phone"] = "app"
+    assigned_to: str | None = None
+    resolution: str | None = None
+    refund_id: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class Application(Model):
+    id: str
+    type: Literal["restaurant", "rider"]
+    applicant_uid: str
+    status: Literal["submitted", "in_review", "approved", "rejected"] = "submitted"
+    data: dict[str, Any] = Field(default_factory=dict)
+    document_paths: list[str] = Field(default_factory=list, max_length=20)
+    submitted_at: datetime
+    decided_at: datetime | None = None
+    decided_by: str | None = None
+    decision_reason: str | None = None
+    created_entity_id: str | None = None
+
+
+class Notification(Model):
+    id: str
+    recipient_uid: str
+    title: str
+    body: str
+    data: dict[str, str] = Field(default_factory=dict)
+    created_at: datetime
+    read_at: datetime | None = None

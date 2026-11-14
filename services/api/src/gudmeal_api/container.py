@@ -1,0 +1,328 @@
+"""Composition root: builds every adapter and service from Settings and wires events and tasks."""
+
+from __future__ import annotations
+
+import logging
+import secrets
+from dataclasses import dataclass, field
+from typing import Any
+
+import httpx
+
+from .config import Settings
+from .ledger.audit import AuditLog
+from .ledger.db import Database
+from .ledger.idempotency import IdempotencyService
+from .ledger.ledger import LedgerService
+from .ledger.outbox import OutboxRelay
+from .payments.base import PaymentProvider
+from .payments.flutterwave import FlutterwaveProvider
+from .payments.paystack import PaystackProvider
+from .payments.sandbox import LocalSandboxProvider
+from .repositories import DocumentStore, MemoryDocumentStore, Repositories
+from .security.auth import AppCheckVerifier, TokenVerifier
+from .security.rate_limit import RateLimiter
+from .services import dispatch as dispatch_mod
+from .services import orders as orders_mod
+from .services.admin import AdminService, AnalyticsService
+from .services.catalog import CatalogService
+from .services.dispatch import DispatchService
+from .services.engagement import (
+    ApplicationService,
+    MealPlanService,
+    ProfileService,
+    ReviewService,
+    SupportService,
+)
+from .services.infra import (
+    CloudTasksQueue,
+    Emitter,
+    EventBus,
+    EventHandlers,
+    IdentityAdmin,
+    InProcessEventBus,
+    InProcessTaskQueue,
+    Notifier,
+    PubSubEventBus,
+    TaskQueue,
+    TaskRouter,
+)
+from .services.orders import OrderService
+from .services.payments import PaymentService
+from .services.quotes import QuoteService
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class Container:
+    settings: Settings
+    repos: Repositories
+    db: Database
+    ledger: LedgerService
+    audit: AuditLog
+    idempotency: IdempotencyService
+    handlers: EventHandlers
+    bus: EventBus
+    relay: OutboxRelay
+    emitter: Emitter
+    task_router: TaskRouter
+    tasks: TaskQueue
+    notifier: Notifier
+    identity: IdentityAdmin
+    verifier: TokenVerifier
+    app_check: AppCheckVerifier | None
+    rate_limiter: RateLimiter
+    providers: dict[str, PaymentProvider]
+    http: httpx.AsyncClient
+    catalog: CatalogService
+    quotes: QuoteService
+    payments: PaymentService
+    orders: OrderService
+    dispatch: DispatchService
+    profiles: ProfileService
+    applications: ApplicationService
+    reviews: ReviewService
+    support: SupportService
+    meal_plans: MealPlanService
+    analytics: AnalyticsService
+    admin: AdminService
+    sandbox: LocalSandboxProvider | None = None
+    extras: dict[str, Any] = field(default_factory=dict)
+
+    async def close(self) -> None:
+        await self.http.aclose()
+        await self.db.dispose()
+
+
+def _payment_providers(
+    settings: Settings, http: httpx.AsyncClient
+) -> tuple[dict[str, PaymentProvider], LocalSandboxProvider | None]:
+    providers: dict[str, PaymentProvider] = {}
+    if settings.paystack_secret_key:
+        providers["paystack"] = PaystackProvider(
+            settings.paystack_secret_key.get_secret_value(),
+            http=http,
+            base_url=settings.paystack_base_url,
+            ip_allowlist=settings.paystack_webhook_ip_allowlist,
+        )
+    if settings.flutterwave_secret_key and settings.flutterwave_secret_hash:
+        providers["flutterwave"] = FlutterwaveProvider(
+            settings.flutterwave_secret_key.get_secret_value(),
+            settings.flutterwave_secret_hash.get_secret_value(),
+            http=http,
+            base_url=settings.flutterwave_base_url,
+        )
+    sandbox = None
+    if settings.environment in ("local", "test"):
+        sandbox = LocalSandboxProvider(
+            public_base_url=settings.public_base_url, signing_secret=secrets.token_hex(32)
+        )
+        providers[sandbox.name] = sandbox
+    return providers, sandbox
+
+
+async def build_container(
+    settings: Settings,
+    *,
+    store: DocumentStore | None = None,
+    db: Database | None = None,
+    verifier: TokenVerifier | None = None,
+    app_check: AppCheckVerifier | None = None,
+    identity: IdentityAdmin | None = None,
+    http: httpx.AsyncClient | None = None,
+    task_queue: Any = None,
+    extra_providers: dict[str, PaymentProvider] | None = None,
+) -> Container:
+    settings.validate_for_environment()
+
+    # --- data ----------------------------------------------------------------------------------
+    if store is None:
+        if settings.data_backend == "firestore":
+            from .repositories.firestore_store import FirestoreDocumentStore
+
+            store = FirestoreDocumentStore.from_project(settings.gcp_project_id)
+        else:
+            store = MemoryDocumentStore()
+    repos = Repositories(store)
+    if db is None:
+        db = Database(settings.database_url, echo=settings.database_echo)
+        if settings.environment in ("local", "test") and db.dialect == "sqlite":
+            await db.create_all()
+
+    # --- identity --------------------------------------------------------------------------------
+    firebase_app = None
+    if verifier is None or identity is None or (settings.app_check_enforced and app_check is None):
+        from .security.auth import get_firebase_app
+
+        firebase_app = get_firebase_app(settings.firebase_project_id)
+    if verifier is None:
+        from .security.auth import FirebaseTokenVerifier
+
+        verifier = FirebaseTokenVerifier(firebase_app, check_revoked=settings.check_token_revocation)
+    if identity is None:
+        from .services.infra import FirebaseIdentityAdmin
+
+        identity = FirebaseIdentityAdmin(firebase_app)
+    if settings.app_check_enforced and app_check is None:
+        from .security.auth import FirebaseAppCheckVerifier
+
+        app_check = FirebaseAppCheckVerifier(firebase_app)
+
+    # --- async infrastructure ---------------------------------------------------------------------
+    handlers = EventHandlers()
+    bus: EventBus = (
+        PubSubEventBus(settings.gcp_project_id, settings.pubsub_topic)
+        if settings.event_bus == "pubsub"
+        else InProcessEventBus(handlers)
+    )
+    task_router = TaskRouter()
+    if task_queue is not None:
+        tasks = task_queue(task_router) if callable(task_queue) else task_queue
+    elif settings.task_queue == "cloudtasks":
+        if not settings.cloud_tasks_service_account or not settings.internal_oidc_audience:
+            raise RuntimeError("Cloud Tasks requires CLOUD_TASKS_SERVICE_ACCOUNT and INTERNAL_OIDC_AUDIENCE")
+        tasks = CloudTasksQueue(
+            project_id=settings.gcp_project_id,
+            location=settings.cloud_tasks_location,
+            queue=settings.cloud_tasks_queue,
+            base_url=settings.public_base_url,
+            service_account=settings.cloud_tasks_service_account,
+            audience=settings.internal_oidc_audience,
+        )
+    else:
+        tasks = InProcessTaskQueue(task_router)
+
+    http = http or httpx.AsyncClient(timeout=settings.payment_http_timeout_seconds)
+    providers, sandbox = _payment_providers(settings, http)
+    providers.update(extra_providers or {})
+    default_provider = settings.payment_default_provider
+    if default_provider not in providers and sandbox is not None:
+        default_provider = sandbox.name
+
+    ledger = LedgerService()
+    audit = AuditLog(db)
+    relay = OutboxRelay(db, bus)
+    emitter = Emitter(bus)
+    notifier = Notifier(repos, use_fcm=settings.notifier == "fcm")
+
+    # --- services ----------------------------------------------------------------------------------
+    catalog = CatalogService(repos)
+    quotes = QuoteService(repos, ttl_seconds=settings.quote_ttl_seconds)
+    payments = PaymentService(
+        db=db,
+        ledger=ledger,
+        audit=audit,
+        relay=relay,
+        repos=repos,
+        providers=providers,
+        default_provider=default_provider,
+        callback_url=settings.payment_callback_url,
+        email_fallback_domain=settings.customer_email_fallback_domain,
+        refund_auto_approve_limit_kobo=settings.refund_auto_approve_limit_kobo,
+    )
+    orders = OrderService(
+        repos,
+        quotes,
+        emitter=emitter,
+        notifier=notifier,
+        tasks=tasks,
+        payments=payments,
+        restaurant_accept_timeout_seconds=settings.restaurant_accept_timeout_seconds,
+        unpaid_order_ttl_seconds=settings.unpaid_order_ttl_seconds,
+        code_max_attempts=settings.delivery_code_max_attempts,
+    )
+    dispatch = DispatchService(
+        repos,
+        orders,
+        tasks=tasks,
+        notifier=notifier,
+        emitter=emitter,
+        offer_timeout_seconds=settings.dispatch_offer_timeout_seconds,
+    )
+    analytics = AnalyticsService(repos)
+    container = Container(
+        settings=settings,
+        repos=repos,
+        db=db,
+        ledger=ledger,
+        audit=audit,
+        idempotency=IdempotencyService(db),
+        handlers=handlers,
+        bus=bus,
+        relay=relay,
+        emitter=emitter,
+        task_router=task_router,
+        tasks=tasks,
+        notifier=notifier,
+        identity=identity,
+        verifier=verifier,
+        app_check=app_check,
+        rate_limiter=RateLimiter(),
+        providers=providers,
+        http=http,
+        catalog=catalog,
+        quotes=quotes,
+        payments=payments,
+        orders=orders,
+        dispatch=dispatch,
+        profiles=ProfileService(repos),
+        applications=ApplicationService(repos, identity, audit, notifier),
+        reviews=ReviewService(repos, orders),
+        support=SupportService(repos, orders, audit),
+        meal_plans=MealPlanService(repos),
+        analytics=analytics,
+        admin=AdminService(
+            repos=repos, db=db, ledger=ledger, audit=audit, identity=identity, analytics=analytics
+        ),
+        sandbox=sandbox,
+    )
+    register_handlers(container)
+    return container
+
+
+def register_handlers(c: Container) -> None:
+    async def refund_from_event(payload: dict[str, Any]) -> None:
+        meta = payload.get("metadata") or payload
+        amount = meta.get("refund_amount_kobo")
+        if not amount:
+            return
+        key = payload.get("event_id") or payload.get("payment_id")
+        await c.payments.create_refund(
+            order_id=str(payload["order_id"]),
+            amount_kobo=int(amount),
+            reason=str(meta.get("reason") or payload.get("reason") or "Order refund"),
+            liability=meta.get("refund_liability", "platform"),
+            stage=meta.get("refund_stage", "before_completion"),
+            requested_by="system",
+            idempotency_key=f"order:{payload['order_id']}:refund:{key}",
+            auto_approve=bool(meta.get("refund_auto_approve")),
+        )
+
+    async def dispatch_start(payload: dict[str, Any]) -> None:
+        if payload.get("fulfillment") == "delivery":
+            await c.dispatch.start(str(payload["order_id"]))
+
+    async def settle(payload: dict[str, Any]) -> None:
+        order = await c.repos.orders.get(str(payload["order_id"]))
+        if order is not None and order.settled_at is None:
+            await c.payments.settle_completed_order(order)
+
+    h = c.handlers
+    h.on("payment.succeeded", c.orders.on_payment_succeeded)
+    h.on("payment.orphaned", refund_from_event)
+    h.on("order.refund_pending", refund_from_event)
+    h.on("refund.succeeded", c.orders.on_refund_succeeded)
+    h.on("refund.rejected", c.orders.on_refund_rejected)
+    h.on("order.restaurant_accepted", dispatch_start)
+    h.on("order.preparing", dispatch_start)
+    h.on("order.ready_for_pickup", dispatch_start)
+    h.on("order.delivered", c.dispatch.on_order_delivered)
+    h.on("order.delivered", c.orders.complete_after_delivery)
+    h.on("order.completed", settle)
+
+    r = c.task_router
+    r.route(orders_mod.TASK_RESTAURANT_TIMEOUT, c.orders.restaurant_timeout)
+    r.route(orders_mod.TASK_UNPAID_EXPIRY, c.orders.expire_unpaid)
+    r.route(dispatch_mod.TASK_OFFER_TIMEOUT, c.dispatch.handle_offer_timeout)
+    r.route(dispatch_mod.TASK_DISPATCH_RETRY, c.dispatch.retry)
