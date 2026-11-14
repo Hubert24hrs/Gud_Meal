@@ -1,0 +1,666 @@
+"""Customer-facing tools: discovery, budget meal planning, order drafting, checkout (with approval), tracking."""
+
+from __future__ import annotations
+
+import re
+from datetime import datetime
+from typing import Any, Literal
+from zoneinfo import ZoneInfo
+
+from pydantic import Field
+
+from .registry import ToolArgs, ToolContext, ToolError, ToolOutput, ToolRegistry, ToolSpec
+
+LAGOS = ZoneInfo("Africa/Lagos")
+EVERYONE = frozenset({"customer"})
+
+
+def naira(kobo: int | None) -> str:
+    if kobo is None:
+        return "—"
+    whole, frac = divmod(int(kobo), 100)
+    return f"₦{whole:,}" + (f".{frac:02d}" if frac else "")
+
+
+def lagos_time(iso: str | None) -> str | None:
+    """'2026-11-16T18:35:00Z' → '7:35 PM' (Lagos time); portable across platforms."""
+    if not iso:
+        return None
+    local = datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(LAGOS)
+    return local.strftime("%I:%M %p").lstrip("0")
+
+
+async def delivery_address(ctx: ToolContext) -> dict[str, Any]:
+    """The address used for planning/quotes: request context first, then the first saved address."""
+    if ctx.artifacts.get("delivery_address"):
+        return ctx.artifacts["delivery_address"]
+    addresses = await ctx.api.get("/v1/me/addresses")
+    if not addresses:
+        raise ToolError(
+            "no_address",
+            "No delivery address found. Ask the customer to add one in the app "
+            "(or share their location) before planning or ordering.",
+        )
+    addr = {
+        k: addresses[0].get(k)
+        for k in ("label", "line1", "area", "city", "state", "location", "instructions", "contact_phone")
+    }
+    return addr
+
+
+def parse_deadline(text: str | None, now: datetime) -> datetime | None:
+    """Accepts 'HH:MM' (24h, Lagos time) or ISO-8601. Returns an aware UTC datetime."""
+    if not text:
+        return None
+    text = text.strip()
+    m = re.fullmatch(r"([01]?\d|2[0-3]):([0-5]\d)", text)
+    if m:
+        local_now = now.astimezone(LAGOS)
+        target = local_now.replace(hour=int(m.group(1)), minute=int(m.group(2)), second=0, microsecond=0)
+        if target <= local_now:
+            raise ToolError("deadline_passed", f"{text} has already passed in Lagos today")
+        return target
+    try:
+        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ToolError(
+            "invalid_arguments", "deliver_before must be HH:MM (24h, Lagos time) or ISO-8601"
+        ) from exc
+    return dt if dt.tzinfo else dt.replace(tzinfo=LAGOS)
+
+
+def order_summary(order: dict[str, Any]) -> dict[str, Any]:
+    b = order["breakdown"]
+    return {
+        "order_id": order["id"],
+        "short_code": order["short_code"],
+        "status": order["status"],
+        "status_label": order.get("progress", {}).get("label"),
+        "restaurant": order["restaurant_name"],
+        "items": [
+            f"{ln['quantity']} × {ln['name']}"
+            + (f" ({', '.join(ln['selection_labels'])})" if ln.get("selection_labels") else "")
+            for ln in order["lines"]
+        ],
+        "subtotal": naira(b["subtotal_kobo"]),
+        "delivery_fee": naira(b["delivery_fee_kobo"]),
+        "service_fee": naira(b["service_fee_kobo"] + b["small_order_fee_kobo"]),
+        "vat": naira(b["vat_kobo"]),
+        "discount": naira(b["discount_kobo"]) if b["discount_kobo"] else None,
+        "total": naira(b["total_kobo"]),
+        "total_kobo": b["total_kobo"],
+        "fulfillment": order["fulfillment"],
+        "estimated_arrival": lagos_time(order.get("estimated_delivery_at")),
+        "rider": order.get("rider_name"),
+    }
+
+
+# ------------------------------------------------------------------------------------------------
+# Argument models (no identity or amount fields — the API derives those)
+# ------------------------------------------------------------------------------------------------
+
+
+class SearchRestaurantsArgs(ToolArgs):
+    query: str | None = Field(default=None, max_length=60, description="Dish, cuisine or restaurant name")
+    cuisine: str | None = Field(default=None, max_length=40)
+    open_now: bool = True
+    limit: int = Field(default=5, ge=1, le=10)
+
+
+class SearchFoodArgs(ToolArgs):
+    query: str = Field(
+        min_length=2, max_length=60, description="What the customer wants to eat, e.g. 'jollof'"
+    )
+    limit: int = Field(default=8, ge=1, le=15)
+
+
+class MenuArgs(ToolArgs):
+    restaurant_id: str = Field(min_length=2, max_length=64)
+
+
+class MealPlanArgs(ToolArgs):
+    budget_naira: int = Field(gt=0, le=1_000_000, description="Total budget in naira including all fees")
+    party_size: int = Field(default=1, ge=1, le=10)
+    deliver_before: str | None = Field(
+        default=None, description="Deadline as HH:MM 24h Lagos time, e.g. '20:00'"
+    )
+    dietary: list[str] = Field(
+        default_factory=list, max_length=5, description="e.g. vegetarian, vegan, halal"
+    )
+    exclude_allergens: list[str] = Field(default_factory=list, max_length=10)
+    cuisines: list[str] = Field(default_factory=list, max_length=5)
+    include_drinks: bool = True
+
+
+class ChoiceArg(ToolArgs):
+    group_id: str
+    choice_ids: list[str] = Field(default_factory=list, max_length=10)
+
+
+class ItemArg(ToolArgs):
+    item_id: str
+    quantity: int = Field(default=1, ge=1, le=20)
+    choices: list[ChoiceArg] = Field(default_factory=list, max_length=10)
+    notes: str | None = Field(default=None, max_length=200)
+
+
+class DraftArgs(ToolArgs):
+    plan_ref: str | None = Field(
+        default=None, description="A plan reference such as 'plan-1' from plan_meal_within_budget"
+    )
+    restaurant_id: str | None = None
+    items: list[ItemArg] = Field(default_factory=list, max_length=30)
+    fulfillment: Literal["delivery", "pickup"] = "delivery"
+    voucher_code: str | None = Field(default=None, max_length=40)
+
+
+class OrderIdArgs(ToolArgs):
+    order_id: str = Field(min_length=6, max_length=64)
+
+
+class OptionalOrderArgs(ToolArgs):
+    order_id: str | None = Field(default=None, max_length=64, description="Omit to use the most recent order")
+
+
+class CancelArgs(ToolArgs):
+    order_id: str = Field(min_length=6, max_length=64)
+    reason: str = Field(default="Cancelled via Gud Meal assistant", max_length=300)
+
+
+class ListOrdersArgs(ToolArgs):
+    limit: int = Field(default=5, ge=1, le=20)
+
+
+class NoArgs(ToolArgs):
+    pass
+
+
+class PreferencesArgs(ToolArgs):
+    dietary: list[str] | None = Field(default=None, max_length=10)
+    allergens: list[str] | None = Field(default=None, max_length=15)
+    favourite_cuisines: list[str] | None = Field(default=None, max_length=15)
+
+
+# ------------------------------------------------------------------------------------------------
+# Handlers
+# ------------------------------------------------------------------------------------------------
+
+
+async def search_restaurants(args: SearchRestaurantsArgs, ctx: ToolContext) -> ToolOutput:
+    addr = ctx.artifacts.get("delivery_address")
+    loc = (addr or {}).get("location") or {}
+    cards = await ctx.api.get(
+        "/v1/restaurants",
+        q=args.query,
+        cuisine=args.cuisine,
+        open_now=args.open_now,
+        lat=loc.get("lat"),
+        lng=loc.get("lng"),
+        limit=args.limit,
+    )
+    results = [
+        {
+            "restaurant_id": c["id"],
+            "name": c["name"],
+            "cuisines": c["cuisines"],
+            "rating": c["rating"],
+            "is_open": c["is_open"],
+            "area": c["area"],
+            "eta_minutes": c.get("eta_minutes"),
+            "delivery_fee": naira(c.get("delivery_fee_kobo"))
+            if c.get("delivery_fee_kobo") is not None
+            else None,
+            "delivers_here": c.get("delivers_to_location"),
+        }
+        for c in cards
+    ]
+    return ToolOutput({"restaurants": results}, card={"type": "restaurants", "items": results})
+
+
+async def search_food_items(args: SearchFoodArgs, ctx: ToolContext) -> ToolOutput:
+    found = await ctx.api.get("/v1/search", q=args.query)
+    items = [
+        {
+            "item_id": r["item"]["id"],
+            "name": r["item"]["name"],
+            "price": naira(r["item"]["price_kobo"]),
+            "restaurant_id": r["restaurant_id"],
+            "restaurant": r["restaurant_name"],
+            "available": r["item"]["is_available"],
+            "needs_choices": bool(r["item"]["option_group_ids"]),
+        }
+        for r in found["items"][: args.limit]
+    ]
+    return ToolOutput({"items": items})
+
+
+async def get_restaurant_menu(args: MenuArgs, ctx: ToolContext) -> ToolOutput:
+    d = await ctx.api.get(f"/v1/restaurants/{args.restaurant_id}")
+    groups = d["option_groups"]
+    sections = []
+    for s in d["sections"]:
+        items = []
+        for it in s["items"]:
+            entry: dict[str, Any] = {
+                "item_id": it["id"],
+                "name": it["name"],
+                "price": naira(it["price_kobo"]),
+                "available": it["is_available"],
+                "serves": it["serves"],
+            }
+            if it["option_group_ids"]:
+                entry["choices"] = [
+                    {
+                        "group_id": gid,
+                        "name": groups[gid]["name"],
+                        "min": groups[gid]["min_select"],
+                        "max": groups[gid]["max_select"],
+                        "options": [
+                            {
+                                "choice_id": ch["id"],
+                                "name": ch["name"],
+                                "extra": naira(ch["price_delta_kobo"]),
+                            }
+                            for ch in groups[gid]["choices"]
+                            if ch["is_available"]
+                        ],
+                    }
+                    for gid in it["option_group_ids"]
+                    if gid in groups
+                ]
+            items.append(entry)
+        sections.append({"category": s["category"]["name"], "items": items})
+    r = d["restaurant"]
+    return ToolOutput(
+        {"restaurant_id": r["id"], "name": r["name"], "is_open": r["is_open"], "menu": sections}
+    )
+
+
+async def plan_meal_within_budget(args: MealPlanArgs, ctx: ToolContext) -> ToolOutput:
+    addr = await delivery_address(ctx)
+    deadline = parse_deadline(args.deliver_before, ctx.now)
+    body = {
+        "budget_kobo": args.budget_naira * 100,
+        "party_size": args.party_size,
+        "location": addr["location"],
+        "deliver_by": deadline.isoformat() if deadline else None,
+        "dietary": args.dietary,
+        "exclude_allergens": args.exclude_allergens,
+        "cuisines": args.cuisines,
+        "include_drinks": args.include_drinks,
+        "max_options": 3,
+    }
+    result = await ctx.api.post("/v1/meal-plans", body)
+    plans, stored = [], {}
+    for i, p in enumerate(result["plans"], start=1):
+        ref = f"plan-{i}"
+        stored[ref] = {
+            "restaurant_id": p["restaurant_id"],
+            "cart_lines": p["cart_lines"],
+            "total_kobo": p["breakdown"]["total_kobo"],
+        }
+        plans.append(
+            {
+                "plan_ref": ref,
+                "restaurant": p["restaurant_name"],
+                "rating": p["restaurant_rating"],
+                "items": [f"{ln['quantity']} × {ln['name']}" for ln in p["items"]],
+                "total": naira(p["breakdown"]["total_kobo"]),
+                "delivery_fee": naira(p["breakdown"]["delivery_fee_kobo"]),
+                "left_from_budget": naira(p["budget_remaining_kobo"]),
+                "arrives_around": lagos_time(p["estimated_delivery_at"]),
+                "why": p["rationale"],
+            }
+        )
+    data: dict[str, Any] = {"plans": plans, "delivery_to": addr.get("label") or addr.get("line1")}
+    if not plans:
+        data["notes"] = result.get("notes", [])
+        if result.get("cheapest_total_kobo"):
+            data["cheapest_possible_total"] = naira(result["cheapest_total_kobo"])
+    return ToolOutput(
+        data,
+        card={"type": "meal_plans", "plans": plans},
+        artifacts={"plans": stored, "delivery_address": addr},
+    )
+
+
+async def create_order_draft(args: DraftArgs, ctx: ToolContext) -> ToolOutput:
+    if args.plan_ref:
+        plan = (ctx.artifacts.get("plans") or {}).get(args.plan_ref)
+        if plan is None:
+            raise ToolError(
+                "unknown_plan", f"{args.plan_ref} is not one of the plans shown in this conversation"
+            )
+        restaurant_id, lines = plan["restaurant_id"], plan["cart_lines"]
+    else:
+        if not args.restaurant_id or not args.items:
+            raise ToolError("invalid_arguments", "Provide plan_ref, or restaurant_id with items")
+        restaurant_id = args.restaurant_id
+        lines = [
+            {
+                "item_id": it.item_id,
+                "quantity": it.quantity,
+                "notes": it.notes,
+                "selections": [{"group_id": c.group_id, "choice_ids": c.choice_ids} for c in it.choices],
+            }
+            for it in args.items
+        ]
+    body: dict[str, Any] = {
+        "restaurant_id": restaurant_id,
+        "lines": lines,
+        "fulfillment": args.fulfillment,
+        "voucher_code": args.voucher_code,
+    }
+    addr = None
+    if args.fulfillment == "delivery":
+        addr = await delivery_address(ctx)
+        body["delivery_address"] = addr
+    quote = await ctx.api.post("/v1/quotes", body)
+    order = await ctx.api.post(
+        "/v1/orders",
+        {"quote_id": quote["id"], "channel": "ai_agent"},
+        idempotency_key=ctx.idempotency_key("order"),
+    )
+    summary = order_summary(order)
+    summary["next_step"] = "Show this summary and ask the customer to confirm before calling confirm_order."
+    return ToolOutput(
+        summary,
+        card={"type": "order_draft", "order": summary},
+        artifacts={"last_order_id": order["id"], **({"delivery_address": addr} if addr else {})},
+    )
+
+
+async def preview_confirm(args: OrderIdArgs, ctx: ToolContext) -> dict[str, Any]:
+    order = await ctx.api.get(f"/v1/orders/{args.order_id}")
+    s = order_summary(order)
+    return {
+        "title": f"Place order {s['short_code']} from {s['restaurant']}?",
+        "order": s,
+        "message": f"You'll pay {s['total']} securely on the payment page. Card details are never shared with "
+        "the assistant.",
+    }
+
+
+async def confirm_order(args: OrderIdArgs, ctx: ToolContext) -> ToolOutput:
+    res = await ctx.api.post(
+        f"/v1/orders/{args.order_id}/checkout", {}, idempotency_key=ctx.idempotency_key("checkout")
+    )
+    data = {
+        "order_id": args.order_id,
+        "status": res["status"],
+        "amount": naira(res["amount_kobo"]),
+        "payment_url": res["authorization_url"],
+        "provider": res["provider"],
+        "instruction": "Share the payment link. The order is sent to the restaurant automatically once the "
+        "payment is verified by Gud Meal.",
+    }
+    return ToolOutput(
+        data,
+        card={
+            "type": "payment_link",
+            "url": res["authorization_url"],
+            "amount": naira(res["amount_kobo"]),
+            "order_id": args.order_id,
+        },
+    )
+
+
+async def get_order_status(args: OptionalOrderArgs, ctx: ToolContext) -> ToolOutput:
+    order_id = args.order_id or ctx.artifacts.get("last_order_id")
+    if not order_id:
+        orders = await ctx.api.get("/v1/orders", limit=1)
+        if not orders:
+            return ToolOutput({"message": "No orders yet"})
+        order = orders[0]
+    else:
+        order = await ctx.api.get(f"/v1/orders/{order_id}")
+    s = order_summary(order)
+    return ToolOutput(s, card={"type": "order_status", "order": s})
+
+
+async def list_my_orders(args: ListOrdersArgs, ctx: ToolContext) -> ToolOutput:
+    orders = await ctx.api.get("/v1/orders", limit=args.limit)
+    return ToolOutput(
+        {
+            "orders": [
+                {
+                    "order_id": o["id"],
+                    "short_code": o["short_code"],
+                    "restaurant": o["restaurant_name"],
+                    "status": o["status"],
+                    "total": naira(o["breakdown"]["total_kobo"]),
+                    "placed": o["created_at"][:16].replace("T", " "),
+                }
+                for o in orders
+            ]
+        }
+    )
+
+
+async def reorder(args: OrderIdArgs, ctx: ToolContext) -> ToolOutput:
+    addr = await delivery_address(ctx)
+    quote = await ctx.api.post(f"/v1/orders/{args.order_id}/reorder", {"delivery_address": addr})
+    order = await ctx.api.post(
+        "/v1/orders",
+        {"quote_id": quote["id"], "channel": "ai_agent"},
+        idempotency_key=ctx.idempotency_key("reorder"),
+    )
+    s = order_summary(order)
+    return ToolOutput(s, card={"type": "order_draft", "order": s}, artifacts={"last_order_id": order["id"]})
+
+
+async def preview_cancel(args: CancelArgs, ctx: ToolContext) -> dict[str, Any]:
+    order = await ctx.api.get(f"/v1/orders/{args.order_id}")
+    return {
+        "title": f"Cancel order {order['short_code']} from {order['restaurant_name']}?",
+        "message": "If you have already paid and the restaurant has not accepted yet, you'll get a full refund.",
+        "order": order_summary(order),
+    }
+
+
+async def cancel_order(args: CancelArgs, ctx: ToolContext) -> ToolOutput:
+    order = await ctx.api.post(f"/v1/orders/{args.order_id}/cancel", {"reason": args.reason})
+    return ToolOutput({"order_id": order["id"], "status": order["status"]})
+
+
+async def get_my_preferences(args: NoArgs, ctx: ToolContext) -> ToolOutput:
+    p = await ctx.api.get("/v1/me/profile")
+    return ToolOutput(
+        {
+            "dietary": p["dietary"],
+            "allergens": p["allergens"],
+            "favourite_cuisines": p["favourite_cuisines"],
+            "personalisation_enabled": p["personalisation_consent"],
+        }
+    )
+
+
+async def update_my_preferences(args: PreferencesArgs, ctx: ToolContext) -> ToolOutput:
+    body = args.model_dump(exclude_none=True)
+    if not body:
+        raise ToolError("invalid_arguments", "Nothing to update")
+    p = await ctx.api.patch("/v1/me/profile", body)
+    return ToolOutput(
+        {
+            "saved": True,
+            "dietary": p["dietary"],
+            "allergens": p["allergens"],
+            "favourite_cuisines": p["favourite_cuisines"],
+        }
+    )
+
+
+async def list_saved_addresses(args: NoArgs, ctx: ToolContext) -> ToolOutput:
+    addresses = await ctx.api.get("/v1/me/addresses")
+    return ToolOutput(
+        {
+            "addresses": [
+                {"label": a.get("label"), "line1": a["line1"], "area": a.get("area")} for a in addresses
+            ]
+        }
+    )
+
+
+async def get_delivery_tracking(args: OptionalOrderArgs, ctx: ToolContext) -> ToolOutput:
+    order_id = args.order_id or ctx.artifacts.get("last_order_id")
+    if not order_id:
+        raise ToolError("invalid_arguments", "Which order should I track?")
+    t = await ctx.api.get(f"/v1/orders/{order_id}/tracking")
+    return ToolOutput(
+        {
+            "status": t["status"],
+            "rider": t.get("rider_name"),
+            "eta_minutes": t.get("eta_minutes"),
+            "estimated_arrival": lagos_time(t.get("estimated_delivery_at")),
+            "has_live_location": bool(t.get("rider_location")),
+        }
+    )
+
+
+def register(reg: ToolRegistry) -> None:
+    add = reg.register
+    add(
+        ToolSpec(
+            "search_restaurants",
+            "Find restaurants (open now by default) near the customer's delivery address.",
+            SearchRestaurantsArgs,
+            search_restaurants,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "search_food_items",
+            "Search dishes across restaurants by name or keyword.",
+            SearchFoodArgs,
+            search_food_items,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_restaurant_menu",
+            "Get a restaurant's live menu with item ids, prices and required choices.",
+            MenuArgs,
+            get_restaurant_menu,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "plan_meal_within_budget",
+            "Build complete meal plans that fit a total budget (including all fees) for a party size and an "
+            "optional delivery deadline. Totals are computed by Gud Meal's pricing engine.",
+            MealPlanArgs,
+            plan_meal_within_budget,
+            EVERYONE,
+            rate_per_minute=10,
+            timeout_s=25,
+        )
+    )
+    add(
+        ToolSpec(
+            "create_order_draft",
+            "Create an order draft from a plan_ref or explicit items. Returns the exact price breakdown. "
+            "Does not charge the customer.",
+            DraftArgs,
+            create_order_draft,
+            EVERYONE,
+            mutating=True,
+            rate_per_minute=10,
+        )
+    )
+    add(
+        ToolSpec(
+            "confirm_order",
+            "Confirm a drafted order and create a secure payment link. Requires the "
+            "customer's explicit approval.",
+            OrderIdArgs,
+            confirm_order,
+            EVERYONE,
+            requires_approval=True,
+            preview=preview_confirm,
+            mutating=True,
+            rate_per_minute=6,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_order_status",
+            "Get the live status and ETA of an order (latest order if omitted).",
+            OptionalOrderArgs,
+            get_order_status,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "list_my_orders", "List the customer's recent orders.", ListOrdersArgs, list_my_orders, EVERYONE
+        )
+    )
+    add(
+        ToolSpec(
+            "reorder",
+            "Create a new order draft with the same items as a previous order.",
+            OrderIdArgs,
+            reorder,
+            EVERYONE,
+            mutating=True,
+            rate_per_minute=6,
+        )
+    )
+    add(
+        ToolSpec(
+            "cancel_order",
+            "Cancel an order (only before the restaurant accepts). Requires approval.",
+            CancelArgs,
+            cancel_order,
+            EVERYONE,
+            requires_approval=True,
+            preview=preview_cancel,
+            mutating=True,
+            rate_per_minute=5,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_my_preferences",
+            "Read the customer's dietary preferences and allergies.",
+            NoArgs,
+            get_my_preferences,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "update_my_preferences",
+            "Save dietary preferences, allergies or favourite cuisines the customer "
+            "explicitly asked to save.",
+            PreferencesArgs,
+            update_my_preferences,
+            EVERYONE,
+            mutating=True,
+            rate_per_minute=5,
+        )
+    )
+    add(
+        ToolSpec(
+            "list_saved_addresses",
+            "List the customer's saved delivery addresses.",
+            NoArgs,
+            list_saved_addresses,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_delivery_tracking",
+            "Live delivery tracking (rider, ETA) for an order.",
+            OptionalOrderArgs,
+            get_delivery_tracking,
+            EVERYONE,
+        )
+    )
+
+
+__all__ = ["delivery_address", "lagos_time", "naira", "order_summary", "parse_deadline", "register"]
