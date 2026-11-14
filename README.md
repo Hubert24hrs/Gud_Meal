@@ -56,7 +56,7 @@ Details: [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
 | Agents | `cd services/agents && uv run pytest` | 28 passed (1 live-Gemini test skipped without a key) |
 | Web | `npx vitest run --root packages/api-client` · `--root apps/web` · `npm run build` | 12 passed, 3 builds |
 | Flutter | `flutter test` in `mobile/core`, `mobile/customer`, `mobile/rider` | 23 passed |
-| Firestore/Storage rules | `npm run test:rules` (needs Java 21 for the emulator; runs in CI) | written, CI only |
+| Firestore/Storage rules + Firestore adapter | `npm run test:rules` (needs Java 21 for the emulators) | passed in CI |
 
 ## Key documents
 

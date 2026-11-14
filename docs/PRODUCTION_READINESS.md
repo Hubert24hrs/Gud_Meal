@@ -9,7 +9,7 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 - ✅ Double-entry ledger, DB-enforced append-only + balance trigger (verified on PostgreSQL 16)
 - ✅ Alembic migration verified: upgrade → `alembic check` (no drift) → downgrade → upgrade
 - ✅ Transactional outbox, idempotent event handlers, sweeper job for lost events
-- 🟡 Firestore adapter (contract tests run against the emulator in CI; not run on this machine — no Java)
+- ✅ Firestore adapter (contract tests pass against the Firestore emulator in CI)
 - 🟡 Pub/Sub event bus, Cloud Tasks timers, FCM notifications (code paths exist; need a GCP project)
 - ⬜ Load testing (target: 50 orders/min, p95 < 500 ms on quote/checkout)
 
@@ -23,7 +23,7 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 
 ## Security
 - ✅ Firebase ID token verification (revocation check), RBAC with 10 roles, restaurant/rider data isolation
-- ✅ Deny-by-default Firestore & Storage rules (tests written; run in CI emulator job)
+- ✅ Deny-by-default Firestore & Storage rules (emulator tests pass in CI)
 - ✅ Rate limits, input validation, audit log, security headers, CORS allow-list, internal OIDC auth
 - ✅ AI safety: tool allow-lists per agent and role, approval interrupts, prompt-injection guard, card redaction,
   tokens never checkpointed, thread isolation (tested)

@@ -40,8 +40,10 @@ cloud resources, real payment test-mode, a Gemini key and the items in
 | Agents (routing, permissions, approvals, isolation, injection, redaction, failure recovery, cost, Gemini schema) | **28 passed**, 1 skipped (live Gemini needs a key) |
 | TypeScript (api-client 5, web 7) + 3 Next.js production builds with type-check | **12 passed**, builds OK |
 | Flutter core / customer / rider | **11 / 7 / 5 passed**, analyzer clean |
-| Firestore & Storage rules tests | written; **not run locally** (no Java) — run in CI's emulator job |
-| Docker image builds | **not run locally** (no Docker) — run in CI |
+| Firestore & Storage rules tests (Firebase emulators) | **passed in CI** ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43651031712)); not runnable locally without Java |
+| Firestore DocumentStore contract tests against the emulator | **8 passed in CI** (memory + Firestore backends) |
+| Docker images build + API container smoke test | **passed in CI**; not runnable locally without Docker |
+| Full CI (6 jobs) on GitHub Actions | **all green** on the first push ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43651031712)) |
 
 ## What has been deployed
 
@@ -81,7 +83,7 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 
 ## Outstanding issues
 
-1. Rules tests and Firestore adapter contract tests have only been written, not executed (need Java 21 / CI).
+1. Emulator-based tests run only in CI (this machine has no Java); they pass there.
 2. Real payments (Paystack test mode) and real Gemini calls are unverified.
 3. Restaurant artwork uses branded placeholders until restaurants upload photos; no live map yet.
 4. Order tracking polls the API every 5 s (Firestore listeners are the production upgrade).
