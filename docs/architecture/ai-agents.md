@@ -1,0 +1,77 @@
+# AI Multi-Agent System (`services/agents`)
+
+The AI service is a separately deployed LangGraph application (Cloud Run). It never touches a
+database that holds business data: every action is a **typed tool** that calls `gudmeal-api` with the
+end user's Firebase ID token, so the API re-applies authentication, RBAC, ownership checks, pricing and
+the order state machine. The model can plan; only the backend can act.
+
+## Graph
+
+```mermaid
+flowchart TD
+  START((start)) --> guard["input_guard<br/>size limits · injection heuristics"]
+  guard -->|blocked| respond
+  guard --> router["router<br/>structured RouteDecision<br/>(LLM + deterministic fallback)"]
+  router --> agent["specialist agent<br/>(Customer · Restaurant · Delivery · Payment ·<br/>Support · Growth · Admin · Analytics)"]
+  agent -->|tool calls| tools["tool_executor<br/>validate · authorise · rate-limit ·<br/>idempotency · audit · timeout"]
+  tools -->|needs confirmation| approval{{"interrupt()<br/>human approval"}}
+  approval -->|approved| tools
+  approval -->|declined| agent
+  tools --> agent
+  agent -->|final answer| respond["respond<br/>structured AgentReply"]
+  respond --> END((end))
+```
+
+- **State**: `messages`, `principal` (uid, roles, restaurant ids — injected by the server, never by the model),
+  `active_agent`, `route_reason`, `pending_approval`, `tool_results`, `usage`.
+- **Router**: Gemini with structured output (`RouteDecision`), validated by Pydantic. Falls back to a
+  deterministic role + keyword router if the model errors or returns an agent the user may not use.
+- **Specialist agents**: each has a system prompt and an allow-list of tools; the tool list is further
+  filtered by the principal's roles before it is bound to the model.
+- **Tool executor**: a custom node (not the prebuilt `ToolNode`) so every call goes through the registry
+  pipeline: Pydantic argument validation → role permission → per-user rate limit → approval gate →
+  timeout → API call with idempotency key → audit log → result validation.
+- **Approval**: tools flagged `requires_approval` (e.g. `confirm_order`, `request_refund_review`,
+  admin actions) pause the graph with `interrupt()` and a server-computed summary (e.g. exact quote total).
+  The client resumes with `Command(resume={"approved": bool})`.
+
+## Persistence & memory
+
+| Memory | Mechanism | Isolation |
+|---|---|---|
+| Short-term (thread) | LangGraph checkpointer — `AsyncPostgresSaver` in cloud, SQLite/in-memory locally | `thread_id` is server-generated and bound to the owner's uid in `agent_threads`; every request checks ownership |
+| Long-term (preferences) | `customer_profiles` via API tools (`get_my_preferences`, `update_my_preferences`) | API enforces owner-only access |
+| Summaries | `agent_conversations/{thread}` (title, short summary) | owner-only rules; no payment data is ever stored |
+
+## Model strategy
+
+- Provider: Google Gemini via `langchain-google-genai`; model id from `GEMINI_MODEL`
+  (fallback model from `GEMINI_FALLBACK_MODEL`). Production pins a stable model id verified with
+  `scripts/check_gemini_models.py`.
+- Usage & cost: token usage from each response's `usage_metadata`, priced with env-configured rates,
+  stored per run in `agent_usage` and exposed to the Command Centre.
+- Observability: LangSmith tracing when `LANGSMITH_TRACING=true`; structured logs otherwise.
+- Deterministic fallbacks: the budget meal planner, quotes, totals, ETAs and dispatch scoring are
+  backend algorithms. If Gemini is unavailable the router falls back to rules and the assistant returns
+  a safe message plus deep links into the normal ordering UI.
+
+## Agents and their tools (summary)
+
+| Agent | Who can use it | Example tools |
+|---|---|---|
+| Customer | customers | `search_restaurants`, `search_food_items`, `get_restaurant_menu`, `plan_meal_within_budget`, `create_order_draft`, `confirm_order` (approval), `get_order_status`, `reorder` |
+| Restaurant | restaurant roles | `list_restaurant_orders`, `accept_order` (approval), `set_item_availability`, `get_restaurant_analytics` |
+| Delivery | operations, riders | `get_delivery_tracking`, `get_available_riders` (ops), `request_rider_assignment` (ops, approval) |
+| Payment | customers (own), finance | `get_payment_status`, `verify_payment`, `request_refund_review` (approval) |
+| Support | everyone | `get_order_status`, `create_support_ticket`, `report_order_issue`, `search_help_articles` |
+| Growth | customers, marketing | `get_my_vouchers`, `suggest_promotions` (marketing) |
+| Admin | operations, super admin | `get_admin_overview`, `list_exceptions` |
+| Analytics | restaurant managers, admins | `get_restaurant_analytics`, `get_admin_analytics` |
+
+## Safety rules enforced in code
+
+- The model never sees or produces authoritative amounts: totals are read from API responses.
+- Tools cannot take `user_id`, `customer_id` or `role` arguments; identity comes from the verified token.
+- Prompt-injection heuristics on input and on tool results (tool output is wrapped as data).
+- Approval cannot be bypassed: `confirm_order` without a matching approved interrupt is rejected.
+- Payment card details are never requested, stored or logged; checkout happens on the provider page.

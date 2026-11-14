@@ -1,0 +1,81 @@
+# Order Lifecycle & State Machine
+
+The state machine lives in `services/api/src/gudmeal_api/domain/order_state.py` and is the
+**only** code path allowed to change `orders/{id}.status`. Firestore security rules deny every
+client write to `orders`, and the AI service can only *request* actions through API tools.
+
+## States
+
+`draft`, `pending_payment`, `paid`, `submitted_to_restaurant`, `restaurant_accepted`, `preparing`,
+`ready_for_pickup`, `rider_assigned`, `picked_up`, `in_transit`, `delivered`, `completed`,
+`cancelled`, `refund_pending`, `partially_refunded`, `refunded`, `disputed`.
+
+Terminal: `cancelled`, `refunded`.
+
+```mermaid
+stateDiagram-v2
+  [*] --> draft
+  draft --> pending_payment: checkout (customer)
+  draft --> cancelled
+  pending_payment --> paid: verified payment (system only)
+  pending_payment --> cancelled: customer / payment timeout
+  paid --> submitted_to_restaurant: system
+  paid --> refund_pending
+  submitted_to_restaurant --> restaurant_accepted: restaurant
+  submitted_to_restaurant --> refund_pending: rejected / timeout / customer cancel
+  restaurant_accepted --> preparing
+  restaurant_accepted --> ready_for_pickup
+  restaurant_accepted --> rider_assigned: dispatch
+  preparing --> ready_for_pickup
+  preparing --> rider_assigned: dispatch
+  ready_for_pickup --> rider_assigned: dispatch
+  ready_for_pickup --> completed: pickup order handed over (code)
+  rider_assigned --> picked_up: rider
+  rider_assigned --> preparing: rider unassigned (food not ready)
+  rider_assigned --> ready_for_pickup: rider unassigned (food ready)
+  picked_up --> in_transit
+  picked_up --> delivered: OTP
+  in_transit --> delivered: OTP
+  delivered --> completed: system
+  delivered --> disputed
+  completed --> disputed
+  completed --> refund_pending: support/admin partial refund
+  disputed --> completed: resolved, no refund
+  disputed --> refund_pending
+  refund_pending --> refunded
+  refund_pending --> partially_refunded
+  partially_refunded --> disputed
+  partially_refunded --> refund_pending
+  cancelled --> [*]
+  refunded --> [*]
+```
+
+Several states also allow `→ refund_pending` by an operations admin (manual intervention).
+The exhaustive table — including which actor may perform each transition and its guards — is the
+`TRANSITIONS` table in code and is covered by `tests/unit/test_order_state.py`.
+
+## Actors
+
+| Actor | Source | Notes |
+|---|---|---|
+| `customer` | Firebase user who owns the order | checkout, cancel before acceptance, dispute |
+| `restaurant` | staff with a role on the order's restaurant | accept / reject / preparing / ready / pickup hand-over |
+| `rider` | the rider currently assigned to the order | pickup / in transit / deliver (OTP) |
+| `system` | API internals (payment verifier, dispatch, timers) | never reachable from a client request body |
+| `support` / `operations` / `super_admin` | staff roles | manual intervention — always audited, reason required |
+
+## Guards
+
+- **→ paid** only from the payment service after server-side verification of amount, currency and reference.
+- **→ delivered** requires the customer's 4-digit delivery code; 5 failed attempts lock the code.
+- **ready_for_pickup → completed** requires `fulfillment == "pickup"` and the pickup code.
+- **rider transitions** require `order.rider_id == actor.uid`.
+- **restaurant transitions** require the actor to hold a restaurant role for `order.restaurant_id`.
+- Every transition is a compare-and-set on the current status (Firestore transaction) and appends an
+  `order_events` record with actor, reason and timestamps.
+
+## Readiness vs. assignment
+
+Riders are usually dispatched while food is being prepared. When the rider accepts, the order moves to
+`rider_assigned` even if the kitchen has not finished; the kitchen's "mark ready" action then only records
+`ready_at`. If a rider is unassigned, the system restores `preparing` or `ready_for_pickup` based on `ready_at`.

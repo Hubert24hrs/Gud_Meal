@@ -1,0 +1,78 @@
+# ---------------------------------------------------------------------------
+# Gud Meal — repository is PUBLIC. Never commit secrets.
+# ---------------------------------------------------------------------------
+
+# Secrets & environment
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+*-service-account*.json
+service-account*.json
+*credentials*.json
+!**/credentials.example.json
+*.pem
+*.p12
+*.keystore
+*.jks
+key.properties
+google-services.json
+GoogleService-Info.plist
+firebase_options_*.dart.local
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+playwright-report/
+test-results/
+.npm/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+*.sqlite3
+*.db
+.pgdata/
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+database-debug.log*
+pubsub-debug.log*
+emulator-data/
+
+# Flutter / Dart (per-project .gitignore files add more)
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+**/android/local.properties
+**/ios/Pods/
+**/ios/.symlinks/
+**/*.iml
+
+# Logs
+*.log
+logs/

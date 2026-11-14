@@ -1,0 +1,15 @@
+# Architecture Decision Records
+
+| # | Decision | Status |
+|---|---|---|
+| [0001](0001-monorepo-separate-deployables.md) | Monorepo with separately deployable apps | Accepted |
+| [0002](0002-firestore-plus-postgres.md) | Firestore for real-time data, PostgreSQL for money | Accepted |
+| [0003](0003-langgraph-separate-service.md) | LangGraph as an independent Cloud Run service | Accepted |
+| [0004](0004-order-state-machine-in-backend.md) | Order state machine only in the API | Accepted |
+| [0005](0005-integer-kobo-and-server-quotes.md) | Integer kobo and server-stored quotes | Accepted |
+| [0006](0006-payment-provider-adapter.md) | Payment provider adapter; platform collects then settles | Accepted |
+| [0007](0007-append-only-double-entry-ledger.md) | Append-only double-entry ledger | Accepted |
+| [0008](0008-agent-tool-registry.md) | Typed, permissioned agent tool registry with approval | Accepted |
+| [0009](0009-repository-ports-and-adapters.md) | Repository ports with Firestore and in-memory adapters | Accepted |
+| [0010](0010-events-outbox-pubsub-tasks.md) | Transactional outbox → Pub/Sub; Cloud Tasks for timers | Accepted |
+| [0011](0011-gemini-model-configuration.md) | Gemini model chosen by environment, pinned in production | Accepted |
