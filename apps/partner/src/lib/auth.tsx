@@ -1,0 +1,77 @@
+"use client";
+
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  onIdTokenChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+  type User,
+} from "firebase/auth";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { firebaseAuth } from "./firebase";
+
+interface AuthState {
+  user: User | null;
+  loading: boolean;
+  getToken: () => Promise<string | null>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (name: string, email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthState | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const auth = firebaseAuth();
+    return onIdTokenChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
+  }, []);
+
+  const value = useMemo<AuthState>(() => ({
+    user,
+    loading,
+    getToken: async () => (firebaseAuth().currentUser ? firebaseAuth().currentUser!.getIdToken() : null),
+    signIn: async (email, password) => {
+      await signInWithEmailAndPassword(firebaseAuth(), email, password);
+    },
+    signUp: async (name, email, password) => {
+      const cred = await createUserWithEmailAndPassword(firebaseAuth(), email, password);
+      await updateProfile(cred.user, { displayName: name });
+      await cred.user.getIdToken(true);
+    },
+    signInWithGoogle: async () => {
+      await signInWithPopup(firebaseAuth(), new GoogleAuthProvider());
+    },
+    signOut: () => signOut(firebaseAuth()),
+  }), [user, loading]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthState {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
+}
+
+export function authErrorMessage(err: unknown): string {
+  const code = (err as { code?: string })?.code ?? "";
+  if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found")) {
+    return "That email and password don't match.";
+  }
+  if (code.includes("email-already-in-use")) return "An account with this email already exists.";
+  if (code.includes("weak-password")) return "Use at least 6 characters for your password.";
+  if (code.includes("network-request-failed")) return "Network error — check your connection.";
+  if (code.includes("popup-closed")) return "Sign-in was cancelled.";
+  return "We couldn't sign you in. Please try again.";
+}

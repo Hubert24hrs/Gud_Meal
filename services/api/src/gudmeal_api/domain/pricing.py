@@ -36,6 +36,7 @@ class DeliveryFeeConfig(BaseModel):
     min_kobo: int = Field(default=60_000, ge=0)  # ₦600
     max_kobo: int = Field(default=400_000, ge=0)  # ₦4,000
     road_factor: Decimal = Decimal("1.35")  # straight line → road distance (Lagos average)
+    round_to_kobo: int = Field(default=5_000, ge=1)  # customer-facing fee rounded to ₦50
 
 
 class RiderPayConfig(BaseModel):
@@ -151,11 +152,16 @@ def road_km(distance_km: float, cfg: PricingConfig) -> Decimal:
     return (Decimal(str(round(distance_km, 3))) * cfg.delivery.road_factor).quantize(Decimal("0.001"))
 
 
+def round_to(amount_kobo: int, step_kobo: int) -> int:
+    """Round half-up to a multiple of `step_kobo` (e.g. ₦50)."""
+    return ((amount_kobo + step_kobo // 2) // step_kobo) * step_kobo
+
+
 def delivery_fee(distance_km: float, cfg: PricingConfig, surge_bps: int = 10_000) -> int:
     d = cfg.delivery
     fee = d.base_kobo + multiply_decimal(d.per_km_kobo, road_km(distance_km, cfg))
     fee = clamp(fee, d.min_kobo, d.max_kobo)
-    return apply_bps(fee, surge_bps)
+    return round_to(apply_bps(fee, surge_bps), d.round_to_kobo)
 
 
 def rider_pay(distance_km: float, cfg: PricingConfig) -> int:

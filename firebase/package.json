@@ -1,0 +1,17 @@
+{
+  "name": "@gudmeal/firebase",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Firestore/Storage rules, indexes and their emulator tests",
+  "type": "module",
+  "scripts": {
+    "test:rules": "vitest run --dir tests",
+    "emulators": "firebase emulators:start --project demo-gudmeal",
+    "test:emulated": "firebase emulators:exec --only firestore,storage --project demo-gudmeal-rules \"vitest run --dir tests\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.3.0",
+    "vitest": "^5.1.0"
+  }
+}

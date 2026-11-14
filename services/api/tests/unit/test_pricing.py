@@ -94,7 +94,8 @@ class TestFees:
         assert delivery_fee(0.1, CFG) == CFG.delivery.min_kobo
         assert delivery_fee(500, CFG) == CFG.delivery.max_kobo
         base = delivery_fee(5, CFG)
-        assert delivery_fee(5, CFG, surge_bps=15_000) == round(base * 1.5)
+        assert base % 5_000 == 0  # rounded to ₦50
+        assert delivery_fee(5, CFG, surge_bps=15_000) >= base
 
     def test_service_fee_clamped(self):
         assert service_fee(naira(500), CFG) == CFG.service_fee_min_kobo

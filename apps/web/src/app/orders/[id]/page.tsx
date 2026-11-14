@@ -1,0 +1,167 @@
+"use client";
+
+import { formatDateTime, formatTime, newIdempotencyKey, TRACKING_STEPS, type Order } from "@gudmeal/api-client";
+import { Badge, Button, Card, ErrorState, Price, Skeleton, StatusBadge, Textarea, cn } from "@gudmeal/ui";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Bike, KeyRound, MessageCircleWarning, Star } from "lucide-react";
+import Link from "next/link";
+import { use, useRef, useState } from "react";
+import { RequireAuth } from "@/components/require-auth";
+import { useApi } from "@/lib/api";
+
+const LIVE = new Set(["pending_payment", "paid", "submitted_to_restaurant", "restaurant_accepted", "preparing", "ready_for_pickup", "rider_assigned", "picked_up", "in_transit", "delivered", "refund_pending"]);
+
+export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  return <RequireAuth><OrderDetail id={id} /></RequireAuth>;
+}
+
+function OrderDetail({ id }: { id: string }) {
+  const api = useApi();
+  const qc = useQueryClient();
+  // Polls the API while the order is live; production can switch to a Firestore listener on orders/{id}.
+  const order = useQuery({
+    queryKey: ["order", id], queryFn: () => api.orders.get(id),
+    refetchInterval: (q) => (q.state.data && LIVE.has(q.state.data.status) ? 5000 : false),
+  });
+  const o = order.data;
+  const enRoute = o && ["rider_assigned", "picked_up", "in_transit"].includes(o.status);
+  const codes = useQuery({ queryKey: ["codes", id], queryFn: () => api.orders.codes(id), enabled: Boolean(o && o.payment.status === "paid") });
+  const tracking = useQuery({ queryKey: ["tracking", id], queryFn: () => api.orders.tracking(id), enabled: Boolean(enRoute), refetchInterval: 5000 });
+  const payKey = useRef(newIdempotencyKey("checkout"));
+  const pay = useMutation({ mutationFn: () => api.orders.checkout(id, payKey.current), onSuccess: (r) => window.location.assign(r.authorization_url) });
+  const cancel = useMutation({ mutationFn: () => api.orders.cancel(id, "Cancelled from website"), onSuccess: () => qc.invalidateQueries({ queryKey: ["order", id] }) });
+
+  if (order.isLoading) return <div className="container-page py-10"><Skeleton className="h-72" /></div>;
+  if (order.error || !o) return <div className="container-page py-10"><ErrorState message={(order.error as Error)?.message ?? "Not found"} onRetry={() => order.refetch()} /></div>;
+
+  const step = o.progress.step;
+  const canCancel = ["draft", "pending_payment", "submitted_to_restaurant"].includes(o.status);
+
+  return (
+    <div className="container-page grid max-w-5xl gap-6 py-8 lg:grid-cols-[1fr_340px]">
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted">Order #{o.short_code} · {formatDateTime(o.created_at)}</p>
+            <h1 className="font-display text-3xl">{o.progress.label}</h1>
+          </div>
+          <StatusBadge status={o.status} />
+        </div>
+
+        {step >= 0 && (
+          <Card className="p-5">
+            <ol className="grid grid-cols-5 gap-2" aria-label="Order progress">
+              {TRACKING_STEPS.map((label, i) => (
+                <li key={label} className="space-y-2">
+                  <div className={cn("h-1.5 rounded-full", i < step ? "bg-secondary" : i === step ? "bg-primary" : "bg-border")} />
+                  <p className={cn("text-[11px] sm:text-xs", i <= step ? "font-semibold" : "text-muted")}>{label}</p>
+                </li>
+              ))}
+            </ol>
+            {o.estimated_delivery_at && step < 5 && (
+              <p className="mt-4 text-sm">Estimated {o.fulfillment === "delivery" ? "arrival" : "ready time"}: <strong>{formatTime(o.estimated_delivery_at)}</strong></p>
+            )}
+          </Card>
+        )}
+
+        {o.status === "pending_payment" && (
+          <Card className="flex flex-wrap items-center justify-between gap-3 border-accent bg-accent-soft p-5">
+            <p className="text-sm">Payment hasn&apos;t been completed for this order yet.</p>
+            <Button onClick={() => pay.mutate()} loading={pay.isPending}>Complete payment</Button>
+          </Card>
+        )}
+
+        {enRoute && (
+          <Card className="flex items-center gap-4 p-5">
+            <span className="grid size-12 place-items-center rounded-full bg-secondary-soft text-secondary"><Bike className="size-6" aria-hidden="true" /></span>
+            <div className="text-sm">
+              <p className="font-semibold">{o.rider_name ?? "Your rider"} {o.status === "rider_assigned" ? "is heading to the restaurant" : "is on the way"}</p>
+              <p className="text-muted">
+                {tracking.data?.eta_minutes ? `About ${tracking.data.eta_minutes} min away` : "Live location updates every few seconds"}
+                {tracking.data?.updated_at && ` · updated ${formatTime(tracking.data.updated_at)}`}
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {codes.data && step < 5 && step >= 1 && (
+          <Card className="flex items-center gap-4 border-primary/40 p-5">
+            <KeyRound className="size-6 text-primary" aria-hidden="true" />
+            <div className="text-sm">
+              <p className="font-semibold">{o.fulfillment === "delivery" ? "Delivery code" : "Pickup code"}:{" "}
+                <span className="font-display text-2xl tracking-[0.3em]">{o.fulfillment === "delivery" ? codes.data.delivery_code : codes.data.pickup_code}</span>
+              </p>
+              <p className="text-muted">Share it only when you have your food. Gud Meal will never ask for it by phone.</p>
+            </div>
+          </Card>
+        )}
+
+        {(o.status === "completed" || o.status === "partially_refunded") && <AfterSales order={o} />}
+      </div>
+
+      <aside className="space-y-4">
+        <Card className="space-y-3 p-5">
+          <h2 className="font-semibold">{o.restaurant_name}</h2>
+          <ul className="space-y-2 text-sm">
+            {o.lines.map((ln, i) => (
+              <li key={i} className="flex justify-between gap-2">
+                <span>{ln.quantity} × {ln.name}{ln.selection_labels.length > 0 && <span className="block text-xs text-muted">{ln.selection_labels.join(" · ")}</span>}</span>
+                <Price kobo={ln.line_total_kobo} />
+              </li>
+            ))}
+          </ul>
+          <div className="flex justify-between border-t border-border pt-2 font-bold"><span>Total</span><Price kobo={o.breakdown.total_kobo} /></div>
+          {o.refund_total_kobo > 0 && <Badge tone="warning">Refunded <Price kobo={o.refund_total_kobo} /></Badge>}
+          {o.delivery_address && <p className="text-xs text-muted">Delivering to {o.delivery_address.line1}, {o.delivery_address.area}</p>}
+        </Card>
+        {canCancel && (
+          <Button variant="outline" block onClick={() => cancel.mutate()} loading={cancel.isPending}>Cancel order</Button>
+        )}
+        {cancel.error && <ErrorState message={(cancel.error as Error).message} />}
+        <Link href="/help" className="block text-center text-sm text-muted underline-offset-2 hover:underline">Need help with this order?</Link>
+      </aside>
+    </div>
+  );
+}
+
+function AfterSales({ order }: { order: Order }) {
+  const api = useApi();
+  const qc = useQueryClient();
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [issue, setIssue] = useState("");
+  const review = useMutation({
+    mutationFn: () => api.orders.review(order.id, { food_rating: rating, delivery_rating: order.fulfillment === "delivery" ? rating : undefined, comment: comment || undefined }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["order", order.id] }),
+  });
+  const report = useMutation({ mutationFn: () => api.support.open({ order_id: order.id, category: "missing_item", description: issue }) });
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {!order.reviewed && !review.isSuccess && (
+        <Card className="space-y-3 p-5">
+          <h2 className="font-semibold">How was it?</h2>
+          <div className="flex gap-1" role="radiogroup" aria-label="Rating">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button key={n} role="radio" aria-checked={rating === n} aria-label={`${n} stars`} onClick={() => setRating(n)}>
+                <Star className={cn("size-7", n <= rating ? "fill-accent text-accent" : "text-border")} />
+              </button>
+            ))}
+          </div>
+          <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Tell others what you loved (optional)" maxLength={1000} />
+          <Button onClick={() => review.mutate()} loading={review.isPending}>Submit review</Button>
+          {review.error && <p className="text-sm text-danger">{(review.error as Error).message}</p>}
+        </Card>
+      )}
+      <Card className="space-y-3 p-5">
+        <h2 className="flex items-center gap-2 font-semibold"><MessageCircleWarning className="size-5 text-primary" /> Something missing or wrong?</h2>
+        {report.isSuccess ? <p className="text-sm text-secondary">Thanks — our support team will review this and get back to you.</p> : (
+          <>
+            <Textarea value={issue} onChange={(e) => setIssue(e.target.value)} placeholder="Describe what was missing or wrong" maxLength={2000} />
+            <Button variant="outline" disabled={issue.trim().length < 5} onClick={() => report.mutate()} loading={report.isPending}>Report an issue</Button>
+          </>
+        )}
+      </Card>
+    </div>
+  );
+}

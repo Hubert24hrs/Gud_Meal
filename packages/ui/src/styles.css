@@ -1,0 +1,64 @@
+/* Gud Meal shared theme for Tailwind v4. Apps import: tailwindcss, then this file. */
+@import "@gudmeal/tokens/tokens.css";
+
+@theme inline {
+  --color-primary: var(--gm-primary);
+  --color-primary-strong: var(--gm-primary-strong);
+  --color-primary-soft: var(--gm-primary-soft);
+  --color-on-primary: var(--gm-on-primary);
+  --color-secondary: var(--gm-secondary);
+  --color-secondary-soft: var(--gm-secondary-soft);
+  --color-on-secondary: var(--gm-on-secondary);
+  --color-accent: var(--gm-accent);
+  --color-accent-soft: var(--gm-accent-soft);
+  --color-background: var(--gm-background);
+  --color-surface: var(--gm-surface);
+  --color-surface-muted: var(--gm-surface-muted);
+  --color-border: var(--gm-border);
+  --color-text: var(--gm-text);
+  --color-muted: var(--gm-muted);
+  --color-success: var(--gm-success);
+  --color-warning: var(--gm-warning);
+  --color-danger: var(--gm-danger);
+  --color-info: var(--gm-info);
+  --radius-sm: var(--gm-radius-sm);
+  --radius-md: var(--gm-radius-md);
+  --radius-lg: var(--gm-radius-lg);
+  --radius-xl: var(--gm-radius-xl);
+  --shadow-card: var(--gm-shadow-card);
+  --shadow-raised: var(--gm-shadow-raised);
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--gm-background);
+    color: var(--gm-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--gm-primary);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--gm-primary-soft);
+  }
+}
+
+@keyframes gm-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.gm-skeleton {
+  background: linear-gradient(90deg, var(--gm-surface-muted) 0%, var(--gm-border) 50%, var(--gm-surface-muted) 100%);
+  background-size: 800px 100%;
+  animation: gm-shimmer 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gm-skeleton { animation: none; }
+}

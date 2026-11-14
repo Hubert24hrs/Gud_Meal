@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "demo-gudmeal",
+    "dev": "gud-meal-dev",
+    "staging": "gud-meal-staging",
+    "prod": "gud-meal-prod"
+  }
+}

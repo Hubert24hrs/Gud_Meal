@@ -1,0 +1,28 @@
+{
+  "name": "gud-meal",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Gud Meal — AI-native food delivery for Nigeria (web apps, shared packages, Firebase rules)",
+  "workspaces": [
+    "packages/tokens",
+    "packages/api-client",
+    "packages/ui",
+    "apps/web",
+    "apps/partner",
+    "apps/admin",
+    "firebase"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "tokens": "node packages/tokens/build.mjs",
+    "dev:web": "npm run dev -w @gudmeal/web",
+    "dev:partner": "npm run dev -w @gudmeal/partner",
+    "dev:admin": "npm run dev -w @gudmeal/admin",
+    "build": "npm run build -w @gudmeal/web -w @gudmeal/partner -w @gudmeal/admin",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:rules": "npm run test:emulated -w @gudmeal/firebase"
+  }
+}
