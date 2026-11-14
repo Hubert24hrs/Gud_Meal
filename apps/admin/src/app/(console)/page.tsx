@@ -1,6 +1,6 @@
 "use client";
 
-import { formatNaira, ORDER_STATUS, type OrderStatus } from "@gudmeal/api-client";
+import { formatDayLabel, formatNaira, ORDER_STATUS, type OrderStatus } from "@gudmeal/api-client";
 import { Badge, BarChart, Card, ErrorState, Skeleton, Stat, StatusBadge } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -30,7 +30,7 @@ export default function Overview() {
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <Card className="p-5">
           <h2 className="mb-4 font-semibold">Completed orders · last 14 days</h2>
-          {a.data ? <BarChart label="Completed orders per day" data={a.data.series.map((s) => ({ label: s.date.slice(5), value: s.orders }))} />
+          {a.data ? <BarChart label="Completed orders per day" data={a.data.series.map((s) => ({ label: formatDayLabel(s.date), value: s.orders }))} />
             : <Skeleton className="h-40" />}
           {a.data && <p className="mt-3 text-xs text-muted">Forecast next 7 days: <strong>{a.data.forecast_next_7_days_orders}</strong> orders</p>}
         </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { formatNaira } from "@gudmeal/api-client";
+import { formatDayLabel, formatNaira } from "@gudmeal/api-client";
 import { BarChart, Card, ErrorState, Select, Skeleton, Stat } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
 import { use, useState } from "react";
@@ -35,7 +35,7 @@ export default function InsightsPage({ params }: { params: Promise<{ rid: string
           </div>
           <Card className="p-5">
             <h3 className="mb-4 font-semibold">Daily sales</h3>
-            <BarChart label="Daily gross sales" data={a.data.series.map((s) => ({ label: s.date.slice(5), value: s.gross_kobo }))} format={formatNaira} />
+            <BarChart label="Daily gross sales" data={a.data.series.map((s) => ({ label: formatDayLabel(s.date), value: s.gross_kobo }))} format={formatNaira} />
           </Card>
           <Card className="p-5">
             <h3 className="mb-3 font-semibold">Top items</h3>

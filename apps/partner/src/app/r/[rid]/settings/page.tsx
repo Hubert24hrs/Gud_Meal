@@ -51,7 +51,7 @@ export default function SettingsPage({ params }: { params: Promise<{ rid: string
         {hours.map((h, i) => (
           <div key={DAYS[i]} className="flex flex-wrap items-center gap-3 text-sm">
             <span className="w-28 font-medium">{DAYS[i]}</span>
-            <Toggle checked={!h.closed} label={h.closed ? "Closed" : "Open"} onChange={(v) => setHours((all) => all.map((x, j) => (j === i ? { ...x, closed: !v } : x)))} />
+            <Toggle checked={!h.closed} label={h.closed ? "Closed" : "Open"} ariaLabel={`${DAYS[i]}: ${h.closed ? "Closed" : "Open"}`} onChange={(v) => setHours((all) => all.map((x, j) => (j === i ? { ...x, closed: !v } : x)))} />
             {!h.closed && (
               <>
                 <Input type="time" value={h.open} aria-label={`${DAYS[i]} opening time`} className="h-9 w-32"

@@ -39,7 +39,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(
-        "inline-flex items-center justify-center rounded-full font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-full font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
         variants[variant], sizes[size], block && "w-full", className,
       )}
       {...rest}
@@ -151,12 +151,16 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
   return <select ref={ref} className={cn(inputBase, "h-11", className)} {...rest} />;
 });
 
-export function Toggle({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
+/**
+ * Switch with a visible label. Pass `ariaLabel` when several switches share the same visible text
+ * (e.g. "Open" per weekday) so screen-reader users can tell them apart; keep the visible text inside it.
+ */
+export function Toggle({ checked, onChange, label, disabled, ariaLabel }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean; ariaLabel?: string }) {
   const id = useId();
   return (
     <label htmlFor={id} className={cn("inline-flex cursor-pointer items-center gap-2 text-sm", disabled && "cursor-not-allowed opacity-60")}>
       <span className="relative inline-flex">
-        <input id={id} type="checkbox" role="switch" className="peer sr-only" checked={checked} disabled={disabled}
+        <input id={id} type="checkbox" role="switch" aria-label={ariaLabel} className="peer sr-only" checked={checked} disabled={disabled}
           onChange={(e) => onChange(e.target.checked)} />
         <span className="h-6 w-11 rounded-full bg-border transition-colors peer-checked:bg-secondary" />
         <span className="absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />

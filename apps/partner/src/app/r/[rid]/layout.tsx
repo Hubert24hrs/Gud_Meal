@@ -33,8 +33,10 @@ function Shell({ rid, children }: { rid: string; children: ReactNode }) {
   const r = menu.data?.restaurant;
 
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[240px_1fr]">
-      <aside className="border-b border-border bg-surface lg:border-b-0 lg:border-r">
+    // Mobile: header row sized to content (auto) so short pages don't stretch it; min-w-0 lets the nav scroll
+    // instead of widening the page.
+    <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] lg:grid-cols-[240px_1fr] lg:grid-rows-1">
+      <aside className="min-w-0 border-b border-border bg-surface lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between p-4 lg:block lg:space-y-4">
           <Logo />
           <p className="hidden text-xs font-semibold uppercase tracking-wide text-secondary lg:block">Partner</p>

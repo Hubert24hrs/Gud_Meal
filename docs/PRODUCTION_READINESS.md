@@ -39,9 +39,12 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 - ⬜ LangSmith tracing in staging
 
 ## Apps
-- ✅ Customer web, partner dashboard, command centre: production builds + type checks; customer flow and admin
-  finance verified manually in a browser against the local stack
+- ✅ Customer web, partner dashboard, command centre: production builds + type checks; customer flow, partner
+  dashboard (order board incl. reject/refund and pickup handover, menu editor, hours, insights, pause) and admin
+  finance verified manually in a browser against the local stack; partner and command centre layouts checked at
+  phone, tablet and desktop widths
 - ✅ Flutter customer & rider apps: analyze clean, widget/unit tests; customer web build verified against the API
+  (the rider app has not been run on a device yet)
 - 👤 Firebase app registration (`flutterfire configure` or dart-defines), Android signing keystore, iOS signing
 - ⬜ Real food photography (restaurant uploads), Google Maps live map on tracking screens, push notification
   handling in the apps, offline caching in the apps

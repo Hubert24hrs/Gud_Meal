@@ -11,12 +11,12 @@ import { z } from "zod";
 import { useApi } from "@/lib/api";
 
 const itemSchema = z.object({
-  name: z.string().min(1).max(80),
-  description: z.string().max(400),
-  price_naira: z.coerce.number().positive("Enter a price").max(1_000_000),
-  category_id: z.string().min(1),
+  name: z.string().trim().min(2, "Enter the dish name").max(80, "Keep the name under 80 characters"),
+  description: z.string().max(400, "Keep the description under 400 characters"),
+  price_naira: z.coerce.number().positive("Enter a price").max(1_000_000, "That price looks too high"),
+  category_id: z.string().min(1, "Choose a category"),
   kind: z.enum(["main", "combo", "side", "snack", "drink", "dessert", "extra"]),
-  serves: z.coerce.number().int().min(1).max(20),
+  serves: z.coerce.number().int("Use a whole number").min(1, "At least 1 person").max(20, "At most 20 people"),
   tags: z.string(),
   allergens: z.string(),
 });
@@ -58,6 +58,7 @@ export default function MenuPage({ params }: { params: Promise<{ rid: string }> 
                     <p className="text-sm text-muted">{formatNaira(item.price_kobo)}{item.serves > 1 ? ` · serves ${item.serves}` : ""}</p>
                   </div>
                   <Toggle checked={item.is_available} label={item.is_available ? "Available" : "Sold out"}
+                    ariaLabel={`${item.name}: ${item.is_available ? "Available" : "Sold out"}`}
                     onChange={(v) => availability.mutate({ id: item.id, available: v })} />
                   <Button variant="ghost" size="sm" onClick={() => setEditing(item)} aria-label={`Edit ${item.name}`}><Pencil className="size-4" /></Button>
                 </div>

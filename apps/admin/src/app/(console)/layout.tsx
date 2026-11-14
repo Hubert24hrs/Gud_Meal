@@ -29,8 +29,10 @@ function Shell({ children }: { children: ReactNode }) {
   const isStaff = me.data?.permissions.length;
 
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[232px_1fr]">
-      <aside className="border-b border-border bg-text text-background lg:border-b-0">
+    // Mobile: header row sized to content (auto) so short pages don't stretch it; min-w-0 lets the nav scroll
+    // instead of widening the page.
+    <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] lg:grid-cols-[232px_1fr] lg:grid-rows-1">
+      <aside className="min-w-0 border-b border-border bg-text text-background lg:border-b-0">
         <div className="flex items-center justify-between p-4">
           <span className="[&_*]:text-background"><Logo /></span>
         </div>

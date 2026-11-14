@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ApiError, createApi, formatNaira, ORDER_STATUS } from "./index";
+import { ApiError, createApi, formatDayLabel, formatNaira, ORDER_STATUS } from "./index";
 
 function mockFetch(status: number, body: unknown, seen: Request[] = []) {
   return (async (input: URL | RequestInfo, init?: RequestInit) => {
@@ -14,6 +14,11 @@ describe("formatNaira", () => {
     expect(formatNaira(150_050)).toBe("₦1,500.50");
     expect(formatNaira(-500)).toBe("-₦5");
     expect(formatNaira(null)).toBe("—");
+  });
+  it("labels chart days day-first, independent of the viewer's timezone", () => {
+    expect(formatDayLabel("2026-11-02")).toBe("2 Nov");
+    expect(formatDayLabel("2026-01-31T23:30:00Z")).toBe("31 Jan");
+    expect(formatDayLabel("not-a-date")).toBe("not-a-date");
   });
   it("labels every order status", () => {
     expect(Object.keys(ORDER_STATUS)).toHaveLength(17);

@@ -25,7 +25,14 @@ export function formatDateTime(iso: string | null | undefined): string {
   });
 }
 
-export type Tone = "neutral" | "info" | "progress" | "success" | "warning" | "danger";
+/** A calendar day ("2026-11-02") → "2 Nov". Never MM-DD: Nigerian readers take "11-02" as 11 February. */
+export function formatDayLabel(isoDate: string): string {
+  const [y, m, d] = isoDate.slice(0, 10).split("-").map(Number);
+  if (!y || !m || !d) return isoDate;
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-NG", { day: "numeric", month: "short", timeZone: "UTC" });
+}
+
+export type Tone ="neutral" | "info" | "progress" | "success" | "warning" | "danger";
 
 export const ORDER_STATUS: Record<OrderStatus, { label: string; tone: Tone }> = {
   draft: { label: "Draft", tone: "neutral" },

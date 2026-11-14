@@ -1,4 +1,4 @@
-# Gud Meal — status report (2026-11-14)
+# Gud Meal — status report (2026-11-15)
 
 **Bottom line:** the core marketplace, payments/ledger, dispatch, AI agents, three web apps and two Flutter
 apps are implemented and tested locally. **Nothing is deployed**, and the product is **not production-ready**:
@@ -28,6 +28,14 @@ cloud resources, real payment test-mode, a Gemini key and the items in
 - The vision request (“₦10,000, best meal for two before 8pm, order it”) through the agents service against the
   real API: plans within budget, a draft order, an approval screen with the exact API total, then a payment link;
   declining never charges.
+- **Gud Meal Partner in a browser** (restaurant owner account, Auth emulator + API, sandbox-paid orders): live
+  board with a “(n) New orders” title alert; reject with a reason → automatic full refund (₦18,031.88); accept with
+  a custom prep time → start preparing → mark ready; pickup handover (a wrong code shows “Incorrect code”, the
+  right code completes the order); sold-out toggle, item edit (₦1,650.50 + description) and a new item, all
+  reflected in the public menu API; insights (gross ₦1,500, earnings ₦1,275 after ₦225 commission, 67%
+  acceptance); payouts empty state; pause/resume reflected in the public listing; opening hours including
+  past-midnight trading (Saturday 10:00–02:00). The ledger trial balance stayed equal (₦102,035.02 each side).
+  Partner and Command Centre layouts checked at 375 px, 768 px and 1280 px: no horizontal page scroll.
 - Flutter customer app (web build) rendering live restaurants and menus from the API.
 
 ## What has been tested — results
@@ -38,7 +46,7 @@ cloud resources, real payment test-mode, a Gemini key and the items in
 | API integration on PostgreSQL 16 (embedded) incl. append-only and unbalanced-transaction triggers | **40 passed** |
 | Alembic upgrade / `alembic check` / downgrade / upgrade | passed |
 | Agents (routing, permissions, approvals, isolation, injection, redaction, failure recovery, cost, Gemini schema) | **28 passed**, 1 skipped (live Gemini needs a key) |
-| TypeScript (api-client 5, web 7) + 3 Next.js production builds with type-check | **12 passed**, builds OK |
+| TypeScript (api-client 6, web 7) + 3 Next.js production builds with type-check | **13 passed**, builds OK |
 | Flutter core / customer / rider | **11 / 7 / 5 passed**, analyzer clean |
 | Firestore & Storage rules tests (Firebase emulators) | **passed in CI** ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43651031712)); not runnable locally without Java |
 | Firestore DocumentStore contract tests against the emulator | **8 passed in CI** (memory + Firestore backends) |
@@ -88,7 +96,8 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 3. Restaurant artwork uses branded placeholders until restaurants upload photos; no live map yet.
 4. Order tracking polls the API every 5 s (Firestore listeners are the production upgrade).
 5. Rate limiting is per Cloud Run instance; refunds via Flutterwave need the transaction id.
-6. Partner dashboard was build- and type-checked but not clicked through in a browser this session.
+6. The rider Flutter app is covered by widget/unit tests and the analyzer only; it has not been run on a device
+   or emulator (it has no web build, and its GPS flows need a phone).
 
 ## Required user actions
 
