@@ -289,7 +289,7 @@ as double,
 /// @nodoc
 mixin _$RestaurantCard {
 
- String get id; String get name; String get description; List<String> get cuisines; String get area; double get rating; int get ratingCount; bool get isOpen; bool get isAcceptingOrders; bool get isFeatured; String? get coverUrl; double? get distanceKm; int? get etaMinutes; int? get deliveryFeeKobo; bool? get deliversToLocation;
+ String get id; String get vertical; String get city; String get name; String get description; List<String> get cuisines; String get area; double get rating; int get ratingCount; bool get isOpen; bool get isAcceptingOrders; bool get isFeatured; String? get coverUrl; double? get distanceKm; int? get etaMinutes; int? get deliveryFeeKobo; bool? get deliversToLocation; bool get supportsPickup; bool get supportsDelivery; List<PromoBadge> get promotions;
 /// Create a copy of RestaurantCard
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -303,20 +303,20 @@ $RestaurantCardCopyWith<RestaurantCard> get copyWith => _$RestaurantCardCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as RestaurantCard;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RestaurantCard&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&const DeepCollectionEquality().equals(other.cuisines, _this.cuisines)&&(identical(other.area, _this.area) || other.area == _this.area)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.ratingCount, _this.ratingCount) || other.ratingCount == _this.ratingCount)&&(identical(other.isOpen, _this.isOpen) || other.isOpen == _this.isOpen)&&(identical(other.isAcceptingOrders, _this.isAcceptingOrders) || other.isAcceptingOrders == _this.isAcceptingOrders)&&(identical(other.isFeatured, _this.isFeatured) || other.isFeatured == _this.isFeatured)&&(identical(other.coverUrl, _this.coverUrl) || other.coverUrl == _this.coverUrl)&&(identical(other.distanceKm, _this.distanceKm) || other.distanceKm == _this.distanceKm)&&(identical(other.etaMinutes, _this.etaMinutes) || other.etaMinutes == _this.etaMinutes)&&(identical(other.deliveryFeeKobo, _this.deliveryFeeKobo) || other.deliveryFeeKobo == _this.deliveryFeeKobo)&&(identical(other.deliversToLocation, _this.deliversToLocation) || other.deliversToLocation == _this.deliversToLocation));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RestaurantCard&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.vertical, _this.vertical) || other.vertical == _this.vertical)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&const DeepCollectionEquality().equals(other.cuisines, _this.cuisines)&&(identical(other.area, _this.area) || other.area == _this.area)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.ratingCount, _this.ratingCount) || other.ratingCount == _this.ratingCount)&&(identical(other.isOpen, _this.isOpen) || other.isOpen == _this.isOpen)&&(identical(other.isAcceptingOrders, _this.isAcceptingOrders) || other.isAcceptingOrders == _this.isAcceptingOrders)&&(identical(other.isFeatured, _this.isFeatured) || other.isFeatured == _this.isFeatured)&&(identical(other.coverUrl, _this.coverUrl) || other.coverUrl == _this.coverUrl)&&(identical(other.distanceKm, _this.distanceKm) || other.distanceKm == _this.distanceKm)&&(identical(other.etaMinutes, _this.etaMinutes) || other.etaMinutes == _this.etaMinutes)&&(identical(other.deliveryFeeKobo, _this.deliveryFeeKobo) || other.deliveryFeeKobo == _this.deliveryFeeKobo)&&(identical(other.deliversToLocation, _this.deliversToLocation) || other.deliversToLocation == _this.deliversToLocation)&&(identical(other.supportsPickup, _this.supportsPickup) || other.supportsPickup == _this.supportsPickup)&&(identical(other.supportsDelivery, _this.supportsDelivery) || other.supportsDelivery == _this.supportsDelivery)&&const DeepCollectionEquality().equals(other.promotions, _this.promotions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as RestaurantCard;
-  return Object.hash(runtimeType,_this.id,_this.name,_this.description,const DeepCollectionEquality().hash(_this.cuisines),_this.area,_this.rating,_this.ratingCount,_this.isOpen,_this.isAcceptingOrders,_this.isFeatured,_this.coverUrl,_this.distanceKm,_this.etaMinutes,_this.deliveryFeeKobo,_this.deliversToLocation);
+  return Object.hashAll([runtimeType,_this.id,_this.vertical,_this.city,_this.name,_this.description,const DeepCollectionEquality().hash(_this.cuisines),_this.area,_this.rating,_this.ratingCount,_this.isOpen,_this.isAcceptingOrders,_this.isFeatured,_this.coverUrl,_this.distanceKm,_this.etaMinutes,_this.deliveryFeeKobo,_this.deliversToLocation,_this.supportsPickup,_this.supportsDelivery,const DeepCollectionEquality().hash(_this.promotions)]);
 }
 
 @override
 String toString() {
   final _this = this as RestaurantCard;
-  return 'RestaurantCard(id: ${_this.id}, name: ${_this.name}, description: ${_this.description}, cuisines: ${_this.cuisines}, area: ${_this.area}, rating: ${_this.rating}, ratingCount: ${_this.ratingCount}, isOpen: ${_this.isOpen}, isAcceptingOrders: ${_this.isAcceptingOrders}, isFeatured: ${_this.isFeatured}, coverUrl: ${_this.coverUrl}, distanceKm: ${_this.distanceKm}, etaMinutes: ${_this.etaMinutes}, deliveryFeeKobo: ${_this.deliveryFeeKobo}, deliversToLocation: ${_this.deliversToLocation})';
+  return 'RestaurantCard(id: ${_this.id}, vertical: ${_this.vertical}, city: ${_this.city}, name: ${_this.name}, description: ${_this.description}, cuisines: ${_this.cuisines}, area: ${_this.area}, rating: ${_this.rating}, ratingCount: ${_this.ratingCount}, isOpen: ${_this.isOpen}, isAcceptingOrders: ${_this.isAcceptingOrders}, isFeatured: ${_this.isFeatured}, coverUrl: ${_this.coverUrl}, distanceKm: ${_this.distanceKm}, etaMinutes: ${_this.etaMinutes}, deliveryFeeKobo: ${_this.deliveryFeeKobo}, deliversToLocation: ${_this.deliversToLocation}, supportsPickup: ${_this.supportsPickup}, supportsDelivery: ${_this.supportsDelivery}, promotions: ${_this.promotions})';
 }
 
 
@@ -327,7 +327,7 @@ abstract mixin class $RestaurantCardCopyWith<$Res>  {
   factory $RestaurantCardCopyWith(RestaurantCard value, $Res Function(RestaurantCard) _then) = _$RestaurantCardCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String description, List<String> cuisines, String area, double rating, int ratingCount, bool isOpen, bool isAcceptingOrders, bool isFeatured, String? coverUrl, double? distanceKm, int? etaMinutes, int? deliveryFeeKobo, bool? deliversToLocation
+ String id, String vertical, String city, String name, String description, List<String> cuisines, String area, double rating, int ratingCount, bool isOpen, bool isAcceptingOrders, bool isFeatured, String? coverUrl, double? distanceKm, int? etaMinutes, int? deliveryFeeKobo, bool? deliversToLocation, bool supportsPickup, bool supportsDelivery, List<PromoBadge> promotions
 });
 
 
@@ -344,9 +344,11 @@ class _$RestaurantCardCopyWithImpl<$Res>
 
 /// Create a copy of RestaurantCard
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = null,Object? cuisines = null,Object? area = null,Object? rating = null,Object? ratingCount = null,Object? isOpen = null,Object? isAcceptingOrders = null,Object? isFeatured = null,Object? coverUrl = freezed,Object? distanceKm = freezed,Object? etaMinutes = freezed,Object? deliveryFeeKobo = freezed,Object? deliversToLocation = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? vertical = null,Object? city = null,Object? name = null,Object? description = null,Object? cuisines = null,Object? area = null,Object? rating = null,Object? ratingCount = null,Object? isOpen = null,Object? isAcceptingOrders = null,Object? isFeatured = null,Object? coverUrl = freezed,Object? distanceKm = freezed,Object? etaMinutes = freezed,Object? deliveryFeeKobo = freezed,Object? deliversToLocation = freezed,Object? supportsPickup = null,Object? supportsDelivery = null,Object? promotions = null,}) {
   return _then(RestaurantCard(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,vertical: null == vertical ? _self.vertical : vertical // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,cuisines: null == cuisines ? _self.cuisines : cuisines // ignore: cast_nullable_to_non_nullable
@@ -361,7 +363,10 @@ as String?,distanceKm: freezed == distanceKm ? _self.distanceKm : distanceKm // 
 as double?,etaMinutes: freezed == etaMinutes ? _self.etaMinutes : etaMinutes // ignore: cast_nullable_to_non_nullable
 as int?,deliveryFeeKobo: freezed == deliveryFeeKobo ? _self.deliveryFeeKobo : deliveryFeeKobo // ignore: cast_nullable_to_non_nullable
 as int?,deliversToLocation: freezed == deliversToLocation ? _self.deliversToLocation : deliversToLocation // ignore: cast_nullable_to_non_nullable
-as bool?,
+as bool?,supportsPickup: null == supportsPickup ? _self.supportsPickup : supportsPickup // ignore: cast_nullable_to_non_nullable
+as bool,supportsDelivery: null == supportsDelivery ? _self.supportsDelivery : supportsDelivery // ignore: cast_nullable_to_non_nullable
+as bool,promotions: null == promotions ? _self.promotions : promotions // ignore: cast_nullable_to_non_nullable
+as List<PromoBadge>,
   ));
 }
 
@@ -446,10 +451,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String description,  List<String> cuisines,  String area,  double rating,  int ratingCount,  bool isOpen,  bool isAcceptingOrders,  bool isFeatured,  String? coverUrl,  double? distanceKm,  int? etaMinutes,  int? deliveryFeeKobo,  bool? deliversToLocation)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String vertical,  String city,  String name,  String description,  List<String> cuisines,  String area,  double rating,  int ratingCount,  bool isOpen,  bool isAcceptingOrders,  bool isFeatured,  String? coverUrl,  double? distanceKm,  int? etaMinutes,  int? deliveryFeeKobo,  bool? deliversToLocation,  bool supportsPickup,  bool supportsDelivery,  List<PromoBadge> promotions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RestaurantCard() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.cuisines,_that.area,_that.rating,_that.ratingCount,_that.isOpen,_that.isAcceptingOrders,_that.isFeatured,_that.coverUrl,_that.distanceKm,_that.etaMinutes,_that.deliveryFeeKobo,_that.deliversToLocation);case _:
+return $default(_that.id,_that.vertical,_that.city,_that.name,_that.description,_that.cuisines,_that.area,_that.rating,_that.ratingCount,_that.isOpen,_that.isAcceptingOrders,_that.isFeatured,_that.coverUrl,_that.distanceKm,_that.etaMinutes,_that.deliveryFeeKobo,_that.deliversToLocation,_that.supportsPickup,_that.supportsDelivery,_that.promotions);case _:
   return orElse();
 
 }
@@ -467,10 +472,10 @@ return $default(_that.id,_that.name,_that.description,_that.cuisines,_that.area,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String description,  List<String> cuisines,  String area,  double rating,  int ratingCount,  bool isOpen,  bool isAcceptingOrders,  bool isFeatured,  String? coverUrl,  double? distanceKm,  int? etaMinutes,  int? deliveryFeeKobo,  bool? deliversToLocation)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String vertical,  String city,  String name,  String description,  List<String> cuisines,  String area,  double rating,  int ratingCount,  bool isOpen,  bool isAcceptingOrders,  bool isFeatured,  String? coverUrl,  double? distanceKm,  int? etaMinutes,  int? deliveryFeeKobo,  bool? deliversToLocation,  bool supportsPickup,  bool supportsDelivery,  List<PromoBadge> promotions)  $default,) {final _that = this;
 switch (_that) {
 case _RestaurantCard():
-return $default(_that.id,_that.name,_that.description,_that.cuisines,_that.area,_that.rating,_that.ratingCount,_that.isOpen,_that.isAcceptingOrders,_that.isFeatured,_that.coverUrl,_that.distanceKm,_that.etaMinutes,_that.deliveryFeeKobo,_that.deliversToLocation);case _:
+return $default(_that.id,_that.vertical,_that.city,_that.name,_that.description,_that.cuisines,_that.area,_that.rating,_that.ratingCount,_that.isOpen,_that.isAcceptingOrders,_that.isFeatured,_that.coverUrl,_that.distanceKm,_that.etaMinutes,_that.deliveryFeeKobo,_that.deliversToLocation,_that.supportsPickup,_that.supportsDelivery,_that.promotions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -487,10 +492,10 @@ return $default(_that.id,_that.name,_that.description,_that.cuisines,_that.area,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String description,  List<String> cuisines,  String area,  double rating,  int ratingCount,  bool isOpen,  bool isAcceptingOrders,  bool isFeatured,  String? coverUrl,  double? distanceKm,  int? etaMinutes,  int? deliveryFeeKobo,  bool? deliversToLocation)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String vertical,  String city,  String name,  String description,  List<String> cuisines,  String area,  double rating,  int ratingCount,  bool isOpen,  bool isAcceptingOrders,  bool isFeatured,  String? coverUrl,  double? distanceKm,  int? etaMinutes,  int? deliveryFeeKobo,  bool? deliversToLocation,  bool supportsPickup,  bool supportsDelivery,  List<PromoBadge> promotions)?  $default,) {final _that = this;
 switch (_that) {
 case _RestaurantCard() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.cuisines,_that.area,_that.rating,_that.ratingCount,_that.isOpen,_that.isAcceptingOrders,_that.isFeatured,_that.coverUrl,_that.distanceKm,_that.etaMinutes,_that.deliveryFeeKobo,_that.deliversToLocation);case _:
+return $default(_that.id,_that.vertical,_that.city,_that.name,_that.description,_that.cuisines,_that.area,_that.rating,_that.ratingCount,_that.isOpen,_that.isAcceptingOrders,_that.isFeatured,_that.coverUrl,_that.distanceKm,_that.etaMinutes,_that.deliveryFeeKobo,_that.deliversToLocation,_that.supportsPickup,_that.supportsDelivery,_that.promotions);case _:
   return null;
 
 }
@@ -502,10 +507,12 @@ return $default(_that.id,_that.name,_that.description,_that.cuisines,_that.area,
 @JsonSerializable()
 
 class _RestaurantCard implements RestaurantCard {
-  const _RestaurantCard({required this.id, required this.name, this.description = '',  List<String> cuisines = const <String>[], this.area = '', this.rating = 0, this.ratingCount = 0, this.isOpen = false, this.isAcceptingOrders = true, this.isFeatured = false, this.coverUrl, this.distanceKm, this.etaMinutes, this.deliveryFeeKobo, this.deliversToLocation}): _cuisines = cuisines;
+  const _RestaurantCard({required this.id, this.vertical = 'food', this.city = 'lagos', required this.name, this.description = '',  List<String> cuisines = const <String>[], this.area = '', this.rating = 0, this.ratingCount = 0, this.isOpen = false, this.isAcceptingOrders = true, this.isFeatured = false, this.coverUrl, this.distanceKm, this.etaMinutes, this.deliveryFeeKobo, this.deliversToLocation, this.supportsPickup = true, this.supportsDelivery = true,  List<PromoBadge> promotions = const <PromoBadge>[]}): _cuisines = cuisines,_promotions = promotions;
   factory _RestaurantCard.fromJson(Map<String, dynamic> json) => _$RestaurantCardFromJson(json);
 
 @override final  String id;
+@override@JsonKey() final  String vertical;
+@override@JsonKey() final  String city;
 @override final  String name;
 @override@JsonKey() final  String description;
  final  List<String> _cuisines;
@@ -526,6 +533,15 @@ class _RestaurantCard implements RestaurantCard {
 @override final  int? etaMinutes;
 @override final  int? deliveryFeeKobo;
 @override final  bool? deliversToLocation;
+@override@JsonKey() final  bool supportsPickup;
+@override@JsonKey() final  bool supportsDelivery;
+ final  List<PromoBadge> _promotions;
+@override@JsonKey() List<PromoBadge> get promotions {
+  if (_promotions is EqualUnmodifiableListView) return _promotions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_promotions);
+}
+
 
 /// Create a copy of RestaurantCard
 /// with the given fields replaced by the non-null parameter values.
@@ -540,18 +556,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RestaurantCard&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.cuisines, _cuisines)&&(identical(other.area, area) || other.area == area)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.isOpen, isOpen) || other.isOpen == isOpen)&&(identical(other.isAcceptingOrders, isAcceptingOrders) || other.isAcceptingOrders == isAcceptingOrders)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.distanceKm, distanceKm) || other.distanceKm == distanceKm)&&(identical(other.etaMinutes, etaMinutes) || other.etaMinutes == etaMinutes)&&(identical(other.deliveryFeeKobo, deliveryFeeKobo) || other.deliveryFeeKobo == deliveryFeeKobo)&&(identical(other.deliversToLocation, deliversToLocation) || other.deliversToLocation == deliversToLocation));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RestaurantCard&&(identical(other.id, id) || other.id == id)&&(identical(other.vertical, vertical) || other.vertical == vertical)&&(identical(other.city, city) || other.city == city)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.cuisines, _cuisines)&&(identical(other.area, area) || other.area == area)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.isOpen, isOpen) || other.isOpen == isOpen)&&(identical(other.isAcceptingOrders, isAcceptingOrders) || other.isAcceptingOrders == isAcceptingOrders)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.distanceKm, distanceKm) || other.distanceKm == distanceKm)&&(identical(other.etaMinutes, etaMinutes) || other.etaMinutes == etaMinutes)&&(identical(other.deliveryFeeKobo, deliveryFeeKobo) || other.deliveryFeeKobo == deliveryFeeKobo)&&(identical(other.deliversToLocation, deliversToLocation) || other.deliversToLocation == deliversToLocation)&&(identical(other.supportsPickup, supportsPickup) || other.supportsPickup == supportsPickup)&&(identical(other.supportsDelivery, supportsDelivery) || other.supportsDelivery == supportsDelivery)&&const DeepCollectionEquality().equals(other.promotions, _promotions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,name,description,const DeepCollectionEquality().hash(_cuisines),area,rating,ratingCount,isOpen,isAcceptingOrders,isFeatured,coverUrl,distanceKm,etaMinutes,deliveryFeeKobo,deliversToLocation);
+    return Object.hashAll([runtimeType,id,vertical,city,name,description,const DeepCollectionEquality().hash(_cuisines),area,rating,ratingCount,isOpen,isAcceptingOrders,isFeatured,coverUrl,distanceKm,etaMinutes,deliveryFeeKobo,deliversToLocation,supportsPickup,supportsDelivery,const DeepCollectionEquality().hash(_promotions)]);
 }
 
 @override
 String toString() {
-    return 'RestaurantCard(id: $id, name: $name, description: $description, cuisines: $cuisines, area: $area, rating: $rating, ratingCount: $ratingCount, isOpen: $isOpen, isAcceptingOrders: $isAcceptingOrders, isFeatured: $isFeatured, coverUrl: $coverUrl, distanceKm: $distanceKm, etaMinutes: $etaMinutes, deliveryFeeKobo: $deliveryFeeKobo, deliversToLocation: $deliversToLocation)';
+    return 'RestaurantCard(id: $id, vertical: $vertical, city: $city, name: $name, description: $description, cuisines: $cuisines, area: $area, rating: $rating, ratingCount: $ratingCount, isOpen: $isOpen, isAcceptingOrders: $isAcceptingOrders, isFeatured: $isFeatured, coverUrl: $coverUrl, distanceKm: $distanceKm, etaMinutes: $etaMinutes, deliveryFeeKobo: $deliveryFeeKobo, deliversToLocation: $deliversToLocation, supportsPickup: $supportsPickup, supportsDelivery: $supportsDelivery, promotions: $promotions)';
 }
 
 
@@ -562,7 +578,7 @@ abstract mixin class _$RestaurantCardCopyWith<$Res> implements $RestaurantCardCo
   factory _$RestaurantCardCopyWith(_RestaurantCard value, $Res Function(_RestaurantCard) _then) = __$RestaurantCardCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String description, List<String> cuisines, String area, double rating, int ratingCount, bool isOpen, bool isAcceptingOrders, bool isFeatured, String? coverUrl, double? distanceKm, int? etaMinutes, int? deliveryFeeKobo, bool? deliversToLocation
+ String id, String vertical, String city, String name, String description, List<String> cuisines, String area, double rating, int ratingCount, bool isOpen, bool isAcceptingOrders, bool isFeatured, String? coverUrl, double? distanceKm, int? etaMinutes, int? deliveryFeeKobo, bool? deliversToLocation, bool supportsPickup, bool supportsDelivery, List<PromoBadge> promotions
 });
 
 
@@ -579,9 +595,11 @@ class __$RestaurantCardCopyWithImpl<$Res>
 
 /// Create a copy of RestaurantCard
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = null,Object? cuisines = null,Object? area = null,Object? rating = null,Object? ratingCount = null,Object? isOpen = null,Object? isAcceptingOrders = null,Object? isFeatured = null,Object? coverUrl = freezed,Object? distanceKm = freezed,Object? etaMinutes = freezed,Object? deliveryFeeKobo = freezed,Object? deliversToLocation = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? vertical = null,Object? city = null,Object? name = null,Object? description = null,Object? cuisines = null,Object? area = null,Object? rating = null,Object? ratingCount = null,Object? isOpen = null,Object? isAcceptingOrders = null,Object? isFeatured = null,Object? coverUrl = freezed,Object? distanceKm = freezed,Object? etaMinutes = freezed,Object? deliveryFeeKobo = freezed,Object? deliversToLocation = freezed,Object? supportsPickup = null,Object? supportsDelivery = null,Object? promotions = null,}) {
   return _then(_RestaurantCard(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,vertical: null == vertical ? _self.vertical : vertical // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,cuisines: null == cuisines ? _self._cuisines : cuisines // ignore: cast_nullable_to_non_nullable
@@ -596,7 +614,10 @@ as String?,distanceKm: freezed == distanceKm ? _self.distanceKm : distanceKm // 
 as double?,etaMinutes: freezed == etaMinutes ? _self.etaMinutes : etaMinutes // ignore: cast_nullable_to_non_nullable
 as int?,deliveryFeeKobo: freezed == deliveryFeeKobo ? _self.deliveryFeeKobo : deliveryFeeKobo // ignore: cast_nullable_to_non_nullable
 as int?,deliversToLocation: freezed == deliversToLocation ? _self.deliversToLocation : deliversToLocation // ignore: cast_nullable_to_non_nullable
-as bool?,
+as bool?,supportsPickup: null == supportsPickup ? _self.supportsPickup : supportsPickup // ignore: cast_nullable_to_non_nullable
+as bool,supportsDelivery: null == supportsDelivery ? _self.supportsDelivery : supportsDelivery // ignore: cast_nullable_to_non_nullable
+as bool,promotions: null == promotions ? _self._promotions : promotions // ignore: cast_nullable_to_non_nullable
+as List<PromoBadge>,
   ));
 }
 
@@ -1174,7 +1195,7 @@ as List<OptionChoice>,
 /// @nodoc
 mixin _$MenuItem {
 
- String get id; String get restaurantId; String get name; String get description; int get priceKobo; String get kind; List<String> get allergens; List<String> get dietary; int get serves; int get spiceLevel; bool get isAvailable; List<String> get optionGroupIds;
+ String get id; String get restaurantId; String get name; String get description; int get priceKobo; String get kind; List<String> get allergens; List<String> get dietary; int get serves; int get spiceLevel; bool get isAvailable; List<String> get optionGroupIds; String? get unitLabel;
 /// Create a copy of MenuItem
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1188,20 +1209,20 @@ $MenuItemCopyWith<MenuItem> get copyWith => _$MenuItemCopyWithImpl<MenuItem>(thi
 @override
 bool operator ==(Object other) {
   final _this = this as MenuItem;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MenuItem&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.restaurantId, _this.restaurantId) || other.restaurantId == _this.restaurantId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.priceKobo, _this.priceKobo) || other.priceKobo == _this.priceKobo)&&(identical(other.kind, _this.kind) || other.kind == _this.kind)&&const DeepCollectionEquality().equals(other.allergens, _this.allergens)&&const DeepCollectionEquality().equals(other.dietary, _this.dietary)&&(identical(other.serves, _this.serves) || other.serves == _this.serves)&&(identical(other.spiceLevel, _this.spiceLevel) || other.spiceLevel == _this.spiceLevel)&&(identical(other.isAvailable, _this.isAvailable) || other.isAvailable == _this.isAvailable)&&const DeepCollectionEquality().equals(other.optionGroupIds, _this.optionGroupIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MenuItem&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.restaurantId, _this.restaurantId) || other.restaurantId == _this.restaurantId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.priceKobo, _this.priceKobo) || other.priceKobo == _this.priceKobo)&&(identical(other.kind, _this.kind) || other.kind == _this.kind)&&const DeepCollectionEquality().equals(other.allergens, _this.allergens)&&const DeepCollectionEquality().equals(other.dietary, _this.dietary)&&(identical(other.serves, _this.serves) || other.serves == _this.serves)&&(identical(other.spiceLevel, _this.spiceLevel) || other.spiceLevel == _this.spiceLevel)&&(identical(other.isAvailable, _this.isAvailable) || other.isAvailable == _this.isAvailable)&&const DeepCollectionEquality().equals(other.optionGroupIds, _this.optionGroupIds)&&(identical(other.unitLabel, _this.unitLabel) || other.unitLabel == _this.unitLabel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as MenuItem;
-  return Object.hash(runtimeType,_this.id,_this.restaurantId,_this.name,_this.description,_this.priceKobo,_this.kind,const DeepCollectionEquality().hash(_this.allergens),const DeepCollectionEquality().hash(_this.dietary),_this.serves,_this.spiceLevel,_this.isAvailable,const DeepCollectionEquality().hash(_this.optionGroupIds));
+  return Object.hash(runtimeType,_this.id,_this.restaurantId,_this.name,_this.description,_this.priceKobo,_this.kind,const DeepCollectionEquality().hash(_this.allergens),const DeepCollectionEquality().hash(_this.dietary),_this.serves,_this.spiceLevel,_this.isAvailable,const DeepCollectionEquality().hash(_this.optionGroupIds),_this.unitLabel);
 }
 
 @override
 String toString() {
   final _this = this as MenuItem;
-  return 'MenuItem(id: ${_this.id}, restaurantId: ${_this.restaurantId}, name: ${_this.name}, description: ${_this.description}, priceKobo: ${_this.priceKobo}, kind: ${_this.kind}, allergens: ${_this.allergens}, dietary: ${_this.dietary}, serves: ${_this.serves}, spiceLevel: ${_this.spiceLevel}, isAvailable: ${_this.isAvailable}, optionGroupIds: ${_this.optionGroupIds})';
+  return 'MenuItem(id: ${_this.id}, restaurantId: ${_this.restaurantId}, name: ${_this.name}, description: ${_this.description}, priceKobo: ${_this.priceKobo}, kind: ${_this.kind}, allergens: ${_this.allergens}, dietary: ${_this.dietary}, serves: ${_this.serves}, spiceLevel: ${_this.spiceLevel}, isAvailable: ${_this.isAvailable}, optionGroupIds: ${_this.optionGroupIds}, unitLabel: ${_this.unitLabel})';
 }
 
 
@@ -1212,7 +1233,7 @@ abstract mixin class $MenuItemCopyWith<$Res>  {
   factory $MenuItemCopyWith(MenuItem value, $Res Function(MenuItem) _then) = _$MenuItemCopyWithImpl;
 @useResult
 $Res call({
- String id, String restaurantId, String name, String description, int priceKobo, String kind, List<String> allergens, List<String> dietary, int serves, int spiceLevel, bool isAvailable, List<String> optionGroupIds
+ String id, String restaurantId, String name, String description, int priceKobo, String kind, List<String> allergens, List<String> dietary, int serves, int spiceLevel, bool isAvailable, List<String> optionGroupIds, String? unitLabel
 });
 
 
@@ -1229,7 +1250,7 @@ class _$MenuItemCopyWithImpl<$Res>
 
 /// Create a copy of MenuItem
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? restaurantId = null,Object? name = null,Object? description = null,Object? priceKobo = null,Object? kind = null,Object? allergens = null,Object? dietary = null,Object? serves = null,Object? spiceLevel = null,Object? isAvailable = null,Object? optionGroupIds = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? restaurantId = null,Object? name = null,Object? description = null,Object? priceKobo = null,Object? kind = null,Object? allergens = null,Object? dietary = null,Object? serves = null,Object? spiceLevel = null,Object? isAvailable = null,Object? optionGroupIds = null,Object? unitLabel = freezed,}) {
   return _then(MenuItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,restaurantId: null == restaurantId ? _self.restaurantId : restaurantId // ignore: cast_nullable_to_non_nullable
@@ -1243,7 +1264,8 @@ as List<String>,serves: null == serves ? _self.serves : serves // ignore: cast_n
 as int,spiceLevel: null == spiceLevel ? _self.spiceLevel : spiceLevel // ignore: cast_nullable_to_non_nullable
 as int,isAvailable: null == isAvailable ? _self.isAvailable : isAvailable // ignore: cast_nullable_to_non_nullable
 as bool,optionGroupIds: null == optionGroupIds ? _self.optionGroupIds : optionGroupIds // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,unitLabel: freezed == unitLabel ? _self.unitLabel : unitLabel // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -1328,10 +1350,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String restaurantId,  String name,  String description,  int priceKobo,  String kind,  List<String> allergens,  List<String> dietary,  int serves,  int spiceLevel,  bool isAvailable,  List<String> optionGroupIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String restaurantId,  String name,  String description,  int priceKobo,  String kind,  List<String> allergens,  List<String> dietary,  int serves,  int spiceLevel,  bool isAvailable,  List<String> optionGroupIds,  String? unitLabel)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MenuItem() when $default != null:
-return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.priceKobo,_that.kind,_that.allergens,_that.dietary,_that.serves,_that.spiceLevel,_that.isAvailable,_that.optionGroupIds);case _:
+return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.priceKobo,_that.kind,_that.allergens,_that.dietary,_that.serves,_that.spiceLevel,_that.isAvailable,_that.optionGroupIds,_that.unitLabel);case _:
   return orElse();
 
 }
@@ -1349,10 +1371,10 @@ return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String restaurantId,  String name,  String description,  int priceKobo,  String kind,  List<String> allergens,  List<String> dietary,  int serves,  int spiceLevel,  bool isAvailable,  List<String> optionGroupIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String restaurantId,  String name,  String description,  int priceKobo,  String kind,  List<String> allergens,  List<String> dietary,  int serves,  int spiceLevel,  bool isAvailable,  List<String> optionGroupIds,  String? unitLabel)  $default,) {final _that = this;
 switch (_that) {
 case _MenuItem():
-return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.priceKobo,_that.kind,_that.allergens,_that.dietary,_that.serves,_that.spiceLevel,_that.isAvailable,_that.optionGroupIds);case _:
+return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.priceKobo,_that.kind,_that.allergens,_that.dietary,_that.serves,_that.spiceLevel,_that.isAvailable,_that.optionGroupIds,_that.unitLabel);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1369,10 +1391,10 @@ return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String restaurantId,  String name,  String description,  int priceKobo,  String kind,  List<String> allergens,  List<String> dietary,  int serves,  int spiceLevel,  bool isAvailable,  List<String> optionGroupIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String restaurantId,  String name,  String description,  int priceKobo,  String kind,  List<String> allergens,  List<String> dietary,  int serves,  int spiceLevel,  bool isAvailable,  List<String> optionGroupIds,  String? unitLabel)?  $default,) {final _that = this;
 switch (_that) {
 case _MenuItem() when $default != null:
-return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.priceKobo,_that.kind,_that.allergens,_that.dietary,_that.serves,_that.spiceLevel,_that.isAvailable,_that.optionGroupIds);case _:
+return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.priceKobo,_that.kind,_that.allergens,_that.dietary,_that.serves,_that.spiceLevel,_that.isAvailable,_that.optionGroupIds,_that.unitLabel);case _:
   return null;
 
 }
@@ -1384,7 +1406,7 @@ return $default(_that.id,_that.restaurantId,_that.name,_that.description,_that.p
 @JsonSerializable()
 
 class _MenuItem implements MenuItem {
-  const _MenuItem({required this.id, required this.restaurantId, required this.name, this.description = '', required this.priceKobo, this.kind = 'main',  List<String> allergens = const <String>[],  List<String> dietary = const <String>[], this.serves = 1, this.spiceLevel = 0, this.isAvailable = true,  List<String> optionGroupIds = const <String>[]}): _allergens = allergens,_dietary = dietary,_optionGroupIds = optionGroupIds;
+  const _MenuItem({required this.id, required this.restaurantId, required this.name, this.description = '', required this.priceKobo, this.kind = 'main',  List<String> allergens = const <String>[],  List<String> dietary = const <String>[], this.serves = 1, this.spiceLevel = 0, this.isAvailable = true,  List<String> optionGroupIds = const <String>[], this.unitLabel}): _allergens = allergens,_dietary = dietary,_optionGroupIds = optionGroupIds;
   factory _MenuItem.fromJson(Map<String, dynamic> json) => _$MenuItemFromJson(json);
 
 @override final  String id;
@@ -1417,6 +1439,7 @@ class _MenuItem implements MenuItem {
   return EqualUnmodifiableListView(_optionGroupIds);
 }
 
+@override final  String? unitLabel;
 
 /// Create a copy of MenuItem
 /// with the given fields replaced by the non-null parameter values.
@@ -1431,18 +1454,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MenuItem&&(identical(other.id, id) || other.id == id)&&(identical(other.restaurantId, restaurantId) || other.restaurantId == restaurantId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.priceKobo, priceKobo) || other.priceKobo == priceKobo)&&(identical(other.kind, kind) || other.kind == kind)&&const DeepCollectionEquality().equals(other.allergens, _allergens)&&const DeepCollectionEquality().equals(other.dietary, _dietary)&&(identical(other.serves, serves) || other.serves == serves)&&(identical(other.spiceLevel, spiceLevel) || other.spiceLevel == spiceLevel)&&(identical(other.isAvailable, isAvailable) || other.isAvailable == isAvailable)&&const DeepCollectionEquality().equals(other.optionGroupIds, _optionGroupIds));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MenuItem&&(identical(other.id, id) || other.id == id)&&(identical(other.restaurantId, restaurantId) || other.restaurantId == restaurantId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.priceKobo, priceKobo) || other.priceKobo == priceKobo)&&(identical(other.kind, kind) || other.kind == kind)&&const DeepCollectionEquality().equals(other.allergens, _allergens)&&const DeepCollectionEquality().equals(other.dietary, _dietary)&&(identical(other.serves, serves) || other.serves == serves)&&(identical(other.spiceLevel, spiceLevel) || other.spiceLevel == spiceLevel)&&(identical(other.isAvailable, isAvailable) || other.isAvailable == isAvailable)&&const DeepCollectionEquality().equals(other.optionGroupIds, _optionGroupIds)&&(identical(other.unitLabel, unitLabel) || other.unitLabel == unitLabel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,restaurantId,name,description,priceKobo,kind,const DeepCollectionEquality().hash(_allergens),const DeepCollectionEquality().hash(_dietary),serves,spiceLevel,isAvailable,const DeepCollectionEquality().hash(_optionGroupIds));
+    return Object.hash(runtimeType,id,restaurantId,name,description,priceKobo,kind,const DeepCollectionEquality().hash(_allergens),const DeepCollectionEquality().hash(_dietary),serves,spiceLevel,isAvailable,const DeepCollectionEquality().hash(_optionGroupIds),unitLabel);
 }
 
 @override
 String toString() {
-    return 'MenuItem(id: $id, restaurantId: $restaurantId, name: $name, description: $description, priceKobo: $priceKobo, kind: $kind, allergens: $allergens, dietary: $dietary, serves: $serves, spiceLevel: $spiceLevel, isAvailable: $isAvailable, optionGroupIds: $optionGroupIds)';
+    return 'MenuItem(id: $id, restaurantId: $restaurantId, name: $name, description: $description, priceKobo: $priceKobo, kind: $kind, allergens: $allergens, dietary: $dietary, serves: $serves, spiceLevel: $spiceLevel, isAvailable: $isAvailable, optionGroupIds: $optionGroupIds, unitLabel: $unitLabel)';
 }
 
 
@@ -1453,7 +1476,7 @@ abstract mixin class _$MenuItemCopyWith<$Res> implements $MenuItemCopyWith<$Res>
   factory _$MenuItemCopyWith(_MenuItem value, $Res Function(_MenuItem) _then) = __$MenuItemCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String restaurantId, String name, String description, int priceKobo, String kind, List<String> allergens, List<String> dietary, int serves, int spiceLevel, bool isAvailable, List<String> optionGroupIds
+ String id, String restaurantId, String name, String description, int priceKobo, String kind, List<String> allergens, List<String> dietary, int serves, int spiceLevel, bool isAvailable, List<String> optionGroupIds, String? unitLabel
 });
 
 
@@ -1470,7 +1493,7 @@ class __$MenuItemCopyWithImpl<$Res>
 
 /// Create a copy of MenuItem
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? restaurantId = null,Object? name = null,Object? description = null,Object? priceKobo = null,Object? kind = null,Object? allergens = null,Object? dietary = null,Object? serves = null,Object? spiceLevel = null,Object? isAvailable = null,Object? optionGroupIds = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? restaurantId = null,Object? name = null,Object? description = null,Object? priceKobo = null,Object? kind = null,Object? allergens = null,Object? dietary = null,Object? serves = null,Object? spiceLevel = null,Object? isAvailable = null,Object? optionGroupIds = null,Object? unitLabel = freezed,}) {
   return _then(_MenuItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,restaurantId: null == restaurantId ? _self.restaurantId : restaurantId // ignore: cast_nullable_to_non_nullable
@@ -1484,7 +1507,8 @@ as List<String>,serves: null == serves ? _self.serves : serves // ignore: cast_n
 as int,spiceLevel: null == spiceLevel ? _self.spiceLevel : spiceLevel // ignore: cast_nullable_to_non_nullable
 as int,isAvailable: null == isAvailable ? _self.isAvailable : isAvailable // ignore: cast_nullable_to_non_nullable
 as bool,optionGroupIds: null == optionGroupIds ? _self._optionGroupIds : optionGroupIds // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,unitLabel: freezed == unitLabel ? _self.unitLabel : unitLabel // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -4420,7 +4444,7 @@ as String,
 /// @nodoc
 mixin _$Order {
 
- String get id; String get shortCode; String get status; String get restaurantName; String get fulfillment; List<PricedLine> get lines; PriceBreakdown? get breakdown; DeliveryAddress? get deliveryAddress; OrderProgress? get progress; String? get riderName; String? get customerName; String? get restaurantAddress; GeoPoint? get restaurantLocation; DateTime? get estimatedDeliveryAt; DateTime? get readyAt; DateTime? get createdAt; int? get riderPayKobo; bool get reviewed;
+ String get id; String get shortCode; String get vertical; String get status; String get restaurantName; String get fulfillment; List<PricedLine> get lines; PriceBreakdown? get breakdown; DeliveryAddress? get deliveryAddress; OrderProgress? get progress; String? get riderName; String? get customerName; String? get restaurantAddress; GeoPoint? get restaurantLocation; DateTime? get estimatedDeliveryAt; DateTime? get readyAt; DateTime? get createdAt; int? get riderPayKobo; bool get reviewed; ParcelDetails? get parcel; int get refundTotalKobo;
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4434,20 +4458,20 @@ $OrderCopyWith<Order> get copyWith => _$OrderCopyWithImpl<Order>(this as Order, 
 @override
 bool operator ==(Object other) {
   final _this = this as Order;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.shortCode, _this.shortCode) || other.shortCode == _this.shortCode)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.restaurantName, _this.restaurantName) || other.restaurantName == _this.restaurantName)&&(identical(other.fulfillment, _this.fulfillment) || other.fulfillment == _this.fulfillment)&&const DeepCollectionEquality().equals(other.lines, _this.lines)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.deliveryAddress, _this.deliveryAddress) || other.deliveryAddress == _this.deliveryAddress)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.riderName, _this.riderName) || other.riderName == _this.riderName)&&(identical(other.customerName, _this.customerName) || other.customerName == _this.customerName)&&(identical(other.restaurantAddress, _this.restaurantAddress) || other.restaurantAddress == _this.restaurantAddress)&&(identical(other.restaurantLocation, _this.restaurantLocation) || other.restaurantLocation == _this.restaurantLocation)&&(identical(other.estimatedDeliveryAt, _this.estimatedDeliveryAt) || other.estimatedDeliveryAt == _this.estimatedDeliveryAt)&&(identical(other.readyAt, _this.readyAt) || other.readyAt == _this.readyAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.riderPayKobo, _this.riderPayKobo) || other.riderPayKobo == _this.riderPayKobo)&&(identical(other.reviewed, _this.reviewed) || other.reviewed == _this.reviewed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.shortCode, _this.shortCode) || other.shortCode == _this.shortCode)&&(identical(other.vertical, _this.vertical) || other.vertical == _this.vertical)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.restaurantName, _this.restaurantName) || other.restaurantName == _this.restaurantName)&&(identical(other.fulfillment, _this.fulfillment) || other.fulfillment == _this.fulfillment)&&const DeepCollectionEquality().equals(other.lines, _this.lines)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.deliveryAddress, _this.deliveryAddress) || other.deliveryAddress == _this.deliveryAddress)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.riderName, _this.riderName) || other.riderName == _this.riderName)&&(identical(other.customerName, _this.customerName) || other.customerName == _this.customerName)&&(identical(other.restaurantAddress, _this.restaurantAddress) || other.restaurantAddress == _this.restaurantAddress)&&(identical(other.restaurantLocation, _this.restaurantLocation) || other.restaurantLocation == _this.restaurantLocation)&&(identical(other.estimatedDeliveryAt, _this.estimatedDeliveryAt) || other.estimatedDeliveryAt == _this.estimatedDeliveryAt)&&(identical(other.readyAt, _this.readyAt) || other.readyAt == _this.readyAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.riderPayKobo, _this.riderPayKobo) || other.riderPayKobo == _this.riderPayKobo)&&(identical(other.reviewed, _this.reviewed) || other.reviewed == _this.reviewed)&&(identical(other.parcel, _this.parcel) || other.parcel == _this.parcel)&&(identical(other.refundTotalKobo, _this.refundTotalKobo) || other.refundTotalKobo == _this.refundTotalKobo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Order;
-  return Object.hash(runtimeType,_this.id,_this.shortCode,_this.status,_this.restaurantName,_this.fulfillment,const DeepCollectionEquality().hash(_this.lines),_this.breakdown,_this.deliveryAddress,_this.progress,_this.riderName,_this.customerName,_this.restaurantAddress,_this.restaurantLocation,_this.estimatedDeliveryAt,_this.readyAt,_this.createdAt,_this.riderPayKobo,_this.reviewed);
+  return Object.hashAll([runtimeType,_this.id,_this.shortCode,_this.vertical,_this.status,_this.restaurantName,_this.fulfillment,const DeepCollectionEquality().hash(_this.lines),_this.breakdown,_this.deliveryAddress,_this.progress,_this.riderName,_this.customerName,_this.restaurantAddress,_this.restaurantLocation,_this.estimatedDeliveryAt,_this.readyAt,_this.createdAt,_this.riderPayKobo,_this.reviewed,_this.parcel,_this.refundTotalKobo]);
 }
 
 @override
 String toString() {
   final _this = this as Order;
-  return 'Order(id: ${_this.id}, shortCode: ${_this.shortCode}, status: ${_this.status}, restaurantName: ${_this.restaurantName}, fulfillment: ${_this.fulfillment}, lines: ${_this.lines}, breakdown: ${_this.breakdown}, deliveryAddress: ${_this.deliveryAddress}, progress: ${_this.progress}, riderName: ${_this.riderName}, customerName: ${_this.customerName}, restaurantAddress: ${_this.restaurantAddress}, restaurantLocation: ${_this.restaurantLocation}, estimatedDeliveryAt: ${_this.estimatedDeliveryAt}, readyAt: ${_this.readyAt}, createdAt: ${_this.createdAt}, riderPayKobo: ${_this.riderPayKobo}, reviewed: ${_this.reviewed})';
+  return 'Order(id: ${_this.id}, shortCode: ${_this.shortCode}, vertical: ${_this.vertical}, status: ${_this.status}, restaurantName: ${_this.restaurantName}, fulfillment: ${_this.fulfillment}, lines: ${_this.lines}, breakdown: ${_this.breakdown}, deliveryAddress: ${_this.deliveryAddress}, progress: ${_this.progress}, riderName: ${_this.riderName}, customerName: ${_this.customerName}, restaurantAddress: ${_this.restaurantAddress}, restaurantLocation: ${_this.restaurantLocation}, estimatedDeliveryAt: ${_this.estimatedDeliveryAt}, readyAt: ${_this.readyAt}, createdAt: ${_this.createdAt}, riderPayKobo: ${_this.riderPayKobo}, reviewed: ${_this.reviewed}, parcel: ${_this.parcel}, refundTotalKobo: ${_this.refundTotalKobo})';
 }
 
 
@@ -4458,11 +4482,11 @@ abstract mixin class $OrderCopyWith<$Res>  {
   factory $OrderCopyWith(Order value, $Res Function(Order) _then) = _$OrderCopyWithImpl;
 @useResult
 $Res call({
- String id, String shortCode, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed
+ String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo
 });
 
 
-$PriceBreakdownCopyWith<$Res>? get breakdown;$DeliveryAddressCopyWith<$Res>? get deliveryAddress;$OrderProgressCopyWith<$Res>? get progress;$GeoPointCopyWith<$Res>? get restaurantLocation;
+$PriceBreakdownCopyWith<$Res>? get breakdown;$DeliveryAddressCopyWith<$Res>? get deliveryAddress;$OrderProgressCopyWith<$Res>? get progress;$GeoPointCopyWith<$Res>? get restaurantLocation;$ParcelDetailsCopyWith<$Res>? get parcel;
 
 }
 /// @nodoc
@@ -4475,10 +4499,11 @@ class _$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shortCode = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,}) {
   return _then(Order(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
+as String,vertical: null == vertical ? _self.vertical : vertical // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,restaurantName: null == restaurantName ? _self.restaurantName : restaurantName // ignore: cast_nullable_to_non_nullable
 as String,fulfillment: null == fulfillment ? _self.fulfillment : fulfillment // ignore: cast_nullable_to_non_nullable
@@ -4495,7 +4520,9 @@ as DateTime?,readyAt: freezed == readyAt ? _self.readyAt : readyAt // ignore: ca
 as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,riderPayKobo: freezed == riderPayKobo ? _self.riderPayKobo : riderPayKobo // ignore: cast_nullable_to_non_nullable
 as int?,reviewed: null == reviewed ? _self.reviewed : reviewed // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,parcel: freezed == parcel ? _self.parcel : parcel // ignore: cast_nullable_to_non_nullable
+as ParcelDetails?,refundTotalKobo: null == refundTotalKobo ? _self.refundTotalKobo : refundTotalKobo // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 /// Create a copy of Order
@@ -4545,6 +4572,18 @@ $GeoPointCopyWith<$Res>? get restaurantLocation {
 
   return $GeoPointCopyWith<$Res>(_self.restaurantLocation!, (value) {
     return _then(_self.copyWith(restaurantLocation: value));
+  });
+}/// Create a copy of Order
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelDetailsCopyWith<$Res>? get parcel {
+    if (_self.parcel == null) {
+    return null;
+  }
+
+  return $ParcelDetailsCopyWith<$Res>(_self.parcel!, (value) {
+    return _then(_self.copyWith(parcel: value));
   });
 }
 }
@@ -4628,10 +4667,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String shortCode,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.shortCode,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo);case _:
   return orElse();
 
 }
@@ -4649,10 +4688,10 @@ return $default(_that.id,_that.shortCode,_that.status,_that.restaurantName,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String shortCode,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo)  $default,) {final _that = this;
 switch (_that) {
 case _Order():
-return $default(_that.id,_that.shortCode,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4669,10 +4708,10 @@ return $default(_that.id,_that.shortCode,_that.status,_that.restaurantName,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String shortCode,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo)?  $default,) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.shortCode,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo);case _:
   return null;
 
 }
@@ -4684,11 +4723,12 @@ return $default(_that.id,_that.shortCode,_that.status,_that.restaurantName,_that
 @JsonSerializable()
 
 class _Order implements Order {
-  const _Order({required this.id, required this.shortCode, required this.status, required this.restaurantName, this.fulfillment = 'delivery',  List<PricedLine> lines = const <PricedLine>[], this.breakdown, this.deliveryAddress, this.progress, this.riderName, this.customerName, this.restaurantAddress, this.restaurantLocation, this.estimatedDeliveryAt, this.readyAt, this.createdAt, this.riderPayKobo, this.reviewed = false}): _lines = lines;
+  const _Order({required this.id, required this.shortCode, this.vertical = 'food', required this.status, required this.restaurantName, this.fulfillment = 'delivery',  List<PricedLine> lines = const <PricedLine>[], this.breakdown, this.deliveryAddress, this.progress, this.riderName, this.customerName, this.restaurantAddress, this.restaurantLocation, this.estimatedDeliveryAt, this.readyAt, this.createdAt, this.riderPayKobo, this.reviewed = false, this.parcel, this.refundTotalKobo = 0}): _lines = lines;
   factory _Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
 @override final  String id;
 @override final  String shortCode;
+@override@JsonKey() final  String vertical;
 @override final  String status;
 @override final  String restaurantName;
 @override@JsonKey() final  String fulfillment;
@@ -4711,6 +4751,8 @@ class _Order implements Order {
 @override final  DateTime? createdAt;
 @override final  int? riderPayKobo;
 @override@JsonKey() final  bool reviewed;
+@override final  ParcelDetails? parcel;
+@override@JsonKey() final  int refundTotalKobo;
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
@@ -4725,18 +4767,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.shortCode, shortCode) || other.shortCode == shortCode)&&(identical(other.status, status) || other.status == status)&&(identical(other.restaurantName, restaurantName) || other.restaurantName == restaurantName)&&(identical(other.fulfillment, fulfillment) || other.fulfillment == fulfillment)&&const DeepCollectionEquality().equals(other.lines, _lines)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.riderName, riderName) || other.riderName == riderName)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.restaurantAddress, restaurantAddress) || other.restaurantAddress == restaurantAddress)&&(identical(other.restaurantLocation, restaurantLocation) || other.restaurantLocation == restaurantLocation)&&(identical(other.estimatedDeliveryAt, estimatedDeliveryAt) || other.estimatedDeliveryAt == estimatedDeliveryAt)&&(identical(other.readyAt, readyAt) || other.readyAt == readyAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.riderPayKobo, riderPayKobo) || other.riderPayKobo == riderPayKobo)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.shortCode, shortCode) || other.shortCode == shortCode)&&(identical(other.vertical, vertical) || other.vertical == vertical)&&(identical(other.status, status) || other.status == status)&&(identical(other.restaurantName, restaurantName) || other.restaurantName == restaurantName)&&(identical(other.fulfillment, fulfillment) || other.fulfillment == fulfillment)&&const DeepCollectionEquality().equals(other.lines, _lines)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.riderName, riderName) || other.riderName == riderName)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.restaurantAddress, restaurantAddress) || other.restaurantAddress == restaurantAddress)&&(identical(other.restaurantLocation, restaurantLocation) || other.restaurantLocation == restaurantLocation)&&(identical(other.estimatedDeliveryAt, estimatedDeliveryAt) || other.estimatedDeliveryAt == estimatedDeliveryAt)&&(identical(other.readyAt, readyAt) || other.readyAt == readyAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.riderPayKobo, riderPayKobo) || other.riderPayKobo == riderPayKobo)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed)&&(identical(other.parcel, parcel) || other.parcel == parcel)&&(identical(other.refundTotalKobo, refundTotalKobo) || other.refundTotalKobo == refundTotalKobo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,shortCode,status,restaurantName,fulfillment,const DeepCollectionEquality().hash(_lines),breakdown,deliveryAddress,progress,riderName,customerName,restaurantAddress,restaurantLocation,estimatedDeliveryAt,readyAt,createdAt,riderPayKobo,reviewed);
+    return Object.hashAll([runtimeType,id,shortCode,vertical,status,restaurantName,fulfillment,const DeepCollectionEquality().hash(_lines),breakdown,deliveryAddress,progress,riderName,customerName,restaurantAddress,restaurantLocation,estimatedDeliveryAt,readyAt,createdAt,riderPayKobo,reviewed,parcel,refundTotalKobo]);
 }
 
 @override
 String toString() {
-    return 'Order(id: $id, shortCode: $shortCode, status: $status, restaurantName: $restaurantName, fulfillment: $fulfillment, lines: $lines, breakdown: $breakdown, deliveryAddress: $deliveryAddress, progress: $progress, riderName: $riderName, customerName: $customerName, restaurantAddress: $restaurantAddress, restaurantLocation: $restaurantLocation, estimatedDeliveryAt: $estimatedDeliveryAt, readyAt: $readyAt, createdAt: $createdAt, riderPayKobo: $riderPayKobo, reviewed: $reviewed)';
+    return 'Order(id: $id, shortCode: $shortCode, vertical: $vertical, status: $status, restaurantName: $restaurantName, fulfillment: $fulfillment, lines: $lines, breakdown: $breakdown, deliveryAddress: $deliveryAddress, progress: $progress, riderName: $riderName, customerName: $customerName, restaurantAddress: $restaurantAddress, restaurantLocation: $restaurantLocation, estimatedDeliveryAt: $estimatedDeliveryAt, readyAt: $readyAt, createdAt: $createdAt, riderPayKobo: $riderPayKobo, reviewed: $reviewed, parcel: $parcel, refundTotalKobo: $refundTotalKobo)';
 }
 
 
@@ -4747,11 +4789,11 @@ abstract mixin class _$OrderCopyWith<$Res> implements $OrderCopyWith<$Res> {
   factory _$OrderCopyWith(_Order value, $Res Function(_Order) _then) = __$OrderCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String shortCode, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed
+ String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo
 });
 
 
-@override $PriceBreakdownCopyWith<$Res>? get breakdown;@override $DeliveryAddressCopyWith<$Res>? get deliveryAddress;@override $OrderProgressCopyWith<$Res>? get progress;@override $GeoPointCopyWith<$Res>? get restaurantLocation;
+@override $PriceBreakdownCopyWith<$Res>? get breakdown;@override $DeliveryAddressCopyWith<$Res>? get deliveryAddress;@override $OrderProgressCopyWith<$Res>? get progress;@override $GeoPointCopyWith<$Res>? get restaurantLocation;@override $ParcelDetailsCopyWith<$Res>? get parcel;
 
 }
 /// @nodoc
@@ -4764,10 +4806,11 @@ class __$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shortCode = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,}) {
   return _then(_Order(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
+as String,vertical: null == vertical ? _self.vertical : vertical // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,restaurantName: null == restaurantName ? _self.restaurantName : restaurantName // ignore: cast_nullable_to_non_nullable
 as String,fulfillment: null == fulfillment ? _self.fulfillment : fulfillment // ignore: cast_nullable_to_non_nullable
@@ -4784,7 +4827,9 @@ as DateTime?,readyAt: freezed == readyAt ? _self.readyAt : readyAt // ignore: ca
 as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,riderPayKobo: freezed == riderPayKobo ? _self.riderPayKobo : riderPayKobo // ignore: cast_nullable_to_non_nullable
 as int?,reviewed: null == reviewed ? _self.reviewed : reviewed // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,parcel: freezed == parcel ? _self.parcel : parcel // ignore: cast_nullable_to_non_nullable
+as ParcelDetails?,refundTotalKobo: null == refundTotalKobo ? _self.refundTotalKobo : refundTotalKobo // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -4835,6 +4880,18 @@ $GeoPointCopyWith<$Res>? get restaurantLocation {
 
   return $GeoPointCopyWith<$Res>(_self.restaurantLocation!, (value) {
     return _then(_self.copyWith(restaurantLocation: value));
+  });
+}/// Create a copy of Order
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelDetailsCopyWith<$Res>? get parcel {
+    if (_self.parcel == null) {
+    return null;
+  }
+
+  return $ParcelDetailsCopyWith<$Res>(_self.parcel!, (value) {
+    return _then(_self.copyWith(parcel: value));
   });
 }
 }
@@ -6937,6 +6994,3252 @@ $ChatApprovalCopyWith<$Res>? get approval {
     return _then(_self.copyWith(approval: value));
   });
 }
+}
+
+
+/// @nodoc
+mixin _$PromoBadge {
+
+ String get code; String get label;
+/// Create a copy of PromoBadge
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PromoBadgeCopyWith<PromoBadge> get copyWith => _$PromoBadgeCopyWithImpl<PromoBadge>(this as PromoBadge, _$identity);
+
+  /// Serializes this PromoBadge to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as PromoBadge;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PromoBadge&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.label, _this.label) || other.label == _this.label));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as PromoBadge;
+  return Object.hash(runtimeType,_this.code,_this.label);
+}
+
+@override
+String toString() {
+  final _this = this as PromoBadge;
+  return 'PromoBadge(code: ${_this.code}, label: ${_this.label})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PromoBadgeCopyWith<$Res>  {
+  factory $PromoBadgeCopyWith(PromoBadge value, $Res Function(PromoBadge) _then) = _$PromoBadgeCopyWithImpl;
+@useResult
+$Res call({
+ String code, String label
+});
+
+
+
+
+}
+/// @nodoc
+class _$PromoBadgeCopyWithImpl<$Res>
+    implements $PromoBadgeCopyWith<$Res> {
+  _$PromoBadgeCopyWithImpl(this._self, this._then);
+
+  final PromoBadge _self;
+  final $Res Function(PromoBadge) _then;
+
+/// Create a copy of PromoBadge
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? label = null,}) {
+  return _then(PromoBadge(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PromoBadge].
+extension PromoBadgePatterns on PromoBadge {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PromoBadge value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PromoBadge() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PromoBadge value)  $default,){
+final _that = this;
+switch (_that) {
+case _PromoBadge():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PromoBadge value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PromoBadge() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String code,  String label)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PromoBadge() when $default != null:
+return $default(_that.code,_that.label);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String code,  String label)  $default,) {final _that = this;
+switch (_that) {
+case _PromoBadge():
+return $default(_that.code,_that.label);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String code,  String label)?  $default,) {final _that = this;
+switch (_that) {
+case _PromoBadge() when $default != null:
+return $default(_that.code,_that.label);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PromoBadge implements PromoBadge {
+  const _PromoBadge({required this.code, required this.label});
+  factory _PromoBadge.fromJson(Map<String, dynamic> json) => _$PromoBadgeFromJson(json);
+
+@override final  String code;
+@override final  String label;
+
+/// Create a copy of PromoBadge
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PromoBadgeCopyWith<_PromoBadge> get copyWith => __$PromoBadgeCopyWithImpl<_PromoBadge>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PromoBadgeToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PromoBadge&&(identical(other.code, code) || other.code == code)&&(identical(other.label, label) || other.label == label));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,code,label);
+}
+
+@override
+String toString() {
+    return 'PromoBadge(code: $code, label: $label)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PromoBadgeCopyWith<$Res> implements $PromoBadgeCopyWith<$Res> {
+  factory _$PromoBadgeCopyWith(_PromoBadge value, $Res Function(_PromoBadge) _then) = __$PromoBadgeCopyWithImpl;
+@override @useResult
+$Res call({
+ String code, String label
+});
+
+
+
+
+}
+/// @nodoc
+class __$PromoBadgeCopyWithImpl<$Res>
+    implements _$PromoBadgeCopyWith<$Res> {
+  __$PromoBadgeCopyWithImpl(this._self, this._then);
+
+  final _PromoBadge _self;
+  final $Res Function(_PromoBadge) _then;
+
+/// Create a copy of PromoBadge
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? label = null,}) {
+  return _then(_PromoBadge(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ServiceInfo {
+
+ String get id; String get name; String get tagline; bool get available; int? get merchants; List<String> get options; List<String> get comingSoon; List<String> get cities;
+/// Create a copy of ServiceInfo
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ServiceInfoCopyWith<ServiceInfo> get copyWith => _$ServiceInfoCopyWithImpl<ServiceInfo>(this as ServiceInfo, _$identity);
+
+  /// Serializes this ServiceInfo to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ServiceInfo;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServiceInfo&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.tagline, _this.tagline) || other.tagline == _this.tagline)&&(identical(other.available, _this.available) || other.available == _this.available)&&(identical(other.merchants, _this.merchants) || other.merchants == _this.merchants)&&const DeepCollectionEquality().equals(other.options, _this.options)&&const DeepCollectionEquality().equals(other.comingSoon, _this.comingSoon)&&const DeepCollectionEquality().equals(other.cities, _this.cities));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ServiceInfo;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.tagline,_this.available,_this.merchants,const DeepCollectionEquality().hash(_this.options),const DeepCollectionEquality().hash(_this.comingSoon),const DeepCollectionEquality().hash(_this.cities));
+}
+
+@override
+String toString() {
+  final _this = this as ServiceInfo;
+  return 'ServiceInfo(id: ${_this.id}, name: ${_this.name}, tagline: ${_this.tagline}, available: ${_this.available}, merchants: ${_this.merchants}, options: ${_this.options}, comingSoon: ${_this.comingSoon}, cities: ${_this.cities})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ServiceInfoCopyWith<$Res>  {
+  factory $ServiceInfoCopyWith(ServiceInfo value, $Res Function(ServiceInfo) _then) = _$ServiceInfoCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, String tagline, bool available, int? merchants, List<String> options, List<String> comingSoon, List<String> cities
+});
+
+
+
+
+}
+/// @nodoc
+class _$ServiceInfoCopyWithImpl<$Res>
+    implements $ServiceInfoCopyWith<$Res> {
+  _$ServiceInfoCopyWithImpl(this._self, this._then);
+
+  final ServiceInfo _self;
+  final $Res Function(ServiceInfo) _then;
+
+/// Create a copy of ServiceInfo
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? tagline = null,Object? available = null,Object? merchants = freezed,Object? options = null,Object? comingSoon = null,Object? cities = null,}) {
+  return _then(ServiceInfo(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,tagline: null == tagline ? _self.tagline : tagline // ignore: cast_nullable_to_non_nullable
+as String,available: null == available ? _self.available : available // ignore: cast_nullable_to_non_nullable
+as bool,merchants: freezed == merchants ? _self.merchants : merchants // ignore: cast_nullable_to_non_nullable
+as int?,options: null == options ? _self.options : options // ignore: cast_nullable_to_non_nullable
+as List<String>,comingSoon: null == comingSoon ? _self.comingSoon : comingSoon // ignore: cast_nullable_to_non_nullable
+as List<String>,cities: null == cities ? _self.cities : cities // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ServiceInfo].
+extension ServiceInfoPatterns on ServiceInfo {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ServiceInfo value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ServiceInfo() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ServiceInfo value)  $default,){
+final _that = this;
+switch (_that) {
+case _ServiceInfo():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ServiceInfo value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ServiceInfo() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String tagline,  bool available,  int? merchants,  List<String> options,  List<String> comingSoon,  List<String> cities)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ServiceInfo() when $default != null:
+return $default(_that.id,_that.name,_that.tagline,_that.available,_that.merchants,_that.options,_that.comingSoon,_that.cities);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String tagline,  bool available,  int? merchants,  List<String> options,  List<String> comingSoon,  List<String> cities)  $default,) {final _that = this;
+switch (_that) {
+case _ServiceInfo():
+return $default(_that.id,_that.name,_that.tagline,_that.available,_that.merchants,_that.options,_that.comingSoon,_that.cities);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String tagline,  bool available,  int? merchants,  List<String> options,  List<String> comingSoon,  List<String> cities)?  $default,) {final _that = this;
+switch (_that) {
+case _ServiceInfo() when $default != null:
+return $default(_that.id,_that.name,_that.tagline,_that.available,_that.merchants,_that.options,_that.comingSoon,_that.cities);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ServiceInfo implements ServiceInfo {
+  const _ServiceInfo({required this.id, required this.name, this.tagline = '', this.available = true, this.merchants,  List<String> options = const <String>[],  List<String> comingSoon = const <String>[],  List<String> cities = const <String>[]}): _options = options,_comingSoon = comingSoon,_cities = cities;
+  factory _ServiceInfo.fromJson(Map<String, dynamic> json) => _$ServiceInfoFromJson(json);
+
+@override final  String id;
+@override final  String name;
+@override@JsonKey() final  String tagline;
+@override@JsonKey() final  bool available;
+@override final  int? merchants;
+ final  List<String> _options;
+@override@JsonKey() List<String> get options {
+  if (_options is EqualUnmodifiableListView) return _options;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_options);
+}
+
+ final  List<String> _comingSoon;
+@override@JsonKey() List<String> get comingSoon {
+  if (_comingSoon is EqualUnmodifiableListView) return _comingSoon;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_comingSoon);
+}
+
+ final  List<String> _cities;
+@override@JsonKey() List<String> get cities {
+  if (_cities is EqualUnmodifiableListView) return _cities;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_cities);
+}
+
+
+/// Create a copy of ServiceInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ServiceInfoCopyWith<_ServiceInfo> get copyWith => __$ServiceInfoCopyWithImpl<_ServiceInfo>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ServiceInfoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServiceInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.tagline, tagline) || other.tagline == tagline)&&(identical(other.available, available) || other.available == available)&&(identical(other.merchants, merchants) || other.merchants == merchants)&&const DeepCollectionEquality().equals(other.options, _options)&&const DeepCollectionEquality().equals(other.comingSoon, _comingSoon)&&const DeepCollectionEquality().equals(other.cities, _cities));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,name,tagline,available,merchants,const DeepCollectionEquality().hash(_options),const DeepCollectionEquality().hash(_comingSoon),const DeepCollectionEquality().hash(_cities));
+}
+
+@override
+String toString() {
+    return 'ServiceInfo(id: $id, name: $name, tagline: $tagline, available: $available, merchants: $merchants, options: $options, comingSoon: $comingSoon, cities: $cities)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ServiceInfoCopyWith<$Res> implements $ServiceInfoCopyWith<$Res> {
+  factory _$ServiceInfoCopyWith(_ServiceInfo value, $Res Function(_ServiceInfo) _then) = __$ServiceInfoCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, String tagline, bool available, int? merchants, List<String> options, List<String> comingSoon, List<String> cities
+});
+
+
+
+
+}
+/// @nodoc
+class __$ServiceInfoCopyWithImpl<$Res>
+    implements _$ServiceInfoCopyWith<$Res> {
+  __$ServiceInfoCopyWithImpl(this._self, this._then);
+
+  final _ServiceInfo _self;
+  final $Res Function(_ServiceInfo) _then;
+
+/// Create a copy of ServiceInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? tagline = null,Object? available = null,Object? merchants = freezed,Object? options = null,Object? comingSoon = null,Object? cities = null,}) {
+  return _then(_ServiceInfo(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,tagline: null == tagline ? _self.tagline : tagline // ignore: cast_nullable_to_non_nullable
+as String,available: null == available ? _self.available : available // ignore: cast_nullable_to_non_nullable
+as bool,merchants: freezed == merchants ? _self.merchants : merchants // ignore: cast_nullable_to_non_nullable
+as int?,options: null == options ? _self._options : options // ignore: cast_nullable_to_non_nullable
+as List<String>,comingSoon: null == comingSoon ? _self._comingSoon : comingSoon // ignore: cast_nullable_to_non_nullable
+as List<String>,cities: null == cities ? _self._cities : cities // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$BrowseCategory {
+
+ String get id; String get name; String get emoji; int get merchants;
+/// Create a copy of BrowseCategory
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BrowseCategoryCopyWith<BrowseCategory> get copyWith => _$BrowseCategoryCopyWithImpl<BrowseCategory>(this as BrowseCategory, _$identity);
+
+  /// Serializes this BrowseCategory to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as BrowseCategory;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrowseCategory&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.emoji, _this.emoji) || other.emoji == _this.emoji)&&(identical(other.merchants, _this.merchants) || other.merchants == _this.merchants));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as BrowseCategory;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.emoji,_this.merchants);
+}
+
+@override
+String toString() {
+  final _this = this as BrowseCategory;
+  return 'BrowseCategory(id: ${_this.id}, name: ${_this.name}, emoji: ${_this.emoji}, merchants: ${_this.merchants})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $BrowseCategoryCopyWith<$Res>  {
+  factory $BrowseCategoryCopyWith(BrowseCategory value, $Res Function(BrowseCategory) _then) = _$BrowseCategoryCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, String emoji, int merchants
+});
+
+
+
+
+}
+/// @nodoc
+class _$BrowseCategoryCopyWithImpl<$Res>
+    implements $BrowseCategoryCopyWith<$Res> {
+  _$BrowseCategoryCopyWithImpl(this._self, this._then);
+
+  final BrowseCategory _self;
+  final $Res Function(BrowseCategory) _then;
+
+/// Create a copy of BrowseCategory
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? emoji = null,Object? merchants = null,}) {
+  return _then(BrowseCategory(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,emoji: null == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
+as String,merchants: null == merchants ? _self.merchants : merchants // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [BrowseCategory].
+extension BrowseCategoryPatterns on BrowseCategory {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BrowseCategory value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BrowseCategory() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BrowseCategory value)  $default,){
+final _that = this;
+switch (_that) {
+case _BrowseCategory():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BrowseCategory value)?  $default,){
+final _that = this;
+switch (_that) {
+case _BrowseCategory() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String emoji,  int merchants)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BrowseCategory() when $default != null:
+return $default(_that.id,_that.name,_that.emoji,_that.merchants);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String emoji,  int merchants)  $default,) {final _that = this;
+switch (_that) {
+case _BrowseCategory():
+return $default(_that.id,_that.name,_that.emoji,_that.merchants);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String emoji,  int merchants)?  $default,) {final _that = this;
+switch (_that) {
+case _BrowseCategory() when $default != null:
+return $default(_that.id,_that.name,_that.emoji,_that.merchants);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _BrowseCategory implements BrowseCategory {
+  const _BrowseCategory({required this.id, required this.name, this.emoji = '', this.merchants = 0});
+  factory _BrowseCategory.fromJson(Map<String, dynamic> json) => _$BrowseCategoryFromJson(json);
+
+@override final  String id;
+@override final  String name;
+@override@JsonKey() final  String emoji;
+@override@JsonKey() final  int merchants;
+
+/// Create a copy of BrowseCategory
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$BrowseCategoryCopyWith<_BrowseCategory> get copyWith => __$BrowseCategoryCopyWithImpl<_BrowseCategory>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$BrowseCategoryToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrowseCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.merchants, merchants) || other.merchants == merchants));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,name,emoji,merchants);
+}
+
+@override
+String toString() {
+    return 'BrowseCategory(id: $id, name: $name, emoji: $emoji, merchants: $merchants)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$BrowseCategoryCopyWith<$Res> implements $BrowseCategoryCopyWith<$Res> {
+  factory _$BrowseCategoryCopyWith(_BrowseCategory value, $Res Function(_BrowseCategory) _then) = __$BrowseCategoryCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, String emoji, int merchants
+});
+
+
+
+
+}
+/// @nodoc
+class __$BrowseCategoryCopyWithImpl<$Res>
+    implements _$BrowseCategoryCopyWith<$Res> {
+  __$BrowseCategoryCopyWithImpl(this._self, this._then);
+
+  final _BrowseCategory _self;
+  final $Res Function(_BrowseCategory) _then;
+
+/// Create a copy of BrowseCategory
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? emoji = null,Object? merchants = null,}) {
+  return _then(_BrowseCategory(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,emoji: null == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
+as String,merchants: null == merchants ? _self.merchants : merchants // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$PlaceArea {
+
+ String get name; String get city; double get lat; double get lng;
+/// Create a copy of PlaceArea
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PlaceAreaCopyWith<PlaceArea> get copyWith => _$PlaceAreaCopyWithImpl<PlaceArea>(this as PlaceArea, _$identity);
+
+  /// Serializes this PlaceArea to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as PlaceArea;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PlaceArea&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.lat, _this.lat) || other.lat == _this.lat)&&(identical(other.lng, _this.lng) || other.lng == _this.lng));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as PlaceArea;
+  return Object.hash(runtimeType,_this.name,_this.city,_this.lat,_this.lng);
+}
+
+@override
+String toString() {
+  final _this = this as PlaceArea;
+  return 'PlaceArea(name: ${_this.name}, city: ${_this.city}, lat: ${_this.lat}, lng: ${_this.lng})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PlaceAreaCopyWith<$Res>  {
+  factory $PlaceAreaCopyWith(PlaceArea value, $Res Function(PlaceArea) _then) = _$PlaceAreaCopyWithImpl;
+@useResult
+$Res call({
+ String name, String city, double lat, double lng
+});
+
+
+
+
+}
+/// @nodoc
+class _$PlaceAreaCopyWithImpl<$Res>
+    implements $PlaceAreaCopyWith<$Res> {
+  _$PlaceAreaCopyWithImpl(this._self, this._then);
+
+  final PlaceArea _self;
+  final $Res Function(PlaceArea) _then;
+
+/// Create a copy of PlaceArea
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? city = null,Object? lat = null,Object? lng = null,}) {
+  return _then(PlaceArea(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,lat: null == lat ? _self.lat : lat // ignore: cast_nullable_to_non_nullable
+as double,lng: null == lng ? _self.lng : lng // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PlaceArea].
+extension PlaceAreaPatterns on PlaceArea {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PlaceArea value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PlaceArea() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PlaceArea value)  $default,){
+final _that = this;
+switch (_that) {
+case _PlaceArea():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PlaceArea value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PlaceArea() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String city,  double lat,  double lng)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PlaceArea() when $default != null:
+return $default(_that.name,_that.city,_that.lat,_that.lng);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String city,  double lat,  double lng)  $default,) {final _that = this;
+switch (_that) {
+case _PlaceArea():
+return $default(_that.name,_that.city,_that.lat,_that.lng);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String city,  double lat,  double lng)?  $default,) {final _that = this;
+switch (_that) {
+case _PlaceArea() when $default != null:
+return $default(_that.name,_that.city,_that.lat,_that.lng);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PlaceArea implements PlaceArea {
+  const _PlaceArea({required this.name, required this.city, required this.lat, required this.lng});
+  factory _PlaceArea.fromJson(Map<String, dynamic> json) => _$PlaceAreaFromJson(json);
+
+@override final  String name;
+@override final  String city;
+@override final  double lat;
+@override final  double lng;
+
+/// Create a copy of PlaceArea
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PlaceAreaCopyWith<_PlaceArea> get copyWith => __$PlaceAreaCopyWithImpl<_PlaceArea>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PlaceAreaToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PlaceArea&&(identical(other.name, name) || other.name == name)&&(identical(other.city, city) || other.city == city)&&(identical(other.lat, lat) || other.lat == lat)&&(identical(other.lng, lng) || other.lng == lng));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,name,city,lat,lng);
+}
+
+@override
+String toString() {
+    return 'PlaceArea(name: $name, city: $city, lat: $lat, lng: $lng)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PlaceAreaCopyWith<$Res> implements $PlaceAreaCopyWith<$Res> {
+  factory _$PlaceAreaCopyWith(_PlaceArea value, $Res Function(_PlaceArea) _then) = __$PlaceAreaCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, String city, double lat, double lng
+});
+
+
+
+
+}
+/// @nodoc
+class __$PlaceAreaCopyWithImpl<$Res>
+    implements _$PlaceAreaCopyWith<$Res> {
+  __$PlaceAreaCopyWithImpl(this._self, this._then);
+
+  final _PlaceArea _self;
+  final $Res Function(_PlaceArea) _then;
+
+/// Create a copy of PlaceArea
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? city = null,Object? lat = null,Object? lng = null,}) {
+  return _then(_PlaceArea(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,lat: null == lat ? _self.lat : lat // ignore: cast_nullable_to_non_nullable
+as double,lng: null == lng ? _self.lng : lng // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ParcelStop {
+
+ String get name; String get phone; String get line1; String? get area; String get city; GeoPoint get location; String? get instructions;
+/// Create a copy of ParcelStop
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ParcelStopCopyWith<ParcelStop> get copyWith => _$ParcelStopCopyWithImpl<ParcelStop>(this as ParcelStop, _$identity);
+
+  /// Serializes this ParcelStop to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ParcelStop;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParcelStop&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.line1, _this.line1) || other.line1 == _this.line1)&&(identical(other.area, _this.area) || other.area == _this.area)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.location, _this.location) || other.location == _this.location)&&(identical(other.instructions, _this.instructions) || other.instructions == _this.instructions));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ParcelStop;
+  return Object.hash(runtimeType,_this.name,_this.phone,_this.line1,_this.area,_this.city,_this.location,_this.instructions);
+}
+
+@override
+String toString() {
+  final _this = this as ParcelStop;
+  return 'ParcelStop(name: ${_this.name}, phone: ${_this.phone}, line1: ${_this.line1}, area: ${_this.area}, city: ${_this.city}, location: ${_this.location}, instructions: ${_this.instructions})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ParcelStopCopyWith<$Res>  {
+  factory $ParcelStopCopyWith(ParcelStop value, $Res Function(ParcelStop) _then) = _$ParcelStopCopyWithImpl;
+@useResult
+$Res call({
+ String name, String phone, String line1, String? area, String city, GeoPoint location, String? instructions
+});
+
+
+$GeoPointCopyWith<$Res> get location;
+
+}
+/// @nodoc
+class _$ParcelStopCopyWithImpl<$Res>
+    implements $ParcelStopCopyWith<$Res> {
+  _$ParcelStopCopyWithImpl(this._self, this._then);
+
+  final ParcelStop _self;
+  final $Res Function(ParcelStop) _then;
+
+/// Create a copy of ParcelStop
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? phone = null,Object? line1 = null,Object? area = freezed,Object? city = null,Object? location = null,Object? instructions = freezed,}) {
+  return _then(ParcelStop(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String,line1: null == line1 ? _self.line1 : line1 // ignore: cast_nullable_to_non_nullable
+as String,area: freezed == area ? _self.area : area // ignore: cast_nullable_to_non_nullable
+as String?,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as GeoPoint,instructions: freezed == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+/// Create a copy of ParcelStop
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GeoPointCopyWith<$Res> get location {
+  
+  return $GeoPointCopyWith<$Res>(_self.location, (value) {
+    return _then(_self.copyWith(location: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ParcelStop].
+extension ParcelStopPatterns on ParcelStop {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ParcelStop value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ParcelStop() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ParcelStop value)  $default,){
+final _that = this;
+switch (_that) {
+case _ParcelStop():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ParcelStop value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ParcelStop() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String phone,  String line1,  String? area,  String city,  GeoPoint location,  String? instructions)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ParcelStop() when $default != null:
+return $default(_that.name,_that.phone,_that.line1,_that.area,_that.city,_that.location,_that.instructions);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String phone,  String line1,  String? area,  String city,  GeoPoint location,  String? instructions)  $default,) {final _that = this;
+switch (_that) {
+case _ParcelStop():
+return $default(_that.name,_that.phone,_that.line1,_that.area,_that.city,_that.location,_that.instructions);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String phone,  String line1,  String? area,  String city,  GeoPoint location,  String? instructions)?  $default,) {final _that = this;
+switch (_that) {
+case _ParcelStop() when $default != null:
+return $default(_that.name,_that.phone,_that.line1,_that.area,_that.city,_that.location,_that.instructions);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ParcelStop implements ParcelStop {
+  const _ParcelStop({required this.name, required this.phone, required this.line1, this.area, this.city = 'Lagos', required this.location, this.instructions});
+  factory _ParcelStop.fromJson(Map<String, dynamic> json) => _$ParcelStopFromJson(json);
+
+@override final  String name;
+@override final  String phone;
+@override final  String line1;
+@override final  String? area;
+@override@JsonKey() final  String city;
+@override final  GeoPoint location;
+@override final  String? instructions;
+
+/// Create a copy of ParcelStop
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ParcelStopCopyWith<_ParcelStop> get copyWith => __$ParcelStopCopyWithImpl<_ParcelStop>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ParcelStopToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ParcelStop&&(identical(other.name, name) || other.name == name)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.line1, line1) || other.line1 == line1)&&(identical(other.area, area) || other.area == area)&&(identical(other.city, city) || other.city == city)&&(identical(other.location, location) || other.location == location)&&(identical(other.instructions, instructions) || other.instructions == instructions));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,name,phone,line1,area,city,location,instructions);
+}
+
+@override
+String toString() {
+    return 'ParcelStop(name: $name, phone: $phone, line1: $line1, area: $area, city: $city, location: $location, instructions: $instructions)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ParcelStopCopyWith<$Res> implements $ParcelStopCopyWith<$Res> {
+  factory _$ParcelStopCopyWith(_ParcelStop value, $Res Function(_ParcelStop) _then) = __$ParcelStopCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, String phone, String line1, String? area, String city, GeoPoint location, String? instructions
+});
+
+
+@override $GeoPointCopyWith<$Res> get location;
+
+}
+/// @nodoc
+class __$ParcelStopCopyWithImpl<$Res>
+    implements _$ParcelStopCopyWith<$Res> {
+  __$ParcelStopCopyWithImpl(this._self, this._then);
+
+  final _ParcelStop _self;
+  final $Res Function(_ParcelStop) _then;
+
+/// Create a copy of ParcelStop
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? phone = null,Object? line1 = null,Object? area = freezed,Object? city = null,Object? location = null,Object? instructions = freezed,}) {
+  return _then(_ParcelStop(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String,line1: null == line1 ? _self.line1 : line1 // ignore: cast_nullable_to_non_nullable
+as String,area: freezed == area ? _self.area : area // ignore: cast_nullable_to_non_nullable
+as String?,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as GeoPoint,instructions: freezed == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+/// Create a copy of ParcelStop
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GeoPointCopyWith<$Res> get location {
+  
+  return $GeoPointCopyWith<$Res>(_self.location, (value) {
+    return _then(_self.copyWith(location: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$ParcelDetails {
+
+ ParcelStop get pickup; ParcelStop get dropoff; String get size; String get category; String get description; String get city;
+/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ParcelDetailsCopyWith<ParcelDetails> get copyWith => _$ParcelDetailsCopyWithImpl<ParcelDetails>(this as ParcelDetails, _$identity);
+
+  /// Serializes this ParcelDetails to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ParcelDetails;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParcelDetails&&(identical(other.pickup, _this.pickup) || other.pickup == _this.pickup)&&(identical(other.dropoff, _this.dropoff) || other.dropoff == _this.dropoff)&&(identical(other.size, _this.size) || other.size == _this.size)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.city, _this.city) || other.city == _this.city));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ParcelDetails;
+  return Object.hash(runtimeType,_this.pickup,_this.dropoff,_this.size,_this.category,_this.description,_this.city);
+}
+
+@override
+String toString() {
+  final _this = this as ParcelDetails;
+  return 'ParcelDetails(pickup: ${_this.pickup}, dropoff: ${_this.dropoff}, size: ${_this.size}, category: ${_this.category}, description: ${_this.description}, city: ${_this.city})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ParcelDetailsCopyWith<$Res>  {
+  factory $ParcelDetailsCopyWith(ParcelDetails value, $Res Function(ParcelDetails) _then) = _$ParcelDetailsCopyWithImpl;
+@useResult
+$Res call({
+ ParcelStop pickup, ParcelStop dropoff, String size, String category, String description, String city
+});
+
+
+$ParcelStopCopyWith<$Res> get pickup;$ParcelStopCopyWith<$Res> get dropoff;
+
+}
+/// @nodoc
+class _$ParcelDetailsCopyWithImpl<$Res>
+    implements $ParcelDetailsCopyWith<$Res> {
+  _$ParcelDetailsCopyWithImpl(this._self, this._then);
+
+  final ParcelDetails _self;
+  final $Res Function(ParcelDetails) _then;
+
+/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? pickup = null,Object? dropoff = null,Object? size = null,Object? category = null,Object? description = null,Object? city = null,}) {
+  return _then(ParcelDetails(
+pickup: null == pickup ? _self.pickup : pickup // ignore: cast_nullable_to_non_nullable
+as ParcelStop,dropoff: null == dropoff ? _self.dropoff : dropoff // ignore: cast_nullable_to_non_nullable
+as ParcelStop,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelStopCopyWith<$Res> get pickup {
+  
+  return $ParcelStopCopyWith<$Res>(_self.pickup, (value) {
+    return _then(_self.copyWith(pickup: value));
+  });
+}/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelStopCopyWith<$Res> get dropoff {
+  
+  return $ParcelStopCopyWith<$Res>(_self.dropoff, (value) {
+    return _then(_self.copyWith(dropoff: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ParcelDetails].
+extension ParcelDetailsPatterns on ParcelDetails {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ParcelDetails value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ParcelDetails() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ParcelDetails value)  $default,){
+final _that = this;
+switch (_that) {
+case _ParcelDetails():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ParcelDetails value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ParcelDetails() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ParcelStop pickup,  ParcelStop dropoff,  String size,  String category,  String description,  String city)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ParcelDetails() when $default != null:
+return $default(_that.pickup,_that.dropoff,_that.size,_that.category,_that.description,_that.city);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ParcelStop pickup,  ParcelStop dropoff,  String size,  String category,  String description,  String city)  $default,) {final _that = this;
+switch (_that) {
+case _ParcelDetails():
+return $default(_that.pickup,_that.dropoff,_that.size,_that.category,_that.description,_that.city);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ParcelStop pickup,  ParcelStop dropoff,  String size,  String category,  String description,  String city)?  $default,) {final _that = this;
+switch (_that) {
+case _ParcelDetails() when $default != null:
+return $default(_that.pickup,_that.dropoff,_that.size,_that.category,_that.description,_that.city);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ParcelDetails implements ParcelDetails {
+  const _ParcelDetails({required this.pickup, required this.dropoff, this.size = 'small', this.category = 'other', this.description = '', this.city = 'lagos'});
+  factory _ParcelDetails.fromJson(Map<String, dynamic> json) => _$ParcelDetailsFromJson(json);
+
+@override final  ParcelStop pickup;
+@override final  ParcelStop dropoff;
+@override@JsonKey() final  String size;
+@override@JsonKey() final  String category;
+@override@JsonKey() final  String description;
+@override@JsonKey() final  String city;
+
+/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ParcelDetailsCopyWith<_ParcelDetails> get copyWith => __$ParcelDetailsCopyWithImpl<_ParcelDetails>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ParcelDetailsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ParcelDetails&&(identical(other.pickup, pickup) || other.pickup == pickup)&&(identical(other.dropoff, dropoff) || other.dropoff == dropoff)&&(identical(other.size, size) || other.size == size)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.city, city) || other.city == city));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,pickup,dropoff,size,category,description,city);
+}
+
+@override
+String toString() {
+    return 'ParcelDetails(pickup: $pickup, dropoff: $dropoff, size: $size, category: $category, description: $description, city: $city)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ParcelDetailsCopyWith<$Res> implements $ParcelDetailsCopyWith<$Res> {
+  factory _$ParcelDetailsCopyWith(_ParcelDetails value, $Res Function(_ParcelDetails) _then) = __$ParcelDetailsCopyWithImpl;
+@override @useResult
+$Res call({
+ ParcelStop pickup, ParcelStop dropoff, String size, String category, String description, String city
+});
+
+
+@override $ParcelStopCopyWith<$Res> get pickup;@override $ParcelStopCopyWith<$Res> get dropoff;
+
+}
+/// @nodoc
+class __$ParcelDetailsCopyWithImpl<$Res>
+    implements _$ParcelDetailsCopyWith<$Res> {
+  __$ParcelDetailsCopyWithImpl(this._self, this._then);
+
+  final _ParcelDetails _self;
+  final $Res Function(_ParcelDetails) _then;
+
+/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? pickup = null,Object? dropoff = null,Object? size = null,Object? category = null,Object? description = null,Object? city = null,}) {
+  return _then(_ParcelDetails(
+pickup: null == pickup ? _self.pickup : pickup // ignore: cast_nullable_to_non_nullable
+as ParcelStop,dropoff: null == dropoff ? _self.dropoff : dropoff // ignore: cast_nullable_to_non_nullable
+as ParcelStop,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelStopCopyWith<$Res> get pickup {
+  
+  return $ParcelStopCopyWith<$Res>(_self.pickup, (value) {
+    return _then(_self.copyWith(pickup: value));
+  });
+}/// Create a copy of ParcelDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelStopCopyWith<$Res> get dropoff {
+  
+  return $ParcelStopCopyWith<$Res>(_self.dropoff, (value) {
+    return _then(_self.copyWith(dropoff: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$ParcelQuote {
+
+ String get id; ParcelDetails get details; PriceBreakdown get breakdown; double get distanceKm; int get etaMinutes; DateTime get estimatedDeliveryAt; DateTime? get scheduledFor; DateTime get expiresAt;
+/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ParcelQuoteCopyWith<ParcelQuote> get copyWith => _$ParcelQuoteCopyWithImpl<ParcelQuote>(this as ParcelQuote, _$identity);
+
+  /// Serializes this ParcelQuote to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ParcelQuote;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParcelQuote&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.details, _this.details) || other.details == _this.details)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.distanceKm, _this.distanceKm) || other.distanceKm == _this.distanceKm)&&(identical(other.etaMinutes, _this.etaMinutes) || other.etaMinutes == _this.etaMinutes)&&(identical(other.estimatedDeliveryAt, _this.estimatedDeliveryAt) || other.estimatedDeliveryAt == _this.estimatedDeliveryAt)&&(identical(other.scheduledFor, _this.scheduledFor) || other.scheduledFor == _this.scheduledFor)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ParcelQuote;
+  return Object.hash(runtimeType,_this.id,_this.details,_this.breakdown,_this.distanceKm,_this.etaMinutes,_this.estimatedDeliveryAt,_this.scheduledFor,_this.expiresAt);
+}
+
+@override
+String toString() {
+  final _this = this as ParcelQuote;
+  return 'ParcelQuote(id: ${_this.id}, details: ${_this.details}, breakdown: ${_this.breakdown}, distanceKm: ${_this.distanceKm}, etaMinutes: ${_this.etaMinutes}, estimatedDeliveryAt: ${_this.estimatedDeliveryAt}, scheduledFor: ${_this.scheduledFor}, expiresAt: ${_this.expiresAt})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ParcelQuoteCopyWith<$Res>  {
+  factory $ParcelQuoteCopyWith(ParcelQuote value, $Res Function(ParcelQuote) _then) = _$ParcelQuoteCopyWithImpl;
+@useResult
+$Res call({
+ String id, ParcelDetails details, PriceBreakdown breakdown, double distanceKm, int etaMinutes, DateTime estimatedDeliveryAt, DateTime? scheduledFor, DateTime expiresAt
+});
+
+
+$ParcelDetailsCopyWith<$Res> get details;$PriceBreakdownCopyWith<$Res> get breakdown;
+
+}
+/// @nodoc
+class _$ParcelQuoteCopyWithImpl<$Res>
+    implements $ParcelQuoteCopyWith<$Res> {
+  _$ParcelQuoteCopyWithImpl(this._self, this._then);
+
+  final ParcelQuote _self;
+  final $Res Function(ParcelQuote) _then;
+
+/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? details = null,Object? breakdown = null,Object? distanceKm = null,Object? etaMinutes = null,Object? estimatedDeliveryAt = null,Object? scheduledFor = freezed,Object? expiresAt = null,}) {
+  return _then(ParcelQuote(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,details: null == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
+as ParcelDetails,breakdown: null == breakdown ? _self.breakdown : breakdown // ignore: cast_nullable_to_non_nullable
+as PriceBreakdown,distanceKm: null == distanceKm ? _self.distanceKm : distanceKm // ignore: cast_nullable_to_non_nullable
+as double,etaMinutes: null == etaMinutes ? _self.etaMinutes : etaMinutes // ignore: cast_nullable_to_non_nullable
+as int,estimatedDeliveryAt: null == estimatedDeliveryAt ? _self.estimatedDeliveryAt : estimatedDeliveryAt // ignore: cast_nullable_to_non_nullable
+as DateTime,scheduledFor: freezed == scheduledFor ? _self.scheduledFor : scheduledFor // ignore: cast_nullable_to_non_nullable
+as DateTime?,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelDetailsCopyWith<$Res> get details {
+  
+  return $ParcelDetailsCopyWith<$Res>(_self.details, (value) {
+    return _then(_self.copyWith(details: value));
+  });
+}/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PriceBreakdownCopyWith<$Res> get breakdown {
+  
+  return $PriceBreakdownCopyWith<$Res>(_self.breakdown, (value) {
+    return _then(_self.copyWith(breakdown: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ParcelQuote].
+extension ParcelQuotePatterns on ParcelQuote {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ParcelQuote value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ParcelQuote() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ParcelQuote value)  $default,){
+final _that = this;
+switch (_that) {
+case _ParcelQuote():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ParcelQuote value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ParcelQuote() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  ParcelDetails details,  PriceBreakdown breakdown,  double distanceKm,  int etaMinutes,  DateTime estimatedDeliveryAt,  DateTime? scheduledFor,  DateTime expiresAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ParcelQuote() when $default != null:
+return $default(_that.id,_that.details,_that.breakdown,_that.distanceKm,_that.etaMinutes,_that.estimatedDeliveryAt,_that.scheduledFor,_that.expiresAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  ParcelDetails details,  PriceBreakdown breakdown,  double distanceKm,  int etaMinutes,  DateTime estimatedDeliveryAt,  DateTime? scheduledFor,  DateTime expiresAt)  $default,) {final _that = this;
+switch (_that) {
+case _ParcelQuote():
+return $default(_that.id,_that.details,_that.breakdown,_that.distanceKm,_that.etaMinutes,_that.estimatedDeliveryAt,_that.scheduledFor,_that.expiresAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  ParcelDetails details,  PriceBreakdown breakdown,  double distanceKm,  int etaMinutes,  DateTime estimatedDeliveryAt,  DateTime? scheduledFor,  DateTime expiresAt)?  $default,) {final _that = this;
+switch (_that) {
+case _ParcelQuote() when $default != null:
+return $default(_that.id,_that.details,_that.breakdown,_that.distanceKm,_that.etaMinutes,_that.estimatedDeliveryAt,_that.scheduledFor,_that.expiresAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ParcelQuote implements ParcelQuote {
+  const _ParcelQuote({required this.id, required this.details, required this.breakdown, required this.distanceKm, required this.etaMinutes, required this.estimatedDeliveryAt, this.scheduledFor, required this.expiresAt});
+  factory _ParcelQuote.fromJson(Map<String, dynamic> json) => _$ParcelQuoteFromJson(json);
+
+@override final  String id;
+@override final  ParcelDetails details;
+@override final  PriceBreakdown breakdown;
+@override final  double distanceKm;
+@override final  int etaMinutes;
+@override final  DateTime estimatedDeliveryAt;
+@override final  DateTime? scheduledFor;
+@override final  DateTime expiresAt;
+
+/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ParcelQuoteCopyWith<_ParcelQuote> get copyWith => __$ParcelQuoteCopyWithImpl<_ParcelQuote>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ParcelQuoteToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ParcelQuote&&(identical(other.id, id) || other.id == id)&&(identical(other.details, details) || other.details == details)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.distanceKm, distanceKm) || other.distanceKm == distanceKm)&&(identical(other.etaMinutes, etaMinutes) || other.etaMinutes == etaMinutes)&&(identical(other.estimatedDeliveryAt, estimatedDeliveryAt) || other.estimatedDeliveryAt == estimatedDeliveryAt)&&(identical(other.scheduledFor, scheduledFor) || other.scheduledFor == scheduledFor)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,details,breakdown,distanceKm,etaMinutes,estimatedDeliveryAt,scheduledFor,expiresAt);
+}
+
+@override
+String toString() {
+    return 'ParcelQuote(id: $id, details: $details, breakdown: $breakdown, distanceKm: $distanceKm, etaMinutes: $etaMinutes, estimatedDeliveryAt: $estimatedDeliveryAt, scheduledFor: $scheduledFor, expiresAt: $expiresAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ParcelQuoteCopyWith<$Res> implements $ParcelQuoteCopyWith<$Res> {
+  factory _$ParcelQuoteCopyWith(_ParcelQuote value, $Res Function(_ParcelQuote) _then) = __$ParcelQuoteCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, ParcelDetails details, PriceBreakdown breakdown, double distanceKm, int etaMinutes, DateTime estimatedDeliveryAt, DateTime? scheduledFor, DateTime expiresAt
+});
+
+
+@override $ParcelDetailsCopyWith<$Res> get details;@override $PriceBreakdownCopyWith<$Res> get breakdown;
+
+}
+/// @nodoc
+class __$ParcelQuoteCopyWithImpl<$Res>
+    implements _$ParcelQuoteCopyWith<$Res> {
+  __$ParcelQuoteCopyWithImpl(this._self, this._then);
+
+  final _ParcelQuote _self;
+  final $Res Function(_ParcelQuote) _then;
+
+/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? details = null,Object? breakdown = null,Object? distanceKm = null,Object? etaMinutes = null,Object? estimatedDeliveryAt = null,Object? scheduledFor = freezed,Object? expiresAt = null,}) {
+  return _then(_ParcelQuote(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,details: null == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
+as ParcelDetails,breakdown: null == breakdown ? _self.breakdown : breakdown // ignore: cast_nullable_to_non_nullable
+as PriceBreakdown,distanceKm: null == distanceKm ? _self.distanceKm : distanceKm // ignore: cast_nullable_to_non_nullable
+as double,etaMinutes: null == etaMinutes ? _self.etaMinutes : etaMinutes // ignore: cast_nullable_to_non_nullable
+as int,estimatedDeliveryAt: null == estimatedDeliveryAt ? _self.estimatedDeliveryAt : estimatedDeliveryAt // ignore: cast_nullable_to_non_nullable
+as DateTime,scheduledFor: freezed == scheduledFor ? _self.scheduledFor : scheduledFor // ignore: cast_nullable_to_non_nullable
+as DateTime?,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ParcelDetailsCopyWith<$Res> get details {
+  
+  return $ParcelDetailsCopyWith<$Res>(_self.details, (value) {
+    return _then(_self.copyWith(details: value));
+  });
+}/// Create a copy of ParcelQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PriceBreakdownCopyWith<$Res> get breakdown {
+  
+  return $PriceBreakdownCopyWith<$Res>(_self.breakdown, (value) {
+    return _then(_self.copyWith(breakdown: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$VerticalSpend {
+
+ int get orders; int get spentKobo;
+/// Create a copy of VerticalSpend
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VerticalSpendCopyWith<VerticalSpend> get copyWith => _$VerticalSpendCopyWithImpl<VerticalSpend>(this as VerticalSpend, _$identity);
+
+  /// Serializes this VerticalSpend to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as VerticalSpend;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VerticalSpend&&(identical(other.orders, _this.orders) || other.orders == _this.orders)&&(identical(other.spentKobo, _this.spentKobo) || other.spentKobo == _this.spentKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as VerticalSpend;
+  return Object.hash(runtimeType,_this.orders,_this.spentKobo);
+}
+
+@override
+String toString() {
+  final _this = this as VerticalSpend;
+  return 'VerticalSpend(orders: ${_this.orders}, spentKobo: ${_this.spentKobo})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VerticalSpendCopyWith<$Res>  {
+  factory $VerticalSpendCopyWith(VerticalSpend value, $Res Function(VerticalSpend) _then) = _$VerticalSpendCopyWithImpl;
+@useResult
+$Res call({
+ int orders, int spentKobo
+});
+
+
+
+
+}
+/// @nodoc
+class _$VerticalSpendCopyWithImpl<$Res>
+    implements $VerticalSpendCopyWith<$Res> {
+  _$VerticalSpendCopyWithImpl(this._self, this._then);
+
+  final VerticalSpend _self;
+  final $Res Function(VerticalSpend) _then;
+
+/// Create a copy of VerticalSpend
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? orders = null,Object? spentKobo = null,}) {
+  return _then(VerticalSpend(
+orders: null == orders ? _self.orders : orders // ignore: cast_nullable_to_non_nullable
+as int,spentKobo: null == spentKobo ? _self.spentKobo : spentKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VerticalSpend].
+extension VerticalSpendPatterns on VerticalSpend {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VerticalSpend value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VerticalSpend() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VerticalSpend value)  $default,){
+final _that = this;
+switch (_that) {
+case _VerticalSpend():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VerticalSpend value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VerticalSpend() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int orders,  int spentKobo)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VerticalSpend() when $default != null:
+return $default(_that.orders,_that.spentKobo);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int orders,  int spentKobo)  $default,) {final _that = this;
+switch (_that) {
+case _VerticalSpend():
+return $default(_that.orders,_that.spentKobo);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int orders,  int spentKobo)?  $default,) {final _that = this;
+switch (_that) {
+case _VerticalSpend() when $default != null:
+return $default(_that.orders,_that.spentKobo);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _VerticalSpend implements VerticalSpend {
+  const _VerticalSpend({this.orders = 0, this.spentKobo = 0});
+  factory _VerticalSpend.fromJson(Map<String, dynamic> json) => _$VerticalSpendFromJson(json);
+
+@override@JsonKey() final  int orders;
+@override@JsonKey() final  int spentKobo;
+
+/// Create a copy of VerticalSpend
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VerticalSpendCopyWith<_VerticalSpend> get copyWith => __$VerticalSpendCopyWithImpl<_VerticalSpend>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$VerticalSpendToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _VerticalSpend&&(identical(other.orders, orders) || other.orders == orders)&&(identical(other.spentKobo, spentKobo) || other.spentKobo == spentKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,orders,spentKobo);
+}
+
+@override
+String toString() {
+    return 'VerticalSpend(orders: $orders, spentKobo: $spentKobo)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VerticalSpendCopyWith<$Res> implements $VerticalSpendCopyWith<$Res> {
+  factory _$VerticalSpendCopyWith(_VerticalSpend value, $Res Function(_VerticalSpend) _then) = __$VerticalSpendCopyWithImpl;
+@override @useResult
+$Res call({
+ int orders, int spentKobo
+});
+
+
+
+
+}
+/// @nodoc
+class __$VerticalSpendCopyWithImpl<$Res>
+    implements _$VerticalSpendCopyWith<$Res> {
+  __$VerticalSpendCopyWithImpl(this._self, this._then);
+
+  final _VerticalSpend _self;
+  final $Res Function(_VerticalSpend) _then;
+
+/// Create a copy of VerticalSpend
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? orders = null,Object? spentKobo = null,}) {
+  return _then(_VerticalSpend(
+orders: null == orders ? _self.orders : orders // ignore: cast_nullable_to_non_nullable
+as int,spentKobo: null == spentKobo ? _self.spentKobo : spentKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$FavouriteMerchant {
+
+ String get id; String get name; int get orders;
+/// Create a copy of FavouriteMerchant
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FavouriteMerchantCopyWith<FavouriteMerchant> get copyWith => _$FavouriteMerchantCopyWithImpl<FavouriteMerchant>(this as FavouriteMerchant, _$identity);
+
+  /// Serializes this FavouriteMerchant to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as FavouriteMerchant;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FavouriteMerchant&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.orders, _this.orders) || other.orders == _this.orders));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as FavouriteMerchant;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.orders);
+}
+
+@override
+String toString() {
+  final _this = this as FavouriteMerchant;
+  return 'FavouriteMerchant(id: ${_this.id}, name: ${_this.name}, orders: ${_this.orders})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FavouriteMerchantCopyWith<$Res>  {
+  factory $FavouriteMerchantCopyWith(FavouriteMerchant value, $Res Function(FavouriteMerchant) _then) = _$FavouriteMerchantCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, int orders
+});
+
+
+
+
+}
+/// @nodoc
+class _$FavouriteMerchantCopyWithImpl<$Res>
+    implements $FavouriteMerchantCopyWith<$Res> {
+  _$FavouriteMerchantCopyWithImpl(this._self, this._then);
+
+  final FavouriteMerchant _self;
+  final $Res Function(FavouriteMerchant) _then;
+
+/// Create a copy of FavouriteMerchant
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? orders = null,}) {
+  return _then(FavouriteMerchant(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,orders: null == orders ? _self.orders : orders // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FavouriteMerchant].
+extension FavouriteMerchantPatterns on FavouriteMerchant {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FavouriteMerchant value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FavouriteMerchant() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FavouriteMerchant value)  $default,){
+final _that = this;
+switch (_that) {
+case _FavouriteMerchant():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FavouriteMerchant value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FavouriteMerchant() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  int orders)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FavouriteMerchant() when $default != null:
+return $default(_that.id,_that.name,_that.orders);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  int orders)  $default,) {final _that = this;
+switch (_that) {
+case _FavouriteMerchant():
+return $default(_that.id,_that.name,_that.orders);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  int orders)?  $default,) {final _that = this;
+switch (_that) {
+case _FavouriteMerchant() when $default != null:
+return $default(_that.id,_that.name,_that.orders);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _FavouriteMerchant implements FavouriteMerchant {
+  const _FavouriteMerchant({required this.id, required this.name, this.orders = 0});
+  factory _FavouriteMerchant.fromJson(Map<String, dynamic> json) => _$FavouriteMerchantFromJson(json);
+
+@override final  String id;
+@override final  String name;
+@override@JsonKey() final  int orders;
+
+/// Create a copy of FavouriteMerchant
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FavouriteMerchantCopyWith<_FavouriteMerchant> get copyWith => __$FavouriteMerchantCopyWithImpl<_FavouriteMerchant>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$FavouriteMerchantToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FavouriteMerchant&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.orders, orders) || other.orders == orders));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,name,orders);
+}
+
+@override
+String toString() {
+    return 'FavouriteMerchant(id: $id, name: $name, orders: $orders)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FavouriteMerchantCopyWith<$Res> implements $FavouriteMerchantCopyWith<$Res> {
+  factory _$FavouriteMerchantCopyWith(_FavouriteMerchant value, $Res Function(_FavouriteMerchant) _then) = __$FavouriteMerchantCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, int orders
+});
+
+
+
+
+}
+/// @nodoc
+class __$FavouriteMerchantCopyWithImpl<$Res>
+    implements _$FavouriteMerchantCopyWith<$Res> {
+  __$FavouriteMerchantCopyWithImpl(this._self, this._then);
+
+  final _FavouriteMerchant _self;
+  final $Res Function(_FavouriteMerchant) _then;
+
+/// Create a copy of FavouriteMerchant
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? orders = null,}) {
+  return _then(_FavouriteMerchant(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,orders: null == orders ? _self.orders : orders // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$OrderSummary {
+
+ int get ordersCount; int get completedCount; int get inProgressCount; int get totalSpentKobo; int get thisMonthSpentKobo; int get refundedKobo; Map<String, VerticalSpend> get byVertical; FavouriteMerchant? get favouriteMerchant;
+/// Create a copy of OrderSummary
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$OrderSummaryCopyWith<OrderSummary> get copyWith => _$OrderSummaryCopyWithImpl<OrderSummary>(this as OrderSummary, _$identity);
+
+  /// Serializes this OrderSummary to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as OrderSummary;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderSummary&&(identical(other.ordersCount, _this.ordersCount) || other.ordersCount == _this.ordersCount)&&(identical(other.completedCount, _this.completedCount) || other.completedCount == _this.completedCount)&&(identical(other.inProgressCount, _this.inProgressCount) || other.inProgressCount == _this.inProgressCount)&&(identical(other.totalSpentKobo, _this.totalSpentKobo) || other.totalSpentKobo == _this.totalSpentKobo)&&(identical(other.thisMonthSpentKobo, _this.thisMonthSpentKobo) || other.thisMonthSpentKobo == _this.thisMonthSpentKobo)&&(identical(other.refundedKobo, _this.refundedKobo) || other.refundedKobo == _this.refundedKobo)&&const DeepCollectionEquality().equals(other.byVertical, _this.byVertical)&&(identical(other.favouriteMerchant, _this.favouriteMerchant) || other.favouriteMerchant == _this.favouriteMerchant));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as OrderSummary;
+  return Object.hash(runtimeType,_this.ordersCount,_this.completedCount,_this.inProgressCount,_this.totalSpentKobo,_this.thisMonthSpentKobo,_this.refundedKobo,const DeepCollectionEquality().hash(_this.byVertical),_this.favouriteMerchant);
+}
+
+@override
+String toString() {
+  final _this = this as OrderSummary;
+  return 'OrderSummary(ordersCount: ${_this.ordersCount}, completedCount: ${_this.completedCount}, inProgressCount: ${_this.inProgressCount}, totalSpentKobo: ${_this.totalSpentKobo}, thisMonthSpentKobo: ${_this.thisMonthSpentKobo}, refundedKobo: ${_this.refundedKobo}, byVertical: ${_this.byVertical}, favouriteMerchant: ${_this.favouriteMerchant})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $OrderSummaryCopyWith<$Res>  {
+  factory $OrderSummaryCopyWith(OrderSummary value, $Res Function(OrderSummary) _then) = _$OrderSummaryCopyWithImpl;
+@useResult
+$Res call({
+ int ordersCount, int completedCount, int inProgressCount, int totalSpentKobo, int thisMonthSpentKobo, int refundedKobo, Map<String, VerticalSpend> byVertical, FavouriteMerchant? favouriteMerchant
+});
+
+
+$FavouriteMerchantCopyWith<$Res>? get favouriteMerchant;
+
+}
+/// @nodoc
+class _$OrderSummaryCopyWithImpl<$Res>
+    implements $OrderSummaryCopyWith<$Res> {
+  _$OrderSummaryCopyWithImpl(this._self, this._then);
+
+  final OrderSummary _self;
+  final $Res Function(OrderSummary) _then;
+
+/// Create a copy of OrderSummary
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? ordersCount = null,Object? completedCount = null,Object? inProgressCount = null,Object? totalSpentKobo = null,Object? thisMonthSpentKobo = null,Object? refundedKobo = null,Object? byVertical = null,Object? favouriteMerchant = freezed,}) {
+  return _then(OrderSummary(
+ordersCount: null == ordersCount ? _self.ordersCount : ordersCount // ignore: cast_nullable_to_non_nullable
+as int,completedCount: null == completedCount ? _self.completedCount : completedCount // ignore: cast_nullable_to_non_nullable
+as int,inProgressCount: null == inProgressCount ? _self.inProgressCount : inProgressCount // ignore: cast_nullable_to_non_nullable
+as int,totalSpentKobo: null == totalSpentKobo ? _self.totalSpentKobo : totalSpentKobo // ignore: cast_nullable_to_non_nullable
+as int,thisMonthSpentKobo: null == thisMonthSpentKobo ? _self.thisMonthSpentKobo : thisMonthSpentKobo // ignore: cast_nullable_to_non_nullable
+as int,refundedKobo: null == refundedKobo ? _self.refundedKobo : refundedKobo // ignore: cast_nullable_to_non_nullable
+as int,byVertical: null == byVertical ? _self.byVertical : byVertical // ignore: cast_nullable_to_non_nullable
+as Map<String, VerticalSpend>,favouriteMerchant: freezed == favouriteMerchant ? _self.favouriteMerchant : favouriteMerchant // ignore: cast_nullable_to_non_nullable
+as FavouriteMerchant?,
+  ));
+}
+/// Create a copy of OrderSummary
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FavouriteMerchantCopyWith<$Res>? get favouriteMerchant {
+    if (_self.favouriteMerchant == null) {
+    return null;
+  }
+
+  return $FavouriteMerchantCopyWith<$Res>(_self.favouriteMerchant!, (value) {
+    return _then(_self.copyWith(favouriteMerchant: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [OrderSummary].
+extension OrderSummaryPatterns on OrderSummary {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _OrderSummary value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _OrderSummary() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _OrderSummary value)  $default,){
+final _that = this;
+switch (_that) {
+case _OrderSummary():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _OrderSummary value)?  $default,){
+final _that = this;
+switch (_that) {
+case _OrderSummary() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int ordersCount,  int completedCount,  int inProgressCount,  int totalSpentKobo,  int thisMonthSpentKobo,  int refundedKobo,  Map<String, VerticalSpend> byVertical,  FavouriteMerchant? favouriteMerchant)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _OrderSummary() when $default != null:
+return $default(_that.ordersCount,_that.completedCount,_that.inProgressCount,_that.totalSpentKobo,_that.thisMonthSpentKobo,_that.refundedKobo,_that.byVertical,_that.favouriteMerchant);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int ordersCount,  int completedCount,  int inProgressCount,  int totalSpentKobo,  int thisMonthSpentKobo,  int refundedKobo,  Map<String, VerticalSpend> byVertical,  FavouriteMerchant? favouriteMerchant)  $default,) {final _that = this;
+switch (_that) {
+case _OrderSummary():
+return $default(_that.ordersCount,_that.completedCount,_that.inProgressCount,_that.totalSpentKobo,_that.thisMonthSpentKobo,_that.refundedKobo,_that.byVertical,_that.favouriteMerchant);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int ordersCount,  int completedCount,  int inProgressCount,  int totalSpentKobo,  int thisMonthSpentKobo,  int refundedKobo,  Map<String, VerticalSpend> byVertical,  FavouriteMerchant? favouriteMerchant)?  $default,) {final _that = this;
+switch (_that) {
+case _OrderSummary() when $default != null:
+return $default(_that.ordersCount,_that.completedCount,_that.inProgressCount,_that.totalSpentKobo,_that.thisMonthSpentKobo,_that.refundedKobo,_that.byVertical,_that.favouriteMerchant);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _OrderSummary implements OrderSummary {
+  const _OrderSummary({this.ordersCount = 0, this.completedCount = 0, this.inProgressCount = 0, this.totalSpentKobo = 0, this.thisMonthSpentKobo = 0, this.refundedKobo = 0,  Map<String, VerticalSpend> byVertical = const <String, VerticalSpend>{}, this.favouriteMerchant}): _byVertical = byVertical;
+  factory _OrderSummary.fromJson(Map<String, dynamic> json) => _$OrderSummaryFromJson(json);
+
+@override@JsonKey() final  int ordersCount;
+@override@JsonKey() final  int completedCount;
+@override@JsonKey() final  int inProgressCount;
+@override@JsonKey() final  int totalSpentKobo;
+@override@JsonKey() final  int thisMonthSpentKobo;
+@override@JsonKey() final  int refundedKobo;
+ final  Map<String, VerticalSpend> _byVertical;
+@override@JsonKey() Map<String, VerticalSpend> get byVertical {
+  if (_byVertical is EqualUnmodifiableMapView) return _byVertical;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_byVertical);
+}
+
+@override final  FavouriteMerchant? favouriteMerchant;
+
+/// Create a copy of OrderSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$OrderSummaryCopyWith<_OrderSummary> get copyWith => __$OrderSummaryCopyWithImpl<_OrderSummary>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$OrderSummaryToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderSummary&&(identical(other.ordersCount, ordersCount) || other.ordersCount == ordersCount)&&(identical(other.completedCount, completedCount) || other.completedCount == completedCount)&&(identical(other.inProgressCount, inProgressCount) || other.inProgressCount == inProgressCount)&&(identical(other.totalSpentKobo, totalSpentKobo) || other.totalSpentKobo == totalSpentKobo)&&(identical(other.thisMonthSpentKobo, thisMonthSpentKobo) || other.thisMonthSpentKobo == thisMonthSpentKobo)&&(identical(other.refundedKobo, refundedKobo) || other.refundedKobo == refundedKobo)&&const DeepCollectionEquality().equals(other.byVertical, _byVertical)&&(identical(other.favouriteMerchant, favouriteMerchant) || other.favouriteMerchant == favouriteMerchant));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,ordersCount,completedCount,inProgressCount,totalSpentKobo,thisMonthSpentKobo,refundedKobo,const DeepCollectionEquality().hash(_byVertical),favouriteMerchant);
+}
+
+@override
+String toString() {
+    return 'OrderSummary(ordersCount: $ordersCount, completedCount: $completedCount, inProgressCount: $inProgressCount, totalSpentKobo: $totalSpentKobo, thisMonthSpentKobo: $thisMonthSpentKobo, refundedKobo: $refundedKobo, byVertical: $byVertical, favouriteMerchant: $favouriteMerchant)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$OrderSummaryCopyWith<$Res> implements $OrderSummaryCopyWith<$Res> {
+  factory _$OrderSummaryCopyWith(_OrderSummary value, $Res Function(_OrderSummary) _then) = __$OrderSummaryCopyWithImpl;
+@override @useResult
+$Res call({
+ int ordersCount, int completedCount, int inProgressCount, int totalSpentKobo, int thisMonthSpentKobo, int refundedKobo, Map<String, VerticalSpend> byVertical, FavouriteMerchant? favouriteMerchant
+});
+
+
+@override $FavouriteMerchantCopyWith<$Res>? get favouriteMerchant;
+
+}
+/// @nodoc
+class __$OrderSummaryCopyWithImpl<$Res>
+    implements _$OrderSummaryCopyWith<$Res> {
+  __$OrderSummaryCopyWithImpl(this._self, this._then);
+
+  final _OrderSummary _self;
+  final $Res Function(_OrderSummary) _then;
+
+/// Create a copy of OrderSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? ordersCount = null,Object? completedCount = null,Object? inProgressCount = null,Object? totalSpentKobo = null,Object? thisMonthSpentKobo = null,Object? refundedKobo = null,Object? byVertical = null,Object? favouriteMerchant = freezed,}) {
+  return _then(_OrderSummary(
+ordersCount: null == ordersCount ? _self.ordersCount : ordersCount // ignore: cast_nullable_to_non_nullable
+as int,completedCount: null == completedCount ? _self.completedCount : completedCount // ignore: cast_nullable_to_non_nullable
+as int,inProgressCount: null == inProgressCount ? _self.inProgressCount : inProgressCount // ignore: cast_nullable_to_non_nullable
+as int,totalSpentKobo: null == totalSpentKobo ? _self.totalSpentKobo : totalSpentKobo // ignore: cast_nullable_to_non_nullable
+as int,thisMonthSpentKobo: null == thisMonthSpentKobo ? _self.thisMonthSpentKobo : thisMonthSpentKobo // ignore: cast_nullable_to_non_nullable
+as int,refundedKobo: null == refundedKobo ? _self.refundedKobo : refundedKobo // ignore: cast_nullable_to_non_nullable
+as int,byVertical: null == byVertical ? _self._byVertical : byVertical // ignore: cast_nullable_to_non_nullable
+as Map<String, VerticalSpend>,favouriteMerchant: freezed == favouriteMerchant ? _self.favouriteMerchant : favouriteMerchant // ignore: cast_nullable_to_non_nullable
+as FavouriteMerchant?,
+  ));
+}
+
+/// Create a copy of OrderSummary
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FavouriteMerchantCopyWith<$Res>? get favouriteMerchant {
+    if (_self.favouriteMerchant == null) {
+    return null;
+  }
+
+  return $FavouriteMerchantCopyWith<$Res>(_self.favouriteMerchant!, (value) {
+    return _then(_self.copyWith(favouriteMerchant: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$SupportContacts {
+
+ String get whatsapp; String get phone; String get email; String get hours; bool get placeholders;
+/// Create a copy of SupportContacts
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SupportContactsCopyWith<SupportContacts> get copyWith => _$SupportContactsCopyWithImpl<SupportContacts>(this as SupportContacts, _$identity);
+
+  /// Serializes this SupportContacts to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as SupportContacts;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SupportContacts&&(identical(other.whatsapp, _this.whatsapp) || other.whatsapp == _this.whatsapp)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.hours, _this.hours) || other.hours == _this.hours)&&(identical(other.placeholders, _this.placeholders) || other.placeholders == _this.placeholders));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as SupportContacts;
+  return Object.hash(runtimeType,_this.whatsapp,_this.phone,_this.email,_this.hours,_this.placeholders);
+}
+
+@override
+String toString() {
+  final _this = this as SupportContacts;
+  return 'SupportContacts(whatsapp: ${_this.whatsapp}, phone: ${_this.phone}, email: ${_this.email}, hours: ${_this.hours}, placeholders: ${_this.placeholders})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SupportContactsCopyWith<$Res>  {
+  factory $SupportContactsCopyWith(SupportContacts value, $Res Function(SupportContacts) _then) = _$SupportContactsCopyWithImpl;
+@useResult
+$Res call({
+ String whatsapp, String phone, String email, String hours, bool placeholders
+});
+
+
+
+
+}
+/// @nodoc
+class _$SupportContactsCopyWithImpl<$Res>
+    implements $SupportContactsCopyWith<$Res> {
+  _$SupportContactsCopyWithImpl(this._self, this._then);
+
+  final SupportContacts _self;
+  final $Res Function(SupportContacts) _then;
+
+/// Create a copy of SupportContacts
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? whatsapp = null,Object? phone = null,Object? email = null,Object? hours = null,Object? placeholders = null,}) {
+  return _then(SupportContacts(
+whatsapp: null == whatsapp ? _self.whatsapp : whatsapp // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,hours: null == hours ? _self.hours : hours // ignore: cast_nullable_to_non_nullable
+as String,placeholders: null == placeholders ? _self.placeholders : placeholders // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SupportContacts].
+extension SupportContactsPatterns on SupportContacts {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SupportContacts value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SupportContacts() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SupportContacts value)  $default,){
+final _that = this;
+switch (_that) {
+case _SupportContacts():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SupportContacts value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SupportContacts() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String whatsapp,  String phone,  String email,  String hours,  bool placeholders)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SupportContacts() when $default != null:
+return $default(_that.whatsapp,_that.phone,_that.email,_that.hours,_that.placeholders);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String whatsapp,  String phone,  String email,  String hours,  bool placeholders)  $default,) {final _that = this;
+switch (_that) {
+case _SupportContacts():
+return $default(_that.whatsapp,_that.phone,_that.email,_that.hours,_that.placeholders);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String whatsapp,  String phone,  String email,  String hours,  bool placeholders)?  $default,) {final _that = this;
+switch (_that) {
+case _SupportContacts() when $default != null:
+return $default(_that.whatsapp,_that.phone,_that.email,_that.hours,_that.placeholders);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SupportContacts implements SupportContacts {
+  const _SupportContacts({this.whatsapp = '', this.phone = '', this.email = '', this.hours = '', this.placeholders = true});
+  factory _SupportContacts.fromJson(Map<String, dynamic> json) => _$SupportContactsFromJson(json);
+
+@override@JsonKey() final  String whatsapp;
+@override@JsonKey() final  String phone;
+@override@JsonKey() final  String email;
+@override@JsonKey() final  String hours;
+@override@JsonKey() final  bool placeholders;
+
+/// Create a copy of SupportContacts
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SupportContactsCopyWith<_SupportContacts> get copyWith => __$SupportContactsCopyWithImpl<_SupportContacts>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SupportContactsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SupportContacts&&(identical(other.whatsapp, whatsapp) || other.whatsapp == whatsapp)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.hours, hours) || other.hours == hours)&&(identical(other.placeholders, placeholders) || other.placeholders == placeholders));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,whatsapp,phone,email,hours,placeholders);
+}
+
+@override
+String toString() {
+    return 'SupportContacts(whatsapp: $whatsapp, phone: $phone, email: $email, hours: $hours, placeholders: $placeholders)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SupportContactsCopyWith<$Res> implements $SupportContactsCopyWith<$Res> {
+  factory _$SupportContactsCopyWith(_SupportContacts value, $Res Function(_SupportContacts) _then) = __$SupportContactsCopyWithImpl;
+@override @useResult
+$Res call({
+ String whatsapp, String phone, String email, String hours, bool placeholders
+});
+
+
+
+
+}
+/// @nodoc
+class __$SupportContactsCopyWithImpl<$Res>
+    implements _$SupportContactsCopyWith<$Res> {
+  __$SupportContactsCopyWithImpl(this._self, this._then);
+
+  final _SupportContacts _self;
+  final $Res Function(_SupportContacts) _then;
+
+/// Create a copy of SupportContacts
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? whatsapp = null,Object? phone = null,Object? email = null,Object? hours = null,Object? placeholders = null,}) {
+  return _then(_SupportContacts(
+whatsapp: null == whatsapp ? _self.whatsapp : whatsapp // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,hours: null == hours ? _self.hours : hours // ignore: cast_nullable_to_non_nullable
+as String,placeholders: null == placeholders ? _self.placeholders : placeholders // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
 }
 
 // dart format on

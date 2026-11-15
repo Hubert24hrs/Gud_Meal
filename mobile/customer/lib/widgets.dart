@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 class StatusChip extends StatelessWidget {
-  const StatusChip(this.status, {super.key});
+  const StatusChip(this.status, {super.key, this.label});
   final String status;
+
+  /// Overrides the generic status wording (e.g. "Finding a rider" for a package).
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,7 @@ class StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(GmRadius.pill)),
-      child: Text(statusLabel(status), style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12)),
+      child: Text(label ?? statusLabel(status), style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12)),
     );
   }
 }

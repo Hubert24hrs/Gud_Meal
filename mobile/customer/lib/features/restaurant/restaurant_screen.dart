@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../../providers.dart';
+import '../../ui/components.dart';
 import '../../widgets.dart';
 import '../cart/cart_controller.dart';
 
@@ -33,7 +34,7 @@ class RestaurantScreen extends ConsumerWidget {
             SliverAppBar(
               expandedHeight: 180,
               pinned: true,
-              flexibleSpace: FlexibleSpaceBar(title: Text(r.name), background: RestaurantArt(restaurant: r, height: 220)),
+              flexibleSpace: FlexibleSpaceBar(title: Text(r.name), background: MerchantArt(merchant: r, height: 220)),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -41,7 +42,7 @@ class RestaurantScreen extends ConsumerWidget {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(r.description),
                   const SizedBox(height: 8),
-                  Text('★ ${r.rating.toStringAsFixed(1)} (${r.ratingCount}) · ~${d.avgPrepMinutes} min prep · ${d.address}',
+                  Text('${ratingPercent(r.rating)} positive (${r.ratingCount}) · ${r.vertical == 'beauty' ? 'packed in' : 'ready in'} ~${d.avgPrepMinutes} min · ${d.address}',
                       style: Theme.of(context).textTheme.bodySmall),
                   if (!canOrder)
                     Padding(
@@ -65,7 +66,7 @@ class RestaurantScreen extends ConsumerWidget {
                   final item = section.items[i];
                   return ListTile(
                     enabled: canOrder && item.isAvailable,
-                    title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    title: Text(item.unitLabel == null ? item.name : '${item.name} · ${item.unitLabel}', style: const TextStyle(fontWeight: FontWeight.w700)),
                     subtitle: Text([formatNaira(item.priceKobo), if (item.serves > 1) 'Serves ${item.serves}', if (!item.isAvailable) 'Sold out'].join(' · ')),
                     trailing: const Icon(Icons.add_circle_rounded),
                     onTap: () => showModalBottomSheet<void>(
@@ -161,7 +162,7 @@ class _ItemSheetState extends ConsumerState<ItemSheet> {
         padding: EdgeInsets.only(left: 20, right: 20, bottom: MediaQuery.viewInsetsOf(context).bottom + 12),
         child: SingleChildScrollView(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(item.name, style: Theme.of(context).textTheme.headlineSmall),
+            Text(item.unitLabel == null ? item.name : '${item.name} · ${item.unitLabel}', style: Theme.of(context).textTheme.headlineSmall),
             if (item.description.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 4), child: Text(item.description)),
             if (item.allergens.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 4), child: Text('Contains: ${item.allergens.join(', ')}', style: Theme.of(context).textTheme.bodySmall)),
             for (final gid in item.optionGroupIds)

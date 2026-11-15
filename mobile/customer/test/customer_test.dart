@@ -5,7 +5,6 @@ import 'package:gud_meal_core/gud_meal_core.dart';
 import 'package:gud_meal_customer/features/auth/sign_in_screen.dart';
 import 'package:gud_meal_customer/features/cart/cart_controller.dart';
 import 'package:gud_meal_customer/features/cart/checkout_screen.dart';
-import 'package:gud_meal_customer/features/home/home_screen.dart';
 import 'package:gud_meal_customer/features/restaurant/restaurant_screen.dart';
 import 'package:gud_meal_customer/providers.dart';
 
@@ -83,20 +82,6 @@ void main() {
     expect(normaliseNigerianPhone('+2349061234567'), '+2349061234567');
     expect(normaliseNigerianPhone('8031234567'), '+2348031234567');
     expect(normaliseNigerianPhone('12345'), isNull);
-  });
-
-  testWidgets('home lists restaurants, marks closed ones and filters by search', (tester) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 2.0;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(harness(const HomeScreen(), overrides: [restaurantsProvider.overrideWith((ref) async => [suya, amala])]));
-    await tester.pumpAndSettle();
-    expect(find.text('Suya Lane'), findsOneWidget);
-    expect(find.text('Closed now'), findsOneWidget);
-    await tester.enterText(find.byType(TextField).last, 'suya');
-    await tester.pumpAndSettle();
-    expect(find.text("Mama Ayo's Kitchen"), findsNothing);
-    expect(find.text('Suya Lane'), findsOneWidget);
   });
 
   testWidgets('item sheet requires the mandatory choice before adding', (tester) async {

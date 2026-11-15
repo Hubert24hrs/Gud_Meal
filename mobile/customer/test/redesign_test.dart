@@ -1,0 +1,204 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:gud_meal_core/gud_meal_core.dart';
+import 'package:gud_meal_customer/features/assistant/assistant_screen.dart';
+import 'package:gud_meal_customer/features/home/home_screen.dart';
+import 'package:gud_meal_customer/features/orders/orders_screen.dart';
+import 'package:gud_meal_customer/features/parcel/parcel_screen.dart';
+import 'package:gud_meal_customer/features/vertical/vertical_screen.dart';
+import 'package:gud_meal_customer/providers.dart';
+import 'package:gud_meal_customer/ui/gudy.dart';
+
+const ada = GmUser(uid: 'u1', name: 'Ada Obi', email: 'ada@example.com');
+const jollof = RestaurantCard(
+  id: 'r-jollof', name: 'Jollof Junction', cuisines: ['Nigerian'], area: 'Lekki', rating: 4.7, isOpen: true, isFeatured: true,
+  etaMinutes: 35, deliveryFeeKobo: 90000, promotions: [PromoBadge(code: 'JOLLOF20', label: '20% off at Jollof Junction')],
+);
+const shea = RestaurantCard(id: 'b-shea', vertical: 'beauty', name: 'Shea Harbour Skin Bar', cuisines: ['Skincare'], rating: 4.8, isOpen: true, deliveryFeeKobo: 80000);
+
+/// Fake API: records parcel quotes; never touches the network.
+class FakeApi extends GudMealApi {
+  FakeApi() : super(baseUrl: 'http://fake', token: () async => 'tok');
+  final parcelRequests = <(ParcelStop, ParcelStop, String)>[];
+
+  @override
+  Future<ParcelQuote> parcelQuote({required ParcelStop pickup, required ParcelStop dropoff, required String size, required String category, String description = '', DateTime? scheduledFor}) async {
+    parcelRequests.add((pickup, dropoff, size));
+    return ParcelQuote(
+      id: 'pq1',
+      details: ParcelDetails(pickup: pickup, dropoff: dropoff, size: size, category: category),
+      breakdown: const PriceBreakdown(subtotalKobo: 0, deliveryFeeKobo: 200000, serviceFeeKobo: 10000, vatKobo: 15750, totalKobo: 225750),
+      distanceKm: 5.2,
+      etaMinutes: 48,
+      estimatedDeliveryAt: DateTime.utc(2026, 11, 16, 13, 30),
+      expiresAt: DateTime.utc(2026, 11, 16, 12, 45),
+    );
+  }
+
+  @override
+  Future<List<PlaceArea>> areas({String? city}) async => const [];
+}
+
+/// Pumps [home] inside a router with stub destinations, so taps that navigate can be asserted.
+Future<void> pumpRouted(WidgetTester tester, Widget home, {List overrides = const [], GmUser? user = ada}) async {
+  tester.view.physicalSize = const Size(1080, 2340);
+  tester.view.devicePixelRatio = 2.6;
+  addTearDown(tester.view.reset);
+  tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+  final router = GoRouter(routes: [
+    GoRoute(path: '/', builder: (_, _) => home),
+    for (final p in ['/food', '/beauty', '/send', '/assistant', '/checkout', '/sign-in'])
+      GoRoute(path: p, builder: (_, _) => Scaffold(body: Text('PAGE $p'))),
+    GoRoute(path: '/restaurants/:id', builder: (_, s) => Scaffold(body: Text('STORE ${s.pathParameters['id']}'))),
+  ]);
+  await tester.pumpWidget(ProviderScope(
+    overrides: [authRepositoryProvider.overrideWithValue(FakeAuthRepository(user)), ...overrides],
+    child: MaterialApp.router(theme: buildGudMealTheme(Brightness.light), routerConfig: router),
+  ));
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  testWidgets('home shows the three service bubbles and personal picks; tapping a bubble opens the service', (tester) async {
+    await pumpRouted(tester, const HomeScreen(), overrides: [forYouProvider.overrideWith((ref) async => [jollof, shea])]);
+    expect(find.text('Food'), findsOneWidget);
+    expect(find.text('Beauty & Skin care'), findsOneWidget);
+    expect(find.text('Package Delivery'), findsOneWidget);
+    expect(find.text('Ada, these are for you'), findsOneWidget);
+    expect(find.text('Jollof Junction'), findsWidgets);
+    expect(find.text('20% off at Jollof Junction'), findsOneWidget); // promo banner from the merchant's voucher
+
+    await tester.tap(find.byKey(const ValueKey('bubble-beauty')));
+    await tester.pumpAndSettle();
+    expect(find.text('PAGE /beauty'), findsOneWidget);
+  });
+
+  testWidgets('bubbles follow the finger and spring back home when released', (tester) async {
+    await pumpRouted(tester, const HomeScreen(), overrides: [forYouProvider.overrideWith((ref) async => [jollof])]);
+    final bubble = find.byKey(const ValueKey('bubble-food'));
+    final home = tester.getCenter(bubble);
+
+    final gesture = await tester.startGesture(home);
+    await gesture.moveBy(const Offset(20, 0));
+    for (var i = 0; i < 6; i++) {
+      await gesture.moveBy(const Offset(15, 12));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+    final dragged = tester.getCenter(bubble);
+    expect((dragged - home).distance, greaterThan(60), reason: 'bubble follows the drag');
+    expect(find.text('PAGE /food'), findsNothing, reason: 'a drag is not a tap');
+
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect((tester.getCenter(bubble) - home).distance, lessThan(2), reason: 'bubble springs back to its place');
+  });
+
+  testWidgets('the Food page shows categories, filters, popular brands and store cards', (tester) async {
+    final categories = [
+      const BrowseCategory(id: 'promotions', name: 'Promotions', emoji: '🏷️', merchants: 1),
+      const BrowseCategory(id: 'local', name: 'Local food', emoji: '🍲', merchants: 1),
+    ];
+    await pumpRouted(tester, const VerticalScreen(vertical: 'food'), overrides: [
+      categoriesProvider.overrideWith((ref, v) async => categories),
+      merchantsProvider.overrideWith((ref, q) async => q.category == 'promotions' ? [jollof] : [jollof, const RestaurantCard(id: 'r-closed', name: 'Closed Kitchen', rating: 4.1)]),
+    ]);
+    expect(find.text('Search in Food'), findsOneWidget);
+    expect(find.text('Local food'), findsOneWidget);
+    expect(find.text('Food type'), findsOneWidget);
+    expect(find.text('Pickup'), findsOneWidget);
+    expect(find.text('Sort by'), findsOneWidget);
+    expect(find.text('Popular brands'), findsOneWidget);
+    final page = find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down);
+    await tester.scrollUntilVisible(find.text('Closed now'), 300, scrollable: page);
+    expect(find.text('Closed now'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Promotions'), -300, scrollable: page);
+
+    await tester.tap(find.text('Promotions'));
+    await tester.pumpAndSettle();
+    expect(find.text('Closed Kitchen'), findsNothing);
+    expect(find.text('20% off at Jollof Junction'), findsOneWidget);
+    await tester.tap(find.text('Jollof Junction').last);
+    await tester.pumpAndSettle();
+    expect(find.text('STORE r-jollof'), findsOneWidget);
+  });
+
+  testWidgets('Gudy floats over the app and opens the chat when tapped', (tester) async {
+    await pumpRouted(tester, Scaffold(body: LayoutBuilder(builder: (context, c) => Stack(children: [
+          const SizedBox.expand(),
+          GudyFab(bounds: c.biggest, onOpen: () => GoRouter.of(context).push('/assistant')),
+        ]))));
+    expect(find.text('Hi, I’m Gudy!'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('gudy-fab')));
+    await tester.pumpAndSettle();
+    expect(find.text('PAGE /assistant'), findsOneWidget);
+  });
+
+  test('Gudy navigation cards map to app routes', () {
+    expect(routeForScreen('parcel', const {}), '/send');
+    expect(routeForScreen('food', const {'category': 'local'}), '/food?category=local');
+    expect(routeForScreen('merchant', const {'merchant_id': 'b-shea'}), '/restaurants/b-shea');
+    expect(routeForScreen('order', const {'order_id': 'o1'}), '/orders/o1');
+    expect(routeForScreen('merchant', const {}), isNull);
+  });
+
+  testWidgets('orders tab asks signed-out customers to sign in', (tester) async {
+    await pumpRouted(tester, const OrdersScreen(), user: null);
+    expect(find.text('Track your orders'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
+  });
+
+  testWidgets('orders tab shows empty states and the spending summary', (tester) async {
+    await pumpRouted(tester, const OrdersScreen(), overrides: [
+      myOrdersProvider.overrideWith((ref) async => const <Order>[]),
+      orderSummaryProvider.overrideWith((ref) async => const OrderSummary(
+            ordersCount: 3,
+            totalSpentKobo: 2512550,
+            thisMonthSpentKobo: 1200000,
+            byVertical: {'food': VerticalSpend(orders: 2, spentKobo: 2286800), 'parcel': VerticalSpend(orders: 1, spentKobo: 225750)},
+          )),
+    ]);
+    expect(find.text('Your ongoing orders will be listed here'), findsOneWidget);
+    expect(find.text('No carts yet'), findsOneWidget);
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+    expect(find.text('₦25,125.50'), findsOneWidget);
+    expect(find.text('Package Delivery: ₦2,257.50'), findsOneWidget);
+  });
+
+  testWidgets('package delivery validates the form, then shows the exact price before booking', (tester) async {
+    final api = FakeApi();
+    await pumpRouted(tester, const ParcelScreen(), overrides: [apiProvider.overrideWithValue(api)]);
+    await tester.tap(find.byKey(const ValueKey('parcel-primary')));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter the pickup street address'), findsOneWidget);
+
+    Future<void> type(String label, String text, {int index = 0}) async {
+      await tester.enterText(find.widgetWithText(TextField, label).at(index), text);
+    }
+
+    await type('Street address and landmark', '5 Bisola Durosinmi-Etti Drive');
+    await type('Sender phone', '+2348011111111');
+    await tester.tap(find.byType(DropdownButtonFormField<Area>).last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yaba, Lagos').last);
+    await tester.pumpAndSettle();
+    await type('Street address and landmark', '4 Herbert Macaulay Way', index: 1);
+    await type('Recipient name', 'Ngozi');
+    await type('Recipient phone', '+2348055555555');
+    await tester.scrollUntilVisible(find.text('Medium'), 200, scrollable: find.byType(Scrollable).first);
+    await tester.tap(find.text('Medium'));
+    await tester.tap(find.byKey(const ValueKey('parcel-primary')));
+    await tester.pumpAndSettle();
+
+    final (pickup, dropoff, size) = api.parcelRequests.single;
+    expect(pickup.name, 'Ada Obi');
+    expect(dropoff.area, 'Yaba');
+    expect(size, 'medium');
+    expect(find.text('Book & pay ₦2,257.50'), findsOneWidget);
+    expect(find.text('₦2,000'), findsOneWidget);
+  });
+}

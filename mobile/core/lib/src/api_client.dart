@@ -66,14 +66,58 @@ class GudMealApi {
   List<Map<String, dynamic>> _list(dynamic d) => (d as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
 
   // ------------------------------------------------------------------- catalog
-  Future<List<RestaurantCard>> restaurants({GeoPoint? near, String? query, String? cuisine}) => _call(
-      () => _dio.get('/v1/restaurants', queryParameters: {
-            if (near != null) 'lat': near.lat,
-            if (near != null) 'lng': near.lng,
-            if (query != null && query.isNotEmpty) 'q': query,
-            'cuisine': ?cuisine,
-          }),
-      (d) => _list(d).map(RestaurantCard.fromJson).toList());
+  /// Merchants for a service: restaurants (`vertical: 'food'`) or beauty shops (`vertical: 'beauty'`).
+  Future<List<RestaurantCard>> restaurants({
+    GeoPoint? near,
+    String? query,
+    String? cuisine,
+    String vertical = 'food',
+    String? category,
+    String? city,
+    bool pickup = false,
+    String sort = 'recommended',
+    int limit = 50,
+  }) =>
+      _call(
+          () => _dio.get('/v1/restaurants', queryParameters: {
+                if (near != null) 'lat': near.lat,
+                if (near != null) 'lng': near.lng,
+                if (query != null && query.isNotEmpty) 'q': query,
+                'cuisine': ?cuisine,
+                'vertical': vertical,
+                'category': ?category,
+                'city': ?city,
+                if (pickup) 'pickup': true,
+                'sort': sort,
+                'limit': limit,
+              }),
+          (d) => _list(d).map(RestaurantCard.fromJson).toList());
+
+  Future<List<ServiceInfo>> services({String? city}) =>
+      _call(() => _dio.get('/v1/services', queryParameters: {'city': ?city}), (d) => _list(d).map(ServiceInfo.fromJson).toList());
+
+  Future<List<BrowseCategory>> categories(String vertical, {String? city}) => _call(
+      () => _dio.get('/v1/services/$vertical/categories', queryParameters: {'city': ?city}),
+      (d) => _list(d).map(BrowseCategory.fromJson).toList());
+
+  /// Items (dishes or products) and merchants matching [query].
+  Future<({List<Map<String, dynamic>> items, List<RestaurantCard> merchants})> search(String query, {String? vertical, GeoPoint? near}) =>
+      _call(
+          () => _dio.get('/v1/search', queryParameters: {
+                'q': query,
+                'vertical': ?vertical,
+                if (near != null) 'lat': near.lat,
+                if (near != null) 'lng': near.lng,
+              }), (d) {
+        final m = _map(d);
+        return (items: _list(m['items']), merchants: _list(m['restaurants']).map(RestaurantCard.fromJson).toList());
+      });
+
+  Future<List<PlaceArea>> areas({String? city}) =>
+      _call(() => _dio.get('/v1/places/areas', queryParameters: {'city': ?city}), (d) => _list(d).map(PlaceArea.fromJson).toList());
+
+  Future<SupportContacts> supportContacts() =>
+      _call(() => _dio.get('/v1/config/public'), (d) => SupportContacts.fromJson(Map<String, dynamic>.from(_map(d)['support'] as Map)));
 
   Future<RestaurantDetail> restaurant(String id, {GeoPoint? near}) => _call(
       () => _dio.get('/v1/restaurants/$id', queryParameters: {if (near != null) 'lat': near.lat, if (near != null) 'lng': near.lng}),
@@ -103,6 +147,36 @@ class GudMealApi {
 
   Future<String> verifyPayment(String reference) =>
       _call(() => _dio.post('/v1/payments/verify', data: {'reference': reference}), (d) => '${_map(d)['status']}');
+
+  // ------------------------------------------------------------------- package delivery
+  Future<ParcelQuote> parcelQuote({
+    required ParcelStop pickup,
+    required ParcelStop dropoff,
+    required String size,
+    required String category,
+    String description = '',
+    DateTime? scheduledFor,
+  }) =>
+      _call(
+          () => _dio.post('/v1/parcels/quotes', data: {
+                'pickup': pickup.toJson(),
+                'dropoff': dropoff.toJson(),
+                'size': size,
+                'category': category,
+                'description': description,
+                if (scheduledFor != null) 'scheduled_for': scheduledFor.toUtc().toIso8601String(),
+              }),
+          (d) => ParcelQuote.fromJson(_map(d)));
+
+  Future<Order> createParcel(String quoteId, String idempotencyKey) => _call(
+      () => _dio.post('/v1/parcels', data: {'quote_id': quoteId, 'channel': 'app'}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => Order.fromJson(_map(d)));
+
+  Future<OrderSummary> orderSummary() => _call(() => _dio.get('/v1/me/order-summary'), (d) => OrderSummary.fromJson(_map(d)));
+
+  Future<void> openSupportTicket({required String category, required String description, String? orderId}) => _call(
+      () => _dio.post('/v1/support/tickets', data: {'category': category, 'description': description, 'order_id': ?orderId, 'channel': 'app'}),
+      (_) {});
 
   Future<List<Order>> myOrders() => _call(() => _dio.get('/v1/orders'), (d) => _list(d).map(Order.fromJson).toList());
   Future<Order> order(String id) => _call(() => _dio.get('/v1/orders/$id'), (d) => Order.fromJson(_map(d)));

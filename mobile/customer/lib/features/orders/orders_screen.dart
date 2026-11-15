@@ -4,46 +4,180 @@ import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../../providers.dart';
+import '../../ui/components.dart';
 import '../../widgets.dart';
+import '../cart/cart_controller.dart';
 
+const _active = {
+  'pending_payment', 'paid', 'submitted_to_restaurant', 'restaurant_accepted', 'preparing',
+  'ready_for_pickup', 'rider_assigned', 'picked_up', 'in_transit', 'delivered', 'disputed', 'refund_pending',
+};
+
+/// Orders: in-progress tracking, the cart you haven't finished, history and what you've spent.
 class OrdersScreen extends ConsumerWidget {
   const OrdersScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).value;
+    final theme = Theme.of(context);
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text('Orders', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900))),
+        body: ListView(children: [
+          EmptyState(
+            icon: Icons.shopping_bag_outlined,
+            title: 'Track your orders',
+            body: 'Sign in to see your orders, track deliveries and reorder favourites.',
+            action: FilledButton(onPressed: () => context.push('/sign-in?next=/orders'), child: const Text('Sign in')),
+          ),
+        ]),
+      );
+    }
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Orders', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900)),
+          bottom: const TabBar(tabs: [Tab(text: 'In progress'), Tab(text: 'History')]),
+        ),
+        body: TabBarView(children: [_InProgress(), _History()]),
+      ),
+    );
+  }
+}
+
+class _InProgress extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final orders = ref.watch(myOrdersProvider);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Your orders'), actions: [
-        IconButton(
-          tooltip: 'Sign out',
-          icon: const Icon(Icons.logout_rounded),
-          onPressed: () => ref.read(authRepositoryProvider).signOut(),
+    final cart = ref.watch(cartProvider);
+    return RefreshIndicator(
+      onRefresh: () async => ref.invalidate(myOrdersProvider),
+      child: ListView(padding: const EdgeInsets.only(top: 8, bottom: 96), children: [
+        orders.when(
+          loading: () => const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator())),
+          error: (e, _) => ErrorRetry(error: e, onRetry: () => ref.invalidate(myOrdersProvider)),
+          data: (list) {
+            final active = list.where((o) => _active.contains(o.status)).toList();
+            if (active.isEmpty) {
+              return const EmptyState(icon: Icons.shopping_bag_outlined, title: 'Track your orders', body: 'Your ongoing orders will be listed here');
+            }
+            return Column(children: [for (final o in active) _OrderRow(order: o)]);
+          },
+        ),
+        const SectionTitle('Continue your order'),
+        if (cart.isEmpty)
+          const EmptyState(icon: Icons.shopping_cart_outlined, title: 'No carts yet', body: 'Add items from stores to create new carts')
+        else
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListTile(
+              leading: const CircleAvatar(child: Icon(Icons.shopping_cart_rounded)),
+              title: Text(cart.restaurantName ?? 'Your cart', style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text('${cart.count} item(s) · ${formatNaira(cart.subtotalKobo)}'),
+              trailing: FilledButton(onPressed: () => context.push('/checkout'), child: const Text('Checkout')),
+            ),
+          ),
+      ]),
+    );
+  }
+}
+
+class _History extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final orders = ref.watch(myOrdersProvider);
+    final summary = ref.watch(orderSummaryProvider);
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(myOrdersProvider);
+        ref.invalidate(orderSummaryProvider);
+      },
+      child: ListView(padding: const EdgeInsets.only(top: 8, bottom: 96), children: [
+        summary.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
+          data: (s) => s.ordersCount == 0 ? const SizedBox.shrink() : _SpendCard(summary: s),
+        ),
+        orders.when(
+          loading: () => const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator())),
+          error: (e, _) => ErrorRetry(error: e, onRetry: () => ref.invalidate(myOrdersProvider)),
+          data: (list) {
+            final past = list.where((o) => !_active.contains(o.status)).toList();
+            if (past.isEmpty) {
+              return const EmptyState(icon: Icons.receipt_long_outlined, title: 'No past orders yet', body: 'Completed, cancelled and refunded orders appear here');
+            }
+            return Column(children: [for (final o in past) _OrderRow(order: o)]);
+          },
         ),
       ]),
-      body: RefreshIndicator(
-        onRefresh: () => ref.refresh(myOrdersProvider.future),
-        child: orders.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => ErrorRetry(error: e, onRetry: () => ref.invalidate(myOrdersProvider)),
-          data: (list) => list.isEmpty
-              ? ListView(children: const [SizedBox(height: 160), Center(child: Text('No orders yet'))])
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: list.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (_, i) {
-                    final o = list[i];
-                    return Card(
-                      child: ListTile(
-                        title: Text(o.restaurantName, style: const TextStyle(fontWeight: FontWeight.w700)),
-                        subtitle: Text('#${o.shortCode} · ${formatNaira(o.breakdown?.totalKobo)}'),
-                        trailing: StatusChip(o.status),
-                        onTap: () => context.push('/orders/${o.id}'),
-                      ),
-                    );
-                  },
+    );
+  }
+}
+
+class _SpendCard extends StatelessWidget {
+  const _SpendCard({required this.summary});
+  final OrderSummary summary;
+
+  static const _names = {'food': 'Food', 'beauty': 'Beauty & Skin care', 'parcel': 'Package Delivery'};
+
+  @override
+  Widget build(BuildContext context) {
+    final s = summary;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(gradient: brandGradient, borderRadius: BorderRadius.circular(GmRadius.lg)),
+      child: DefaultTextStyle(
+        style: const TextStyle(color: Colors.white),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('You’ve spent', style: TextStyle(fontWeight: FontWeight.w600)),
+          Text(formatNaira(s.totalSpentKobo), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
+          Text('${s.ordersCount} paid order(s) · ${formatNaira(s.thisMonthSpentKobo)} this month'),
+          const SizedBox(height: 10),
+          Wrap(spacing: 8, runSpacing: 6, children: [
+            for (final e in s.byVertical.entries)
+              if (e.value.orders > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(999)),
+                  child: Text('${_names[e.key] ?? e.key}: ${formatNaira(e.value.spentKobo)}', style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
-        ),
+          ]),
+          if (s.refundedKobo > 0) ...[const SizedBox(height: 8), Text('Refunded: ${formatNaira(s.refundedKobo)}')],
+        ]),
+      ),
+    );
+  }
+}
+
+class _OrderRow extends StatelessWidget {
+  const _OrderRow({required this.order});
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final o = order;
+    final icon = switch (o.vertical) { 'parcel' => Icons.local_shipping_rounded, 'beauty' => Icons.spa_rounded, _ => Icons.restaurant_rounded };
+    final title = o.vertical == 'parcel' && o.parcel != null ? 'Package to ${o.parcel!.dropoff.name}' : o.restaurantName;
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: ListTile(
+        onTap: () => context.push('/orders/${o.id}'),
+        leading: CircleAvatar(backgroundColor: Theme.of(context).colorScheme.primaryContainer, child: Icon(icon, color: brandOrange)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        // Parcels show their progress in the chip; avoid saying it twice.
+        subtitle: Text([
+          '#${o.shortCode}',
+          if (o.vertical != 'parcel') o.progress?.label ?? statusLabel(o.status),
+          if (o.createdAt != null) formatLagosTime(o.createdAt),
+        ].join(' · ')),
+        trailing: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text(formatNaira(o.breakdown?.totalKobo), style: const TextStyle(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          StatusChip(o.status, label: o.vertical == 'parcel' ? o.progress?.label : null),
+        ]),
       ),
     );
   }

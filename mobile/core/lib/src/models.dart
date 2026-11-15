@@ -14,6 +14,8 @@ abstract class GeoPoint with _$GeoPoint {
 abstract class RestaurantCard with _$RestaurantCard {
   const factory RestaurantCard({
     required String id,
+    @Default('food') String vertical,
+    @Default('lagos') String city,
     required String name,
     @Default('') String description,
     @Default(<String>[]) List<String> cuisines,
@@ -28,6 +30,9 @@ abstract class RestaurantCard with _$RestaurantCard {
     int? etaMinutes,
     int? deliveryFeeKobo,
     bool? deliversToLocation,
+    @Default(true) bool supportsPickup,
+    @Default(true) bool supportsDelivery,
+    @Default(<PromoBadge>[]) List<PromoBadge> promotions,
   }) = _RestaurantCard;
   factory RestaurantCard.fromJson(Map<String, dynamic> json) => _$RestaurantCardFromJson(json);
 }
@@ -70,6 +75,7 @@ abstract class MenuItem with _$MenuItem {
     @Default(0) int spiceLevel,
     @Default(true) bool isAvailable,
     @Default(<String>[]) List<String> optionGroupIds,
+    String? unitLabel,
   }) = _MenuItem;
   factory MenuItem.fromJson(Map<String, dynamic> json) => _$MenuItemFromJson(json);
 }
@@ -183,6 +189,7 @@ abstract class Order with _$Order {
   const factory Order({
     required String id,
     required String shortCode,
+    @Default('food') String vertical,
     required String status,
     required String restaurantName,
     @Default('delivery') String fulfillment,
@@ -199,6 +206,8 @@ abstract class Order with _$Order {
     DateTime? createdAt,
     int? riderPayKobo,
     @Default(false) bool reviewed,
+    ParcelDetails? parcel,
+    @Default(0) int refundTotalKobo,
   }) = _Order;
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 }
@@ -291,4 +300,124 @@ abstract class ChatResponse with _$ChatResponse {
     ChatApproval? approval,
   }) = _ChatResponse;
   factory ChatResponse.fromJson(Map<String, dynamic> json) => _$ChatResponseFromJson(json);
+}
+
+
+// ------------------------------------------------------------------------------------- multi-service
+@freezed
+abstract class PromoBadge with _$PromoBadge {
+  const factory PromoBadge({required String code, required String label}) = _PromoBadge;
+  factory PromoBadge.fromJson(Map<String, dynamic> json) => _$PromoBadgeFromJson(json);
+}
+
+/// A Gud Meal service: food, beauty or parcel (the home-screen bubbles).
+@freezed
+abstract class ServiceInfo with _$ServiceInfo {
+  const factory ServiceInfo({
+    required String id,
+    required String name,
+    @Default('') String tagline,
+    @Default(true) bool available,
+    int? merchants,
+    @Default(<String>[]) List<String> options,
+    @Default(<String>[]) List<String> comingSoon,
+    @Default(<String>[]) List<String> cities,
+  }) = _ServiceInfo;
+  factory ServiceInfo.fromJson(Map<String, dynamic> json) => _$ServiceInfoFromJson(json);
+}
+
+@freezed
+abstract class BrowseCategory with _$BrowseCategory {
+  const factory BrowseCategory({required String id, required String name, @Default('') String emoji, @Default(0) int merchants}) =
+      _BrowseCategory;
+  factory BrowseCategory.fromJson(Map<String, dynamic> json) => _$BrowseCategoryFromJson(json);
+}
+
+/// A neighbourhood with an approximate centre, used for addresses without a map pin.
+@freezed
+abstract class PlaceArea with _$PlaceArea {
+  const factory PlaceArea({required String name, required String city, required double lat, required double lng}) = _PlaceArea;
+  factory PlaceArea.fromJson(Map<String, dynamic> json) => _$PlaceAreaFromJson(json);
+}
+
+@freezed
+abstract class ParcelStop with _$ParcelStop {
+  const factory ParcelStop({
+    required String name,
+    required String phone,
+    required String line1,
+    String? area,
+    @Default('Lagos') String city,
+    required GeoPoint location,
+    String? instructions,
+  }) = _ParcelStop;
+  factory ParcelStop.fromJson(Map<String, dynamic> json) => _$ParcelStopFromJson(json);
+}
+
+@freezed
+abstract class ParcelDetails with _$ParcelDetails {
+  const factory ParcelDetails({
+    required ParcelStop pickup,
+    required ParcelStop dropoff,
+    @Default('small') String size,
+    @Default('other') String category,
+    @Default('') String description,
+    @Default('lagos') String city,
+  }) = _ParcelDetails;
+  factory ParcelDetails.fromJson(Map<String, dynamic> json) => _$ParcelDetailsFromJson(json);
+}
+
+@freezed
+abstract class ParcelQuote with _$ParcelQuote {
+  const factory ParcelQuote({
+    required String id,
+    required ParcelDetails details,
+    required PriceBreakdown breakdown,
+    required double distanceKm,
+    required int etaMinutes,
+    required DateTime estimatedDeliveryAt,
+    DateTime? scheduledFor,
+    required DateTime expiresAt,
+  }) = _ParcelQuote;
+  factory ParcelQuote.fromJson(Map<String, dynamic> json) => _$ParcelQuoteFromJson(json);
+}
+
+@freezed
+abstract class VerticalSpend with _$VerticalSpend {
+  const factory VerticalSpend({@Default(0) int orders, @Default(0) int spentKobo}) = _VerticalSpend;
+  factory VerticalSpend.fromJson(Map<String, dynamic> json) => _$VerticalSpendFromJson(json);
+}
+
+@freezed
+abstract class FavouriteMerchant with _$FavouriteMerchant {
+  const factory FavouriteMerchant({required String id, required String name, @Default(0) int orders}) = _FavouriteMerchant;
+  factory FavouriteMerchant.fromJson(Map<String, dynamic> json) => _$FavouriteMerchantFromJson(json);
+}
+
+/// Totals across a customer's paid orders (net of refunds), from /v1/me/order-summary.
+@freezed
+abstract class OrderSummary with _$OrderSummary {
+  const factory OrderSummary({
+    @Default(0) int ordersCount,
+    @Default(0) int completedCount,
+    @Default(0) int inProgressCount,
+    @Default(0) int totalSpentKobo,
+    @Default(0) int thisMonthSpentKobo,
+    @Default(0) int refundedKobo,
+    @Default(<String, VerticalSpend>{}) Map<String, VerticalSpend> byVertical,
+    FavouriteMerchant? favouriteMerchant,
+  }) = _OrderSummary;
+  factory OrderSummary.fromJson(Map<String, dynamic> json) => _$OrderSummaryFromJson(json);
+}
+
+@freezed
+abstract class SupportContacts with _$SupportContacts {
+  const factory SupportContacts({
+    @Default('') String whatsapp,
+    @Default('') String phone,
+    @Default('') String email,
+    @Default('') String hours,
+    @Default(true) bool placeholders,
+  }) = _SupportContacts;
+  factory SupportContacts.fromJson(Map<String, dynamic> json) => _$SupportContactsFromJson(json);
 }

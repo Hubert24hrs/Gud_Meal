@@ -65,16 +65,22 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
         error: (e, _) => ErrorRetry(error: e, onRetry: () => ref.invalidate(orderProvider(widget.id))),
         data: (o) {
           final step = o.progress?.step ?? 0;
+          final parcel = o.vertical == 'parcel' ? o.parcel : null;
+          final steps = switch (o.vertical) {
+            'parcel' => const ['Booked', 'Rider found', 'Heading to pickup', 'On the way', 'Delivered'],
+            'beauty' => const ['Placed', 'Accepted', 'Packing', 'On the way', 'Delivered'],
+            _ => _steps,
+          };
           return ListView(padding: const EdgeInsets.all(16), children: [
             Row(children: [
               Expanded(child: Text(o.progress?.label ?? statusLabel(o.status), style: theme.textTheme.headlineSmall)),
-              StatusChip(o.status),
+              StatusChip(o.status, label: o.vertical == 'parcel' ? o.progress?.label : null),
             ]),
             Text('#${o.shortCode} · ${o.restaurantName}', style: theme.textTheme.bodySmall),
             const SizedBox(height: 16),
             if (step >= 0)
               Row(children: [
-                for (var i = 0; i < _steps.length; i++)
+                for (var i = 0; i < steps.length; i++)
                   Expanded(
                     child: Column(children: [
                       Container(
@@ -86,7 +92,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(_steps[i], style: theme.textTheme.labelSmall, textAlign: TextAlign.center),
+                      Text(steps[i], style: theme.textTheme.labelSmall, textAlign: TextAlign.center),
                     ]),
                   ),
               ]),
@@ -94,7 +100,24 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
               Padding(padding: const EdgeInsets.only(top: 12), child: Text('Estimated arrival: ${formatLagosTime(o.estimatedDeliveryAt)}')),
             if (o.riderName != null)
               ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.delivery_dining_rounded), title: Text(o.riderName!), subtitle: const Text('Your rider')),
-            if (step >= 1 && step < 5) _DeliveryCode(orderId: o.id),
+            if (step >= 1 && step < 5) _DeliveryCode(orderId: o.id, recipient: parcel?.dropoff.name),
+            if (parcel != null) ...[
+              const SizedBox(height: 8),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('${parcel.size[0].toUpperCase()}${parcel.size.substring(1)} package · ${parcel.category}',
+                        style: const TextStyle(fontWeight: FontWeight.w800)),
+                    if (parcel.description.isNotEmpty) Text(parcel.description),
+                    const SizedBox(height: 10),
+                    _Stop(icon: Icons.trip_origin_rounded, title: 'Pickup', stop: parcel.pickup),
+                    const SizedBox(height: 8),
+                    _Stop(icon: Icons.location_on_rounded, title: 'Drop-off', stop: parcel.dropoff),
+                  ]),
+                ),
+              ),
+            ],
             const Divider(height: 32),
             for (final ln in o.lines)
               Padding(
@@ -106,7 +129,8 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
               const Expanded(child: Text('Total', style: TextStyle(fontWeight: FontWeight.w800))),
               Text(formatNaira(o.breakdown?.totalKobo), style: const TextStyle(fontWeight: FontWeight.w800)),
             ]),
-            if (['draft', 'pending_payment', 'submitted_to_restaurant'].contains(o.status))
+            if (['draft', 'pending_payment', 'submitted_to_restaurant'].contains(o.status) ||
+                (parcel != null && ['paid', 'ready_for_pickup'].contains(o.status)))
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: OutlinedButton(
@@ -124,9 +148,32 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
   }
 }
 
+class _Stop extends StatelessWidget {
+  const _Stop({required this.icon, required this.title, required this.stop});
+  final IconData icon;
+  final String title;
+  final ParcelStop stop;
+
+  @override
+  Widget build(BuildContext context) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title, style: Theme.of(context).textTheme.labelMedium),
+            Text('${stop.name} · ${stop.phone}', style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text([stop.line1, stop.area, stop.city].whereType<String>().join(', ')),
+          ]),
+        ),
+      ]);
+}
+
 class _DeliveryCode extends ConsumerWidget {
-  const _DeliveryCode({required this.orderId});
+  const _DeliveryCode({required this.orderId, this.recipient});
   final String orderId;
+
+  /// For packages: who receives it (they must give the rider this code).
+  final String? recipient;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,7 +185,9 @@ class _DeliveryCode extends ConsumerWidget {
               child: ListTile(
                 leading: const Icon(Icons.key_rounded),
                 title: Text('Delivery code: ${snap.data}', style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 2)),
-                subtitle: const Text('Share it only when you have your food.'),
+                subtitle: Text(recipient == null
+                    ? 'Share it only when you have your order.'
+                    : 'Send this code to $recipient. The rider needs it to complete the delivery.'),
               ),
             ),
     );

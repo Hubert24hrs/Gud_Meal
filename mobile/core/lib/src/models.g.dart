@@ -19,6 +19,8 @@ Map<String, dynamic> _$GeoPointToJson(_GeoPoint instance) => <String, dynamic>{
 _RestaurantCard _$RestaurantCardFromJson(Map<String, dynamic> json) =>
     _RestaurantCard(
       id: json['id'] as String,
+      vertical: json['vertical'] as String? ?? 'food',
+      city: json['city'] as String? ?? 'lagos',
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
       cuisines:
@@ -37,11 +39,20 @@ _RestaurantCard _$RestaurantCardFromJson(Map<String, dynamic> json) =>
       etaMinutes: (json['eta_minutes'] as num?)?.toInt(),
       deliveryFeeKobo: (json['delivery_fee_kobo'] as num?)?.toInt(),
       deliversToLocation: json['delivers_to_location'] as bool?,
+      supportsPickup: json['supports_pickup'] as bool? ?? true,
+      supportsDelivery: json['supports_delivery'] as bool? ?? true,
+      promotions:
+          (json['promotions'] as List<dynamic>?)
+              ?.map((e) => PromoBadge.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <PromoBadge>[],
     );
 
 Map<String, dynamic> _$RestaurantCardToJson(_RestaurantCard instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'vertical': instance.vertical,
+      'city': instance.city,
       'name': instance.name,
       'description': instance.description,
       'cuisines': instance.cuisines,
@@ -56,6 +67,9 @@ Map<String, dynamic> _$RestaurantCardToJson(_RestaurantCard instance) =>
       'eta_minutes': ?instance.etaMinutes,
       'delivery_fee_kobo': ?instance.deliveryFeeKobo,
       'delivers_to_location': ?instance.deliversToLocation,
+      'supports_pickup': instance.supportsPickup,
+      'supports_delivery': instance.supportsDelivery,
+      'promotions': instance.promotions.map((e) => e.toJson()).toList(),
     };
 
 _OptionChoice _$OptionChoiceFromJson(Map<String, dynamic> json) =>
@@ -116,6 +130,7 @@ _MenuItem _$MenuItemFromJson(Map<String, dynamic> json) => _MenuItem(
           ?.map((e) => e as String)
           .toList() ??
       const <String>[],
+  unitLabel: json['unit_label'] as String?,
 );
 
 Map<String, dynamic> _$MenuItemToJson(_MenuItem instance) => <String, dynamic>{
@@ -131,6 +146,7 @@ Map<String, dynamic> _$MenuItemToJson(_MenuItem instance) => <String, dynamic>{
   'spice_level': instance.spiceLevel,
   'is_available': instance.isAvailable,
   'option_group_ids': instance.optionGroupIds,
+  'unit_label': ?instance.unitLabel,
 };
 
 _MenuCategory _$MenuCategoryFromJson(Map<String, dynamic> json) =>
@@ -330,6 +346,7 @@ Map<String, dynamic> _$OrderProgressToJson(_OrderProgress instance) =>
 _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
   id: json['id'] as String,
   shortCode: json['short_code'] as String,
+  vertical: json['vertical'] as String? ?? 'food',
   status: json['status'] as String,
   restaurantName: json['restaurant_name'] as String,
   fulfillment: json['fulfillment'] as String? ?? 'delivery',
@@ -366,11 +383,16 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       : DateTime.parse(json['created_at'] as String),
   riderPayKobo: (json['rider_pay_kobo'] as num?)?.toInt(),
   reviewed: json['reviewed'] as bool? ?? false,
+  parcel: json['parcel'] == null
+      ? null
+      : ParcelDetails.fromJson(json['parcel'] as Map<String, dynamic>),
+  refundTotalKobo: (json['refund_total_kobo'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
   'id': instance.id,
   'short_code': instance.shortCode,
+  'vertical': instance.vertical,
   'status': instance.status,
   'restaurant_name': instance.restaurantName,
   'fulfillment': instance.fulfillment,
@@ -387,6 +409,8 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
   'created_at': ?instance.createdAt?.toIso8601String(),
   'rider_pay_kobo': ?instance.riderPayKobo,
   'reviewed': instance.reviewed,
+  'parcel': ?instance.parcel?.toJson(),
+  'refund_total_kobo': instance.refundTotalKobo,
 };
 
 _CheckoutResult _$CheckoutResultFromJson(Map<String, dynamic> json) =>
@@ -539,4 +563,215 @@ Map<String, dynamic> _$ChatResponseToJson(_ChatResponse instance) =>
       'agent': ?instance.agent,
       'cards': instance.cards,
       'approval': ?instance.approval?.toJson(),
+    };
+
+_PromoBadge _$PromoBadgeFromJson(Map<String, dynamic> json) =>
+    _PromoBadge(code: json['code'] as String, label: json['label'] as String);
+
+Map<String, dynamic> _$PromoBadgeToJson(_PromoBadge instance) =>
+    <String, dynamic>{'code': instance.code, 'label': instance.label};
+
+_ServiceInfo _$ServiceInfoFromJson(Map<String, dynamic> json) => _ServiceInfo(
+  id: json['id'] as String,
+  name: json['name'] as String,
+  tagline: json['tagline'] as String? ?? '',
+  available: json['available'] as bool? ?? true,
+  merchants: (json['merchants'] as num?)?.toInt(),
+  options:
+      (json['options'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const <String>[],
+  comingSoon:
+      (json['coming_soon'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const <String>[],
+  cities:
+      (json['cities'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const <String>[],
+);
+
+Map<String, dynamic> _$ServiceInfoToJson(_ServiceInfo instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'tagline': instance.tagline,
+      'available': instance.available,
+      'merchants': ?instance.merchants,
+      'options': instance.options,
+      'coming_soon': instance.comingSoon,
+      'cities': instance.cities,
+    };
+
+_BrowseCategory _$BrowseCategoryFromJson(Map<String, dynamic> json) =>
+    _BrowseCategory(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      emoji: json['emoji'] as String? ?? '',
+      merchants: (json['merchants'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$BrowseCategoryToJson(_BrowseCategory instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'emoji': instance.emoji,
+      'merchants': instance.merchants,
+    };
+
+_PlaceArea _$PlaceAreaFromJson(Map<String, dynamic> json) => _PlaceArea(
+  name: json['name'] as String,
+  city: json['city'] as String,
+  lat: (json['lat'] as num).toDouble(),
+  lng: (json['lng'] as num).toDouble(),
+);
+
+Map<String, dynamic> _$PlaceAreaToJson(_PlaceArea instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'city': instance.city,
+      'lat': instance.lat,
+      'lng': instance.lng,
+    };
+
+_ParcelStop _$ParcelStopFromJson(Map<String, dynamic> json) => _ParcelStop(
+  name: json['name'] as String,
+  phone: json['phone'] as String,
+  line1: json['line1'] as String,
+  area: json['area'] as String?,
+  city: json['city'] as String? ?? 'Lagos',
+  location: GeoPoint.fromJson(json['location'] as Map<String, dynamic>),
+  instructions: json['instructions'] as String?,
+);
+
+Map<String, dynamic> _$ParcelStopToJson(_ParcelStop instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'phone': instance.phone,
+      'line1': instance.line1,
+      'area': ?instance.area,
+      'city': instance.city,
+      'location': instance.location.toJson(),
+      'instructions': ?instance.instructions,
+    };
+
+_ParcelDetails _$ParcelDetailsFromJson(Map<String, dynamic> json) =>
+    _ParcelDetails(
+      pickup: ParcelStop.fromJson(json['pickup'] as Map<String, dynamic>),
+      dropoff: ParcelStop.fromJson(json['dropoff'] as Map<String, dynamic>),
+      size: json['size'] as String? ?? 'small',
+      category: json['category'] as String? ?? 'other',
+      description: json['description'] as String? ?? '',
+      city: json['city'] as String? ?? 'lagos',
+    );
+
+Map<String, dynamic> _$ParcelDetailsToJson(_ParcelDetails instance) =>
+    <String, dynamic>{
+      'pickup': instance.pickup.toJson(),
+      'dropoff': instance.dropoff.toJson(),
+      'size': instance.size,
+      'category': instance.category,
+      'description': instance.description,
+      'city': instance.city,
+    };
+
+_ParcelQuote _$ParcelQuoteFromJson(Map<String, dynamic> json) => _ParcelQuote(
+  id: json['id'] as String,
+  details: ParcelDetails.fromJson(json['details'] as Map<String, dynamic>),
+  breakdown: PriceBreakdown.fromJson(json['breakdown'] as Map<String, dynamic>),
+  distanceKm: (json['distance_km'] as num).toDouble(),
+  etaMinutes: (json['eta_minutes'] as num).toInt(),
+  estimatedDeliveryAt: DateTime.parse(json['estimated_delivery_at'] as String),
+  scheduledFor: json['scheduled_for'] == null
+      ? null
+      : DateTime.parse(json['scheduled_for'] as String),
+  expiresAt: DateTime.parse(json['expires_at'] as String),
+);
+
+Map<String, dynamic> _$ParcelQuoteToJson(_ParcelQuote instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'details': instance.details.toJson(),
+      'breakdown': instance.breakdown.toJson(),
+      'distance_km': instance.distanceKm,
+      'eta_minutes': instance.etaMinutes,
+      'estimated_delivery_at': instance.estimatedDeliveryAt.toIso8601String(),
+      'scheduled_for': ?instance.scheduledFor?.toIso8601String(),
+      'expires_at': instance.expiresAt.toIso8601String(),
+    };
+
+_VerticalSpend _$VerticalSpendFromJson(Map<String, dynamic> json) =>
+    _VerticalSpend(
+      orders: (json['orders'] as num?)?.toInt() ?? 0,
+      spentKobo: (json['spent_kobo'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$VerticalSpendToJson(_VerticalSpend instance) =>
+    <String, dynamic>{
+      'orders': instance.orders,
+      'spent_kobo': instance.spentKobo,
+    };
+
+_FavouriteMerchant _$FavouriteMerchantFromJson(Map<String, dynamic> json) =>
+    _FavouriteMerchant(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      orders: (json['orders'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$FavouriteMerchantToJson(_FavouriteMerchant instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'orders': instance.orders,
+    };
+
+_OrderSummary _$OrderSummaryFromJson(Map<String, dynamic> json) =>
+    _OrderSummary(
+      ordersCount: (json['orders_count'] as num?)?.toInt() ?? 0,
+      completedCount: (json['completed_count'] as num?)?.toInt() ?? 0,
+      inProgressCount: (json['in_progress_count'] as num?)?.toInt() ?? 0,
+      totalSpentKobo: (json['total_spent_kobo'] as num?)?.toInt() ?? 0,
+      thisMonthSpentKobo: (json['this_month_spent_kobo'] as num?)?.toInt() ?? 0,
+      refundedKobo: (json['refunded_kobo'] as num?)?.toInt() ?? 0,
+      byVertical:
+          (json['by_vertical'] as Map<String, dynamic>?)?.map(
+            (k, e) =>
+                MapEntry(k, VerticalSpend.fromJson(e as Map<String, dynamic>)),
+          ) ??
+          const <String, VerticalSpend>{},
+      favouriteMerchant: json['favourite_merchant'] == null
+          ? null
+          : FavouriteMerchant.fromJson(
+              json['favourite_merchant'] as Map<String, dynamic>,
+            ),
+    );
+
+Map<String, dynamic> _$OrderSummaryToJson(_OrderSummary instance) =>
+    <String, dynamic>{
+      'orders_count': instance.ordersCount,
+      'completed_count': instance.completedCount,
+      'in_progress_count': instance.inProgressCount,
+      'total_spent_kobo': instance.totalSpentKobo,
+      'this_month_spent_kobo': instance.thisMonthSpentKobo,
+      'refunded_kobo': instance.refundedKobo,
+      'by_vertical': instance.byVertical.map((k, e) => MapEntry(k, e.toJson())),
+      'favourite_merchant': ?instance.favouriteMerchant?.toJson(),
+    };
+
+_SupportContacts _$SupportContactsFromJson(Map<String, dynamic> json) =>
+    _SupportContacts(
+      whatsapp: json['whatsapp'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      hours: json['hours'] as String? ?? '',
+      placeholders: json['placeholders'] as bool? ?? true,
+    );
+
+Map<String, dynamic> _$SupportContactsToJson(_SupportContacts instance) =>
+    <String, dynamic>{
+      'whatsapp': instance.whatsapp,
+      'phone': instance.phone,
+      'email': instance.email,
+      'hours': instance.hours,
+      'placeholders': instance.placeholders,
     };

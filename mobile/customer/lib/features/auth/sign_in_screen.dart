@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../providers.dart';
 
@@ -44,6 +45,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     });
     try {
       await action();
+      // Leave once signed in: back to the screen that opened sign-in, or to `next`. (Pushed routes don't
+      // change the web URL, so the router's redirect alone can't do this.)
+      if (mounted && ref.read(authRepositoryProvider).currentUser != null) {
+        final next = GoRouterState.of(context).uri.queryParameters['next'];
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(next ?? '/');
+        }
+      }
     } catch (e) {
       setState(() => _error = 'Sign-in failed. Please check your details and try again.');
     } finally {

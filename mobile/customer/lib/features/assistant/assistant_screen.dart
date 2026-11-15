@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers.dart';
+import '../../ui/components.dart';
+import '../../ui/gudy.dart';
+import '../../ui/illustrations.dart';
 
 class _Turn {
   _Turn(this.fromUser, this.text, {this.cards = const [], this.approval});
@@ -14,7 +18,31 @@ class _Turn {
   ChatApproval? approval;
 }
 
-/// AI food concierge (LangGraph agents service). Sensitive actions arrive as approval cards.
+const _suggestions = [
+  'What do you offer?',
+  'How much have I spent?',
+  'I have ₦10,000. Best meal for two?',
+  'Find me a good sunscreen',
+  'Send a package',
+  'Talk to a person',
+];
+
+/// Route for a screen Gudy points to (from an `open_screen` card).
+String? routeForScreen(String screen, Map<String, dynamic> params) => switch (screen) {
+      'home' => '/',
+      'food' => params['category'] != null ? '/food?category=${params['category']}' : '/food',
+      'beauty' => params['category'] != null ? '/beauty?category=${params['category']}' : '/beauty',
+      'parcel' => '/send',
+      'discover' => '/discover',
+      'orders' => '/orders',
+      'support' => '/support',
+      'profile' => '/profile',
+      'merchant' => params['merchant_id'] != null ? '/restaurants/${params['merchant_id']}' : null,
+      'order' => params['order_id'] != null ? '/orders/${params['order_id']}' : '/orders',
+      _ => null,
+    };
+
+/// Gudy, the AI assistant (LangGraph agents service). Spending actions arrive as approval cards.
 class AssistantScreen extends ConsumerStatefulWidget {
   const AssistantScreen({super.key, this.initial});
   final String? initial;
@@ -26,6 +54,7 @@ class AssistantScreen extends ConsumerStatefulWidget {
 class _AssistantScreenState extends ConsumerState<AssistantScreen> {
   final _turns = <_Turn>[];
   final _input = TextEditingController();
+  final _scroll = ScrollController();
   final _speech = SpeechToText();
   String? _threadId;
   bool _busy = false;
@@ -40,14 +69,24 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
   @override
   void dispose() {
     _input.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
-  void _apply(ChatResponse res) => setState(() {
-        _threadId = res.threadId;
-        _turns.add(_Turn(false, res.status == 'approval_required' ? 'Please review and approve:' : (res.reply ?? ''),
-            cards: res.cards, approval: res.approval));
+  void _toBottom() => WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scroll.hasClients) {
+          _scroll.animateTo(_scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+        }
       });
+
+  void _apply(ChatResponse res) {
+    setState(() {
+      _threadId = res.threadId;
+      _turns.add(_Turn(false, res.status == 'approval_required' ? (res.reply ?? 'Please review and approve:') : (res.reply ?? ''),
+          cards: res.cards, approval: res.approval));
+    });
+    _toBottom();
+  }
 
   Future<void> _send(String text) async {
     if (text.trim().isEmpty || _busy) return;
@@ -56,9 +95,10 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
       _busy = true;
     });
     _input.clear();
+    _toBottom();
     try {
       final area = ref.read(areaProvider);
-      final address = DeliveryAddress(label: area.name, line1: '${area.name}, Lagos', area: area.name, location: area.location);
+      final address = DeliveryAddress(label: area.name, line1: '${area.name}, ${area.cityName}', area: area.name, city: area.cityName, state: area.cityName, location: area.location);
       _apply(await ref.read(agentsApiProvider).chat(text.trim(), threadId: _threadId, address: address));
     } on ApiException catch (e) {
       setState(() => _turns.add(_Turn(false, e.message)));
@@ -97,52 +137,128 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
     }, listenOptions: SpeechListenOptions(localeId: 'en_NG'));
   }
 
+  void _open(String route) {
+    if (route == '/' || route == '/discover' || route == '/orders' || route == '/support' || route == '/profile') {
+      context.go(route);
+    } else {
+      context.push(route);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final name = ref.watch(authStateProvider).value?.name?.split(' ').first;
     return Scaffold(
-      appBar: AppBar(title: const Text('Ask Gud Meal')),
+      appBar: AppBar(
+        titleSpacing: 0,
+        title: Row(children: [
+          const GudyAvatar(size: 38),
+          const SizedBox(width: 10),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Gudy', style: TextStyle(fontWeight: FontWeight.w800)),
+            Text('AI assistant · replies in your language', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+          ]),
+        ]),
+      ),
       body: Column(children: [
         Expanded(
-          child: ListView(padding: const EdgeInsets.all(16), children: [
+          child: ListView(controller: _scroll, padding: const EdgeInsets.all(16), children: [
+            _GudyBubble(
+              text: 'Hi${name == null ? '' : ' $name'}! I’m Gudy. I can find food and beauty products, plan a meal within your budget, '
+                  'send packages across Lagos and Enugu, track orders and tell you how much you’ve spent. '
+                  'You can write in English, Pidgin, Igbo, Yoruba or Hausa.',
+            ),
             if (_turns.isEmpty)
-              const Text('Tell me your budget, how many people and when you want to eat — I’ll find the best options and you approve before paying.'),
-            for (final t in _turns)
-              Align(
-                alignment: t.fromUser ? Alignment.centerRight : Alignment.centerLeft,
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 340),
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: t.fromUser ? scheme.primary : scheme.surface,
-                    borderRadius: BorderRadius.circular(GmRadius.lg),
-                    border: t.fromUser ? null : Border.all(color: scheme.outline),
-                  ),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    if (t.text.isNotEmpty) Text(t.text, style: TextStyle(color: t.fromUser ? scheme.onPrimary : scheme.onSurface)),
-                    for (final card in t.cards) _CardView(card: card),
-                    if (t.approval != null) _ApprovalView(approval: t.approval!, onDecide: (ok) => _decide(t, ok)),
-                  ]),
-                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8, left: 44),
+                child: Wrap(spacing: 8, runSpacing: 8, children: [
+                  for (final s in _suggestions) ActionChip(label: Text(s), onPressed: () => _send(s)),
+                ]),
               ),
-            if (_busy) const Padding(padding: EdgeInsets.all(8), child: LinearProgressIndicator()),
+            for (final t in _turns)
+              t.fromUser
+                  ? Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 320),
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(color: brandOrange, borderRadius: BorderRadius.circular(18).copyWith(bottomRight: const Radius.circular(4))),
+                        child: Text(t.text, style: const TextStyle(color: Colors.white)),
+                      ),
+                    )
+                  : _GudyBubble(
+                      text: t.text,
+                      children: [
+                        for (final card in t.cards) _CardView(card: card, onOpen: _open, onSay: _send),
+                        if (t.approval != null) _ApprovalView(approval: t.approval!, onDecide: (ok) => _decide(t, ok)),
+                      ],
+                    ),
+            if (_busy)
+              const Padding(
+                padding: EdgeInsets.only(left: 44, top: 8),
+                child: Row(children: [SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)), SizedBox(width: 8), Text('Gudy is thinking…')]),
+              ),
           ]),
         ),
         SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
             child: Row(children: [
-              IconButton(tooltip: 'Speak', onPressed: _listen, icon: Icon(_listening ? Icons.mic_rounded : Icons.mic_none_rounded)),
+              IconButton(tooltip: _listening ? 'Stop' : 'Speak', onPressed: _listen, icon: Icon(_listening ? Icons.mic_rounded : Icons.mic_none_rounded)),
               Expanded(
                 child: TextField(
                   controller: _input,
                   textInputAction: TextInputAction.send,
                   onSubmitted: _send,
-                  decoration: const InputDecoration(hintText: 'What are you craving?'),
+                  decoration: InputDecoration(
+                    hintText: 'Ask Gudy anything…',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(999)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(999), borderSide: BorderSide(color: scheme.outline)),
+                  ),
                 ),
               ),
-              IconButton.filled(tooltip: 'Send', onPressed: _busy ? null : () => _send(_input.text), icon: const Icon(Icons.send_rounded)),
+              const SizedBox(width: 6),
+              IconButton.filled(
+                tooltip: 'Send',
+                style: IconButton.styleFrom(backgroundColor: RobotPainter.blue),
+                onPressed: _busy ? null : () => _send(_input.text),
+                icon: const Icon(Icons.send_rounded),
+              ),
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _GudyBubble extends StatelessWidget {
+  const _GudyBubble({required this.text, this.children = const []});
+  final String text;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        const GudyAvatar(size: 34),
+        const SizedBox(width: 10),
+        Flexible(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 340),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: BorderRadius.circular(18).copyWith(bottomLeft: const Radius.circular(4)),
+              border: Border.all(color: scheme.outline),
+            ),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (text.isNotEmpty) Text(text),
+              ...children,
             ]),
           ),
         ),
@@ -152,24 +268,115 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
 }
 
 class _CardView extends StatelessWidget {
-  const _CardView({required this.card});
+  const _CardView({required this.card, required this.onOpen, required this.onSay});
   final Map<String, dynamic> card;
+  final ValueChanged<String> onOpen;
+  final ValueChanged<String> onSay;
+
+  static const _serviceRoutes = {'food': '/food', 'beauty': '/beauty', 'parcel': '/send'};
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     switch (card['type']) {
+      case 'services':
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final s in (card['services'] as List).cast<Map>())
+              ActionChip(
+                avatar: Icon(switch (s['id']) { 'beauty' => Icons.spa_rounded, 'parcel' => Icons.local_shipping_rounded, _ => Icons.restaurant_rounded }, size: 18),
+                label: Text('${s['name']}'),
+                onPressed: () => onOpen(_serviceRoutes['${s['id']}'] ?? '/'),
+              ),
+          ]),
+        );
+      case 'navigate':
+        final route = routeForScreen('${card['screen']}', Map<String, dynamic>.from(card['params'] as Map? ?? const {}));
+        if (route == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: FilledButton.tonalIcon(onPressed: () => onOpen(route), icon: const Icon(Icons.open_in_new_rounded, size: 18), label: Text('${card['label']}')),
+        );
+      case 'order_totals':
+        final byService = Map<String, dynamic>.from(card['by_service'] as Map? ?? const {});
+        return Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(gradient: brandGradient, borderRadius: BorderRadius.circular(GmRadius.md)),
+          child: DefaultTextStyle(
+            style: const TextStyle(color: Colors.white),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('${card['total_spent']}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+              Text('${card['paid_orders']} paid order(s) · ${card['spent_this_month']} this month'),
+              for (final e in byService.entries) Text('${e.key}: ${(e.value as Map)['spent']} (${(e.value as Map)['orders']})'),
+            ]),
+          ),
+        );
       case 'meal_plans':
         final plans = (card['plans'] as List).cast<Map>();
         return Column(children: [
-          for (final p in plans)
+          for (final (i, p) in plans.indexed)
             Card(
               margin: const EdgeInsets.only(top: 8),
               child: ListTile(
                 title: Text('${p['restaurant']} · ${p['total']}', style: const TextStyle(fontWeight: FontWeight.w700)),
                 subtitle: Text('${(p['items'] as List).join(' · ')}${p['arrives_around'] != null ? '\nArrives ~${p['arrives_around']}' : ''}'),
+                trailing: TextButton(onPressed: () => onSay('plan ${i + 1}'), child: const Text('Order')),
               ),
             ),
         ]);
+      case 'order_draft':
+      case 'order_status':
+        final o = Map<String, dynamic>.from(card['order'] as Map);
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('#${o['short_code']} · ${o['restaurant']}', style: const TextStyle(fontWeight: FontWeight.w800)),
+              if (o['status_label'] != null) Text('${o['status_label']}', style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
+              for (final item in (o['items'] as List? ?? const [])) Text('$item'),
+              Text('Total ${o['total']}', style: const TextStyle(fontWeight: FontWeight.w800)),
+              if (o['order_id'] != null)
+                TextButton(onPressed: () => onOpen('/orders/${o['order_id']}'), child: const Text('Open order')),
+            ]),
+          ),
+        );
+      case 'restaurants':
+        final items = (card['items'] as List).cast<Map>();
+        return Column(children: [
+          for (final r in items.take(5))
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(r['service'] == 'beauty' ? Icons.spa_rounded : Icons.storefront_rounded, color: brandOrange),
+              title: Text('${r['name']}'),
+              subtitle: Text([if (r['eta_minutes'] != null) '${r['eta_minutes']} min', if (r['delivery_fee'] != null) '${r['delivery_fee']} delivery'].join(' · ')),
+              onTap: () => onOpen('/restaurants/${r['restaurant_id']}'),
+            ),
+        ]);
+      case 'parcel_quote':
+        final q = Map<String, dynamic>.from(card['quote'] as Map);
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Package · ${q['size']} · ${q['distance_km']} km', style: const TextStyle(fontWeight: FontWeight.w800)),
+              Text('From ${q['from']}'),
+              Text('To ${q['to']}'),
+              Text('${q['pickup']} · arrives ~${q['estimated_delivery']}'),
+              Text('Total ${q['total']}', style: const TextStyle(fontWeight: FontWeight.w800)),
+            ]),
+          ),
+        );
+      case 'support_contacts':
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: FilledButton.tonalIcon(onPressed: () => onOpen('/support'), icon: const Icon(Icons.headset_mic_rounded, size: 18), label: const Text('Open Support')),
+        );
+      case 'support_ticket':
+        return Padding(padding: const EdgeInsets.only(top: 6), child: Text('Ticket ${card['ticket_id']} opened', style: const TextStyle(fontWeight: FontWeight.w700)));
       case 'payment_link':
         return Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -194,16 +401,22 @@ class _ApprovalView extends StatelessWidget {
   Widget build(BuildContext context) {
     final preview = approval.preview;
     final order = preview['order'] is Map ? Map<String, dynamic>.from(preview['order'] as Map) : null;
+    final parcel = preview['parcel'] is Map ? Map<String, dynamic>.from(preview['parcel'] as Map) : null;
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2), borderRadius: BorderRadius.circular(GmRadius.md)),
+      decoration: BoxDecoration(border: Border.all(color: brandOrange, width: 2), borderRadius: BorderRadius.circular(GmRadius.md)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('${preview['title'] ?? 'Approve this action?'}', style: const TextStyle(fontWeight: FontWeight.w800)),
         if (order != null) ...[
           for (final item in (order['items'] as List? ?? const [])) Text('$item'),
           Text('Total ${order['total']}', style: const TextStyle(fontWeight: FontWeight.w800)),
           if (order['estimated_arrival'] != null) Text('Arrives ~${order['estimated_arrival']}'),
+        ],
+        if (parcel != null) ...[
+          Text('From ${parcel['from']}'),
+          Text('To ${parcel['to']}'),
+          Text('Total ${parcel['total']}', style: const TextStyle(fontWeight: FontWeight.w800)),
         ],
         if (preview['message'] != null) Text('${preview['message']}', style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 8),

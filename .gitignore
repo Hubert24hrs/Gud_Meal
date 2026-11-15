@@ -79,3 +79,8 @@ logs/
 *.db-shm
 *.db-wal
 *.db-journal
+
+# local SQLite runtime files (agents checkpointer, etc.)
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
