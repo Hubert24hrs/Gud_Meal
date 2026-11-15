@@ -56,6 +56,21 @@ class Settings(BaseSettings):
     customer_email_fallback_domain: str = "customers.gudmeal.ng"
     refund_auto_approve_limit_kobo: int = 0  # 0 = every refund needs finance approval
     payment_http_timeout_seconds: float = 15.0
+    # Backup gateway tried when the default one fails to start a checkout (only if it is configured).
+    payment_failover_provider: str | None = "flutterwave"
+
+    # --- Gud Meal wallet (closed-loop stored value: spend on Gud Meal only, no cash withdrawal) ---------
+    # Limits are product defaults pending legal/CBN review (see docs/adr/0013-wallet-and-cash.md).
+    wallet_enabled: bool = True
+    wallet_min_topup_kobo: int = 50_000  # ₦500
+    wallet_max_topup_kobo: int = 10_000_000  # ₦100,000 per top-up
+    wallet_max_balance_kobo: int = 30_000_000  # ₦300,000
+
+    # --- pay on delivery (cash to the rider) --------------------------------------------------------
+    pay_on_delivery_enabled: bool = True  # the `pay_on_delivery` feature flag can switch it off live
+    pay_on_delivery_max_kobo: int = 2_500_000  # ₦25,000 per order
+    pay_on_delivery_min_completed_orders: int = 1  # build trust with one prepaid order first
+    rider_cash_limit_kobo: int = 5_000_000  # riders carry at most ₦50,000 of collected cash
 
     # --- internal endpoints (Pub/Sub push, Cloud Tasks, Scheduler) -----------------------------
     internal_auth_mode: Literal["shared_secret", "oidc"] = "shared_secret"

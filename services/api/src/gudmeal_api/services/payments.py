@@ -1,4 +1,5 @@
-"""Payment orchestration: initiation, server-side verification, webhooks, refunds, settlement postings."""
+"""Payment orchestration: gateway checkout (with failover), Gud Meal wallet, pay on delivery, server-side
+verification, webhooks, refunds (to the card or into the wallet) and settlement postings."""
 
 from __future__ import annotations
 
@@ -18,7 +19,14 @@ from ..ledger.audit import AuditLog
 from ..ledger.db import Database
 from ..ledger.ledger import LedgerService
 from ..ledger.outbox import OutboxRelay, add_outbox_event
-from ..ledger.tables import CommissionRecord, PaymentEvent, PaymentRecord, RefundRecord, new_id
+from ..ledger.tables import (
+    INTERNAL_PROVIDERS,
+    CommissionRecord,
+    PaymentEvent,
+    PaymentRecord,
+    RefundRecord,
+    new_id,
+)
 from ..logging_setup import log_event
 from ..payments.base import PaymentProvider
 from ..repositories import Repositories
@@ -36,6 +44,7 @@ def payment_view(rec: PaymentRecord) -> dict[str, Any]:
     return {
         "id": rec.id,
         "order_id": rec.order_id,
+        "purpose": rec.purpose,
         "provider": rec.provider,
         "reference": rec.reference,
         "amount_kobo": rec.amount_kobo,
@@ -59,6 +68,7 @@ def refund_view(rec: RefundRecord) -> dict[str, Any]:
         "reason": rec.reason,
         "liability": rec.liability,
         "stage": rec.stage,
+        "destination": rec.destination,
         "status": rec.status,
         "requested_by": rec.requested_by,
         "decided_by": rec.decided_by,
@@ -67,6 +77,26 @@ def refund_view(rec: RefundRecord) -> dict[str, Any]:
         "decided_at": rec.decided_at,
         "completed_at": rec.completed_at,
     }
+
+
+class ProviderHealth:
+    """Tiny circuit breaker: after `threshold` consecutive failures a gateway is tried last for `cooldown`."""
+
+    def __init__(self, threshold: int = 3, cooldown: timedelta = timedelta(minutes=2)) -> None:
+        self.threshold = threshold
+        self.cooldown = cooldown
+        self._failures: dict[str, tuple[int, datetime]] = {}
+
+    def record(self, name: str, *, ok: bool) -> None:
+        if ok:
+            self._failures.pop(name, None)
+            return
+        count, _ = self._failures.get(name, (0, utcnow()))
+        self._failures[name] = (count + 1, utcnow())
+
+    def degraded(self, name: str) -> bool:
+        count, last = self._failures.get(name, (0, None))
+        return count >= self.threshold and last is not None and utcnow() - last < self.cooldown
 
 
 class PaymentService:
@@ -83,6 +113,8 @@ class PaymentService:
         callback_url: str,
         email_fallback_domain: str,
         refund_auto_approve_limit_kobo: int = 0,
+        failover_provider: str | None = None,
+        wallet_enabled: bool = True,
     ) -> None:
         self.db = db
         self.ledger = ledger
@@ -91,9 +123,12 @@ class PaymentService:
         self.repos = repos
         self.providers = dict(providers)
         self.default_provider = default_provider
+        self.failover_provider = failover_provider
         self.callback_url = callback_url
         self.email_fallback_domain = email_fallback_domain
         self.refund_auto_approve_limit = refund_auto_approve_limit_kobo
+        self.wallet_enabled = wallet_enabled
+        self.health = ProviderHealth()
 
     def provider(self, name: str | None) -> PaymentProvider:
         key = name or self.default_provider
@@ -105,31 +140,25 @@ class PaymentService:
             )
         return provider
 
-    # ============================================================================ initiation
+    def gateways(self, explicit: str | None = None) -> list[str]:
+        """Gateways to try, in order: the one asked for, else the default then the backup (healthy first)."""
+        if explicit:
+            self.provider(explicit)
+            return [explicit]
+        names = [self.default_provider]
+        backup = self.failover_provider
+        if backup and backup != self.default_provider and backup in self.providers:
+            names.append(backup)
+        healthy = [n for n in names if not self.health.degraded(n)]
+        return healthy + [n for n in names if n not in healthy]
+
+    # ============================================================================ gateway checkout
     async def initiate(
         self, order: Order, principal: Principal, provider_name: str | None, idempotency_key: str
     ) -> dict[str, Any]:
-        provider = self.provider(provider_name)
+        names = self.gateways(provider_name)
         now = utcnow()
-        async with self.db.transaction() as s:
-            existing = await s.scalar(
-                select(PaymentRecord)
-                .where(
-                    PaymentRecord.order_id == order.id, PaymentRecord.status.in_(("initialized", "pending"))
-                )
-                .order_by(PaymentRecord.created_at.desc())
-                .limit(1)
-            )
-            if existing is not None and existing.status == "succeeded":
-                raise ValidationFailed("This order is already paid")
-            if (
-                existing is not None
-                and existing.provider == provider.name
-                and existing.authorization_url
-                and existing.amount_kobo == order.breakdown.total_kobo
-                and now - _aware(existing.created_at) < REUSE_WINDOW
-            ):
-                return self._init_view(existing)
+        async with self.db.session() as s:
             paid = await s.scalar(
                 select(func.count())
                 .select_from(PaymentRecord)
@@ -137,53 +166,138 @@ class PaymentService:
             )
             if paid:
                 raise ValidationFailed("This order is already paid")
-            rec = PaymentRecord(
-                id=new_id(),
-                order_id=order.id,
-                customer_id=order.customer_id,
-                provider=provider.name,
-                reference=f"GM-{order.short_code}-{secrets.token_hex(4).upper()}",
-                amount_kobo=order.breakdown.total_kobo,
-                currency="NGN",
-                status="initialized",
-                idempotency_key=f"{order.id}:{idempotency_key}",
-                created_at=now,
-                updated_at=now,
+            existing = await s.scalar(
+                select(PaymentRecord)
+                .where(PaymentRecord.order_id == order.id, PaymentRecord.status == "pending")
+                .order_by(PaymentRecord.created_at.desc())
+                .limit(1)
             )
-            s.add(rec)
+        if (
+            existing is not None
+            and existing.provider == names[0]
+            and existing.authorization_url
+            and existing.amount_kobo == order.breakdown.total_kobo
+            and now - _aware(existing.created_at) < REUSE_WINDOW
+        ):
+            return self._init_view(existing)
+        return await self._hosted_checkout(
+            names,
+            purpose="order",
+            order_id=order.id,
+            customer_id=order.customer_id,
+            amount_kobo=order.breakdown.total_kobo,
+            reference_stem=f"GM-{order.short_code}",
+            idempotency_key=f"{order.id}:{idempotency_key}",
+            principal=principal,
+            callback_url=f"{self.callback_url}?order_id={order.id}",
+            metadata={"order_id": order.id, "short_code": order.short_code, "customer_id": order.customer_id},
+        )
 
+    async def start_wallet_topup(
+        self, principal: Principal, amount_kobo: int, provider_name: str | None, idempotency_key: str
+    ) -> dict[str, Any]:
+        """Hosted checkout that credits the customer's wallet once the gateway confirms the payment."""
+        if not self.wallet_enabled:
+            raise ValidationFailed("The Gud Meal wallet is not available right now")
+        return await self._hosted_checkout(
+            self.gateways(provider_name),
+            purpose="wallet_topup",
+            order_id=None,
+            customer_id=principal.uid,
+            amount_kobo=amount_kobo,
+            reference_stem="GM-TOPUP",
+            idempotency_key=f"topup:{principal.uid}:{idempotency_key}",
+            principal=principal,
+            callback_url=f"{self.callback_url}?purpose=wallet_topup",
+            metadata={"purpose": "wallet_topup", "customer_id": principal.uid},
+        )
+
+    async def _hosted_checkout(
+        self,
+        names: list[str],
+        *,
+        purpose: Literal["order", "wallet_topup"],
+        order_id: str | None,
+        customer_id: str,
+        amount_kobo: int,
+        reference_stem: str,
+        idempotency_key: str,
+        principal: Principal,
+        callback_url: str,
+        metadata: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Start a gateway checkout, failing over to the next gateway when one cannot start it."""
         email = principal.email or f"{principal.uid}@{self.email_fallback_domain}"
-        try:
-            init = await provider.initialize(
-                reference=rec.reference,
-                amount_kobo=rec.amount_kobo,
-                email=email,
-                currency="NGN",
-                callback_url=f"{self.callback_url}?order_id={order.id}",
-                metadata={
-                    "order_id": order.id,
-                    "short_code": order.short_code,
-                    "customer_id": order.customer_id,
-                },
-                customer_name=principal.name,
-                customer_phone=principal.phone,
-            )
-        except PaymentProviderError as exc:
+        last_error: PaymentProviderError | None = None
+        for attempt, name in enumerate(names):
+            provider = self.provider(name)
+            now = utcnow()
+            key = idempotency_key if attempt == 0 else f"{idempotency_key}:{provider.name}"
+            async with self.db.transaction() as s:
+                prior = await s.scalar(select(PaymentRecord).where(PaymentRecord.idempotency_key == key))
+                if prior is not None and prior.status == "pending" and prior.authorization_url:
+                    return self._init_view(prior)  # same request retried
+                if prior is not None:  # an earlier attempt failed: this retry gets its own record
+                    key = f"{key}:{secrets.token_hex(3)}"
+                rec = PaymentRecord(
+                    id=new_id(),
+                    order_id=order_id,
+                    customer_id=customer_id,
+                    purpose=purpose,
+                    provider=provider.name,
+                    reference=f"{reference_stem}-{secrets.token_hex(4).upper()}",
+                    amount_kobo=amount_kobo,
+                    currency="NGN",
+                    status="initialized",
+                    idempotency_key=key,
+                    created_at=now,
+                    updated_at=now,
+                )
+                s.add(rec)
+            try:
+                init = await provider.initialize(
+                    reference=rec.reference,
+                    amount_kobo=amount_kobo,
+                    email=email,
+                    currency="NGN",
+                    callback_url=callback_url,
+                    metadata=metadata,
+                    customer_name=principal.name,
+                    customer_phone=principal.phone,
+                )
+            except PaymentProviderError as exc:
+                self.health.record(provider.name, ok=False)
+                async with self.db.transaction() as s:
+                    row = await s.get(PaymentRecord, rec.id)
+                    if row is not None:
+                        row.status = "failed"
+                        row.failure_reason = exc.message[:500]
+                        row.updated_at = utcnow()
+                last_error = exc
+                if attempt + 1 < len(names):
+                    log_event(
+                        logger,
+                        "payment gateway failover",
+                        logging.WARNING,
+                        failed=provider.name,
+                        next=names[attempt + 1],
+                        reference=rec.reference,
+                    )
+                continue
+            self.health.record(provider.name, ok=True)
             async with self.db.transaction() as s:
                 row = await s.get(PaymentRecord, rec.id)
-                if row is not None:
-                    row.status = "failed"
-                    row.failure_reason = exc.message[:500]
-                    row.updated_at = utcnow()
-            raise
-        async with self.db.transaction() as s:
-            row = await s.get(PaymentRecord, rec.id)
-            assert row is not None
-            row.status = "pending"
-            row.authorization_url = init.authorization_url
-            row.access_code = init.access_code
-            row.updated_at = utcnow()
-            return self._init_view(row)
+                assert row is not None
+                row.status = "pending"
+                row.authorization_url = init.authorization_url
+                row.access_code = init.access_code
+                row.updated_at = utcnow()
+                view = self._init_view(row)
+            if attempt:
+                view["failover_from"] = names[0]
+            return view
+        assert last_error is not None
+        raise last_error
 
     @staticmethod
     def _init_view(rec: PaymentRecord) -> dict[str, Any]:
@@ -194,7 +308,203 @@ class PaymentService:
             "access_code": rec.access_code,
             "amount_kobo": rec.amount_kobo,
             "currency": rec.currency,
+            "payment_status": rec.status,
         }
+
+    # ============================================================================ wallet & cash
+    async def wallet_balance(self, uid: str) -> int:
+        async with self.db.session() as s:
+            return await self.ledger.balance(s, postings.wallet_account(uid))
+
+    async def pay_with_wallet(
+        self, order: Order, principal: Principal, idempotency_key: str
+    ) -> dict[str, Any]:
+        """Pay the whole order from the wallet: balance check and debit happen under one account lock."""
+        if not self.wallet_enabled:
+            raise ValidationFailed("The Gud Meal wallet is not available right now")
+        now = utcnow()
+        key = f"{order.id}:{idempotency_key}"
+        account = postings.wallet_account(order.customer_id)
+        total = order.breakdown.total_kobo
+        async with self.db.transaction() as s:
+            prior = await s.scalar(select(PaymentRecord).where(PaymentRecord.idempotency_key == key))
+            if prior is not None:
+                return self._init_view(prior)
+            await self.ledger.lock_account(s, account)
+            paid = await s.scalar(
+                select(func.count())
+                .select_from(PaymentRecord)
+                .where(PaymentRecord.order_id == order.id, PaymentRecord.status == "succeeded")
+            )
+            if paid:
+                raise ValidationFailed("This order is already paid")
+            balance = await self.ledger.balance(s, account)
+            if balance < total:
+                raise ValidationFailed(
+                    "Your Gud Meal wallet balance is too low for this order",
+                    details={"balance_kobo": balance, "needed_kobo": total, "short_by_kobo": total - balance},
+                )
+            rec = PaymentRecord(
+                id=new_id(),
+                order_id=order.id,
+                customer_id=order.customer_id,
+                purpose="order",
+                provider="wallet",
+                reference=f"GM-{order.short_code}-W{secrets.token_hex(3).upper()}",
+                amount_kobo=total,
+                currency="NGN",
+                status="succeeded",
+                channel="wallet",
+                provider_transaction_id=None,
+                paid_at=now,
+                idempotency_key=key,
+                created_at=now,
+                updated_at=now,
+            )
+            s.add(rec)
+            await s.flush()
+            await self.ledger.post(
+                s,
+                kind="wallet_payment",
+                idempotency_key=f"payment:{rec.id}:captured",
+                postings=postings.wallet_payment(order.customer_id, total),
+                created_by="payments:wallet",
+                reference=rec.reference,
+                order_id=order.id,
+                description=f"Paid for order {order.short_code}",
+            )
+            add_outbox_event(
+                s,
+                "payment.succeeded",
+                {
+                    "order_id": order.id,
+                    "payment_id": rec.id,
+                    "provider": "wallet",
+                    "reference": rec.reference,
+                    "amount_kobo": total,
+                    "paid_at": now.isoformat(),
+                },
+            )
+            view = self._init_view(rec)
+        await self.relay.relay_pending()
+        return view
+
+    async def start_cash_payment(self, order: Order, idempotency_key: str) -> dict[str, Any]:
+        """Pay on delivery: record the cash due (status pending) without touching the ledger yet."""
+        now = utcnow()
+        key = f"{order.id}:{idempotency_key}"
+        async with self.db.transaction() as s:
+            prior = await s.scalar(
+                select(PaymentRecord).where(
+                    (PaymentRecord.idempotency_key == key)
+                    | (
+                        (PaymentRecord.order_id == order.id)
+                        & (PaymentRecord.provider == "cash")
+                        & (PaymentRecord.status == "pending")
+                    )
+                )
+            )
+            if prior is not None:
+                return self._init_view(prior)
+            rec = PaymentRecord(
+                id=new_id(),
+                order_id=order.id,
+                customer_id=order.customer_id,
+                purpose="order",
+                provider="cash",
+                reference=f"GM-{order.short_code}-C{secrets.token_hex(3).upper()}",
+                amount_kobo=order.breakdown.total_kobo,
+                currency="NGN",
+                status="pending",
+                channel="cash",
+                idempotency_key=key,
+                created_at=now,
+                updated_at=now,
+            )
+            s.add(rec)
+            return self._init_view(rec)
+
+    async def record_cash_collection(self, order: Order, rider_id: str) -> int:
+        """The rider confirmed the cash at the door. Posts it once (idempotent); returns the rider's cash held.
+
+        Amounts come from the server's records (the order's cash payment and the parcel's COD amount), never
+        from the rider's request.
+        """
+        now = utcnow()
+        async with self.db.transaction() as s:
+            pod_kobo = 0
+            if order.awaiting_cash_payment:
+                rec = await s.scalar(
+                    select(PaymentRecord)
+                    .where(
+                        PaymentRecord.order_id == order.id,
+                        PaymentRecord.provider == "cash",
+                        PaymentRecord.status.in_(("pending", "succeeded")),
+                    )
+                    .order_by(PaymentRecord.created_at.desc())
+                    .limit(1)
+                    .with_for_update()
+                )
+                if rec is None:
+                    raise ValidationFailed("This order has no cash payment to collect")
+                if rec.status != "succeeded":
+                    rec.status = "succeeded"
+                    rec.paid_at = now
+                    rec.provider_transaction_id = f"rider:{rider_id}"
+                    rec.updated_at = now
+                pod_kobo = rec.amount_kobo
+                await self.ledger.post(
+                    s,
+                    kind="cash_collected",
+                    idempotency_key=f"order:{order.id}:cash_collected",
+                    postings=postings.cash_collected(rider_id, rec.amount_kobo),
+                    created_by=f"rider:{rider_id}",
+                    reference=rec.reference,
+                    order_id=order.id,
+                    description=f"Cash collected for order {order.short_code}",
+                )
+            cod_kobo = (order.parcel.cod_amount_kobo or 0) if order.parcel else 0
+            if cod_kobo:
+                await self.ledger.post(
+                    s,
+                    kind="cod_collected",
+                    idempotency_key=f"order:{order.id}:cod_collected",
+                    postings=postings.cod_collected(rider_id, order.customer_id, cod_kobo),
+                    created_by=f"rider:{rider_id}",
+                    reference=order.short_code,
+                    order_id=order.id,
+                    description=f"Cash on delivery collected for package {order.short_code}",
+                )
+            AuditLog.add(
+                s,
+                actor_id=rider_id,
+                actor_roles=["rider"],
+                action="cash.collected",
+                resource_type="order",
+                resource_id=order.id,
+                details={"pay_on_delivery_kobo": pod_kobo, "cod_kobo": cod_kobo},
+            )
+            return await self.ledger.balance(s, postings.rider_cash_account(rider_id))
+
+    async def void_cash_payment(self, order_id: str, reason: str = "Order cancelled before delivery") -> None:
+        """A pay-on-delivery order was called off before the rider collected anything."""
+        async with self.db.transaction() as s:
+            rows = (
+                await s.execute(
+                    select(PaymentRecord).where(
+                        PaymentRecord.order_id == order_id,
+                        PaymentRecord.provider == "cash",
+                        PaymentRecord.status == "pending",
+                    )
+                )
+            ).scalars()
+            for row in rows:
+                row.status = "abandoned"
+                row.failure_reason = reason[:500]
+                row.updated_at = utcnow()
+
+    async def on_order_cancelled(self, payload: dict[str, Any]) -> None:
+        await self.void_cash_payment(str(payload["order_id"]))
 
     # ============================================================================ verification
     async def get_payment(self, reference: str) -> PaymentRecord:
@@ -214,8 +524,8 @@ class PaymentService:
         self, reference: str, *, source: Literal["webhook", "client", "reconcile"]
     ) -> dict[str, Any]:
         rec = await self.get_payment(reference)
-        if rec.status == "succeeded":
-            return payment_view(rec)
+        if rec.status == "succeeded" or rec.provider in INTERNAL_PROVIDERS:
+            return payment_view(rec)  # wallet and cash payments are settled inside Gud Meal, not by a gateway
         provider = self.provider(rec.provider)
         result = await provider.verify(reference)
         now = utcnow()
@@ -266,28 +576,49 @@ class PaymentService:
                     row.provider_transaction_id = result.provider_transaction_id
                     row.channel = result.channel
                     row.updated_at = now
-                    await self.ledger.post(
-                        s,
-                        kind="payment_captured",
-                        idempotency_key=f"payment:{row.id}:captured",
-                        postings=postings.payment_captured(row.provider, row.amount_kobo),
-                        created_by=f"payments:{source}",
-                        reference=row.reference,
-                        order_id=row.order_id,
-                        description=f"Payment {row.reference} captured",
-                    )
-                    add_outbox_event(
-                        s,
-                        "payment.succeeded",
-                        {
-                            "order_id": row.order_id,
-                            "payment_id": row.id,
-                            "provider": row.provider,
-                            "reference": row.reference,
-                            "amount_kobo": row.amount_kobo,
-                            "paid_at": (row.paid_at or now).isoformat(),
-                        },
-                    )
+                    if row.purpose == "wallet_topup":
+                        await self.ledger.post(
+                            s,
+                            kind="wallet_topup",
+                            idempotency_key=f"payment:{row.id}:captured",
+                            postings=postings.wallet_topup(row.provider, row.customer_id, row.amount_kobo),
+                            created_by=f"payments:{source}",
+                            reference=row.reference,
+                            description="Wallet top-up",
+                        )
+                        add_outbox_event(
+                            s,
+                            "wallet.topped_up",
+                            {
+                                "customer_id": row.customer_id,
+                                "payment_id": row.id,
+                                "reference": row.reference,
+                                "amount_kobo": row.amount_kobo,
+                            },
+                        )
+                    else:
+                        await self.ledger.post(
+                            s,
+                            kind="payment_captured",
+                            idempotency_key=f"payment:{row.id}:captured",
+                            postings=postings.payment_captured(row.provider, row.amount_kobo),
+                            created_by=f"payments:{source}",
+                            reference=row.reference,
+                            order_id=row.order_id,
+                            description=f"Payment {row.reference} captured",
+                        )
+                        add_outbox_event(
+                            s,
+                            "payment.succeeded",
+                            {
+                                "order_id": row.order_id,
+                                "payment_id": row.id,
+                                "provider": row.provider,
+                                "reference": row.reference,
+                                "amount_kobo": row.amount_kobo,
+                                "paid_at": (row.paid_at or now).isoformat(),
+                            },
+                        )
             elif result.status in ("failed", "abandoned", "reversed"):
                 row.status = "abandoned" if result.status == "abandoned" else "failed"
                 row.failure_reason = (result.gateway_message or result.status)[:500]
@@ -300,7 +631,7 @@ class PaymentService:
         self, provider_name: str, raw_body: bytes, headers: Mapping[str, str], client_ip: str | None
     ) -> dict[str, str]:
         provider = self.providers.get(provider_name)
-        if provider is None:
+        if provider is None or provider_name in INTERNAL_PROVIDERS:
             raise NotFound("Unknown payment provider")
         if not provider.verify_webhook(raw_body, headers, client_ip):
             log_event(
@@ -351,6 +682,7 @@ class PaymentService:
                         select(PaymentRecord.reference)
                         .where(
                             PaymentRecord.status.in_(("initialized", "pending")),
+                            PaymentRecord.provider.not_in(INTERNAL_PROVIDERS),  # cash waits for the rider
                             PaymentRecord.created_at < cutoff,
                         )
                         .order_by(PaymentRecord.created_at)
@@ -380,6 +712,7 @@ class PaymentService:
         requested_by: str,
         idempotency_key: str,
         auto_approve: bool,
+        payment_id: str | None = None,
     ) -> dict[str, Any]:
         async with self.db.transaction() as s:
             existing = await s.scalar(
@@ -387,13 +720,21 @@ class PaymentService:
             )
             if existing is not None:
                 return refund_view(existing)
-            payment = await s.scalar(
-                select(PaymentRecord)
-                .where(PaymentRecord.order_id == order_id, PaymentRecord.status == "succeeded")
-                .with_for_update()
+            stmt = select(PaymentRecord).where(
+                PaymentRecord.order_id == order_id, PaymentRecord.status == "succeeded"
             )
-            if payment is None:
+            if payment_id:
+                stmt = stmt.where(PaymentRecord.id == payment_id)
+            captured = list(
+                (await s.execute(stmt.order_by(PaymentRecord.created_at).with_for_update())).scalars()
+            )
+            if not captured:
                 raise ValidationFailed("Order has no captured payment to refund")
+            payment = captured[-1]
+            if len(captured) > 1:  # several payments for one order: refund the one the order is paid with
+                order = await self.repos.orders.get(order_id)
+                ref = order.payment.reference if order else None
+                payment = next((p for p in captured if p.reference == ref), payment)
             open_total = await s.scalar(
                 select(func.coalesce(func.sum(RefundRecord.amount_kobo), 0)).where(
                     RefundRecord.payment_id == payment.id,
@@ -405,6 +746,7 @@ class PaymentService:
                 raise ValidationFailed(
                     "Refund exceeds the refundable amount", details={"refundable_kobo": refundable}
                 )
+            destination = await self._refund_destination(payment)
             approved = auto_approve or (0 < amount_kobo <= self.refund_auto_approve_limit)
             refund = RefundRecord(
                 id=new_id(),
@@ -414,6 +756,7 @@ class PaymentService:
                 reason=reason[:1000],
                 liability=liability,
                 stage=stage,
+                destination=destination,
                 status="approved" if approved else "requested",
                 requested_by=requested_by,
                 decided_by="system" if approved else None,
@@ -428,11 +771,21 @@ class PaymentService:
                 action="refund.requested",
                 resource_type="order",
                 resource_id=order_id,
-                details={"amount_kobo": amount_kobo, "auto_approved": approved},
+                details={"amount_kobo": amount_kobo, "auto_approved": approved, "destination": destination},
             )
         if approved:
             return await self.process_refund(refund.id)
         return refund_view(refund)
+
+    async def _refund_destination(self, payment: PaymentRecord) -> Literal["original", "wallet"]:
+        """Wallet and cash payments are refunded into the wallet; card payments go back to the card unless the
+        customer chose instant refunds to their wallet."""
+        if payment.provider in INTERNAL_PROVIDERS:
+            return "wallet"
+        if not self.wallet_enabled:
+            return "original"
+        profile = await self.repos.customers.get(payment.customer_id)
+        return "wallet" if profile is not None and profile.refund_to_wallet else "original"
 
     async def decide_refund(
         self, principal: Principal, refund_id: str, *, approve: bool, note: str | None
@@ -481,15 +834,19 @@ class PaymentService:
                 raise NotFound("Refund not found")
             if rec.status != "approved":
                 return refund_view(rec)
+            to_wallet = rec.destination == "wallet"
             payment = await s.get(PaymentRecord, rec.payment_id)
             assert payment is not None
-            rec.status = "processing"
+            if not to_wallet:
+                rec.status = "processing"
             ref, txid, provider_name, amount = (
                 payment.reference,
                 payment.provider_transaction_id,
                 payment.provider,
                 rec.amount_kobo,
             )
+        if to_wallet:
+            return await self.complete_refund(refund_id)  # instant: no gateway involved
         try:
             result = await self.provider(provider_name).refund(
                 reference=ref, provider_transaction_id=txid, amount_kobo=amount
@@ -528,10 +885,12 @@ class PaymentService:
             payment = await s.get(PaymentRecord, rec.payment_id, with_for_update=True)
             assert payment is not None
             order = await self.repos.orders.get(rec.order_id)
+            to_wallet = rec.destination == "wallet"
             rec.status = "succeeded"
             rec.completed_at = utcnow()
             payment.refunded_kobo += rec.amount_kobo
             payment.updated_at = utcnow()
+            short = order.short_code if order else rec.order_id[:6]
             await self.ledger.post(
                 s,
                 kind="refund",
@@ -540,13 +899,14 @@ class PaymentService:
                     provider=payment.provider,
                     amount_kobo=rec.amount_kobo,
                     stage=rec.stage,  # type: ignore[arg-type]
-                    liability=rec.liability,
-                    restaurant_id=order.restaurant_id if order else "unknown",  # type: ignore[arg-type]
+                    liability=rec.liability,  # type: ignore[arg-type]
+                    restaurant_id=order.restaurant_id if order else "unknown",
+                    to_wallet_of=payment.customer_id if to_wallet else None,
                 ),
                 created_by="payments",
                 reference=payment.reference,
                 order_id=rec.order_id,
-                description=f"Refund {rec.id}",
+                description=f"Refund for order {short}",
             )
             add_outbox_event(
                 s,
@@ -554,7 +914,9 @@ class PaymentService:
                 {
                     "order_id": rec.order_id,
                     "refund_id": rec.id,
+                    "customer_id": payment.customer_id,
                     "amount_kobo": rec.amount_kobo,
+                    "destination": rec.destination,
                     "total_refunded_kobo": payment.refunded_kobo,
                     "fully_refunded": payment.refunded_kobo >= payment.amount_kobo,
                 },
@@ -615,6 +977,14 @@ class PaymentService:
     # ============================================================================ settlement
     async def settle_completed_order(self, order: Order) -> bool:
         async with self.db.transaction() as s:
+            captured = await s.scalar(
+                select(func.count())
+                .select_from(PaymentRecord)
+                .where(PaymentRecord.order_id == order.id, PaymentRecord.status == "succeeded")
+            )
+            if not captured:  # never recognise revenue for money that was not received
+                log_event(logger, "settlement skipped: no captured payment", logging.ERROR, order_id=order.id)
+                return False
             _, created = await self.ledger.post(
                 s,
                 kind="order_settlement",

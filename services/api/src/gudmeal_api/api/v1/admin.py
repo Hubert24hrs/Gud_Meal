@@ -5,7 +5,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Header, Query
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from ...domain.models import RestaurantStatus, RiderStatus, Voucher
@@ -13,8 +14,9 @@ from ...domain.order_state import OrderStatus
 from ...domain.pricing import PricingConfig
 from ...security.rbac import Permission, require
 from ...services.admin import FlagInput, RolesInput
+from ...services.cash import PayOnDeliveryBlockInput, RemittanceInput
 from ...services.engagement import TicketResolution
-from ..deps import Ctr, CurrentPrincipal
+from ..deps import Ctr, CurrentPrincipal, run_idempotent
 from ..serializers import order_view
 
 router = APIRouter(prefix="/v1/admin", tags=["admin"])
@@ -66,6 +68,10 @@ class PaidInput(BaseModel):
 class PayoutDecisionInput(BaseModel):
     approve: bool
     bank_reference: str | None = Field(default=None, max_length=120)
+
+
+class SellerPayoutDecisionInput(PayoutDecisionInput):
+    note: str | None = Field(default=None, max_length=500)
 
 
 @router.get("/overview")
@@ -212,6 +218,55 @@ async def payout_decision(
 ) -> Any:
     return await c.admin.decide_rider_payout(
         principal, payout_id, approve=data.approve, bank_reference=data.bank_reference
+    )
+
+
+# ---------------------------------------------------------------- cash, wallets & seller payouts
+@router.get("/cash")
+async def cash_overview(c: Ctr, principal: CurrentPrincipal) -> Any:
+    """Cash held by riders (pay on delivery + COD), wallet balances and money owed to sellers."""
+    return await c.cash.overview(principal)
+
+
+@router.post("/riders/{uid}/cash-remittances", status_code=201)
+async def record_remittance(
+    uid: str,
+    data: RemittanceInput,
+    c: Ctr,
+    principal: CurrentPrincipal,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+) -> JSONResponse:
+    async def run() -> Any:
+        return await c.cash.record_remittance(principal, uid, data, str(idempotency_key))
+
+    return await run_idempotent(
+        c,
+        scope=f"admin.remittance:{uid}",
+        key=idempotency_key,
+        payload=data.model_dump(),
+        fn=run,
+        success_status=201,
+    )
+
+
+@router.put("/customers/{uid}/pay-on-delivery")
+async def customer_pay_on_delivery(
+    uid: str, data: PayOnDeliveryBlockInput, c: Ctr, principal: CurrentPrincipal
+) -> Any:
+    return await c.cash.set_customer_block(principal, uid, data)
+
+
+@router.get("/seller-payouts")
+async def seller_payouts(c: Ctr, principal: CurrentPrincipal, status: str | None = None) -> Any:
+    return await c.wallet.list_seller_payouts(principal, status)
+
+
+@router.post("/seller-payouts/{payout_id}/decision")
+async def seller_payout_decision(
+    payout_id: str, data: SellerPayoutDecisionInput, c: Ctr, principal: CurrentPrincipal
+) -> Any:
+    return await c.wallet.decide_seller_payout(
+        principal, payout_id, approve=data.approve, bank_reference=data.bank_reference, note=data.note
     )
 
 

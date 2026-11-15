@@ -46,6 +46,8 @@ LIMITS: dict[str, tuple[int, float]] = {
     "quote": (30, 0.5),
     "order_create": (10, 0.1),
     "checkout": (10, 0.1),
+    "wallet_topup": (10, 0.1),
+    "payout": (10, 0.05),
     "payment_verify": (20, 0.3),
     "code_attempt": (5, 0.02),
     "rider_location": (30, 1.0),

@@ -491,6 +491,7 @@ class AdminService:
         account = f"liability:rider:{principal.uid}"
         async with self.db.session() as s:
             balance = await self.ledger.balance(s, account)
+            cash_held = await self.ledger.balance(s, postings.rider_cash_account(principal.uid))
             pending = await s.scalar(
                 select(func.coalesce(func.sum(RiderPayout.amount_kobo), 0)).where(
                     RiderPayout.rider_id == principal.uid, RiderPayout.status.in_(("requested", "approved"))
@@ -515,7 +516,9 @@ class AdminService:
         return {
             "balance_kobo": balance,
             "pending_payouts_kobo": int(pending or 0),
-            "available_kobo": max(0, balance - int(pending or 0)),
+            # Cash collected at the door is ours: it is netted off before a rider can withdraw earnings.
+            "cash_held_kobo": cash_held,
+            "available_kobo": max(0, balance - int(pending or 0) - cash_held),
             "deliveries_completed": len(deliveries),
             "earned_last_7_days_kobo": sum(
                 o.settlement.rider_pay_kobo
@@ -598,8 +601,12 @@ class AdminService:
                 if not bank_reference:
                     raise ValidationFailed("A bank transfer reference is required to mark the payout as paid")
                 balance = await self.ledger.balance(s, f"liability:rider:{row.rider_id}")
-                if row.amount_kobo > balance:
-                    raise ValidationFailed("Rider balance is insufficient")
+                cash_held = await self.ledger.balance(s, postings.rider_cash_account(row.rider_id))
+                if row.amount_kobo > balance - cash_held:
+                    raise ValidationFailed(
+                        "Rider balance is insufficient once the cash they hold is deducted",
+                        details={"balance_kobo": balance, "cash_held_kobo": cash_held},
+                    )
                 await self.ledger.post(
                     s,
                     kind="rider_payout",

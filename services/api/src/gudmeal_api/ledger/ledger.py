@@ -50,9 +50,35 @@ def account_type(code: str) -> str:
         raise LedgerError(f"Unknown account prefix in {code!r}") from exc
 
 
+# Accounts that belong to one person or business: (prefix, kind) -> owner_type = kind, owner_id = 3rd part.
+OWNED_ACCOUNTS = {
+    ("liability", "restaurant"),  # owed to a merchant
+    ("liability", "rider"),  # owed to a rider (delivery pay)
+    ("liability", "wallet"),  # a customer's Gud Meal wallet (closed-loop stored value)
+    ("liability", "vendor"),  # cash-on-delivery money collected for a seller
+    ("receivable", "rider_cash"),  # cash a rider collected at the door and still has to hand in
+}
+
+
+def wallet_account(uid: str) -> str:
+    return f"liability:wallet:{uid}"
+
+
+def vendor_account(uid: str) -> str:
+    return f"liability:vendor:{uid}"
+
+
+def rider_account(uid: str) -> str:
+    return f"liability:rider:{uid}"
+
+
+def rider_cash_account(uid: str) -> str:
+    return f"receivable:rider_cash:{uid}"
+
+
 def _owner(code: str) -> tuple[str | None, str | None]:
     parts = code.split(":")
-    if len(parts) == 3 and parts[0] == "liability" and parts[1] in ("restaurant", "rider"):
+    if len(parts) == 3 and (parts[0], parts[1]) in OWNED_ACCOUNTS and parts[2]:
         return parts[1], parts[2]
     return None, None
 
@@ -109,6 +135,7 @@ def order_completed(order: Order) -> list[Posting]:
         Posting("liability:vat", "credit", b.vat_kobo),
         Posting("revenue:commission", "credit", s.commission_kobo),
         Posting("revenue:service_fee", "credit", b.service_fee_kobo + b.small_order_fee_kobo),
+        Posting("revenue:cod_fee", "credit", b.cod_fee_kobo),
     ]
     if order.rider_id and s.rider_pay_kobo:
         postings.append(Posting(f"liability:rider:{order.rider_id}", "credit", s.rider_pay_kobo))
@@ -130,20 +157,76 @@ def refund_issued(
     stage: Literal["before_completion", "after_completion"],
     liability: Literal["restaurant", "platform"],
     restaurant_id: str,
+    to_wallet_of: str | None = None,
 ) -> list[Posting]:
+    """Refund to the original payment method (cash leaves the provider) or into the customer's wallet."""
     if stage == "before_completion":
         debit_account = "liability:customer_funds"
     elif liability == "restaurant":
         debit_account = f"liability:restaurant:{restaurant_id}"
     else:
         debit_account = "expense:refunds"
-    return [Posting(debit_account, "debit", amount_kobo), Posting(f"cash:{provider}", "credit", amount_kobo)]
+    credit_account = wallet_account(to_wallet_of) if to_wallet_of else f"cash:{provider}"
+    return [Posting(debit_account, "debit", amount_kobo), Posting(credit_account, "credit", amount_kobo)]
 
 
-def payout_made(owner_type: Literal["restaurant", "rider"], owner_id: str, amount_kobo: int) -> list[Posting]:
+def payout_made(
+    owner_type: Literal["restaurant", "rider", "vendor"], owner_id: str, amount_kobo: int
+) -> list[Posting]:
     return [
         Posting(f"liability:{owner_type}:{owner_id}", "debit", amount_kobo),
         Posting("cash:bank", "credit", amount_kobo),
+    ]
+
+
+def wallet_topup(provider: str, uid: str, amount_kobo: int) -> list[Posting]:
+    """A customer adds money to their wallet through a payment provider."""
+    return [
+        Posting(f"cash:{provider}", "debit", amount_kobo),
+        Posting(wallet_account(uid), "credit", amount_kobo),
+    ]
+
+
+def wallet_payment(uid: str, amount_kobo: int) -> list[Posting]:
+    """A customer pays for an order from their wallet: stored value becomes funds held for the order."""
+    return [
+        Posting(wallet_account(uid), "debit", amount_kobo),
+        Posting("liability:customer_funds", "credit", amount_kobo),
+    ]
+
+
+def cash_collected(rider_id: str, amount_kobo: int) -> list[Posting]:
+    """Pay on delivery: the rider took the order total in cash, which they now owe the platform."""
+    return [
+        Posting(rider_cash_account(rider_id), "debit", amount_kobo),
+        Posting("liability:customer_funds", "credit", amount_kobo),
+    ]
+
+
+def cod_collected(rider_id: str, vendor_id: str, amount_kobo: int) -> list[Posting]:
+    """Vendor cash-on-delivery: the rider took the item price from the recipient; it is owed to the seller."""
+    return [
+        Posting(rider_cash_account(rider_id), "debit", amount_kobo),
+        Posting(vendor_account(vendor_id), "credit", amount_kobo),
+    ]
+
+
+def rider_cash_remitted(
+    rider_id: str, amount_kobo: int, method: Literal["bank_transfer", "cash_deposit", "earnings_offset"]
+) -> list[Posting]:
+    """A rider hands in collected cash (paid into the bank) or it is deducted from what we owe them."""
+    debit = rider_account(rider_id) if method == "earnings_offset" else "cash:bank"
+    return [
+        Posting(debit, "debit", amount_kobo),
+        Posting(rider_cash_account(rider_id), "credit", amount_kobo),
+    ]
+
+
+def vendor_to_wallet(uid: str, amount_kobo: int) -> list[Posting]:
+    """A seller moves cash-on-delivery money into their own Gud Meal wallet (instant, no bank transfer)."""
+    return [
+        Posting(vendor_account(uid), "debit", amount_kobo),
+        Posting(wallet_account(uid), "credit", amount_kobo),
     ]
 
 
@@ -247,6 +330,50 @@ class LedgerService:
                 return existing, False
             raise
         return txn_id, True
+
+    async def lock_account(self, session: AsyncSession, code: str) -> None:
+        """Serialise money movements on one account (row lock on PostgreSQL; SQLite locks the database)."""
+        await self._ensure_accounts(session, {code})
+        await session.execute(
+            select(FinancialAccount.id).where(FinancialAccount.code == code).with_for_update()
+        )
+
+    async def statement(self, session: AsyncSession, code: str, limit: int = 50) -> list[dict[str, Any]]:
+        """Latest entries on one account, newest first, as money in or out for the account's owner."""
+        acct = await session.scalar(select(FinancialAccount).where(FinancialAccount.code == code))
+        if acct is None:
+            return []
+        stmt = (
+            select(
+                FinancialTransaction.id,
+                FinancialTransaction.kind,
+                FinancialTransaction.reference,
+                FinancialTransaction.order_id,
+                FinancialTransaction.description,
+                FinancialTransaction.created_at,
+                LedgerEntry.direction,
+                LedgerEntry.amount_kobo,
+            )
+            .join(LedgerEntry, LedgerEntry.transaction_id == FinancialTransaction.id)
+            .where(LedgerEntry.account_id == acct.id)
+            .order_by(FinancialTransaction.created_at.desc(), FinancialTransaction.id)
+            .limit(min(limit, 200))
+        )
+        increases = "debit" if acct.type in DEBIT_NORMAL else "credit"
+        rows = (await session.execute(stmt)).all()
+        return [
+            {
+                "id": txn_id,
+                "kind": kind,
+                "reference": reference,
+                "order_id": order_id,
+                "description": description,
+                "created_at": created_at,
+                "direction": "in" if direction == increases else "out",
+                "amount_kobo": int(amount),
+            }
+            for txn_id, kind, reference, order_id, description, created_at, direction, amount in rows
+        ]
 
     async def balance(self, session: AsyncSession, code: str) -> int:
         acct = await session.scalar(select(FinancialAccount).where(FinancialAccount.code == code))

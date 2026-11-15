@@ -66,6 +66,11 @@ class ParcelFeeConfig(BaseModel):
     )
     max_distance_km: float = Field(default=40.0, gt=0)  # straight-line, within one city
     pickup_eta_minutes: int = Field(default=25, ge=0)  # typical time for a rider to reach the sender
+    # Vendor cash-on-delivery: the sender pays a collection fee with the booking; riders carry at most cod_max.
+    cod_fee_bps: int = Field(default=150, ge=0, le=2_000)  # 1.5% of the cash collected
+    cod_fee_min_kobo: int = Field(default=10_000, ge=0)  # ₦100
+    cod_fee_round_to_kobo: int = Field(default=1_000, ge=1)  # ₦10
+    cod_max_kobo: int = Field(default=10_000_000, ge=0)  # ₦100,000 per package
 
 
 class ZoneConfig(BaseModel):
@@ -341,8 +346,27 @@ def parcel_rider_pay(distance_km: float, size: ParcelSize, cfg: PricingConfig) -
     return rider_pay(distance_km, cfg) + cfg.parcel.rider_bonus_by_size_kobo.get(size, 0)
 
 
+def cod_fee(cod_amount_kobo: int | None, cfg: PricingConfig) -> int:
+    """Fee for collecting cash from the recipient on the sender's behalf (0 when there is no COD)."""
+    if not cod_amount_kobo:
+        return 0
+    p = cfg.parcel
+    if cod_amount_kobo > p.cod_max_kobo:
+        raise ValidationFailed(
+            "Cash-on-delivery amount is above the limit riders can carry",
+            details={"cod_amount_kobo": cod_amount_kobo, "max_kobo": p.cod_max_kobo},
+        )
+    fee = max(p.cod_fee_min_kobo, apply_bps(cod_amount_kobo, p.cod_fee_bps))
+    return round_to(fee, p.cod_fee_round_to_kobo)
+
+
 def compute_parcel_price(
-    *, distance_km: float, size: ParcelSize, cfg: PricingConfig, surge_bps: int = 10_000
+    *,
+    distance_km: float,
+    size: ParcelSize,
+    cfg: PricingConfig,
+    surge_bps: int = 10_000,
+    cod_amount_kobo: int | None = None,
 ) -> PricingResult:
     """Price a courier job. There is no merchant: the whole fee is platform revenue less rider pay."""
     if distance_km > cfg.parcel.max_distance_km:
@@ -352,13 +376,15 @@ def compute_parcel_price(
         )
     fee = parcel_fee(distance_km, size, cfg, surge_bps)
     s_fee = cfg.parcel.service_fee_kobo
-    vat = apply_bps(fee + s_fee, cfg.vat_bps)
+    c_fee = cod_fee(cod_amount_kobo, cfg)
+    vat = apply_bps(fee + s_fee + c_fee, cfg.vat_bps)
     breakdown = PriceBreakdown(
         subtotal_kobo=0,
         delivery_fee_kobo=fee,
         service_fee_kobo=s_fee,
+        cod_fee_kobo=c_fee,
         vat_kobo=vat,
-        total_kobo=fee + s_fee + vat,
+        total_kobo=fee + s_fee + c_fee + vat,
     )
     settlement = SettlementTerms(
         commission_bps=0,

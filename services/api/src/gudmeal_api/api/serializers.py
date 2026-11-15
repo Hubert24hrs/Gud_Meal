@@ -50,6 +50,10 @@ def order_view(order: Order, principal: Principal) -> dict[str, Any]:
             "delivery_address": data["delivery_address"],
             "items": [{"name": ln.name, "quantity": ln.quantity} for ln in order.lines],
             "rider_pay_kobo": order.settlement.rider_pay_kobo,
+            # Cash to take at the door (pay on delivery and/or the sender's COD amount); 0 when prepaid.
+            "payment_method": "cash" if order.is_pay_on_delivery else "prepaid",
+            "collect_cash_kobo": order.cash_to_collect_kobo,
+            "cash_collected_at": data["cash_collected_at"],
             "ready_at": data["ready_at"],
             "picked_up_at": data["picked_up_at"],
             "estimated_delivery_at": data["estimated_delivery_at"],
@@ -60,6 +64,7 @@ def order_view(order: Order, principal: Principal) -> dict[str, Any]:
                 "size": parcel.size.value,
                 "category": parcel.category,
                 "description": parcel.description,
+                "cod_amount_kobo": parcel.cod_amount_kobo,
                 "pickup": parcel.pickup.model_dump(mode="json"),
                 "dropoff": parcel.dropoff.model_dump(mode="json"),
             },

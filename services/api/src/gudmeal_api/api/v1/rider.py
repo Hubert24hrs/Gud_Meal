@@ -34,6 +34,9 @@ class ReasonInput(BaseModel):
 
 class DeliverInput(BaseModel):
     code: str = Field(pattern=r"^\d{4}$")
+    # Required (true) when the order has cash to collect: pay on delivery and/or a package's COD amount.
+    # The amount itself always comes from the server.
+    cash_collected: bool = False
 
 
 class PayoutInput(BaseModel):
@@ -99,7 +102,8 @@ async def in_transit(order_id: str, c: Ctr, principal: CurrentPrincipal) -> Any:
 async def deliver(order_id: str, data: DeliverInput, c: Ctr, principal: CurrentPrincipal) -> Any:
     require_rider(principal)
     c.rate_limiter.check(f"code:{principal.uid}", capacity=5, refill_per_second=0.02)
-    return order_view(await c.orders.rider_deliver(principal, order_id, data.code), principal)
+    order = await c.orders.rider_deliver(principal, order_id, data.code, cash_collected=data.cash_collected)
+    return order_view(order, principal)
 
 
 @router.post("/deliveries/{order_id}/unassign")

@@ -66,7 +66,13 @@ class ParcelService:
         distance = haversine_km(req.pickup.location, req.dropoff.location)
         if distance < 0.2:
             raise ValidationFailed("Pickup and drop-off are the same place")
-        result = compute_parcel_price(distance_km=distance, size=req.size, cfg=cfg, surge_bps=surge)
+        result = compute_parcel_price(
+            distance_km=distance,
+            size=req.size,
+            cfg=cfg,
+            surge_bps=surge,
+            cod_amount_kobo=req.cod_amount_kobo or None,
+        )
         details = ParcelDetails(
             pickup=req.pickup,
             dropoff=req.dropoff,
@@ -75,6 +81,7 @@ class ParcelService:
             description=req.description.strip(),
             declared_value_kobo=req.declared_value_kobo,
             city=city,
+            cod_amount_kobo=req.cod_amount_kobo or None,
         )
         return result, details, distance, sched, cfg
 

@@ -58,3 +58,41 @@ async def test_negative_amounts_rejected(container):
                     "VALUES ('x', 'y', 'z', 'debit', -5, 'NGN', now())"
                 )
             )
+
+
+async def test_concurrent_wallet_payments_cannot_overspend(flow, client, container, monkeypatch):
+    """Two orders paid from one wallet at the same moment: the account row lock lets only one through."""
+    import asyncio
+
+    from conftest import PRINCIPALS, auth, idem
+    from gudmeal_api.ledger.ledger import LedgerService
+
+    original_balance = LedgerService.balance
+
+    async def slow_balance(self, session, code):  # widen the gap between reading the balance and debiting it
+        value = await original_balance(self, session, code)
+        if code.startswith("liability:wallet:"):
+            await asyncio.sleep(0.2)
+        return value
+
+    monkeypatch.setattr(LedgerService, "balance", slow_balance)
+
+    first, second = await flow.order(), await flow.order()
+    total = first["breakdown"]["total_kobo"]
+    assert second["breakdown"]["total_kobo"] == total
+    r = await client.post(
+        "/v1/wallet/topups", json={"amount_kobo": total}, headers={**auth("customer"), **idem()}
+    )
+    await client.post(f"/v1/dev/sandbox-checkout/{r.json()['reference']}/complete?outcome=success")
+    for o in (first, second):
+        await container.orders.transition(
+            o["id"], "pending_payment", actor_type="customer", actor_id="cust-1"
+        )
+    orders = [await container.orders.get(o["id"]) for o in (first, second)]
+    results = await asyncio.gather(
+        *(container.payments.pay_with_wallet(o, PRINCIPALS["customer"], f"race-{o.id}") for o in orders),
+        return_exceptions=True,
+    )
+    assert sum(1 for x in results if not isinstance(x, BaseException)) == 1
+    assert sum(1 for x in results if isinstance(x, BaseException) and "too low" in str(x)) == 1
+    assert await container.wallet.balance("cust-1") == 0
