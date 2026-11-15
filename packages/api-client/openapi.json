@@ -64,6 +64,51 @@
         "title": "AssignInput",
         "type": "object"
       },
+      "Carrier": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "is_sample": {
+            "default": true,
+            "title": "Is Sample",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "Carrier",
+        "type": "object"
+      },
+      "CarrierPayoutInput": {
+        "properties": {
+          "amount_kobo": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1000000000.0,
+            "title": "Amount Kobo",
+            "type": "integer"
+          },
+          "bank_reference": {
+            "maxLength": 120,
+            "minLength": 4,
+            "title": "Bank Reference",
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount_kobo",
+          "bank_reference"
+        ],
+        "title": "CarrierPayoutInput",
+        "type": "object"
+      },
       "CartLine": {
         "properties": {
           "item_id": {
@@ -160,6 +205,32 @@
         "title": "CodeInput",
         "type": "object"
       },
+      "CollectInput": {
+        "properties": {
+          "code": {
+            "pattern": "^\\d{4}$",
+            "title": "Code",
+            "type": "string"
+          },
+          "hub_id": {
+            "maxLength": 40,
+            "title": "Hub Id",
+            "type": "string"
+          },
+          "tracking_code": {
+            "pattern": "^GMW[2-9A-HJ-NP-Z]{8}$",
+            "title": "Tracking Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "hub_id",
+          "tracking_code",
+          "code"
+        ],
+        "title": "CollectInput",
+        "type": "object"
+      },
       "CreateOrderInput": {
         "properties": {
           "channel": {
@@ -216,6 +287,29 @@
           "quote_id"
         ],
         "title": "CreateParcelInput",
+        "type": "object"
+      },
+      "CreateWaybillInput": {
+        "properties": {
+          "channel": {
+            "default": "app",
+            "enum": [
+              "app",
+              "web",
+              "ai_agent"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "quote_id": {
+            "title": "Quote Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quote_id"
+        ],
+        "title": "CreateWaybillInput",
         "type": "object"
       },
       "DecisionInput": {
@@ -430,6 +524,37 @@
         "title": "DeliveryFeeConfig",
         "type": "object"
       },
+      "DepartInput": {
+        "properties": {
+          "hub_id": {
+            "maxLength": 40,
+            "title": "Hub Id",
+            "type": "string"
+          },
+          "tracking_codes": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Tracking Codes",
+            "type": "array"
+          },
+          "trip_reference": {
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Trip Reference",
+            "type": "string"
+          }
+        },
+        "required": [
+          "hub_id",
+          "tracking_codes",
+          "trip_reference"
+        ],
+        "title": "DepartInput",
+        "type": "object"
+      },
       "DeviceInput": {
         "properties": {
           "platform": {
@@ -453,6 +578,283 @@
           "platform"
         ],
         "title": "DeviceInput",
+        "type": "object"
+      },
+      "DiscoverDish": {
+        "properties": {
+          "allergens": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allergens",
+            "type": "array"
+          },
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "art": {
+            "title": "Art",
+            "type": "string"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "delivers_to_location": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivers To Location"
+          },
+          "delivery_fee_kobo": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Fee Kobo"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "dietary": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dietary",
+            "type": "array"
+          },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
+          "eta_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Minutes"
+          },
+          "eyebrow": {
+            "title": "Eyebrow",
+            "type": "string"
+          },
+          "has_options": {
+            "title": "Has Options",
+            "type": "boolean"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "is_accepting_orders": {
+            "title": "Is Accepting Orders",
+            "type": "boolean"
+          },
+          "is_available": {
+            "title": "Is Available",
+            "type": "boolean"
+          },
+          "is_new_kitchen": {
+            "title": "Is New Kitchen",
+            "type": "boolean"
+          },
+          "is_open": {
+            "title": "Is Open",
+            "type": "boolean"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "likes": {
+            "description": "How many times the dish was ordered (popularity)",
+            "title": "Likes",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "prep_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prep Minutes"
+          },
+          "price_kobo": {
+            "title": "Price Kobo",
+            "type": "integer"
+          },
+          "rating": {
+            "description": "The kitchen's rating out of 5",
+            "title": "Rating",
+            "type": "number"
+          },
+          "rating_count": {
+            "title": "Rating Count",
+            "type": "integer"
+          },
+          "restaurant_id": {
+            "title": "Restaurant Id",
+            "type": "string"
+          },
+          "restaurant_name": {
+            "title": "Restaurant Name",
+            "type": "string"
+          },
+          "serves": {
+            "title": "Serves",
+            "type": "integer"
+          },
+          "spice_level": {
+            "title": "Spice Level",
+            "type": "integer"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "item_id",
+          "restaurant_id",
+          "restaurant_name",
+          "area",
+          "city",
+          "name",
+          "description",
+          "price_kobo",
+          "image_url",
+          "art",
+          "kind",
+          "tags",
+          "dietary",
+          "allergens",
+          "spice_level",
+          "serves",
+          "prep_minutes",
+          "likes",
+          "rating",
+          "rating_count",
+          "eyebrow",
+          "has_options",
+          "is_available",
+          "is_open",
+          "is_accepting_orders",
+          "is_new_kitchen"
+        ],
+        "title": "DiscoverDish",
+        "type": "object"
+      },
+      "DiscoverFeed": {
+        "properties": {
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoverSection"
+            },
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "city",
+          "generated_at",
+          "sections"
+        ],
+        "title": "DiscoverFeed",
+        "type": "object"
+      },
+      "DiscoverSection": {
+        "properties": {
+          "dishes": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoverDish"
+            },
+            "title": "Dishes",
+            "type": "array"
+          },
+          "id": {
+            "enum": [
+              "most_loved",
+              "new_kitchens",
+              "top_rated"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "subtitle": {
+            "title": "Subtitle",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "subtitle",
+          "dishes"
+        ],
+        "title": "DiscoverSection",
         "type": "object"
       },
       "EmergencyInput": {
@@ -569,6 +971,93 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Hub": {
+        "properties": {
+          "accepts_dropoff": {
+            "default": true,
+            "title": "Accepts Dropoff",
+            "type": "boolean"
+          },
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "hours": {
+            "default": "Mon\u2013Sat, 8am\u20137pm",
+            "title": "Hours",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[a-z0-9-]{2,40}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_sample": {
+            "default": true,
+            "title": "Is Sample",
+            "type": "boolean"
+          },
+          "kind": {
+            "default": "gm_hub",
+            "enum": [
+              "gm_hub",
+              "partner_terminal"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/GeoPoint"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "offers_collection": {
+            "default": true,
+            "title": "Offers Collection",
+            "type": "boolean"
+          },
+          "phone": {
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "city",
+          "address",
+          "location",
+          "phone"
+        ],
+        "title": "Hub",
+        "type": "object"
+      },
+      "HubScanInput": {
+        "properties": {
+          "hub_id": {
+            "maxLength": 40,
+            "title": "Hub Id",
+            "type": "string"
+          },
+          "tracking_code": {
+            "pattern": "^GMW[2-9A-HJ-NP-Z]{8}$",
+            "title": "Tracking Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "hub_id",
+          "tracking_code"
+        ],
+        "title": "HubScanInput",
         "type": "object"
       },
       "ItemInput": {
@@ -2611,6 +3100,7 @@
           "operations_manager",
           "finance_manager",
           "marketing_manager",
+          "hub_agent",
           "super_admin"
         ],
         "title": "Role",
@@ -3146,6 +3636,392 @@
         "title": "WalletSettingsInput",
         "type": "object"
       },
+      "WaybillCity": {
+        "properties": {
+          "center": {
+            "$ref": "#/components/schemas/GeoPoint"
+          },
+          "door_service": {
+            "default": false,
+            "title": "Door Service",
+            "type": "boolean"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z-]{1,30}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "state",
+          "center"
+        ],
+        "title": "WaybillCity",
+        "type": "object"
+      },
+      "WaybillLane": {
+        "properties": {
+          "base_by_size_kobo": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ParcelSize"
+            },
+            "title": "Base By Size Kobo",
+            "type": "object"
+          },
+          "carrier_id": {
+            "title": "Carrier Id",
+            "type": "string"
+          },
+          "carrier_share_bps": {
+            "default": 6000,
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Carrier Share Bps",
+            "type": "integer"
+          },
+          "cutoff_hour": {
+            "default": 15,
+            "maximum": 23.0,
+            "minimum": 0.0,
+            "title": "Cutoff Hour",
+            "type": "integer"
+          },
+          "departure_weekdays": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Departure Weekdays",
+            "type": "array"
+          },
+          "destination_city": {
+            "title": "Destination City",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "included_kg_by_size": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ParcelSize"
+            },
+            "title": "Included Kg By Size",
+            "type": "object"
+          },
+          "is_active": {
+            "default": true,
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "origin_city": {
+            "title": "Origin City",
+            "type": "string"
+          },
+          "per_extra_kg_kobo": {
+            "default": 30000,
+            "minimum": 0.0,
+            "title": "Per Extra Kg Kobo",
+            "type": "integer"
+          },
+          "transit_days_max": {
+            "maximum": 14.0,
+            "minimum": 0.0,
+            "title": "Transit Days Max",
+            "type": "integer"
+          },
+          "transit_days_min": {
+            "maximum": 14.0,
+            "minimum": 0.0,
+            "title": "Transit Days Min",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "origin_city",
+          "destination_city",
+          "carrier_id",
+          "transit_days_min",
+          "transit_days_max",
+          "base_by_size_kobo",
+          "included_kg_by_size"
+        ],
+        "title": "WaybillLane",
+        "type": "object"
+      },
+      "WaybillNetwork": {
+        "properties": {
+          "carriers": {
+            "items": {
+              "$ref": "#/components/schemas/Carrier"
+            },
+            "title": "Carriers",
+            "type": "array"
+          },
+          "cities": {
+            "items": {
+              "$ref": "#/components/schemas/WaybillCity"
+            },
+            "title": "Cities",
+            "type": "array"
+          },
+          "hubs": {
+            "items": {
+              "$ref": "#/components/schemas/Hub"
+            },
+            "title": "Hubs",
+            "type": "array"
+          },
+          "lanes": {
+            "items": {
+              "$ref": "#/components/schemas/WaybillLane"
+            },
+            "title": "Lanes",
+            "type": "array"
+          },
+          "max_kg_by_size": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ParcelSize"
+            },
+            "title": "Max Kg By Size",
+            "type": "object"
+          },
+          "service_fee_kobo": {
+            "default": 20000,
+            "minimum": 0.0,
+            "title": "Service Fee Kobo",
+            "type": "integer"
+          },
+          "version": {
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "cities",
+          "hubs",
+          "carriers",
+          "lanes"
+        ],
+        "title": "WaybillNetwork",
+        "type": "object"
+      },
+      "WaybillParty": {
+        "description": "Sender or recipient. The address is required only where a rider goes (home pickup, door delivery).",
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "line1": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line1"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GeoPoint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "phone": {
+            "pattern": "^\\+?[0-9 ]{7,20}$",
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "phone"
+        ],
+        "title": "WaybillParty",
+        "type": "object"
+      },
+      "WaybillQuoteRequest": {
+        "properties": {
+          "category": {
+            "default": "other",
+            "enum": [
+              "documents",
+              "clothing",
+              "electronics",
+              "food",
+              "cosmetics",
+              "household",
+              "other"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "cod_amount_kobo": {
+            "anyOf": [
+              {
+                "maximum": 50000000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cod Amount Kobo"
+          },
+          "declared_value_kobo": {
+            "anyOf": [
+              {
+                "maximum": 50000000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declared Value Kobo"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Description",
+            "type": "string"
+          },
+          "destination_city": {
+            "pattern": "^[a-z][a-z-]{1,30}$",
+            "title": "Destination City",
+            "type": "string"
+          },
+          "destination_hub_id": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination Hub Id"
+          },
+          "first_mile": {
+            "default": "pickup",
+            "enum": [
+              "pickup",
+              "dropoff"
+            ],
+            "title": "First Mile",
+            "type": "string"
+          },
+          "last_mile": {
+            "default": "door",
+            "enum": [
+              "door",
+              "collect"
+            ],
+            "title": "Last Mile",
+            "type": "string"
+          },
+          "origin_city": {
+            "pattern": "^[a-z][a-z-]{1,30}$",
+            "title": "Origin City",
+            "type": "string"
+          },
+          "origin_hub_id": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin Hub Id"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/WaybillParty"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/WaybillParty"
+          },
+          "size": {
+            "$ref": "#/components/schemas/ParcelSize",
+            "default": "small"
+          },
+          "weight_kg": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 50.0,
+            "title": "Weight Kg",
+            "type": "number"
+          }
+        },
+        "required": [
+          "origin_city",
+          "destination_city",
+          "sender",
+          "recipient",
+          "weight_kg"
+        ],
+        "title": "WaybillQuoteRequest",
+        "type": "object"
+      },
       "ZoneConfig": {
         "properties": {
           "center": {
@@ -3649,6 +4525,104 @@
         ]
       }
     },
+    "/v1/admin/carriers/{carrier_id}/payouts": {
+      "post": {
+        "operationId": "carrier_payout_v1_admin_carriers__carrier_id__payouts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "carrier_id",
+            "required": true,
+            "schema": {
+              "title": "Carrier Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarrierPayoutInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Carrier Payout",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/cash": {
       "get": {
         "description": "Cash held by riders (pay on delivery + COD), wallet balances and money owed to sellers.",
@@ -3710,6 +4684,144 @@
           }
         },
         "summary": "Cash Overview",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/config/logistics": {
+      "get": {
+        "operationId": "get_logistics_v1_admin_config_logistics_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaybillNetwork"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Logistics",
+        "tags": [
+          "admin"
+        ]
+      },
+      "put": {
+        "operationId": "put_logistics_v1_admin_config_logistics_put",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaybillNetwork"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaybillNetwork"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Logistics",
         "tags": [
           "admin"
         ]
@@ -4081,6 +5193,153 @@
           }
         },
         "summary": "Set Flag",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/hubs": {
+      "get": {
+        "operationId": "hubs_v1_admin_hubs_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Hubs V1 Admin Hubs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Hubs",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/hubs/{hub_id}/board": {
+      "get": {
+        "description": "Packages expected, at the hub, incoming, out for delivery and waiting for collection.",
+        "operationId": "hub_board_v1_admin_hubs__hub_id__board_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "hub_id",
+            "required": true,
+            "schema": {
+              "title": "Hub Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Hub Board V1 Admin Hubs  Hub Id  Board Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Hub Board",
         "tags": [
           "admin"
         ]
@@ -6154,6 +7413,314 @@
         ]
       }
     },
+    "/v1/admin/waybills/arrive": {
+      "post": {
+        "operationId": "arrive_v1_admin_waybills_arrive_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubScanInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Arrive V1 Admin Waybills Arrive Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Arrive",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/waybills/collect": {
+      "post": {
+        "operationId": "collect_v1_admin_waybills_collect_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Collect V1 Admin Waybills Collect Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Collect",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/waybills/depart": {
+      "post": {
+        "operationId": "depart_v1_admin_waybills_depart_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepartInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Depart V1 Admin Waybills Depart Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Depart",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/waybills/receive": {
+      "post": {
+        "operationId": "receive_v1_admin_waybills_receive_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubScanInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Receive V1 Admin Waybills Receive Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Receive",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/applications/mine": {
       "get": {
         "operationId": "my_applications_v1_applications_mine_get",
@@ -6471,6 +8038,105 @@
           }
         },
         "summary": "Cuisines",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/discover/dishes": {
+      "get": {
+        "description": "Hero dishes for the Discover carousel. With lat/lng, each dish carries delivery fee and ETA.",
+        "operationId": "discover_dishes_v1_discover_dishes_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 90,
+                  "minimum": -90,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lat"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lng",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 180,
+                  "minimum": -180,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lng"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 6,
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoverFeed"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Discover Dishes",
         "tags": [
           "public"
         ]
@@ -12747,6 +14413,51 @@
         ]
       }
     },
+    "/v1/track/{tracking_code}": {
+      "get": {
+        "description": "Public tracking for the sender and recipient (progress only; no names, phones or addresses).",
+        "operationId": "track_v1_track__tracking_code__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tracking_code",
+            "required": true,
+            "schema": {
+              "title": "Tracking Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Track V1 Track  Tracking Code  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Track",
+        "tags": [
+          "waybills"
+        ]
+      }
+    },
     "/v1/wallet": {
       "get": {
         "operationId": "wallet_v1_wallet_get",
@@ -13059,6 +14770,321 @@
         "summary": "Wallet Transactions",
         "tags": [
           "wallet"
+        ]
+      }
+    },
+    "/v1/waybill/destinations": {
+      "get": {
+        "description": "Where a city sends to: transit days, door delivery or collection, and prices from.",
+        "operationId": "waybill_destinations_v1_waybill_destinations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "origin",
+            "required": true,
+            "schema": {
+              "title": "Origin",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Waybill Destinations V1 Waybill Destinations Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Waybill Destinations",
+        "tags": [
+          "waybills"
+        ]
+      }
+    },
+    "/v1/waybill/origins": {
+      "get": {
+        "description": "Cities you can send from, with home pickup availability and drop-off hubs.",
+        "operationId": "waybill_origins_v1_waybill_origins_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Waybill Origins V1 Waybill Origins Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Waybill Origins",
+        "tags": [
+          "waybills"
+        ]
+      }
+    },
+    "/v1/waybills": {
+      "post": {
+        "description": "Book the waybill from a quote; pay with `POST /v1/orders/{id}/checkout` (card or wallet).",
+        "operationId": "create_waybill_v1_waybills_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWaybillInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Waybill",
+        "tags": [
+          "waybills"
+        ]
+      }
+    },
+    "/v1/waybills/quotes": {
+      "post": {
+        "operationId": "create_waybill_quote_v1_waybills_quotes_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaybillQuoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Create Waybill Quote V1 Waybills Quotes Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Waybill Quote",
+        "tags": [
+          "waybills"
+        ]
+      }
+    },
+    "/v1/waybills/quotes/{quote_id}": {
+      "get": {
+        "operationId": "get_waybill_quote_v1_waybills_quotes__quote_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_id",
+            "required": true,
+            "schema": {
+              "title": "Quote Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Waybill Quote V1 Waybills Quotes  Quote Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Waybill Quote",
+        "tags": [
+          "waybills"
         ]
       }
     },
