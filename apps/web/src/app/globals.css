@@ -13,3 +13,26 @@
     .container-page { padding-inline: 24px; }
   }
 }
+
+/* ------------------------------------------------------------------ Gudy & service bubbles */
+@keyframes gm-blink {
+  0%, 44%, 50%, 88%, 94%, 100% { transform: scaleY(1); }
+  47%, 91% { transform: scaleY(0.12); }
+}
+.gm-blink { animation: gm-blink 3.6s infinite; }
+
+@keyframes gm-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(31, 94, 255, 0.35), 0 6px 16px rgba(31, 94, 255, 0.35); }
+  70% { box-shadow: 0 0 0 14px rgba(31, 94, 255, 0), 0 6px 16px rgba(31, 94, 255, 0.35); }
+  100% { box-shadow: 0 0 0 0 rgba(31, 94, 255, 0), 0 6px 16px rgba(31, 94, 255, 0.35); }
+}
+.gm-pulse { animation: gm-pulse 2.4s infinite; }
+
+.gm-hero {
+  background: linear-gradient(180deg, #f7894f 0%, #e85d32 100%);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), 75% calc(100% - 2px), 50% calc(100% - 26px), 25% calc(100% - 40px), 0 calc(100% - 22px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-blink, .gm-pulse { animation: none; }
+}

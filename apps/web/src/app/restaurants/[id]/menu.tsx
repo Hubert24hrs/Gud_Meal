@@ -33,7 +33,7 @@ export function Menu({ detail }: { detail: RestaurantDetail }) {
                 <button key={item.id} onClick={() => setSelected(item)} disabled={!item.is_available || !canOrder}
                   className={cn("group flex gap-4 rounded-lg border border-border bg-surface p-4 text-left shadow-card transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-60")}>
                   <div className="min-w-0 flex-1 space-y-1">
-                    <h3 className="font-semibold">{item.name}</h3>
+                    <h3 className="font-semibold">{item.name}{item.unit_label ? <span className="font-normal text-muted"> · {item.unit_label}</span> : null}</h3>
                     {item.description && <p className="line-clamp-2 text-sm text-muted">{item.description}</p>}
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <Price kobo={item.price_kobo} className="font-semibold" />

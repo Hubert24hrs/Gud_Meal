@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import { Chat } from "./chat";
 
 export const metadata: Metadata = {
-  title: "Ask Gud Meal",
-  description: "Tell Gud Meal your budget and cravings — we'll plan the best meal and order it with your approval.",
+  title: "Ask Gudy, your AI assistant",
+  description: "Gudy finds food and beauty products, plans meals to your budget, books package deliveries and tracks orders, in English, Pidgin, Igbo, Yoruba or Hausa. You approve before paying.",
 };
 
 export default function AssistantPage() {

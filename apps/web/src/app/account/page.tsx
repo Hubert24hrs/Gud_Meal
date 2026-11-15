@@ -37,18 +37,39 @@ function Account() {
   });
   const remove = useMutation({ mutationFn: (id: string) => api.me.deleteAddress(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["addresses"] }) });
 
+  const name = user?.displayName?.trim();
+  const soon = (msg: string) => () => window.alert(msg);
   return (
-    <div className="container-page max-w-3xl space-y-6 py-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-3xl">Your account</h1>
-          <p className="text-sm text-muted">{user?.displayName ?? user?.email}</p>
+    <div className="pb-28 md:pb-12">
+      <div className="bg-gradient-to-b from-[#F7894F] to-primary pb-10 pt-6 text-white">
+        <div className="container-page max-w-3xl">
+          <div className="flex justify-end">
+            <Link href="/support" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-white">Help</Link>
+          </div>
+          <div className="mt-2 flex items-center gap-4">
+            <span className="grid size-16 place-items-center rounded-full bg-[#FDE7DE] text-3xl font-extrabold text-[#C9471F]" aria-hidden="true">
+              {(name ?? user?.email ?? "?")[0]!.toUpperCase()}
+            </span>
+            <div>
+              <h1 className="text-2xl font-black">{name || "Your profile"}</h1>
+              <p className="text-sm text-white/90">{user?.email ?? user?.phoneNumber}</p>
+            </div>
+          </div>
         </div>
-        <Button variant="outline" onClick={() => signOut()}>Sign out</Button>
       </div>
-      <div className="flex gap-3 text-sm">
-        <Link href="/orders" className="font-semibold text-primary">Order history →</Link>
-      </div>
+      <div className="container-page -mt-5 max-w-3xl space-y-6 rounded-t-3xl bg-background pt-5">
+        <h2 className="text-2xl font-black">Profile</h2>
+        <nav aria-label="Profile" className="divide-y divide-border rounded-2xl border border-border">
+          <Link href="/orders" className="flex items-center justify-between p-4 hover:bg-surface-muted">
+            <span className="font-medium">Order history</span><span className="rounded-full bg-surface-muted px-3 py-1 text-sm font-bold">View in Orders</span>
+          </Link>
+          <Link href="/food?category=promotions" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">Promo codes and deals</span><span aria-hidden="true">›</span></Link>
+          <button type="button" onClick={soon("Pay with card, bank transfer or USSD on Paystack’s secure page. Gud Meal never stores your card. The Gud Meal wallet and pay on delivery are coming soon.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Payments</span><span aria-hidden="true">›</span></button>
+          <button type="button" onClick={soon("Gud Meal Plus: free delivery and member-only deals for a monthly fee. Coming soon.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Gud Meal Plus <span className="ml-1 rounded bg-secondary-soft px-1.5 py-0.5 text-[11px] font-bold text-secondary">Soon</span></span><span aria-hidden="true">›</span></button>
+          <button type="button" onClick={soon("Invite friends and earn credit when they order. Referral and loyalty rewards are coming soon.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Invite friends <span className="ml-1 rounded bg-secondary-soft px-1.5 py-0.5 text-[11px] font-bold text-secondary">Soon</span></span><span aria-hidden="true">›</span></button>
+          <Link href="/help" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">FAQ, privacy and terms</span><span aria-hidden="true">›</span></Link>
+          <button type="button" onClick={() => signOut()} className="w-full p-4 text-left font-medium text-danger hover:bg-surface-muted">Sign out</button>
+        </nav>
       <Card className="space-y-4 p-5">
         <h2 className="font-semibold">Food preferences</h2>
         {profile.isLoading ? <Skeleton className="h-28" /> : (
@@ -87,6 +108,7 @@ function Account() {
           URL.revokeObjectURL(url);
         }}>Download my data</Button>
       </Card>
+      </div>
     </div>
   );
 }

@@ -79,12 +79,21 @@ export function createApi(opts: ClientOptions) {
   return {
     request,
     catalog: {
-      restaurants: (q: { lat?: number; lng?: number; cuisine?: string; q?: string; open_now?: boolean; sort?: string; limit?: number } = {}) =>
-        get<T.RestaurantCard[]>("/v1/restaurants", q, false),
+      restaurants: (q: {
+        lat?: number; lng?: number; cuisine?: string; q?: string; open_now?: boolean; sort?: string; limit?: number;
+        vertical?: "food" | "beauty" | "all"; city?: string; category?: string; pickup?: boolean;
+      } = {}) => get<T.RestaurantCard[]>("/v1/restaurants", q, false),
+      services: (city?: string) => get<T.ServiceInfo[]>("/v1/services", city ? { city } : undefined, false),
+      categories: (vertical: "food" | "beauty", city?: string) =>
+        get<T.BrowseCategory[]>(`/v1/services/${vertical}/categories`, city ? { city } : undefined, false),
+      areas: (city?: string) => get<T.PlaceArea[]>("/v1/places/areas", city ? { city } : undefined, false),
+      resolvePlace: (q: string, city?: string) => get<T.PlaceArea>("/v1/places/resolve", { q, ...(city ? { city } : {}) }, false),
       restaurant: (id: string, loc?: { lat: number; lng: number }) => get<T.RestaurantDetail>(`/v1/restaurants/${id}`, loc, false),
-      search: (q: string, loc?: { lat: number; lng: number }) =>
-        get<{ items: { item: T.MenuItem; restaurant_id: string; restaurant_name: string }[]; restaurants: T.RestaurantCard[] }>(
-          "/v1/search", { q, ...loc }, false),
+      search: (q: string, loc?: { lat: number; lng: number }, vertical?: "food" | "beauty") =>
+        get<{
+          items: { item: T.MenuItem; restaurant_id: string; restaurant_name: string; vertical?: "food" | "beauty" }[];
+          restaurants: T.RestaurantCard[];
+        }>("/v1/search", { q, ...loc, ...(vertical ? { vertical } : {}) }, false),
       cuisines: () => get<{ name: string; restaurants: number }[]>("/v1/cuisines", undefined, false),
       publicConfig: () => get<Record<string, unknown>>("/v1/config/public", undefined, false),
     },
@@ -114,6 +123,13 @@ export function createApi(opts: ClientOptions) {
         post(`/v1/orders/${id}/review`, body),
       reorder: (id: string, delivery_address?: T.DeliveryAddress) => post<T.Quote>(`/v1/orders/${id}/reorder`, { delivery_address }),
       payments: (id: string) => get<T.PaymentView[]>(`/v1/orders/${id}/payments`),
+      summary: () => get<T.OrderSummary>("/v1/me/order-summary"),
+    },
+    parcels: {
+      quote: (req: T.ParcelQuoteRequest) => post<T.ParcelQuote>("/v1/parcels/quotes", req),
+      getQuote: (id: string) => get<T.ParcelQuote>(`/v1/parcels/quotes/${id}`),
+      book: (quoteId: string, key: string, channel: "web" | "app" = "web") =>
+        post<T.Order>("/v1/parcels", { quote_id: quoteId, channel }, key),
     },
     payments: {
       verify: (reference: string) => post<T.PaymentView>("/v1/payments/verify", { reference }),

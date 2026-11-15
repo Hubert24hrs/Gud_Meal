@@ -3,19 +3,20 @@
 import { ApiError, type ChatApproval, type ChatCard, type ChatResponse } from "@gudmeal/api-client";
 import { Badge, Button, Card, Spinner, cn } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
-import { CreditCard, Mic, Send, ShieldCheck, Sparkles } from "lucide-react";
+import { CreditCard, Headset, Mic, Package, Send, ShieldCheck, Sparkles, Store, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { GudyArt } from "@/components/illustrations";
 import { RequireAuth } from "@/components/require-auth";
 import { useAgentsApi, useApi } from "@/lib/api";
-import { useLocation } from "@/lib/location";
+import { CITY_NAMES, useLocation } from "@/lib/location";
 
 interface Turn { role: "user" | "assistant"; text: string; cards?: ChatCard[]; approval?: ChatApproval | null }
 
 export function Chat() {
   return (
-    <RequireAuth reason="Sign in so Gud Meal can use your saved address, preferences and orders.">
+    <RequireAuth reason="Sign in so Gudy can use your saved address, preferences and orders.">
       <ChatInner />
     </RequireAuth>
   );
@@ -57,10 +58,11 @@ function ChatInner() {
     setBusy(true);
     try {
       const saved = addresses.data?.[0];
-      const delivery_address = saved ?? { label: area.name, line1: `${area.name}, Lagos`, area: area.name, location: area.location };
+      const city = CITY_NAMES[area.city];
+      const delivery_address = saved ?? { label: area.name, line1: `${area.name}, ${city}`, area: area.name, city, state: city, location: area.location };
       apply(await agents.chat({ message, thread_id: threadId, channel: "web", delivery_address: threadId ? undefined : delivery_address }));
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "The assistant is unavailable right now.");
+      setError(e instanceof ApiError ? e.message : "Gudy is unavailable right now.");
     } finally {
       setBusy(false);
     }
@@ -104,25 +106,27 @@ function ChatInner() {
   return (
     <div className="container-page flex max-w-3xl flex-col py-6" style={{ minHeight: "calc(100dvh - 4rem)" }}>
       <div className="mb-4 flex items-center gap-3">
-        <span className="grid size-10 place-items-center rounded-full bg-secondary text-on-secondary"><Sparkles className="size-5" /></span>
+        <GudyArt blink className="size-11 shrink-0" />
         <div>
-          <h1 className="font-display text-2xl">Ask Gud Meal</h1>
-          <p className="text-xs text-muted">Delivering to {addresses.data?.[0]?.line1 ?? area.name} · you approve every order before paying</p>
+          <h1 className="text-2xl font-extrabold">Gudy</h1>
+          <p className="text-xs text-muted">AI assistant · replies in your language · delivering to {addresses.data?.[0]?.line1 ?? area.name} · you approve every order before paying</p>
         </div>
       </div>
 
       <div className="flex-1 space-y-4" aria-live="polite">
         {turns.length === 0 && (
           <Card className="space-y-2 p-5 text-sm">
-            <p className="font-semibold">Try asking:</p>
+            <p className="font-semibold">Hi! I’m Gudy. I can find food and beauty products, plan a meal within your budget, send packages across Lagos and Enugu, track orders and tell you how much you’ve spent. Write in English, Pidgin, Igbo, Yoruba or Hausa.</p>
+            <p className="pt-1 text-muted">Try asking:</p>
             {["I have ₦10,000. Find me the best meal for two people, order it, and deliver before 8pm.",
-              "What's the status of my last order?", "Something vegetarian under ₦6,000"].map((s) => (
+              "What do you offer?", "How much have I spent?", "Find me a good sunscreen", "Abeg, where my order dey?", "I want to talk to a person"].map((s) => (
               <button key={s} onClick={() => send(s)} className="block w-full rounded-md bg-surface-muted px-3 py-2 text-left hover:bg-primary-soft">{s}</button>
             ))}
           </Card>
         )}
         {turns.map((turn, i) => (
-          <div key={i} className={cn("flex", turn.role === "user" ? "justify-end" : "justify-start")}>
+          <div key={i} className={cn("flex items-end gap-2", turn.role === "user" ? "justify-end" : "justify-start")}>
+            {turn.role === "assistant" && <GudyArt className="size-8 shrink-0" />}
             <div className={cn("max-w-[88%] space-y-3 rounded-lg px-4 py-3 text-sm",
               turn.role === "user" ? "rounded-br-sm bg-primary text-on-primary" : "rounded-bl-sm border border-border bg-surface")}>
               {turn.text && <p className="whitespace-pre-wrap">{turn.text}</p>}
@@ -131,7 +135,7 @@ function ChatInner() {
             </div>
           </div>
         ))}
-        {busy && <div className="flex items-center gap-2 text-sm text-muted"><Spinner className="size-4" /> Gud Meal is thinking…</div>}
+        {busy && <div className="flex items-center gap-2 text-sm text-muted"><Spinner className="size-4" /> Gudy is thinking…</div>}
         {error && <p role="alert" className="rounded-md bg-accent-soft p-3 text-sm">{error}</p>}
         <div ref={bottom} />
       </div>
@@ -139,7 +143,7 @@ function ChatInner() {
       <form onSubmit={(e) => { e.preventDefault(); void send(text); }}
         className="sticky bottom-4 mt-4 flex items-center gap-2 rounded-full border border-border bg-surface p-1.5 pl-4 shadow-raised">
         <label htmlFor="msg" className="sr-only">Message</label>
-        <input id="msg" value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} placeholder="What are you craving?"
+        <input id="msg" value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} placeholder="Ask Gudy anything…"
           className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none" disabled={busy} />
         <button type="button" onClick={listen} aria-label="Speak" className={cn("rounded-full p-2 hover:bg-surface-muted", listening && "text-primary")}>
           <Mic className="size-5" />
@@ -150,7 +154,88 @@ function ChatInner() {
   );
 }
 
+const SCREENS: Record<string, string> = {
+  home: "/", food: "/food", beauty: "/beauty", parcel: "/send", discover: "/discover", orders: "/orders",
+  support: "/support", profile: "/account",
+};
+
+/** Route for a screen Gudy points to (`open_screen` card). */
+export function routeForScreen(screen: string, params: Record<string, string | undefined> = {}): string | null {
+  if (screen === "merchant") return params.merchant_id ? `/restaurants/${params.merchant_id}` : null;
+  if (screen === "order") return params.order_id ? `/orders/${params.order_id}` : "/orders";
+  const base = SCREENS[screen];
+  if (!base) return null;
+  return params.category && (screen === "food" || screen === "beauty") ? `${base}?category=${params.category}` : base;
+}
+
+const SERVICE_ROUTES: Record<string, string> = { food: "/food", beauty: "/beauty", parcel: "/send" };
+
 function CardView({ card }: { card: ChatCard }) {
+  if (card.type === "services") {
+    const services = (card.services as { id: string; name: string }[]) ?? [];
+    return (
+      <div className="flex flex-wrap gap-2">
+        {services.map((s) => {
+          const Icon = s.id === "parcel" ? Package : s.id === "beauty" ? Sparkles : UtensilsCrossed;
+          return (
+            <Link key={s.id} href={SERVICE_ROUTES[s.id] ?? "/"} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold hover:border-primary">
+              <Icon className="size-4 text-primary" aria-hidden="true" /> {s.name}
+            </Link>
+          );
+        })}
+      </div>
+    );
+  }
+  if (card.type === "navigate") {
+    const href = routeForScreen(String(card.screen), (card.params as Record<string, string>) ?? {});
+    if (!href) return null;
+    return <Link href={href} className="inline-flex rounded-full bg-primary-soft px-4 py-2 text-xs font-bold text-primary-strong">{String(card.label)} →</Link>;
+  }
+  if (card.type === "order_totals") {
+    const byService = (card.by_service as Record<string, { orders: number; spent: string }>) ?? {};
+    return (
+      <div className="rounded-md bg-gradient-to-b from-[#F7894F] to-primary p-3 text-white">
+        <p className="text-2xl font-black">{String(card.total_spent)}</p>
+        <p className="text-xs">{String(card.paid_orders)} paid order(s) · {String(card.spent_this_month)} this month</p>
+        {Object.entries(byService).map(([k, v]) => <p key={k} className="text-xs">{k}: {v.spent} ({v.orders})</p>)}
+      </div>
+    );
+  }
+  if (card.type === "restaurants") {
+    const items = (card.items as { restaurant_id: string; name: string; service?: string; eta_minutes?: number | null; delivery_fee?: string | null }[]) ?? [];
+    return (
+      <ul className="divide-y divide-border rounded-md border border-border bg-background">
+        {items.slice(0, 5).map((r) => (
+          <li key={r.restaurant_id}>
+            <Link href={`/restaurants/${r.restaurant_id}`} className="flex items-center gap-2 p-2 text-xs hover:bg-surface-muted">
+              <Store className="size-4 text-primary" aria-hidden="true" />
+              <span className="flex-1 font-semibold">{r.name}</span>
+              <span className="text-muted">{[r.eta_minutes ? `${r.eta_minutes} min` : null, r.delivery_fee].filter(Boolean).join(" · ")}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  if (card.type === "parcel_quote") {
+    const q = card.quote as { size: string; distance_km: number; from: string; to: string; pickup: string; estimated_delivery: string; total: string };
+    return (
+      <div className="space-y-0.5 rounded-md border border-border bg-background p-3 text-xs">
+        <p className="font-semibold">Package · {q.size} · {q.distance_km} km</p>
+        <p>From {q.from}</p>
+        <p>To {q.to}</p>
+        <p className="text-muted">{q.pickup} · arrives ~{q.estimated_delivery}</p>
+        <p className="text-sm font-bold">Total {q.total}</p>
+      </div>
+    );
+  }
+  if (card.type === "support_contacts") {
+    return (
+      <Link href="/support" className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-4 py-2 text-xs font-bold text-primary-strong">
+        <Headset className="size-4" aria-hidden="true" /> Open Support
+      </Link>
+    );
+  }
   if (card.type === "meal_plans") {
     const plans = (card.plans as { plan_ref: string; restaurant: string; items: string[]; total: string; arrives_around: string | null }[]) ?? [];
     return (
@@ -184,6 +269,7 @@ function CardView({ card }: { card: ChatCard }) {
 
 function ApprovalCard({ approval, onDecide, busy }: { approval: ChatApproval; onDecide: (ok: boolean) => void; busy: boolean }) {
   const order = approval.preview.order as undefined | { items: string[]; subtotal: string; delivery_fee: string; service_fee: string; vat: string; discount: string | null; total: string; estimated_arrival: string | null };
+  const parcel = approval.preview.parcel as undefined | { from: string; to: string; delivery_fee: string; service_fee: string; vat: string; total: string; estimated_delivery: string | null };
   return (
     <div className="space-y-3 rounded-md border-2 border-primary/40 bg-background p-4">
       <p className="flex items-center gap-2 font-semibold"><ShieldCheck className="size-4 text-secondary" /> {approval.preview.title}</p>
@@ -197,6 +283,16 @@ function ApprovalCard({ approval, onDecide, busy }: { approval: ChatApproval; on
           {order.discount && <div className="flex justify-between text-secondary"><dt>Discount</dt><dd>-{order.discount}</dd></div>}
           <div className="flex justify-between border-t border-border pt-1 text-sm font-bold"><dt>Total</dt><dd>{order.total}</dd></div>
           {order.estimated_arrival && <p className="text-muted">Estimated arrival {order.estimated_arrival}</p>}
+        </dl>
+      )}
+      {parcel && (
+        <dl className="space-y-1 text-xs">
+          <p>From {parcel.from}</p>
+          <p>To {parcel.to}</p>
+          <div className="flex justify-between pt-1"><dt className="text-muted">Delivery</dt><dd>{parcel.delivery_fee}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted">Booking fee</dt><dd>{parcel.service_fee}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted">VAT</dt><dd>{parcel.vat}</dd></div>
+          <div className="flex justify-between border-t border-border pt-1 text-sm font-bold"><dt>Total</dt><dd>{parcel.total}</dd></div>
         </dl>
       )}
       {approval.preview.message && <p className="text-xs text-muted">{approval.preview.message}</p>}

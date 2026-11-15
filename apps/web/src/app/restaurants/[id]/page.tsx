@@ -3,7 +3,7 @@ import { Badge } from "@gudmeal/ui";
 import { Clock, MapPin, Star } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { RestaurantArt } from "@/components/restaurant-card";
+import { MerchantArt } from "@/components/storefront";
 import { safe, serverApi } from "@/lib/server-api";
 import { Menu } from "./menu";
 
@@ -45,7 +45,7 @@ export default async function RestaurantPage({ params }: Props) {
   return (
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <RestaurantArt card={r} label={false} className="h-40 sm:h-56" />
+      <MerchantArt card={r} className="h-40 w-full sm:h-56" />
       <div className="container-page">
         <div className="-mt-10 rounded-xl border border-border bg-surface p-5 shadow-card sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -59,7 +59,7 @@ export default async function RestaurantPage({ params }: Props) {
             <div className="flex items-center gap-1.5"><Star className="size-4 fill-accent text-accent" aria-hidden="true" />
               <dt className="sr-only">Rating</dt><dd><strong>{r.rating.toFixed(1)}</strong> ({r.rating_count.toLocaleString()} ratings)</dd></div>
             <div className="flex items-center gap-1.5"><Clock className="size-4 text-muted" aria-hidden="true" />
-              <dt className="sr-only">Preparation</dt><dd>~{data.avg_prep_minutes} min prep</dd></div>
+              <dt className="sr-only">Preparation</dt><dd>{data.restaurant.vertical === "beauty" ? "packed in" : "ready in"} ~{data.avg_prep_minutes} min</dd></div>
             <div className="flex items-center gap-1.5"><MapPin className="size-4 text-muted" aria-hidden="true" />
               <dt className="sr-only">Address</dt><dd>{data.address}</dd></div>
             {r.min_order_kobo > 0 && <div><dt className="inline text-muted">Minimum order </dt><dd className="inline">{formatNaira(r.min_order_kobo)}</dd></div>}

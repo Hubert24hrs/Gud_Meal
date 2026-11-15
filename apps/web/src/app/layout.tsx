@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
+import { BottomNav } from "@/components/bottom-nav";
 import { Footer } from "@/components/footer";
+import { GudyFab } from "@/components/gudy-fab";
 import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
 import "./globals.css";
@@ -13,9 +15,9 @@ const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
-  title: { default: "Gud Meal — Discover. Order. Eat.", template: "%s · Gud Meal" },
+  title: { default: "Gud Meal: food, beauty and package delivery", template: "%s · Gud Meal" },
   description:
-    "Order jollof, suya, swallow and more from the best restaurants in Lagos. Tell our AI your budget and we'll plan the perfect meal.",
+    "Order food from the best restaurants, beauty and skin care from partner shops, and send packages across Lagos and Enugu. Ask Gudy, our AI assistant, in English, Pidgin, Igbo, Yoruba or Hausa.",
   openGraph: { type: "website", siteName: "Gud Meal", locale: "en_NG" },
   alternates: { canonical: "/" },
 };
@@ -37,6 +39,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Header />
           <main id="main" className="min-h-[60vh]">{children}</main>
           <Footer />
+          <BottomNav />
+          <GudyFab />
         </Providers>
       </body>
     </html>

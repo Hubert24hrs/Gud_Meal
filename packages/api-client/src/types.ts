@@ -8,7 +8,9 @@ export type OrderStatus =
   | "cancelled" | "refund_pending" | "partially_refunded" | "refunded" | "disputed";
 
 export type Fulfillment = "delivery" | "pickup";
-export type ItemKind = "main" | "combo" | "side" | "snack" | "drink" | "dessert" | "extra";
+export type ItemKind = "main" | "combo" | "side" | "snack" | "drink" | "dessert" | "extra" | "product";
+/** Gud Meal services: food and beauty are sold by merchants; parcels are courier jobs. */
+export type Vertical = "food" | "beauty" | "parcel";
 
 export interface GeoPoint { lat: number; lng: number }
 
@@ -18,8 +20,10 @@ export interface OpeningHours {
   closed_dates: string[];
 }
 
+export interface PromoBadge { code: string; label: string }
+
 export interface RestaurantCard {
-  id: string; name: string; slug: string; description: string; cuisines: string[]; tags: string[];
+  id: string; vertical: Exclude<Vertical, "parcel">; city: string; promotions: PromoBadge[]; name: string; slug: string; description: string; cuisines: string[]; tags: string[];
   image_url: string | null; cover_url: string | null; area: string; rating: number; rating_count: number;
   price_level: number; is_open: boolean; is_accepting_orders: boolean; is_featured: boolean;
   next_opening_at: string | null; distance_km: number | null; eta_minutes: number | null;
@@ -36,7 +40,7 @@ export interface MenuItem {
   id: string; restaurant_id: string; category_id: string; name: string; description: string; price_kobo: Kobo;
   image_url: string | null; kind: ItemKind; tags: string[]; dietary: string[]; allergens: string[]; serves: number;
   spice_level: number; is_available: boolean; is_active: boolean; popularity: number; option_group_ids: string[];
-  prep_minutes: number | null; position: number;
+  prep_minutes: number | null; position: number; unit_label?: string | null;
 }
 export interface MenuSection { category: MenuCategory; items: MenuItem[] }
 export interface RestaurantDetail {
@@ -82,7 +86,7 @@ export interface Quote {
 }
 
 export interface Order {
-  id: string; short_code: string; customer_id: string; customer_name: string | null; restaurant_id: string;
+  id: string; short_code: string; vertical?: Vertical; parcel?: ParcelDetails | null; customer_id: string; customer_name: string | null; restaurant_id: string;
   restaurant_name: string; restaurant_address: string; restaurant_location: GeoPoint; status: OrderStatus;
   fulfillment: Fulfillment; lines: PricedLine[]; breakdown: PriceBreakdown; delivery_address: DeliveryAddress | null;
   distance_km: number | null; scheduled_for: string | null;
@@ -209,3 +213,35 @@ export interface ChatResponse {
   thread_id: string; status: "completed" | "approval_required" | "blocked"; reply: string | null; agent: string | null;
   cards: ChatCard[]; approval: ChatApproval | null; warnings: string[];
 }
+
+// ------------------------------------------------------------------------------------- multi-service
+export interface ServiceInfo {
+  id: Vertical; name: string; tagline: string; available: boolean; merchants?: number;
+  options?: string[]; coming_soon?: string[]; cities?: string[];
+}
+export interface BrowseCategory { id: string; name: string; emoji: string; merchants: number }
+export interface PlaceArea { name: string; city: string; lat: number; lng: number }
+
+export type ParcelSize = "small" | "medium" | "large";
+export type ParcelCategory = "documents" | "clothing" | "electronics" | "food" | "cosmetics" | "household" | "other";
+export interface ParcelStop {
+  name: string; phone: string; line1: string; area?: string | null; city: string; location: GeoPoint; instructions?: string | null;
+}
+export interface ParcelDetails {
+  pickup: ParcelStop; dropoff: ParcelStop; size: ParcelSize; category: ParcelCategory; description: string; city: string;
+}
+export interface ParcelQuoteRequest {
+  pickup: ParcelStop; dropoff: ParcelStop; size: ParcelSize; category: ParcelCategory; description?: string;
+  scheduled_for?: string | null;
+}
+export interface ParcelQuote {
+  id: string; details: ParcelDetails; breakdown: PriceBreakdown; distance_km: number; eta_minutes: number;
+  estimated_delivery_at: string; scheduled_for: string | null; expires_at: string; order_id: string | null;
+}
+export interface OrderSummary {
+  orders_count: number; completed_count: number; in_progress_count: number; total_spent_kobo: Kobo;
+  this_month_spent_kobo: Kobo; refunded_kobo: Kobo; by_vertical: Record<Vertical, { orders: number; spent_kobo: Kobo }>;
+  favourite_merchant: { id: string; name: string; orders: number } | null;
+  first_order_at: string | null; last_order_at: string | null;
+}
+export interface SupportContacts { whatsapp: string; phone: string; email: string; hours: string; placeholders: boolean }
