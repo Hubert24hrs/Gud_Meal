@@ -339,8 +339,9 @@ class _SchematicPainter extends CustomPainter {
       }
     }
 
-    // Pins: the rider last so it sits on top.
-    final ordered = [...pins]..sort((a, b) => (a.kind == PinKind.rider ? 1 : 0) - (b.kind == PinKind.rider ? 1 : 0));
+    // Places first; the customer's own pins and the rider last so they sit on top.
+    int rank(PinKind k) => switch (k) { PinKind.place || PinKind.kitchen => 0, PinKind.home => 1, PinKind.you => 2, PinKind.rider => 3 };
+    final ordered = [...pins]..sort((a, b) => rank(a.kind) - rank(b.kind));
     for (final p in ordered) {
       final o = projection.toScreen(p.point);
       final selected = p.id != null && p.id == selectedId;

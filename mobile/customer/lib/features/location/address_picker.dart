@@ -58,7 +58,8 @@ class PickedAddress {
 /// Opens the address picker. Search goes through the Gud Meal API (Google Places behind it when configured,
 /// the neighbourhood list otherwise), so no Google key is in the app for this.
 Future<PickedAddress?> pickDeliveryAddress(BuildContext context, {String title = 'Delivery address'}) =>
-    Navigator.of(context).push<PickedAddress>(
+    // Root navigator: a focused full-screen step above the tab bar and the assistant button.
+    Navigator.of(context, rootNavigator: true).push<PickedAddress>(
       MaterialPageRoute(fullscreenDialog: true, builder: (_) => AddressPickerScreen(title: title)),
     );
 

@@ -5,7 +5,8 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { cn } from "./utils";
 
 // ------------------------------------------------------------------------------------- MapView
-export type PinKind = "kitchen" | "home" | "rider" | "place" | "you";
+/** `rider-idle`: an online rider without a delivery (only an area-level position is known). */
+export type PinKind = "kitchen" | "home" | "rider" | "rider-idle" | "place" | "you";
 
 export interface MapPin {
   point: GeoPoint;
@@ -20,10 +21,13 @@ const PIN_COLOR: Record<PinKind, string> = {
   home: "var(--gm-secondary)",
   you: "var(--gm-secondary)",
   rider: "var(--gm-info)",
+  "rider-idle": "var(--gm-muted)",
 };
 
+const PIN_RANK: Record<PinKind, number> = { place: 0, kitchen: 0, "rider-idle": 1, home: 2, you: 3, rider: 4 };
+
 const PIN_NAME: Record<PinKind, string> = {
-  kitchen: "kitchen", place: "place", home: "delivery address", you: "you", rider: "rider",
+  kitchen: "kitchen", place: "place", home: "delivery address", you: "you", rider: "rider", "rider-idle": "available rider",
 };
 
 /** 16×16 glyphs drawn in white on the pin. */
@@ -33,6 +37,7 @@ const PIN_ICON: Record<PinKind, string> = {
   home: "M3 8l5-4.5L13 8v5H9.5v-3h-3v3H3z",
   you: "M8 2v2.5M8 11.5V14M2 8h2.5M11.5 8H14M8 5.5a2.5 2.5 0 1 1 0 5a2.5 2.5 0 1 1 0-5z",
   rider: "M4 12.5a1.8 1.8 0 1 1 0-.01zM12 12.5a1.8 1.8 0 1 1 0-.01zM4 12.5l3-4h3l2 4M9 8.5l1-2.5h2",
+  "rider-idle": "M4 12.5a1.8 1.8 0 1 1 0-.01zM12 12.5a1.8 1.8 0 1 1 0-.01zM4 12.5l3-4h3l2 4M9 8.5l1-2.5h2",
 };
 
 interface Box { width: number; height: number }
@@ -102,7 +107,8 @@ function Schematic({ pins, route, height, selectedId, onPinClick, connect, label
   const project = projectPoints([...pins.map((p) => p.point), ...route], box);
   const kitchen = pins.find((p) => p.kind === "kitchen");
   const home = pins.find((p) => p.kind === "home");
-  const ordered = [...pins].sort((a, b) => Number(a.kind === "rider") - Number(b.kind === "rider"));
+  // Places first; the customer's own pins and the rider last so they sit on top.
+  const ordered = [...pins].sort((a, b) => PIN_RANK[a.kind] - PIN_RANK[b.kind]);
   const gridId = useId().replace(/:/g, "");
   return (
     <>
@@ -184,7 +190,7 @@ function loadGoogleMaps(apiKey: string): Promise<GoogleMapsGlobal> {
   return mapsScript;
 }
 
-const MARKER_LETTER: Record<PinKind, string> = { kitchen: "K", place: "R", home: "H", you: "•", rider: "R" };
+const MARKER_LETTER: Record<PinKind, string> = { kitchen: "K", place: "R", home: "H", you: "•", rider: "R", "rider-idle": "r" };
 
 function GoogleCanvas({ apiKey, pins, route, label, onFail, onPinClick }: {
   apiKey: string; pins: MapPin[]; route: GeoPoint[]; label: string; onFail: () => void; onPinClick?: (id: string) => void;
@@ -263,15 +269,21 @@ export function AddressSearch({ search, details, reverse, onPicked, label = "Fin
   const [error, setError] = useState<string | null>(null);
   const session = useRef(newPlacesSession());
   const seq = useRef(0);
+  // Parents usually pass inline callbacks: keep the latest without re-running the search on every render.
+  const searchRef = useRef(search);
+  searchRef.current = search;
+  /** The text a pick just filled in: no new search for it. */
+  const picked = useRef<string | null>(null);
 
   useEffect(() => {
     const q = query.trim();
     if (q.length < 3) { setItems([]); return; }
+    if (picked.current === q) return;
     const mine = ++seq.current;
     const t = window.setTimeout(async () => {
       setBusy("search");
       try {
-        const found = await search(q, session.current);
+        const found = await searchRef.current(q, session.current);
         if (mine === seq.current) { setItems(found); setOpen(true); setActive(-1); setError(null); }
       } catch (e) {
         if (mine === seq.current) setError((e as Error).message);
@@ -280,14 +292,17 @@ export function AddressSearch({ search, details, reverse, onPicked, label = "Fin
       }
     }, 350);
     return () => window.clearTimeout(t);
-  }, [query, search]);
+  }, [query]);
 
   async function pick(s: PlaceSuggestion) {
     setBusy("pick");
     setOpen(false);
+    setItems([]);
+    seq.current++; // drop any search still in flight
     try {
       const found = await details(s.place_id, session.current);
       session.current = newPlacesSession(); // the pick ends this billing session
+      picked.current = s.title.trim();
       setQuery(s.title);
       setError(null);
       onPicked(found);
@@ -332,7 +347,7 @@ export function AddressSearch({ search, details, reverse, onPicked, label = "Fin
           value={query}
           placeholder={placeholder}
           autoComplete="off"
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { picked.current = null; setQuery(e.target.value); }}
           onFocus={() => items.length && setOpen(true)}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") { e.preventDefault(); setOpen(true); setActive((a) => Math.min(a + 1, items.length - 1)); }
@@ -369,7 +384,7 @@ export function AddressSearch({ search, details, reverse, onPicked, label = "Fin
           </button>
         )}
         {busy === "search" || busy === "pick" ? <span className="text-muted">Searching…</span> : null}
-        {query.trim().length >= 3 && busy === null && items.length === 0 && !error && (
+        {query.trim().length >= 3 && busy === null && items.length === 0 && !error && picked.current !== query.trim() && (
           <span className="text-muted">No matches yet. Try the estate, street or a nearby landmark.</span>
         )}
       </div>

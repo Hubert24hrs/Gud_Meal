@@ -1,6 +1,7 @@
 import type { PlaceLookup, PlaceSuggestion } from "@gudmeal/api-client";
 import { AddressSearch, MapView, projectPoints } from "@gudmeal/ui";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 afterEach(cleanup);
@@ -18,10 +19,14 @@ const lookup: PlaceLookup = {
 
 describe("AddressSearch", () => {
   it("searches through the API with one session per pick and returns the chosen place", async () => {
-    const search = vi.fn(async () => [suggestion]);
-    const details = vi.fn(async () => lookup);
+    const search = vi.fn(async (_q: string, _session: string) => [suggestion]);
+    const details = vi.fn(async (_placeId: string, _session: string) => lookup);
     const onPicked = vi.fn();
-    render(<AddressSearch search={search} details={details} onPicked={onPicked} />);
+    function Parent() {
+      const [, setN] = useState(0);
+      return <AddressSearch search={(q, s) => search(q, s)} details={(id, s) => details(id, s)} onPicked={(l) => { onPicked(l); setN((n) => n + 1); }} />;
+    }
+    render(<Parent />);
 
     fireEvent.change(screen.getByRole("combobox", { name: "Find your address" }), { target: { value: "Ad" } });
     await new Promise((r) => setTimeout(r, 450));
@@ -33,8 +38,12 @@ describe("AddressSearch", () => {
     fireEvent.mouseDown(option);
 
     await waitFor(() => expect(onPicked).toHaveBeenCalledWith(lookup));
-    const searchSession = (search.mock.calls[0] as unknown as [string, string])[1];
-    const pickSession = (details.mock.calls[0] as unknown as [string, string])[1];
+    // The list stays closed after a pick, even when the parent re-renders with new inline callbacks.
+    await new Promise((r) => setTimeout(r, 450));
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(search).toHaveBeenCalledTimes(1);
+    const searchSession = search.mock.calls[0]![1];
+    const pickSession = details.mock.calls[0]![1];
     expect(searchSession).toMatch(/^[0-9a-f]{32}$/);
     expect(pickSession).toBe(searchSession);
   });

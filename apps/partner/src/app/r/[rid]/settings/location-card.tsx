@@ -1,7 +1,7 @@
 "use client";
 
 import { ApiError, type GeoPoint, type RestaurantLocationUpdate } from "@gudmeal/api-client";
-import { AddressSearch, Badge, Button, Card, ErrorState, MapView, Skeleton } from "@gudmeal/ui";
+import { AddressSearch, Badge, Button, Card, ErrorState, Field, Input, MapView, Skeleton } from "@gudmeal/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useApi } from "@/lib/api";
@@ -60,13 +60,17 @@ export function LocationCard({ rid }: { rid: string }) {
         onPicked={(found) => {
           setSuggested(null);
           save.reset();
-          setDraft({ address: found.place.formatted_address, location: found.place.location, area: found.place.area, place_id: found.place.place_id });
+          // A neighbourhood match (no Google key) is only an area: keep the street line so the partner can adjust it.
+          const precise = found.place.precision === "rooftop" || found.place.precision === "street";
+          setDraft({ address: precise ? found.place.formatted_address : loc.address, location: found.place.location, area: found.place.area, place_id: found.place.place_id });
         }}
       />
 
       {draft && (
         <div className="space-y-3 rounded-lg border border-border p-3 text-sm">
-          <p>New pin: <span className="font-semibold">{draft.address}</span></p>
+          <Field label="Address customers and riders see" htmlFor="kitchen-address" hint="Street, number and a landmark if it helps riders.">
+            <Input id="kitchen-address" value={draft.address} onChange={(e) => setDraft({ ...draft, address: e.target.value })} />
+          </Field>
           {suggested ? (
             <div className="space-y-2" role="alert">
               <p>
@@ -82,7 +86,9 @@ export function LocationCard({ rid }: { rid: string }) {
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" loading={save.isPending} onClick={() => save.mutate(draft)}>Save new location</Button>
+              <Button size="sm" loading={save.isPending} disabled={draft.address.trim().length < 5} onClick={() => save.mutate({ ...draft, address: draft.address.trim() })}>
+                Save new location
+              </Button>
               <Button size="sm" variant="ghost" onClick={() => { setDraft(null); save.reset(); }}>Cancel</Button>
             </div>
           )}
