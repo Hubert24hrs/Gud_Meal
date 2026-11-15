@@ -156,7 +156,7 @@ function ChatInner() {
 
 const SCREENS: Record<string, string> = {
   home: "/", food: "/food", beauty: "/beauty", parcel: "/send", discover: "/discover", orders: "/orders",
-  support: "/support", profile: "/account",
+  support: "/support", profile: "/account", wallet: "/wallet",
 };
 
 /** Route for a screen Gudy points to (`open_screen` card). */
@@ -190,6 +190,31 @@ function CardView({ card }: { card: ChatCard }) {
     const href = routeForScreen(String(card.screen), (card.params as Record<string, string>) ?? {});
     if (!href) return null;
     return <Link href={href} className="inline-flex rounded-full bg-primary-soft px-4 py-2 text-xs font-bold text-primary-strong">{String(card.label)} →</Link>;
+  }
+  if (card.type === "wallet") {
+    const recent = (card.recent as { what: string; amount: string }[]) ?? [];
+    return (
+      <Link href="/wallet" className="block rounded-md bg-gradient-to-b from-[#F7894F] to-primary p-3 text-white">
+        <p className="text-xs font-semibold">Gud Meal wallet</p>
+        <p className="text-2xl font-black">{String(card.balance)}</p>
+        {recent.slice(0, 3).map((t, i) => <p key={i} className="text-xs">{t.what}: {t.amount}</p>)}
+        {card.cash_on_delivery_balance ? <p className="text-xs">Cash on delivery: {String(card.cash_on_delivery_balance)}</p> : null}
+        <p className="mt-1 text-xs font-bold underline">Open wallet · top up</p>
+      </Link>
+    );
+  }
+  if (card.type === "payment_options") {
+    const methods = (card.methods as { method: string; available: boolean; why_not?: string }[]) ?? [];
+    return (
+      <ul className="space-y-1 rounded-md border border-border bg-background p-3 text-xs">
+        {methods.map((m) => (
+          <li key={m.method} className={cn("flex gap-2", !m.available && "text-muted")}>
+            <span aria-hidden="true">{m.available ? "✓" : "✗"}</span>
+            <span><strong>{m.method}</strong>{m.why_not ? ` · ${m.why_not}` : ""}</span>
+          </li>
+        ))}
+      </ul>
+    );
   }
   if (card.type === "order_totals") {
     const byService = (card.by_service as Record<string, { orders: number; spent: string }>) ?? {};

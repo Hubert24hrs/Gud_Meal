@@ -34,6 +34,12 @@ class FakeApi extends GudMealApi {
       estimatedDeliveryAt: DateTime.utc(2026, 11, 14, 19, 30), expiresAt: DateTime.utc(2026, 11, 14, 19, 0),
     );
   }
+
+  @override
+  Future<WalletOverview> wallet() async => const WalletOverview(balanceKobo: 2000000);
+
+  @override
+  Future<OrderSummary> orderSummary() async => const OrderSummary(completedCount: 1);
 }
 
 Widget harness(Widget child, {List overrides = const []}) => ProviderScope(

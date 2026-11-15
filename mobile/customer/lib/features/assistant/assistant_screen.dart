@@ -37,6 +37,7 @@ String? routeForScreen(String screen, Map<String, dynamic> params) => switch (sc
       'orders' => '/orders',
       'support' => '/support',
       'profile' => '/profile',
+      'wallet' => '/wallet',
       'merchant' => params['merchant_id'] != null ? '/restaurants/${params['merchant_id']}' : null,
       'order' => params['order_id'] != null ? '/orders/${params['order_id']}' : '/orders',
       _ => null,
@@ -297,6 +298,41 @@ class _CardView extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 8),
           child: FilledButton.tonalIcon(onPressed: () => onOpen(route), icon: const Icon(Icons.open_in_new_rounded, size: 18), label: Text('${card['label']}')),
+        );
+      case 'wallet':
+        final recent = (card['recent'] as List? ?? const []).cast<Map>();
+        return InkWell(
+          onTap: () => onOpen('/wallet'),
+          child: Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(gradient: brandGradient, borderRadius: BorderRadius.circular(GmRadius.md)),
+            child: DefaultTextStyle(
+              style: const TextStyle(color: Colors.white),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('Gud Meal wallet', style: TextStyle(fontWeight: FontWeight.w600)),
+                Text('${card['balance']}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                for (final t in recent.take(3)) Text('${t['what']}: ${t['amount']}'),
+                if (card['cash_on_delivery_balance'] != null) Text('Cash on delivery: ${card['cash_on_delivery_balance']}'),
+                const Text('Open wallet · top up', style: TextStyle(fontWeight: FontWeight.w800, decoration: TextDecoration.underline)),
+              ]),
+            ),
+          ),
+        );
+      case 'payment_options':
+        final methods = (card['methods'] as List? ?? const []).cast<Map>();
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: Column(children: [
+            for (final m in methods)
+              ListTile(
+                dense: true,
+                leading: Icon(m['available'] == true ? Icons.check_circle_rounded : Icons.block_rounded,
+                    color: m['available'] == true ? const Color(0xFF1D754E) : null),
+                title: Text('${m['method']}'),
+                subtitle: m['why_not'] == null ? null : Text('${m['why_not']}'),
+              ),
+          ]),
         );
       case 'order_totals':
         final byService = Map<String, dynamic>.from(card['by_service'] as Map? ?? const {});

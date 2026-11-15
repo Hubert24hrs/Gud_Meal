@@ -1,0 +1,104 @@
+"use client";
+
+import { formatNaira, type CheckoutResult } from "@gudmeal/api-client";
+import { cn } from "@gudmeal/ui";
+import { useQuery } from "@tanstack/react-query";
+import { Banknote, CreditCard, Wallet } from "lucide-react";
+import Link from "next/link";
+import { useEffect } from "react";
+import { publicApi, useApi } from "@/lib/api";
+
+export type PayMethod = "card" | "wallet" | "cash";
+
+/** Provider value sent to checkout: none for card (the server picks the gateway, with failover). */
+export function checkoutProvider(method: PayMethod): string | undefined {
+  return method === "card" ? undefined : method;
+}
+
+/** Card payments continue on the gateway's page; wallet and cash orders are already placed. */
+export function continueAfterCheckout(res: CheckoutResult, go: (path: string) => void): void {
+  if (res.authorization_url) window.location.assign(res.authorization_url);
+  else go(`/orders/${res.order_id}`);
+}
+
+interface CashRules {
+  /** Whether this kind of order can be paid in cash at the door at all (not for packages). */
+  offered: boolean;
+  /** A reason the page already knows (e.g. pickup orders). */
+  reason?: string | null;
+}
+
+/**
+ * Card / Gud Meal wallet / pay on delivery. The hints here (balance, first order, limits) come from the API so
+ * customers see why an option is off, but the server re-checks everything at checkout.
+ */
+export function PaymentMethodPicker({ totalKobo, value, onChange, cash }: {
+  totalKobo: number | null; value: PayMethod; onChange: (m: PayMethod) => void; cash: CashRules;
+}) {
+  const api = useApi();
+  const wallet = useQuery({ queryKey: ["wallet"], queryFn: () => api.wallet.get() });
+  const summary = useQuery({ queryKey: ["order-summary"], queryFn: () => api.orders.summary(), enabled: cash.offered });
+  const config = useQuery({
+    queryKey: ["public-config"], queryFn: () => publicApi.catalog.publicConfig(), enabled: cash.offered, staleTime: 300_000,
+  });
+
+  const enabled = wallet.data?.enabled ?? false;
+  const balance = wallet.data?.balance_kobo ?? 0;
+  const short = totalKobo == null ? 0 : Math.max(0, totalKobo - balance);
+  const walletOk = enabled && totalKobo != null && short === 0;
+
+  const pod = config.data?.pay_on_delivery as { enabled: boolean; max_order_kobo: number } | undefined;
+  let cashReason: string | null = cash.reason ?? null;
+  if (!cashReason && cash.offered) {
+    if (pod && !pod.enabled) cashReason = "Not available right now";
+    else if (summary.data && summary.data.completed_count < 1) cashReason = "Unlocks after your first order";
+    else if (pod && totalKobo != null && totalKobo > pod.max_order_kobo) cashReason = `For orders up to ${formatNaira(pod.max_order_kobo)}`;
+  }
+  const cashOk = cash.offered && !cashReason;
+
+  useEffect(() => {
+    if ((value === "wallet" && wallet.data && !walletOk) || (value === "cash" && !cashOk)) onChange("card");
+  }, [value, wallet.data, walletOk, cashOk, onChange]);
+
+  const options: { id: PayMethod; Icon: typeof Wallet; title: string; note: string; ok: boolean }[] = [
+    { id: "card", Icon: CreditCard, title: "Card, bank transfer or USSD", note: "On a secure payment page", ok: true },
+    {
+      id: "wallet", Icon: Wallet, title: "Gud Meal wallet",
+      note: wallet.isLoading ? "Checking your balance…"
+        : !enabled ? "Not available right now"
+          : walletOk ? `Balance ${formatNaira(balance)} · pays in one tap`
+            : `Balance ${formatNaira(balance)} · top up ${formatNaira(short)} more`,
+      ok: walletOk,
+    },
+  ];
+  if (cash.offered) {
+    options.push({
+      id: "cash", Icon: Banknote, title: "Pay on delivery",
+      note: cashOk ? "Pay the rider in cash when it arrives" : (cashReason ?? ""), ok: cashOk,
+    });
+  }
+
+  return (
+    <div className="space-y-2">
+      <div role="radiogroup" aria-label="Payment method" className="space-y-2">
+        {options.map(({ id, Icon, title, note, ok }) => (
+          <button key={id} type="button" role="radio" aria-checked={value === id} disabled={!ok} onClick={() => onChange(id)}
+            className={cn("flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition",
+              value === id ? "border-primary bg-primary-soft" : "border-border hover:border-primary/40",
+              !ok && "cursor-not-allowed opacity-60")}>
+            <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">{title}</span>
+              <span className="block text-sm text-muted">{note}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+      {enabled && !walletOk && !wallet.isLoading && (
+        <Link href="/wallet" className="inline-block text-sm font-semibold text-primary underline-offset-2 hover:underline">
+          Top up your wallet
+        </Link>
+      )}
+    </div>
+  );
+}

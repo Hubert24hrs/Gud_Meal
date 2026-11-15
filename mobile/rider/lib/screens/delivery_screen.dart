@@ -209,11 +209,32 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                         : 'Start trip to recipient',
                   ),
                 ),
+              if (o.collectCashKobo > 0)
+                Card(
+                  key: const ValueKey('collect-cash'),
+                  color: const Color(0xFFFFF4D6),
+                  margin: const EdgeInsets.only(top: 16),
+                  child: ListTile(
+                    leading: const Icon(Icons.payments_rounded),
+                    title: Text(
+                      'Collect ${formatNaira(o.collectCashKobo)} in cash',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    subtitle: Text(
+                      parcel?.codAmountKobo != null && o.paymentMethod != 'cash'
+                          ? 'Cash on delivery for ${parcel!.pickup.name}: collect it from ${parcel.dropoff.name} before handing over the package.'
+                          : 'The customer pays on delivery. Collect the cash before handing over the order.',
+                    ),
+                  ),
+                ),
               if (o.status == 'picked_up' || o.status == 'in_transit')
                 DeliveryCodeForm(
                   controller: _code,
                   busy: _busy,
-                  onSubmit: (code) => _act((api) => api.deliver(o.id, code)),
+                  cashToCollectKobo: o.collectCashKobo,
+                  onSubmit: (code) => _act(
+                    (api) => api.deliver(o.id, code, cashCollected: o.collectCashKobo > 0),
+                  ),
                 ),
               if (_error != null)
                 Padding(
@@ -249,19 +270,31 @@ class _CallButton extends StatelessWidget {
 }
 
 /// 4-digit code the customer reads out on arrival. Validated locally, verified by the API (5 attempts max).
-class DeliveryCodeForm extends StatelessWidget {
+/// When there is cash to collect, the rider must also confirm they took it (the amount comes from the server).
+class DeliveryCodeForm extends StatefulWidget {
   const DeliveryCodeForm({
     super.key,
     required this.controller,
     required this.onSubmit,
     this.busy = false,
+    this.cashToCollectKobo = 0,
   });
   final TextEditingController controller;
   final ValueChanged<String> onSubmit;
   final bool busy;
+  final int cashToCollectKobo;
+
+  @override
+  State<DeliveryCodeForm> createState() => _DeliveryCodeFormState();
+}
+
+class _DeliveryCodeFormState extends State<DeliveryCodeForm> {
+  bool _cashTaken = false;
 
   @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final needsCash = widget.cashToCollectKobo > 0;
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: ValueListenableBuilder<TextEditingValue>(
@@ -285,11 +318,19 @@ class DeliveryCodeForm extends StatelessWidget {
                 counterText: '',
               ),
             ),
+            if (needsCash)
+              CheckboxListTile(
+                key: const ValueKey('cash-taken'),
+                contentPadding: EdgeInsets.zero,
+                value: _cashTaken,
+                onChanged: (v) => setState(() => _cashTaken = v ?? false),
+                title: Text('I collected ${formatNaira(widget.cashToCollectKobo)} in cash'),
+              ),
             const SizedBox(height: 8),
             FilledButton(
-              onPressed: busy || value.text.length != 4
+              onPressed: widget.busy || value.text.length != 4 || (needsCash && !_cashTaken)
                   ? null
-                  : () => onSubmit(value.text),
+                  : () => widget.onSubmit(value.text),
               child: const Text('Complete delivery'),
             ),
           ],

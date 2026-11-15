@@ -287,6 +287,7 @@ _PriceBreakdown _$PriceBreakdownFromJson(Map<String, dynamic> json) =>
       smallOrderFeeKobo: (json['small_order_fee_kobo'] as num?)?.toInt() ?? 0,
       vatKobo: (json['vat_kobo'] as num?)?.toInt() ?? 0,
       discountKobo: (json['discount_kobo'] as num?)?.toInt() ?? 0,
+      codFeeKobo: (json['cod_fee_kobo'] as num?)?.toInt() ?? 0,
       totalKobo: (json['total_kobo'] as num).toInt(),
       voucherCode: json['voucher_code'] as String?,
     );
@@ -299,6 +300,7 @@ Map<String, dynamic> _$PriceBreakdownToJson(_PriceBreakdown instance) =>
       'small_order_fee_kobo': instance.smallOrderFeeKobo,
       'vat_kobo': instance.vatKobo,
       'discount_kobo': instance.discountKobo,
+      'cod_fee_kobo': instance.codFeeKobo,
       'total_kobo': instance.totalKobo,
       'voucher_code': ?instance.voucherCode,
     };
@@ -387,6 +389,14 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       ? null
       : ParcelDetails.fromJson(json['parcel'] as Map<String, dynamic>),
   refundTotalKobo: (json['refund_total_kobo'] as num?)?.toInt() ?? 0,
+  payment: json['payment'] == null
+      ? const OrderPayment()
+      : OrderPayment.fromJson(json['payment'] as Map<String, dynamic>),
+  cashCollectedAt: json['cash_collected_at'] == null
+      ? null
+      : DateTime.parse(json['cash_collected_at'] as String),
+  paymentMethod: json['payment_method'] as String?,
+  collectCashKobo: (json['collect_cash_kobo'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
@@ -411,24 +421,190 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
   'reviewed': instance.reviewed,
   'parcel': ?instance.parcel?.toJson(),
   'refund_total_kobo': instance.refundTotalKobo,
+  'payment': instance.payment.toJson(),
+  'cash_collected_at': ?instance.cashCollectedAt?.toIso8601String(),
+  'payment_method': ?instance.paymentMethod,
+  'collect_cash_kobo': instance.collectCashKobo,
 };
+
+_OrderPayment _$OrderPaymentFromJson(Map<String, dynamic> json) =>
+    _OrderPayment(
+      provider: json['provider'] as String?,
+      reference: json['reference'] as String?,
+      status: json['status'] as String? ?? 'unpaid',
+      paidAt: json['paid_at'] == null
+          ? null
+          : DateTime.parse(json['paid_at'] as String),
+    );
+
+Map<String, dynamic> _$OrderPaymentToJson(_OrderPayment instance) =>
+    <String, dynamic>{
+      'provider': ?instance.provider,
+      'reference': ?instance.reference,
+      'status': instance.status,
+      'paid_at': ?instance.paidAt?.toIso8601String(),
+    };
 
 _CheckoutResult _$CheckoutResultFromJson(Map<String, dynamic> json) =>
     _CheckoutResult(
       orderId: json['order_id'] as String,
+      status: json['status'] as String? ?? '',
       reference: json['reference'] as String,
-      authorizationUrl: json['authorization_url'] as String,
+      authorizationUrl: json['authorization_url'] as String?,
       amountKobo: (json['amount_kobo'] as num).toInt(),
       provider: json['provider'] as String,
+      failoverFrom: json['failover_from'] as String?,
     );
 
 Map<String, dynamic> _$CheckoutResultToJson(_CheckoutResult instance) =>
     <String, dynamic>{
       'order_id': instance.orderId,
+      'status': instance.status,
       'reference': instance.reference,
-      'authorization_url': instance.authorizationUrl,
+      'authorization_url': ?instance.authorizationUrl,
       'amount_kobo': instance.amountKobo,
       'provider': instance.provider,
+      'failover_from': ?instance.failoverFrom,
+    };
+
+_PaymentMethodOption _$PaymentMethodOptionFromJson(Map<String, dynamic> json) =>
+    _PaymentMethodOption(
+      id: json['id'] as String,
+      label: json['label'] as String,
+      available: json['available'] as bool? ?? false,
+      reason: json['reason'] as String?,
+      balanceKobo: (json['balance_kobo'] as num?)?.toInt(),
+      shortByKobo: (json['short_by_kobo'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$PaymentMethodOptionToJson(
+  _PaymentMethodOption instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'label': instance.label,
+  'available': instance.available,
+  'reason': ?instance.reason,
+  'balance_kobo': ?instance.balanceKobo,
+  'short_by_kobo': ?instance.shortByKobo,
+};
+
+_PaymentOptions _$PaymentOptionsFromJson(Map<String, dynamic> json) =>
+    _PaymentOptions(
+      orderId: json['order_id'] as String,
+      totalKobo: (json['total_kobo'] as num).toInt(),
+      methods:
+          (json['methods'] as List<dynamic>?)
+              ?.map(
+                (e) => PaymentMethodOption.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const <PaymentMethodOption>[],
+    );
+
+Map<String, dynamic> _$PaymentOptionsToJson(_PaymentOptions instance) =>
+    <String, dynamic>{
+      'order_id': instance.orderId,
+      'total_kobo': instance.totalKobo,
+      'methods': instance.methods.map((e) => e.toJson()).toList(),
+    };
+
+_WalletTransaction _$WalletTransactionFromJson(Map<String, dynamic> json) =>
+    _WalletTransaction(
+      id: json['id'] as String,
+      kind: json['kind'] as String,
+      description: json['description'] as String? ?? '',
+      reference: json['reference'] as String?,
+      orderId: json['order_id'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      direction: json['direction'] as String? ?? 'in',
+      amountKobo: (json['amount_kobo'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$WalletTransactionToJson(_WalletTransaction instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'kind': instance.kind,
+      'description': instance.description,
+      'reference': ?instance.reference,
+      'order_id': ?instance.orderId,
+      'created_at': instance.createdAt.toIso8601String(),
+      'direction': instance.direction,
+      'amount_kobo': instance.amountKobo,
+    };
+
+_WalletLimits _$WalletLimitsFromJson(Map<String, dynamic> json) =>
+    _WalletLimits(
+      minTopupKobo: (json['min_topup_kobo'] as num?)?.toInt() ?? 50000,
+      maxTopupKobo: (json['max_topup_kobo'] as num?)?.toInt() ?? 10000000,
+      maxBalanceKobo: (json['max_balance_kobo'] as num?)?.toInt() ?? 30000000,
+    );
+
+Map<String, dynamic> _$WalletLimitsToJson(_WalletLimits instance) =>
+    <String, dynamic>{
+      'min_topup_kobo': instance.minTopupKobo,
+      'max_topup_kobo': instance.maxTopupKobo,
+      'max_balance_kobo': instance.maxBalanceKobo,
+    };
+
+_SellerSummary _$SellerSummaryFromJson(Map<String, dynamic> json) =>
+    _SellerSummary(
+      codBalanceKobo: (json['cod_balance_kobo'] as num?)?.toInt() ?? 0,
+      pendingPayoutsKobo: (json['pending_payouts_kobo'] as num?)?.toInt() ?? 0,
+      availableKobo: (json['available_kobo'] as num?)?.toInt() ?? 0,
+      minPayoutKobo: (json['min_payout_kobo'] as num?)?.toInt() ?? 100000,
+    );
+
+Map<String, dynamic> _$SellerSummaryToJson(_SellerSummary instance) =>
+    <String, dynamic>{
+      'cod_balance_kobo': instance.codBalanceKobo,
+      'pending_payouts_kobo': instance.pendingPayoutsKobo,
+      'available_kobo': instance.availableKobo,
+      'min_payout_kobo': instance.minPayoutKobo,
+    };
+
+_WalletOverview _$WalletOverviewFromJson(Map<String, dynamic> json) =>
+    _WalletOverview(
+      balanceKobo: (json['balance_kobo'] as num?)?.toInt() ?? 0,
+      enabled: json['enabled'] as bool? ?? true,
+      limits: json['limits'] == null
+          ? const WalletLimits()
+          : WalletLimits.fromJson(json['limits'] as Map<String, dynamic>),
+      refundToWallet: json['refund_to_wallet'] as bool? ?? false,
+      transactions:
+          (json['transactions'] as List<dynamic>?)
+              ?.map(
+                (e) => WalletTransaction.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const <WalletTransaction>[],
+      seller: json['seller'] == null
+          ? null
+          : SellerSummary.fromJson(json['seller'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$WalletOverviewToJson(_WalletOverview instance) =>
+    <String, dynamic>{
+      'balance_kobo': instance.balanceKobo,
+      'enabled': instance.enabled,
+      'limits': instance.limits.toJson(),
+      'refund_to_wallet': instance.refundToWallet,
+      'transactions': instance.transactions.map((e) => e.toJson()).toList(),
+      'seller': ?instance.seller?.toJson(),
+    };
+
+_TopUpResult _$TopUpResultFromJson(Map<String, dynamic> json) => _TopUpResult(
+  reference: json['reference'] as String,
+  provider: json['provider'] as String,
+  authorizationUrl: json['authorization_url'] as String?,
+  amountKobo: (json['amount_kobo'] as num).toInt(),
+);
+
+Map<String, dynamic> _$TopUpResultToJson(_TopUpResult instance) =>
+    <String, dynamic>{
+      'reference': instance.reference,
+      'provider': instance.provider,
+      'authorization_url': ?instance.authorizationUrl,
+      'amount_kobo': instance.amountKobo,
     };
 
 _Tracking _$TrackingFromJson(Map<String, dynamic> json) => _Tracking(
@@ -514,6 +690,7 @@ _Earnings _$EarningsFromJson(Map<String, dynamic> json) => _Earnings(
   availableKobo: (json['available_kobo'] as num).toInt(),
   deliveriesCompleted: (json['deliveries_completed'] as num).toInt(),
   earnedLast7DaysKobo: (json['earned_last7_days_kobo'] as num).toInt(),
+  cashHeldKobo: (json['cash_held_kobo'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$EarningsToJson(_Earnings instance) => <String, dynamic>{
@@ -522,6 +699,7 @@ Map<String, dynamic> _$EarningsToJson(_Earnings instance) => <String, dynamic>{
   'available_kobo': instance.availableKobo,
   'deliveries_completed': instance.deliveriesCompleted,
   'earned_last7_days_kobo': instance.earnedLast7DaysKobo,
+  'cash_held_kobo': instance.cashHeldKobo,
 };
 
 _ChatApproval _$ChatApprovalFromJson(Map<String, dynamic> json) =>
@@ -662,6 +840,7 @@ _ParcelDetails _$ParcelDetailsFromJson(Map<String, dynamic> json) =>
       category: json['category'] as String? ?? 'other',
       description: json['description'] as String? ?? '',
       city: json['city'] as String? ?? 'lagos',
+      codAmountKobo: (json['cod_amount_kobo'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ParcelDetailsToJson(_ParcelDetails instance) =>
@@ -672,6 +851,7 @@ Map<String, dynamic> _$ParcelDetailsToJson(_ParcelDetails instance) =>
       'category': instance.category,
       'description': instance.description,
       'city': instance.city,
+      'cod_amount_kobo': ?instance.codAmountKobo,
     };
 
 _ParcelQuote _$ParcelQuoteFromJson(Map<String, dynamic> json) => _ParcelQuote(

@@ -19,6 +19,12 @@ String formatNaira(int? kobo) {
 /// Lagos is UTC+1 all year (no daylight saving).
 String formatLagosTime(DateTime? t) => t == null ? '—' : _time.format(t.toUtc().add(const Duration(hours: 1)));
 
+final _dateTime = DateFormat('d MMM, h:mm a');
+
+/// "15 Nov, 2:30 PM" in Lagos time.
+String formatLagosDateTime(DateTime? t) =>
+    t == null ? '—' : _dateTime.format(t.toUtc().add(const Duration(hours: 1)));
+
 enum StatusTone { neutral, info, progress, success, warning, danger }
 
 const orderStatusLabels = <String, (String, StatusTone)>{
