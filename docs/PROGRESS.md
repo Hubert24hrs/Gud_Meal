@@ -1,19 +1,23 @@
 # Gud Meal — status report (2026-11-15)
 
 **Bottom line:** the core marketplace, payments/ledger, dispatch, AI agents, three web apps and two Flutter
-apps are implemented and tested locally. **Nothing is deployed**, and the product is **not production-ready**:
-cloud resources, real payment test-mode, a Gemini key and the items in
-[PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) are still required.
+apps are implemented and tested locally. On 2026-11-15 the owner chose a multi-service direction (see
+[ROADMAP.md](ROADMAP.md#multi-service-expansion-owner-decisions-of-2026-11-15)); **phase 1 of it is done**: a
+Glovo-style redesign of the customer app and website in Gud Meal orange, **Beauty & Skin care**, **Package
+Delivery** (instant and scheduled), **Lagos and Enugu**, and **Gudy**, the AI assistant (five languages, offline
+mode). Phases 2–5 (wallet and pay on delivery, interstate waybill, Plus/referrals/group orders, WhatsApp) are not
+started. **Nothing is deployed**, and the product is **not production-ready**: cloud resources, real payment
+test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) are still required.
 
 ## What has been built
 
 | Area | Contents |
 |---|---|
-| Architecture | System/data/security/AI docs, 11 ADRs, roadmap |
-| `services/api` | Catalog & search, deterministic pricing (fees, VAT, vouchers, ₦50 fee rounding), quotes, orders with a 17-state machine, Paystack/Flutterwave/sandbox payments, signed webhooks, refunds with finance approval, double-entry append-only ledger, settlements, rider payouts, dispatch scoring with offer timeouts and manual dispatch, OTP delivery & pickup codes, reviews, support tickets, onboarding approvals that set Firebase custom claims, admin analytics/forecast, audit log, outbox, Alembic migration, 98 HTTP paths |
-| `services/agents` | LangGraph graph (guard → router → specialist ⇄ tools), 8 agents, 30 typed tools, `interrupt()` approvals, Postgres/SQLite/memory checkpointers, thread ownership, tool audit, token/cost accounting, Gemini via env-pinned model |
-| Web | Customer site (SEO pages, JSON-LD, sitemap, checkout, payment callback, tracking, AI chat with approvals + voice), Partner dashboard (live board with alerts, menu editor, insights, settlements, hours), Command Centre (overview, order intervention, verification, refunds, payments, finance, support, AI monitoring, pricing config, flags, audit) |
-| Mobile | `gud_meal_core` (Freezed models, Dio clients, auth port, theme from tokens), customer app (discovery, menu & options, cart, checkout, tracking, AI concierge), rider app (online/GPS, offers with countdown, pickup/transit/OTP delivery, navigation, earnings, SOS) |
+| Architecture | System/data/security/AI docs, 12 ADRs (ADR-0012: one order pipeline for food, beauty and parcels), roadmap with the owner's product decisions |
+| `services/api` | Catalog & search, deterministic pricing (fees, VAT, vouchers, ₦50 fee rounding), quotes, orders with a 17-state machine, Paystack/Flutterwave/sandbox payments, signed webhooks, refunds with finance approval, double-entry append-only ledger, settlements, rider payouts, dispatch scoring with offer timeouts and manual dispatch, OTP delivery & pickup codes, reviews, support tickets, onboarding approvals that set Firebase custom claims, admin analytics/forecast, audit log, outbox, Alembic migration; **multi-service**: merchant verticals (food, beauty) and cities (Lagos, Enugu), browse categories and promotions, Package Delivery (parcel quotes and orders, scheduled pickups released by a task, cancel-until-rider refunds, no-merchant settlement), customer order totals, Lagos/Enugu neighbourhood lookup, support contacts; 107 HTTP paths |
+| `services/agents` | **Gudy**: LangGraph graph (guard → router → specialist ⇄ tools), 8 agents, 36 typed tools (services, totals, navigation buttons, support contacts, parcel quote and booking added), replies in English, Pidgin, Igbo, Yoruba or Hausa, rule-based **offline mode** without a Gemini key, `interrupt()` approvals, Postgres/SQLite/memory checkpointers, thread ownership, tool audit, token/cost accounting, Gemini via env-pinned model |
+| Web | Customer site, **redesigned Glovo-style in Gud Meal orange** (animated draggable service bubbles, /food, /beauty, /send, /discover, /support, Profile-style account, mobile bottom bar, floating Gudy) plus SEO pages, JSON-LD, sitemap, checkout, payment callback, tracking, Gudy chat with approvals + voice; Partner dashboard (live board with alerts, menu editor, insights, settlements, hours), Command Centre (overview, order intervention, verification, refunds, payments, finance, support, AI monitoring, pricing config, flags, audit) |
+| Mobile | `gud_meal_core` (Freezed models, Dio clients, auth port, theme from tokens), customer app **redesigned Glovo-style** (home with animated, finger-draggable bubbles drawn as original illustrations; Food and Beauty pages; Package Delivery; Discover; Orders with spending; Support; Profile; draggable Gudy robot and chat), rider app (online/GPS, offers with countdown, pickup/transit/OTP delivery, package jobs with sender/recipient call buttons, navigation, earnings, SOS) |
 | Firebase | Deny-by-default Firestore & Storage rules, composite indexes, quote TTL, emulator config, rules tests |
 | Delivery | Dockerfiles, CI workflow, manual deploy workflow, Cloud Build config, GCP bootstrap & deploy scripts |
 
@@ -37,17 +41,30 @@ cloud resources, real payment test-mode, a Gemini key and the items in
   past-midnight trading (Saturday 10:00–02:00). The ledger trial balance stayed equal (₦102,035.02 each side).
   Partner and Command Centre layouts checked at 375 px, 768 px and 1280 px: no horizontal page scroll.
 - Flutter customer app (web build) rendering live restaurants and menus from the API.
+- **Multi-service phase 1 in a browser** (phone-size viewport, Auth emulator + API + agents in offline mode):
+  - *Mobile app (Flutter web build)*: home bubbles pop in, follow a drag and spring back, and a tap opens the
+    service; Food and Beauty pages with categories, filters, popular brands and store cards; Discover; Support;
+    Profile signed in and out. Gudy answered “What do you offer?” with service chips and a Pidgin question about
+    spending in Pidgin. **Package Delivery booked end to end**: Lekki → Ikota, 8.4 km, small parcel quoted at
+    ₦2,700 + ₦100 booking fee + ₦210 VAT = **₦3,010**, booked, paid in the sandbox, then shown as “Finding a rider”
+    with the recipient code and a pickup → drop-off card.
+  - *Website*: the same home bubbles and Gudy button, bottom tab bar, Food page, Support, and a parcel quote from
+    the real API (Lekki → Yaba, 13.1 km: ₦3,650 + ₦100 + ₦281.25 VAT = ₦4,031.25).
+  - Bugs found and fixed while testing: sign-in screen not closing after a successful sign-in, section titles
+    squeezed by a spacer, Gudy greeting pushing its button off-screen, a bubble's rest position outside the
+    physics bounds (never settled), validation messages hidden below the fold, food wording on parcel orders,
+    filter pills wrapping, and the partner editor rejecting the new “product” item kind.
 
 ## What has been tested — results
 
 | Suite | Result |
 |---|---|
-| API unit + HTTP integration (SQLite) | **402 passed**, 2 skipped (PostgreSQL-only) |
+| API unit + HTTP integration (SQLite) | **435 passed**, 2 skipped (PostgreSQL-only); 33 new for services, categories, beauty orders, parcels (pricing, validation, lifecycle with rider and ledger, scheduled release, cancellation), order totals and neighbourhoods |
 | API integration on PostgreSQL 16 (embedded) incl. append-only and unbalanced-transaction triggers | **40 passed** |
 | Alembic upgrade / `alembic check` / downgrade / upgrade | passed |
-| Agents (routing, permissions, approvals, isolation, injection, redaction, failure recovery, cost, Gemini schema) | **28 passed**, 1 skipped (live Gemini needs a key) |
-| TypeScript (api-client 6, web 7) + 3 Next.js production builds with type-check | **13 passed**, builds OK |
-| Flutter core / customer / rider | **11 / 7 / 5 passed**, analyzer clean |
+| Agents (routing, permissions, approvals, isolation, injection, redaction, failure recovery, cost, Gemini schema, Gudy offline mode in 5 languages, parcel booking via tools) | **39 passed**, 1 skipped (live Gemini needs a key) |
+| TypeScript (api-client 6, web 11) + 3 Next.js production builds with type-check | **17 passed**, builds OK |
+| Flutter core / customer / rider | **11 / 14 / 6 passed** (bubble drag-and-spring-back, Food page, Gudy button, Orders spending, parcel form, rider package job), analyzer clean |
 | Firestore & Storage rules tests (Firebase emulators) | **passed in CI** ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43651031712)); not runnable locally without Java |
 | Firestore DocumentStore contract tests against the emulator | **8 passed in CI** (memory + Firestore backends) |
 | Docker images build + API container smoke test | **passed in CI**; not runnable locally without Docker |
@@ -98,15 +115,30 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 5. Rate limiting is per Cloud Run instance; refunds via Flutterwave need the transaction id.
 6. The rider Flutter app is covered by widget/unit tests and the analyzer only; it has not been run on a device
    or emulator (it has no web build, and its GPS flows need a phone).
+7. Gudy without a Gemini key runs in offline mode: a fixed set of intents, full replies in English and Pidgin
+   only (Igbo, Yoruba and Hausa get a greeting, then English). Natural conversation in all five languages needs
+   the key.
+8. Addresses without a map pin use neighbourhood centres (about 1 km accuracy) until Google Maps is configured;
+   parcel prices are distance estimates from those centres.
+9. Wallet, pay on delivery, vendor cash-on-delivery, interstate waybill, Gud Meal Plus, referrals/loyalty,
+   group orders and WhatsApp ordering are designed into the roadmap but **not built** (phases 2–5); the apps show
+   them as “coming soon”.
+10. Support WhatsApp/phone/email are placeholders (flagged in the apps) until real contacts are provided.
+11. Store artwork is generated (gradient + illustration) until partners upload photos; field names still say
+    `restaurant_*` for all merchants (rename deferred, see ADR-0012).
 
 ## Required user actions
 
 1. Create `gud-meal-dev|staging|prod` GCP projects, add Firebase, enable billing and budgets.
 2. Provide Paystack **test** keys (and Flutterwave if wanted) for sandbox verification.
-3. Provide a Gemini API key; choose and pin a stable Flash model.
+3. Provide a Gemini API key (turns Gudy's offline mode into the full multilingual assistant); choose and pin a
+   stable Flash model.
 4. Install Java 21 locally if you want to run emulator rules tests (`winget install EclipseAdoptium.Temurin.21.JDK`).
 5. Legal: NDPA review, privacy policy/terms, fund-holding (collect-then-settle) review with Paystack and counsel.
 6. Apple/Google developer accounts and signing keys for store releases.
+7. Google Maps API key (address search, map pins in Lagos and Enugu, live rider map).
+8. WhatsApp Business (Meta) account and number for WhatsApp support and ordering (phase 5).
+9. Real support contacts (WhatsApp, phone, email) and real partner restaurants and beauty shops for both cities.
 
 ## Estimated monthly infrastructure cost
 
@@ -116,7 +148,12 @@ $0–75 dev — excluding payment fees and SMS. Details and assumptions: [COST_E
 ## Recommended next steps
 
 1. Bootstrap `gud-meal-dev`, deploy via the manual workflow, and run the Paystack test-mode flow end-to-end.
-2. Add a Gemini key, pin the model, run `pytest -m live_gemini` and build a small evaluation set.
-3. Switch customer tracking to Firestore listeners and add Google Maps to the tracking screens.
-4. Restaurant photo uploads (Storage rules already allow it) and partner staff management.
-5. Monitoring dashboards/alerts, load test, security review, then a closed beta in Lekki/VI.
+2. Add a Gemini key, pin the model, run `pytest -m live_gemini` and build an evaluation set for Gudy in all five
+   languages (Pidgin, Igbo, Yoruba and Hausa reviewed by native speakers).
+3. Multi-service phases 2–5 in order: wallet + pay on delivery + vendor COD; interstate waybill; Gud Meal Plus,
+   referrals/loyalty and group orders; Gudy on WhatsApp (after the Meta account is ready).
+4. Switch customer tracking to Firestore listeners and add Google Maps (address search, pins, live map).
+5. Partner photo uploads (Storage rules already allow it), partner staff management, shop wording for beauty
+   partners in the dashboard.
+6. Monitoring dashboards/alerts, load test, security review, then closed betas in Lekki/VI and Independence
+   Layout (Enugu).

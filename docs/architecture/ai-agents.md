@@ -75,3 +75,22 @@ flowchart TD
 - Prompt-injection heuristics on input and on tool results (tool output is wrapped as data).
 - Approval cannot be bypassed: `confirm_order` without a matching approved interrupt is rejected.
 - Payment card details are never requested, stored or logged; checkout happens on the provider page.
+
+## Gudy: persona, languages and offline mode (2026-11-15)
+
+- **Persona.** Gudy is Gud Meal's assistant for Food, Beauty & Skin care and Package Delivery in Lagos and Enugu.
+  It replies in the customer's language (English, Nigerian Pidgin, Igbo, Yoruba, Hausa), mirroring code-mixing,
+  and keeps dish, product and store names exactly as tools return them.
+- **New tools** (`tools/services.py`): `list_services`, `get_order_totals` (exact totals from
+  `/v1/me/order-summary`), `open_screen` (a button that directs the customer to Food, Beauty, Package Delivery,
+  Orders, Support, Profile, a store or an order), `get_support_contacts`, `get_parcel_quote` (free-text addresses
+  placed with `/v1/places/resolve`; sender defaults to the signed-in account) and `book_parcel` (approval
+  required; creates the order and a payment link). Search tools take `service = food | beauty`.
+- **Offline mode** (`offline.py`). Without `GOOGLE_API_KEY` the service uses a deterministic rule-based model
+  implementing the same `ModelFactory` protocol, so it runs inside the normal graph and every action still goes
+  through validation, permissions, rate limits, audit and approval screens. It detects the language (keyword
+  markers), routes by keywords, and handles greetings, services, totals, food and beauty search, tracking,
+  support, package delivery (sends the customer to the booking screen) and the budget meal flow
+  (plan → draft → approval → payment link), including follow-ups such as “plan 2”, “yes” or “no”. Replies are
+  templated: full English and Pidgin; Igbo, Yoruba and Hausa get a localised greeting/acknowledgement and English
+  details. All numbers are copied from tool results. `/health` reports `ai_mode: offline | llm`.
