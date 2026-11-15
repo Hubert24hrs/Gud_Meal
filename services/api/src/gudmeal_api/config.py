@@ -110,6 +110,10 @@ class Settings(BaseSettings):
     # API uses its neighbourhood table and straight-line estimates (clearly labelled as estimates).
     google_maps_api_key: SecretStr | None = None
     maps_travel_mode: Literal["DRIVE", "TWO_WHEELER"] = "DRIVE"
+    # Traffic-aware routes give better Lagos ETAs but bill at Google's higher Routes tier; false = cheaper tier.
+    maps_traffic_aware: bool = True
+    # How often a live delivery's road ETA may be re-measured (between measurements it counts down locally).
+    maps_live_eta_refresh_seconds: int = 180
     maps_routes_enabled: bool = True
     maps_timeout_seconds: float = 4.0
     maps_daily_request_cap: int = 20_000  # per instance; GCP quotas + budget alerts are the hard limit

@@ -72,6 +72,7 @@ class MapsService:
         *,
         daily_cap: int = 20_000,
         routes_enabled: bool = True,
+        live_refresh_seconds: int = 180,
         clock: Callable[[], float] = time.monotonic,
         today: Callable[[], str] | None = None,
     ) -> None:
@@ -79,6 +80,7 @@ class MapsService:
         self.local = LocalMapsProvider()
         self.daily_cap = daily_cap
         self.routes_enabled = routes_enabled
+        self.live_refresh_seconds = max(30, live_refresh_seconds)
         self._today = today or (lambda: datetime.now(UTC).astimezone(LAGOS).date().isoformat())
         self._day = self._today()
         self._used = 0
@@ -91,13 +93,20 @@ class MapsService:
         key = settings.google_maps_api_key.get_secret_value() if settings.google_maps_api_key else ""
         google = (
             GoogleMapsClient(
-                key, http, travel_mode=settings.maps_travel_mode, timeout=settings.maps_timeout_seconds
+                key,
+                http,
+                travel_mode=settings.maps_travel_mode,
+                traffic_aware=settings.maps_traffic_aware,
+                timeout=settings.maps_timeout_seconds,
             )
             if key
             else None
         )
         return cls(
-            google, daily_cap=settings.maps_daily_request_cap, routes_enabled=settings.maps_routes_enabled
+            google,
+            daily_cap=settings.maps_daily_request_cap,
+            routes_enabled=settings.maps_routes_enabled,
+            live_refresh_seconds=settings.maps_live_eta_refresh_seconds,
         )
 
     # ------------------------------------------------------------------------------ budget
@@ -124,6 +133,8 @@ class MapsService:
         return {
             "provider": self.provider,
             "routes": "google" if self.google is not None and self.routes_enabled else "estimate",
+            "traffic_aware": bool(self.google and self.google.traffic_aware),
+            "live_eta_refresh_seconds": self.live_refresh_seconds,
             "requests_today": self._used,
             "daily_cap": self.daily_cap,
         }

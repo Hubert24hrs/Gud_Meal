@@ -36,7 +36,6 @@ MAX_ATTEMPTS = 8
 #: Idle online riders are kept at this geohash precision (6 ≈ 1.2 km x 0.6 km cell), never more precisely.
 COARSE_GEOHASH = 6
 #: How often a live delivery's road ETA is re-measured (Routes calls cost money; pings arrive every few seconds).
-ROUTE_REFRESH = timedelta(seconds=90)
 
 
 def utcnow() -> datetime:
@@ -66,6 +65,7 @@ class DispatchService:
         self.cfg = config or DispatchConfig()
         self.cash_limit = rider_cash_limit_kobo
         self.maps = maps or MapsService(None)
+        self._route_refresh = timedelta(seconds=self.maps.live_refresh_seconds)
 
     # ============================================================================ rider self-service
     async def rider_profile(self, principal: Principal) -> RiderProfile:
@@ -117,7 +117,7 @@ class DispatchService:
             await self._track(order, point, accuracy_m, now)
 
     async def _track(self, order: Order, point: GeoPoint, accuracy_m: float | None, now: datetime) -> None:
-        """Live tracking for the customer. Road ETAs are re-measured at most every `ROUTE_REFRESH` (cost)."""
+        """Live tracking for the customer. Road ETAs are re-measured at most every few minutes (cost)."""
         prev = await self.repos.get_tracking(order.id) or {}
         target = (
             order.restaurant_location
@@ -133,7 +133,7 @@ class DispatchService:
         fresh = (
             route_at is not None
             and prev.get("leg") == order.status.value
-            and now - route_at < ROUTE_REFRESH
+            and now - route_at < self._route_refresh
             and prev.get("eta_minutes") is not None
         )
         if target is not None and fresh:

@@ -90,6 +90,7 @@ class GoogleMapsClient:
         http: httpx.AsyncClient,
         *,
         travel_mode: str = "DRIVE",
+        traffic_aware: bool = True,
         region: str = "ng",
         language: str = "en",
         timeout: float = 4.0,
@@ -99,6 +100,7 @@ class GoogleMapsClient:
         self._key = api_key
         self._http = http
         self.travel_mode = travel_mode
+        self.traffic_aware = traffic_aware
         self.region = region
         self.language = language
         self.timeout = timeout
@@ -222,7 +224,7 @@ class GoogleMapsClient:
             "languageCode": self.language,
             "units": "METRIC",
         }
-        if self.travel_mode in ("DRIVE", "TWO_WHEELER"):
+        if self.traffic_aware and self.travel_mode in ("DRIVE", "TWO_WHEELER"):
             body["routingPreference"] = "TRAFFIC_AWARE"
         return body
 

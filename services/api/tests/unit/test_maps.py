@@ -190,6 +190,11 @@ async def test_routes_traffic_aware_with_minimal_field_mask():
     )
     assert route.polyline
 
+    # Cheaper Routes tier when traffic-aware routing is switched off (MAPS_TRAFFIC_AWARE=false).
+    rec = Recorder({"computeRoutes": httpx.Response(200, json=ROUTE)})
+    cheap = await client(rec, traffic_aware=False).route(LEKKI, YABA)
+    assert "routingPreference" not in json.loads(rec.requests[0].content) and not cheap.traffic_aware
+
 
 async def test_route_matrix_maps_indices_and_missing_routes():
     rec = Recorder({"computeRouteMatrix": httpx.Response(200, json=MATRIX)})

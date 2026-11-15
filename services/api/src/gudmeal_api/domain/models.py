@@ -172,6 +172,8 @@ class DeliveryAddress(Model):
     location: GeoPoint
     instructions: str | None = Field(default=None, max_length=300)
     contact_phone: str | None = Field(default=None, max_length=20)
+    # Google place ID when the address came from search (IDs may be stored indefinitely; the pin is the user's).
+    place_id: str | None = Field(default=None, max_length=300)
 
 
 class QuoteRequest(Model):

@@ -61,3 +61,25 @@ Parcel orders are ordinary orders with `vertical: "parcel"` and a `parcel` objec
 size, contents); they skip the merchant (`paid → ready_for_pickup`) and are cancellable with a full refund until a
 rider is assigned. `GET /v1/config/public` also returns `cities` and `support` contacts (`placeholders: true` until
 real contacts are configured).
+
+## Maps and location (Google Maps Platform, see [GOOGLE_MAPS.md](GOOGLE_MAPS.md))
+
+All Google calls happen inside the API with a server key; without a key the same endpoints answer from the
+neighbourhood table and straight-line estimates. Responses say which: `provider` / `source` is `google`, `local`
+or `estimate`, and `precision` is `rooftop`, `street`, `area` or `approximate`.
+
+| Method & path | Who | Purpose |
+|---|---|---|
+| `GET /v1/places/autocomplete?q=&session=&lat=&lng=&city=` | signed in | Address suggestions in Nigeria, biased to the user; `session` groups one search for billing |
+| `GET /v1/places/details?place_id=&session=` | signed in | The chosen place: address, pin, area, city, plus `serviceable` and `zone` |
+| `GET /v1/places/reverse?lat=&lng=` | signed in | "Use my location": the device's own fix with the nearest address or neighbourhood |
+| `GET /v1/delivery/estimates?restaurant_ids=&lat=&lng=` | signed in | Up to 10 kitchens: road distance, travel and arrival minutes, delivery fee, `delivers`, `source` |
+| `GET` · `PUT /v1/partner/restaurants/{id}/location` | restaurant owner/manager | The kitchen's pin and address; checked against the address (422 with `suggested_location`, or `confirm_pin: true`); moves over 2 km and radius changes are staff-only; audited |
+| `GET /v1/admin/riders/live` | dispatch | Online riders for the operations map; idle riders only have an area-level position |
+| `GET /v1/admin/maps/status` | config readers | Provider, routes mode, traffic-aware, requests today and the daily cap |
+
+`GET /v1/orders/{id}/tracking` now returns `rider_location`, `eta_minutes`, `eta_source` and `route_polyline`
+(current leg, Google encoded polyline) only while a rider is on that delivery, plus `pickup_location` and
+`dropoff_location`. `POST /v1/rider/location` is refused with `invalid_transition` (409) while the rider is
+offline. Quotes and parcel quotes include `road_distance_km` and `route_source`; delivery fees use the measured
+road distance when Google answered. The places endpoints share the `places` rate limit (40 burst, 0.5/s per user).

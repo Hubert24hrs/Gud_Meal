@@ -237,7 +237,7 @@ async def test_live_eta_uses_routes_but_not_on_every_ping(flow, client, containe
     before = fake.count("computeRoutes")
     for lat in (6.4430, 6.4436, 6.4442):  # three pings a few seconds apart
         await client.post("/v1/rider/location", json={"lat": lat, "lng": 3.465}, headers=auth(rider))
-    assert fake.count("computeRoutes") - before == 1, "re-measured at most every 90 seconds"
+    assert fake.count("computeRoutes") - before == 1, "re-measured at most every few minutes"
     t = (await client.get(f"/v1/orders/{order['id']}/tracking", headers=auth("customer"))).json()
     assert t["eta_source"] == "google" and t["eta_minutes"] == 15 and t["route_polyline"] == "abc"
 
