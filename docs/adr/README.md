@@ -13,3 +13,4 @@
 | [0009](0009-repository-ports-and-adapters.md) | Repository ports with Firestore and in-memory adapters | Accepted |
 | [0010](0010-events-outbox-pubsub-tasks.md) | Transactional outbox → Pub/Sub; Cloud Tasks for timers | Accepted |
 | [0011](0011-gemini-model-configuration.md) | Gemini model chosen by environment, pinned in production | Accepted |
+| [0012](0012-multi-service-platform.md) | One order pipeline for Food, Beauty & Skin care and Package Delivery | Accepted |
