@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../../providers.dart';
+import '../../ui/gm_map.dart';
 import '../../widgets.dart';
 
 const _live = {
@@ -12,6 +13,9 @@ const _live = {
   'rider_assigned', 'picked_up', 'in_transit', 'delivered', 'refund_pending',
 };
 const _steps = ['Placed', 'Accepted', 'Preparing', 'On the way', 'Delivered'];
+
+/// A rider is on this delivery: the only time the API shares their position.
+const _onDelivery = {'rider_assigned', 'picked_up', 'in_transit'};
 
 /// Live order tracking. Polls the API every 5 s while the order is active (Firestore listener in production).
 class OrderScreen extends ConsumerStatefulWidget {
@@ -96,6 +100,10 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
                     ]),
                   ),
               ]),
+            if (_onDelivery.contains(o.status)) ...[
+              const SizedBox(height: 16),
+              LiveDeliveryMap(orderId: o.id, kitchenName: o.restaurantName, parcel: o.vertical == 'parcel'),
+            ],
             if (o.estimatedDeliveryAt != null && step < 5)
               Padding(padding: const EdgeInsets.only(top: 12), child: Text('Estimated arrival: ${formatLagosTime(o.estimatedDeliveryAt)}')),
             if (o.payment.provider == 'cash' && o.payment.status != 'paid' && !['cancelled', 'draft', 'pending_payment'].contains(o.status))
@@ -223,5 +231,88 @@ class _DeliveryCode extends ConsumerWidget {
               ),
             ),
     );
+  }
+}
+
+/// The customer's live delivery map: kitchen (or pickup), their address and the rider, refreshed every 10 s.
+class LiveDeliveryMap extends ConsumerStatefulWidget {
+  const LiveDeliveryMap({super.key, required this.orderId, required this.kitchenName, this.parcel = false, this.interval = const Duration(seconds: 10)});
+  final String orderId;
+  final String kitchenName;
+  final bool parcel;
+  final Duration interval;
+
+  @override
+  ConsumerState<LiveDeliveryMap> createState() => _LiveDeliveryMapState();
+}
+
+class _LiveDeliveryMapState extends ConsumerState<LiveDeliveryMap> {
+  LiveTracking? _t;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    _timer = Timer.periodic(widget.interval, (_) => _load());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final t = await ref.read(apiProvider).liveTracking(widget.orderId);
+      if (!mounted) return;
+      setState(() => _t = t);
+      if (!_onDelivery.contains(t.status)) _timer?.cancel();
+    } on ApiException {
+      // Keep the last good map; the next refresh tries again.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = _t;
+    if (t == null) {
+      return Container(
+        height: 220,
+        decoration: BoxDecoration(color: theme.colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(18)),
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(),
+      );
+    }
+    final pins = [
+      if (t.pickupLocation != null) MapPin(t.pickupLocation!, PinKind.kitchen, label: widget.parcel ? 'Pickup' : widget.kitchenName),
+      if (t.dropoffLocation != null) MapPin(t.dropoffLocation!, PinKind.home, label: widget.parcel ? 'Drop-off' : 'You'),
+      if (t.riderLocation != null) MapPin(t.riderLocation!, PinKind.rider, label: t.riderName ?? 'Rider'),
+    ];
+    final eta = t.etaMinutes;
+    final where = t.toPickup ? (widget.parcel ? 'heading to the pickup' : 'heading to ${widget.kitchenName}') : 'on the way to you';
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      GmMap(pins: pins, route: t.route, height: 230),
+      const SizedBox(height: 8),
+      Row(children: [
+        Icon(Icons.delivery_dining_rounded, color: theme.colorScheme.primary),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            t.isLive
+                ? '${t.riderName ?? 'Your rider'} is $where${eta == null ? '' : ' · about $eta min'}'
+                : "Waiting for the rider's location…",
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ]),
+      if (t.isLive && eta != null)
+        Text(
+          isMeasured(t.etaSource) ? 'Arrival time from live traffic.' : 'Arrival time is an estimate.',
+          style: theme.textTheme.bodySmall,
+        ),
+    ]);
   }
 }

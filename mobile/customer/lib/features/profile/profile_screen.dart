@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../../providers.dart';
+import '../location/address_picker.dart';
 import '../../ui/components.dart';
 
 /// Profile: who you are, your addresses, deals, payments, settings and help.
@@ -251,6 +252,20 @@ class _AddressBookState extends ConsumerState<_AddressBook> {
     super.dispose();
   }
 
+  /// Search or GPS through the map picker: saves the exact pin the customer confirmed.
+  Future<void> _addFromMap() async {
+    final picked = await pickDeliveryAddress(context, title: 'Add an address');
+    if (picked == null || !mounted) return;
+    try {
+      final label = picked.address.label ?? (_label.text.trim().isEmpty ? 'Home' : _label.text.trim());
+      await ref.read(apiProvider).saveAddress(picked.address.copyWith(label: label));
+      ref.invalidate(addressesProvider);
+      setState(() => _error = null);
+    } on ApiException catch (e) {
+      setState(() => _error = e.message);
+    }
+  }
+
   Future<void> _save() async {
     final area = ref.read(areaProvider);
     if (_line.text.trim().length < 3) {
@@ -308,8 +323,11 @@ class _AddressBookState extends ConsumerState<_AddressBook> {
           if (_error != null) Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           const SizedBox(height: 8),
           FilledButton(onPressed: _save, child: const Text('Save address')),
-        ] else
+        ] else ...[
+          FilledButton.tonalIcon(onPressed: _addFromMap, icon: const Icon(Icons.map_rounded), label: const Text('Find on map')),
+          const SizedBox(height: 8),
           OutlinedButton.icon(onPressed: () => setState(() => _adding = true), icon: const Icon(Icons.add_rounded), label: const Text('Add address')),
+        ],
       ]),
     );
   }

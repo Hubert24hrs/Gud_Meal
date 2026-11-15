@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import 'discover.dart';
 import 'models.dart';
+import 'places.dart';
 
 typedef TokenProvider = Future<String?> Function();
 
@@ -126,6 +127,49 @@ class GudMealApi {
 
   Future<List<PlaceArea>> areas({String? city}) =>
       _call(() => _dio.get('/v1/places/areas', queryParameters: {'city': ?city}), (d) => _list(d).map(PlaceArea.fromJson).toList());
+
+  // ------------------------------------------------------------------- maps (Google behind the API)
+  /// Address suggestions while typing. Reuse one [session] (see [newPlacesSession]) until the user picks one.
+  Future<List<PlaceSuggestion>> placeSuggestions(String query, {required String session, GeoPoint? near, String? city}) => _call(
+      () => _dio.get('/v1/places/autocomplete', queryParameters: {
+            'q': query,
+            'session': session,
+            if (near != null) 'lat': near.lat,
+            if (near != null) 'lng': near.lng,
+            'city': ?city,
+          }),
+      (d) => _list(_map(d)['suggestions']).map(PlaceSuggestion.fromJson).toList());
+
+  /// The chosen suggestion: address, pin and whether Gud Meal delivers there. Ends the search [session].
+  Future<PlaceLookup> placeDetails(String placeId, {String? session}) => _call(
+      () => _dio.get('/v1/places/details', queryParameters: {'place_id': placeId, 'session': ?session}),
+      (d) => PlaceLookup.fromJson(_map(d)));
+
+  /// "Use my location": the device's own fix plus the nearest address or neighbourhood.
+  Future<PlaceLookup> reverseGeocode(GeoPoint point) => _call(
+      () => _dio.get('/v1/places/reverse', queryParameters: {'lat': point.lat, 'lng': point.lng}),
+      (d) => PlaceLookup.fromJson(_map(d)));
+
+  /// Road distance, arrival time and delivery fee from up to 10 kitchens to [to].
+  Future<List<DeliveryEstimate>> deliveryEstimates(List<String> restaurantIds, GeoPoint to) => _call(
+      () => _dio.get('/v1/delivery/estimates', queryParameters: {'restaurant_ids': restaurantIds.take(10).join(','), 'lat': to.lat, 'lng': to.lng}),
+      (d) => _list(_map(d)['estimates']).map(DeliveryEstimate.fromJson).toList());
+
+  /// Restaurants or shops around [near], closest first, with their public pins (for the nearby map).
+  Future<List<MapPlace>> nearbyOnMap({required GeoPoint near, String vertical = 'food', bool openNow = false, int limit = 30}) => _call(
+      () => _dio.get('/v1/restaurants', queryParameters: {
+            'lat': near.lat,
+            'lng': near.lng,
+            'vertical': vertical,
+            if (openNow) 'open_now': true,
+            'sort': 'distance',
+            'limit': limit,
+          }),
+      (d) => [for (final card in _list(d)) ?MapPlace.fromCard(card)]);
+
+  /// Live delivery map data (rider position and route only while a rider is on this delivery).
+  Future<LiveTracking> liveTracking(String orderId) =>
+      _call(() => _dio.get('/v1/orders/$orderId/tracking'), (d) => LiveTracking.fromJson(_map(d)));
 
   Future<SupportContacts> supportContacts() =>
       _call(() => _dio.get('/v1/config/public'), (d) => SupportContacts.fromJson(Map<String, dynamic>.from(_map(d)['support'] as Map)));

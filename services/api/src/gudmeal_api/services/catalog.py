@@ -82,6 +82,7 @@ class RestaurantCard(BaseModel):
     supports_pickup: bool
     delivers_to_location: bool | None = None
     promotions: list[PromoBadge] = Field(default_factory=list)
+    location: GeoPoint | None = None  # the shop's public pin (for maps)
 
 
 class MenuSection(BaseModel):
@@ -175,6 +176,7 @@ class CatalogService:
             image_url=r.image_url,
             cover_url=r.cover_url,
             area=r.area,
+            location=r.location,
             rating=r.rating,
             rating_count=r.rating_count,
             price_level=r.price_level,

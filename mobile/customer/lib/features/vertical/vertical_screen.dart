@@ -108,7 +108,11 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
               child: Row(children: [
                 IconButton(tooltip: 'Back', onPressed: () => context.canPop() ? context.pop() : context.go('/'), icon: const Icon(Icons.arrow_back_rounded)),
                 const Expanded(child: Center(child: AddressPill())),
-                const SizedBox(width: 40),
+                IconButton(
+                  tooltip: 'Map of nearby ${_food ? 'restaurants' : 'shops'}',
+                  onPressed: () => context.push('/map?vertical=${widget.vertical}'),
+                  icon: const Icon(Icons.map_rounded),
+                ),
               ]),
             ),
           ),

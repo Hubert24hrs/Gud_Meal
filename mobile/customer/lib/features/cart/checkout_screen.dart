@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers.dart';
 import '../../ui/payment_picker.dart';
+import '../location/address_picker.dart';
 import 'cart_controller.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
@@ -28,6 +29,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _checkoutKeys = <PayMethod, String>{};
   PayMethod _method = PayMethod.card;
 
+  /// Exact address from the map picker (search, GPS or a saved address). Without it the neighbourhood centre is used.
+  PickedAddress? _picked;
+
   @override
   void dispose() {
     _line1.dispose();
@@ -39,8 +43,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   DeliveryAddress? get _address {
     if (_fulfillment == 'pickup') return null;
     if (_line1.text.trim().length < 3) return null;
+    final phone = _phone.text.trim().isEmpty ? null : _phone.text.trim();
+    final picked = _picked;
+    if (picked != null) return picked.address.copyWith(line1: _line1.text.trim(), contactPhone: phone ?? picked.address.contactPhone);
     final area = ref.read(areaProvider);
-    return DeliveryAddress(line1: _line1.text.trim(), area: area.name, location: area.location, contactPhone: _phone.text.trim().isEmpty ? null : _phone.text.trim());
+    return DeliveryAddress(line1: _line1.text.trim(), area: area.name, location: area.location, contactPhone: phone);
+  }
+
+  Future<void> _pickAddress() async {
+    final picked = await pickDeliveryAddress(context);
+    if (picked == null || !mounted) return;
+    setState(() {
+      _picked = picked;
+      _line1.text = picked.address.line1;
+      if (_phone.text.trim().isEmpty && picked.address.contactPhone != null) _phone.text = picked.address.contactPhone!;
+      _quote = null;
+      _error = null;
+    });
   }
 
   Future<void> _getQuote() async {
@@ -138,7 +157,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ),
         if (_fulfillment == 'delivery') ...[
           const SizedBox(height: 12),
-          Text('Delivering in ${ref.watch(areaProvider).name}', style: theme.textTheme.bodySmall),
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              leading: Icon(_picked == null ? Icons.add_location_alt_rounded : Icons.location_on_rounded, color: theme.colorScheme.primary),
+              title: Text(_picked == null ? 'Pin your exact address' : (_picked!.address.label ?? _picked!.address.area ?? 'Delivery address'),
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(_picked == null
+                  ? 'Delivering in ${ref.watch(areaProvider).name}. Search or use your location for a precise pin.'
+                  : [_picked!.address.line1, _picked!.address.area].whereType<String>().toSet().join(', ')),
+              trailing: Text(_picked == null ? 'Find' : 'Change', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w700)),
+              onTap: _busy ? null : _pickAddress,
+            ),
+          ),
           const SizedBox(height: 8),
           TextField(controller: _line1, decoration: const InputDecoration(labelText: 'Street address'), onChanged: (_) => setState(() => _quote = null)),
           const SizedBox(height: 8),
