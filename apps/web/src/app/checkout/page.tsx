@@ -39,6 +39,7 @@ function Checkout() {
   const checkoutKeys = useRef<Partial<Record<PayMethod, string>>>({});
 
   const addresses = useQuery({ queryKey: ["addresses"], queryFn: () => api.me.addresses() });
+  const myVouchers = useQuery({ queryKey: ["my-vouchers"], queryFn: () => api.rewards.vouchers() });
   useEffect(() => {
     if (addresses.data?.length && addressId === "new") setAddressId(addresses.data[0]!.id);
   }, [addresses.data, addressId]);
@@ -152,6 +153,16 @@ function Checkout() {
             <Input id="voucher" value={voucher} onChange={(e) => setVoucher(e.target.value)} placeholder="e.g. WELCOME500" className="uppercase" />
             <Button type="submit" variant="outline">Apply</Button>
           </form>
+          {(myVouchers.data?.length ?? 0) > 0 && (
+            <div className="flex flex-wrap gap-2" aria-label="Your vouchers">
+              {myVouchers.data!.map((v) => (
+                <button key={v.code} type="button" onClick={() => { setVoucher(v.code); setAppliedVoucher(v.code); }}
+                  className={cn("rounded-full border px-3 py-1.5 text-xs font-bold", appliedVoucher === v.code ? "border-primary bg-primary-soft" : "border-border")}>
+                  {formatNaira(v.value_kobo)} off · {v.code}
+                </button>
+              ))}
+            </div>
+          )}
           {voucherError && <p className="text-sm text-danger" role="alert">{voucherError}</p>}
           {appliedVoucher && quote.data?.breakdown.voucher_code && <p className="text-sm text-secondary">Voucher {appliedVoucher} applied.</p>}
         </Card>
@@ -216,6 +227,9 @@ function Breakdown({ quote }: { quote: Quote }) {
       {b.discount_kobo > 0 && (
         <div className="flex justify-between text-secondary"><dt>Discount</dt><dd>-<Price kobo={b.discount_kobo} /></dd></div>
       )}
+      {(b.plus_savings_kobo ?? 0) > 0 && (
+        <div className="flex justify-between font-semibold text-secondary"><dt>Gud Meal Plus saved you</dt><dd><Price kobo={b.plus_savings_kobo} /></dd></div>
+      )}
       <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
         <dt>Total</dt><dd><Price kobo={b.total_kobo} /></dd>
       </div>
@@ -223,6 +237,9 @@ function Breakdown({ quote }: { quote: Quote }) {
         {quote.fulfillment === "delivery" ? `Estimated arrival ${formatTime(quote.estimated_delivery_at)}` : `Ready in about ${quote.eta_minutes} min`}
         {" · "}price held until {formatTime(quote.expires_at)}
       </p>
+      {!b.plus_savings_kobo && b.delivery_fee_kobo > 0 && (
+        <Link href="/plus" className="block pt-1 text-xs font-bold text-primary underline-offset-2 hover:underline">Get free delivery with Gud Meal Plus →</Link>
+      )}
     </dl>
   );
 }

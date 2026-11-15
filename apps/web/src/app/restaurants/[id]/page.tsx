@@ -3,6 +3,7 @@ import { Badge } from "@gudmeal/ui";
 import { Clock, MapPin, Star } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { GroupOrderButton } from "@/components/group-order-button";
 import { MerchantArt } from "@/components/storefront";
 import { safe, serverApi } from "@/lib/server-api";
 import { Menu } from "./menu";
@@ -64,6 +65,9 @@ export default async function RestaurantPage({ params }: Props) {
               <dt className="sr-only">Address</dt><dd>{data.address}</dd></div>
             {r.min_order_kobo > 0 && <div><dt className="inline text-muted">Minimum order </dt><dd className="inline">{formatNaira(r.min_order_kobo)}</dd></div>}
           </dl>
+          <div className="mt-4">
+            <GroupOrderButton restaurantId={r.id} canOrder={r.is_open && r.is_accepting_orders} />
+          </div>
         </div>
         <Menu detail={data} />
       </div>

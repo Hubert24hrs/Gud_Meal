@@ -1,6 +1,6 @@
 "use client";
 
-import type { MenuItem, OptionGroup, OptionSelection } from "@gudmeal/api-client";
+import type { CartLine, MenuItem, OptionGroup, OptionSelection } from "@gudmeal/api-client";
 import { formatNaira } from "@gudmeal/api-client";
 import { Button, Dialog, Textarea, cn } from "@gudmeal/ui";
 import { Minus, Plus } from "lucide-react";
@@ -20,8 +20,10 @@ export function validateSelections(item: MenuItem, groups: Record<string, Option
   return null;
 }
 
-export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose }: {
+export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose, onAdd }: {
   item: MenuItem; groups: Record<string, OptionGroup>; restaurantId: string; restaurantName: string; onClose: () => void;
+  /** Group orders: hand the chosen line to the caller instead of adding it to this device's cart. */
+  onAdd?: (line: CartLine) => void;
 }) {
   const { cart, add } = useCart();
   const [chosen, setChosen] = useState<Record<string, string[]>>({});
@@ -34,7 +36,7 @@ export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose
     sum + (chosen[g.id] ?? []).reduce((s, cid) => s + (g.choices.find((c) => c.id === cid)?.price_delta_kobo ?? 0), 0), 0), [chosen, itemGroups]);
   const unit = item.price_kobo + extras;
   const error = validateSelections(item, groups, chosen);
-  const otherRestaurant = cart.restaurant_id !== null && cart.restaurant_id !== restaurantId && cart.items.length > 0;
+  const otherRestaurant = !onAdd && cart.restaurant_id !== null && cart.restaurant_id !== restaurantId && cart.items.length > 0;
 
   function toggle(g: OptionGroup, choiceId: string) {
     setChosen((prev) => {
@@ -55,6 +57,11 @@ export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose
     const selections: OptionSelection[] = itemGroups.filter((g) => (chosen[g.id] ?? []).length)
       .map((g) => ({ group_id: g.id, choice_ids: chosen[g.id]! }));
     const labels = itemGroups.flatMap((g) => (chosen[g.id] ?? []).map((cid) => `${g.name}: ${g.choices.find((c) => c.id === cid)?.name}`));
+    if (onAdd) {
+      onAdd({ item_id: item.id, quantity, selections, notes: notes.trim() || null });
+      onClose();
+      return;
+    }
     add(restaurantId, restaurantName, {
       key: cartKey(item.id, selections, notes.trim() || undefined), item_id: item.id, name: item.name, unit_price_kobo: unit,
       quantity, selections, selection_labels: labels, notes: notes.trim() || undefined,
