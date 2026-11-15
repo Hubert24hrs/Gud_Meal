@@ -161,6 +161,7 @@ class _AddressPickerScreenState extends ConsumerState<AddressPickerScreen> {
       _pin = lookup.place.location;
       _line1.text = lookup.place.isPrecise ? lookup.place.formattedAddress : '';
       _landmark.clear();
+      _error = null;
     });
   }
 
@@ -194,6 +195,23 @@ class _AddressPickerScreenState extends ConsumerState<AddressPickerScreen> {
               ),
       ),
       body: _chosen == null ? _searchView(context) : _confirmView(context, _chosen!),
+      bottomNavigationBar: _chosen == null
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  if (_error != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600)),
+                    ),
+                  FilledButton(onPressed: _chosen!.serviceable ? _confirm : null, child: const Text('Use this address')),
+                  if (!_chosen!.serviceable)
+                    TextButton(onPressed: () => setState(() => _chosen = null), child: const Text('Choose another address')),
+                ]),
+              ),
+            ),
     );
   }
 
@@ -256,7 +274,7 @@ class _AddressPickerScreenState extends ConsumerState<AddressPickerScreen> {
     final place = chosen.place;
     return ListView(padding: const EdgeInsets.all(16), children: [
       GmMap(
-        height: 230,
+        height: 190,
         pins: [MapPin(_pin ?? place.location, PinKind.home, label: place.area ?? 'Your address')],
         onPinMoved: (p) => setState(() => _pin = p),
       ),
@@ -286,14 +304,6 @@ class _AddressPickerScreenState extends ConsumerState<AddressPickerScreen> {
       TextField(controller: _line1, decoration: const InputDecoration(labelText: 'Street and house number')),
       const SizedBox(height: 8),
       TextField(controller: _landmark, decoration: const InputDecoration(labelText: 'Landmark or directions (optional)')),
-      if (_error != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_error!, style: TextStyle(color: theme.colorScheme.error))),
-      const SizedBox(height: 16),
-      FilledButton(onPressed: chosen.serviceable ? _confirm : null, child: const Text('Use this address')),
-      if (!chosen.serviceable)
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: TextButton(onPressed: () => setState(() => _chosen = null), child: const Text('Choose another address')),
-        ),
     ]);
   }
 }

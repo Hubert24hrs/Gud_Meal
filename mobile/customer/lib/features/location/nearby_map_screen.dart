@@ -66,23 +66,20 @@ class _NearbyMapScreenState extends ConsumerState<NearbyMapScreen> {
                 Text('${list.length} $noun', style: theme.textTheme.bodySmall),
               ]),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 2, 16, 0),
+              child: Text(
+                'Distances and times are estimates. Checkout shows the exact delivery fee and arrival time.',
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
             Expanded(
               child: list.isEmpty
                   ? Center(child: Text('No $noun ${_openOnly ? 'open ' : ''}near ${area.name} right now.'))
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(8, 4, 8, 16),
-                      itemCount: list.length + 1,
+                      itemCount: list.length,
                       itemBuilder: (context, i) {
-                        if (i == list.length) {
-                          return Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              'Distances and times are estimates. Checkout shows the exact delivery fee and arrival time.',
-                              style: theme.textTheme.bodySmall,
-                              textAlign: TextAlign.center,
-                            ),
-                          );
-                        }
                         final p = list[i];
                         final selected = p.id == _selected;
                         return Card(
