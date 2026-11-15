@@ -59,9 +59,10 @@ Delivery phases (each tested, documented and pushed before the next):
 
 1. **Redesign + services** — API: verticals, cities, beauty shops, parcels (instant + scheduled), browse
    categories, promotions, order totals, neighbourhood gazetteer, support contacts. Gudy: multi-service tools,
-   five languages, offline mode. Mobile app and website redesign. *(in progress)*
+   five languages, offline mode. Mobile app and website redesign. *(done 2026-11-15)*
 2. **Money** — Gud Meal wallet (top-up, instant refunds, one-tap pay), pay on delivery with rider cash
    reconciliation, cash-on-delivery collection for vendors with seller payouts, Flutterwave failover.
+   *(done 2026-11-15; legal review of the wallet pending, see ADR-0013)*
 3. **Logistics** — interstate waybill (Lagos ↔ Enugu ↔ other states) via partner logistics and hubs.
 4. **Growth** — Gud Meal Plus membership, referral and loyalty rewards, group orders with split bill.
 5. **WhatsApp** — Gudy on WhatsApp Business (ordering and support), once the Meta account is ready.

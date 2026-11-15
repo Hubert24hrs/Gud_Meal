@@ -55,6 +55,10 @@ Tables: `financial_accounts`, `financial_transactions`, `ledger_entries` (see [d
 | `expense:delivery_subsidy` | expense | Rider pay exceeding the delivery fee |
 | `expense:refunds` | expense | Refunds absorbed by the platform |
 | `expense:provider_fees` | expense | Payment processing fees |
+| `liability:wallet:{uid}` | liability | A customer's Gud Meal wallet (closed-loop stored value) |
+| `liability:vendor:{uid}` | liability | Cash-on-delivery money collected for a seller, not yet paid out |
+| `receivable:rider_cash:{uid}` | asset | Cash a rider collected at the door and has not handed in |
+| `revenue:cod_fee` | revenue | Cash-on-delivery collection fees on packages |
 
 ### Postings
 
@@ -79,7 +83,33 @@ Balanced because `T = S + F + V + X − Dr − Dp`.
 **Refund before completion**: Dr `liability:customer_funds` / Cr `cash:<provider>`.
 **Refund after completion**: Dr `liability:restaurant:{id}` (restaurant at fault) or `expense:refunds`
 (platform absorbs) / Cr `cash:<provider>`.
-**Payout**: Dr `liability:restaurant:{id}` or `liability:rider:{id}` / Cr `cash:bank`.
+**Payout**: Dr `liability:restaurant:{id}`, `liability:rider:{id}` or `liability:vendor:{id}` / Cr `cash:bank`.
+
+### Wallet, pay on delivery and vendor COD (phase 2, [ADR-0013](../adr/0013-wallet-and-cash.md))
+
+| Event | Debit | Credit |
+|---|---|---|
+| Wallet top-up verified (`payment_records.purpose = wallet_topup`) | `cash:<provider>` | `liability:wallet:{uid}` |
+| Order paid from the wallet (account row locked, balance checked) | `liability:wallet:{uid}` | `liability:customer_funds` |
+| Refund into the wallet (before / after completion) | `liability:customer_funds` / restaurant / `expense:refunds` | `liability:wallet:{uid}` |
+| Pay on delivery: rider confirms the cash (before `delivered`) | `receivable:rider_cash:{rider}` | `liability:customer_funds` |
+| Vendor COD: rider confirms the cash at drop-off | `receivable:rider_cash:{rider}` | `liability:vendor:{sender}` |
+| Rider hands cash in (bank transfer / cash deposit) | `cash:bank` | `receivable:rider_cash:{rider}` |
+| Rider cash deducted from earnings | `liability:rider:{rider}` | `receivable:rider_cash:{rider}` |
+| Seller moves COD money to their wallet | `liability:vendor:{uid}` | `liability:wallet:{uid}` |
+| Seller bank payout marked paid by finance | `liability:vendor:{uid}` | `cash:bank` |
+
+Wallet and cash payments are `payment_records` with `provider = wallet | cash`; they are never sent to a gateway,
+webhooks for them are refused, and reconciliation skips them. Pay-on-delivery records stay `pending` (no ledger
+entry) until the rider confirms the cash; if the order is called off first they become `abandoned`. Settlement
+refuses any order without a succeeded payment record. Refunds record their `destination` (`original` or
+`wallet`); wallet and cash payments are always refunded into the wallet.
+
+### Gateway failover
+
+Checkout without an explicit provider tries the default gateway, then `PAYMENT_FAILOVER_PROVIDER` (if configured)
+when the first cannot start the checkout; the response carries `failover_from`. After three consecutive failures a
+gateway is tried last for two minutes. A second successful payment for the same order is refunded automatically.
 
 ## Refund & payout approval
 

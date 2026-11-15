@@ -23,7 +23,8 @@ const targets = {
     args: ["-m", "uvicorn", "--factory", "gudmeal_api.main:app_factory", "--port", "8000"],
     cwd: join(root, "services/api"),
     env: {
-      DATA_BACKEND: "memory", SEED_DEMO_DATA: "true", DATABASE_URL: "sqlite+aiosqlite:///./gudmeal_local.db",
+      // Local dev creates tables directly (no migrations): bump the file name when the money schema changes.
+      DATA_BACKEND: "memory", SEED_DEMO_DATA: "true", DATABASE_URL: "sqlite+aiosqlite:///./gudmeal_local_v2.db",
       PUBLIC_BASE_URL: "http://localhost:8000", PAYMENT_CALLBACK_URL: "http://localhost:3000/checkout/callback",
       INTERNAL_SHARED_SECRET: "local-dev-only", CHECK_TOKEN_REVOCATION: "false",
     },
