@@ -173,6 +173,7 @@ class GroupOrder(Model):
     split_mode: SplitMode = "each"
     status: GroupStatus = "open"
     members: list[GroupMember] = Field(default_factory=list, max_length=30)
+    member_uids: list[str] = Field(default_factory=list, max_length=30)  # for "my group orders" queries
     lines: list[GroupLine] = Field(default_factory=list, max_length=50)
     order_id: str | None = None
     total_kobo: int = 0

@@ -306,6 +306,7 @@ class OrderService:
         *,
         channel: Literal["app", "web", "ai_agent", "admin"] = "app",
         contact_phone: str | None = None,
+        group_order_id: str | None = None,
     ) -> Order:
         quote = await self.quotes.get_quote(principal, quote_id)
         if quote.order_id:
@@ -366,6 +367,7 @@ class OrderService:
             quote_id=quote.id,
             estimated_delivery_at=quote.estimated_delivery_at,
             channel=channel,
+            group_order_id=group_order_id,
             created_at=now,
             updated_at=now,
         )
@@ -404,6 +406,10 @@ class OrderService:
             raise NotFound("Order not found")
         if order.is_leg:
             raise InvalidTransition("This is part of a waybill and is paid with the waybill")
+        if order.group_order_id:
+            group = await self.repos.group_orders.get(order.group_order_id)
+            if group is not None and group.split_mode == "each":
+                raise InvalidTransition("Everyone pays their own share from the group order")
         if order.status not in (S.DRAFT, S.PENDING_PAYMENT):
             raise InvalidTransition(f"Order is already {order.status.value}")
         if provider == "cash":
@@ -636,8 +642,8 @@ class OrderService:
 
     async def on_refund_succeeded(self, payload: dict[str, Any]) -> None:
         order = await self.get(str(payload["order_id"]))
-        if order.status != S.REFUND_PENDING:
-            return
+        if order.status != S.REFUND_PENDING or payload.get("pending_refunds"):
+            return  # a split group-order refund moves the order on with its last part
         full = bool(payload.get("fully_refunded"))
         total_refunded = int(payload.get("total_refunded_kobo", order.refund_total_kobo))
         await self.transition(

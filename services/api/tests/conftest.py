@@ -27,6 +27,7 @@ def _p(uid: str, *roles: str, restaurants: dict[str, str] | None = None, **kw: A
 PRINCIPALS: dict[str, Principal] = {
     "customer": _p("cust-1", email="ada@example.com", name="Ada Obi", phone="+2348011111111"),
     "customer2": _p("cust-2", name="Bayo"),
+    "customer3": _p("cust-3", name="Chika", phone="+2348044444444"),
     "owner": _p("demo-owner-1", "restaurant_owner", restaurants={"r-jollof-junction": "owner"}),
     "kitchen": _p("staff-1", "restaurant_staff", restaurants={"r-jollof-junction": "staff"}),
     "other_owner": _p("owner-2", "restaurant_owner", restaurants={"r-suya-lane": "owner"}),
@@ -169,6 +170,31 @@ class Flow:
         r = await self.client.get(f"/v1/orders/{order_id}", headers=auth(who))
         assert r.status_code == 200, r.text
         return r.json()
+
+    async def deliver(self, order_id: str, who: str = "customer") -> dict[str, Any]:
+        """The kitchen accepts a paid Jollof Junction order, the offered rider picks it up and delivers it with
+        the customer's code; the order is then completed and settled."""
+        r = await self.client.post(
+            f"/v1/partner/restaurants/r-jollof-junction/orders/{order_id}/accept",
+            json={"prep_minutes": 10},
+            headers=auth("kitchen"),
+        )
+        assert r.status_code == 200, r.text
+        offers = await self.c.repos.assignments.find(where=[("order_id", "==", order_id)])
+        offer = next(o for o in offers if o.status == "offered")
+        rider = next(name for name, p in PRINCIPALS.items() if p.uid == offer.rider_id)
+        r = await self.client.post(f"/v1/rider/offers/{offer.id}/accept", headers=auth(rider))
+        assert r.status_code == 200, r.text
+        r = await self.client.post(f"/v1/rider/deliveries/{order_id}/pickup", headers=auth(rider))
+        assert r.status_code == 200, r.text
+        codes = (await self.client.get(f"/v1/orders/{order_id}/codes", headers=auth(who))).json()
+        r = await self.client.post(
+            f"/v1/rider/deliveries/{order_id}/deliver",
+            json={"code": codes["delivery_code"]},
+            headers=auth(rider),
+        )
+        assert r.status_code == 200, r.text
+        return await self.get(order_id, who)
 
 
 @pytest.fixture
