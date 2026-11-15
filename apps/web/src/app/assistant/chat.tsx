@@ -156,7 +156,7 @@ function ChatInner() {
 
 const SCREENS: Record<string, string> = {
   home: "/", food: "/food", beauty: "/beauty", parcel: "/send", discover: "/discover", orders: "/orders",
-  support: "/support", profile: "/account", wallet: "/wallet",
+  support: "/support", profile: "/account", wallet: "/wallet", waybill: "/send?mode=interstate",
 };
 
 /** Route for a screen Gudy points to (`open_screen` card). */
@@ -201,6 +201,32 @@ function CardView({ card }: { card: ChatCard }) {
         {card.cash_on_delivery_balance ? <p className="text-xs">Cash on delivery: {String(card.cash_on_delivery_balance)}</p> : null}
         <p className="mt-1 text-xs font-bold underline">Open wallet · top up</p>
       </Link>
+    );
+  }
+  if (card.type === "waybill_options") {
+    const rows = (card.destinations as { to: string; price_from: string; transit: string; door_delivery: boolean; collection_points: string[] }[]) ?? [];
+    return (
+      <div className="space-y-2 rounded-md border border-border bg-background p-3 text-xs">
+        <p className="font-semibold">From {String(card.from)}</p>
+        <ul className="space-y-1">
+          {rows.map((d) => (
+            <li key={d.to}><strong>{d.to}</strong>: from {d.price_from} · {d.transit} · {d.door_delivery ? "door delivery" : `collect at ${d.collection_points.join(", ")}`}</li>
+          ))}
+        </ul>
+        <Link href="/send?mode=interstate" className="inline-flex rounded-full bg-primary-soft px-4 py-2 font-bold text-primary-strong">Send to another city →</Link>
+      </div>
+    );
+  }
+  if (card.type === "waybill_tracking") {
+    const history = (card.history as string[]) ?? [];
+    return (
+      <div className="space-y-1 rounded-md border border-border bg-background p-3 text-xs">
+        <p className="font-mono font-bold">{String(card.tracking_code)} · {String(card.route)}</p>
+        <p className="text-sm font-bold">{String(card.status)}</p>
+        {!card.delivered && <p>Expected {String(card.expected)}</p>}
+        {history.length > 0 && <p className="text-muted">{history.join(" → ")}</p>}
+        <Link href={`/track/${String(card.tracking_code)}`} className="font-bold text-primary underline">Open tracking</Link>
+      </div>
     );
   }
   if (card.type === "payment_options") {

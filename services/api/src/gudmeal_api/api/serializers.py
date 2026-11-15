@@ -4,12 +4,21 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..domain.logistics import WAYBILL_STEPS, stage_label, stage_step
 from ..domain.models import Order, Quote
-from ..domain.order_state import progress_label
+from ..domain.order_state import OrderStatus, progress_label
 from ..security.rbac import Permission, Principal
 
 
 def _progress(order: Order) -> dict[str, Any]:
+    if order.waybill is not None and order.waybill.stage is not None:
+        called_off = order.status in (OrderStatus.REFUND_PENDING, OrderStatus.REFUNDED, OrderStatus.CANCELLED)
+        return {
+            "step": -1 if called_off else stage_step(order.waybill),
+            "total_steps": len(WAYBILL_STEPS),
+            "label": progress_label(order.status, "waybill")[1] if called_off else stage_label(order.waybill),
+            "steps": list(WAYBILL_STEPS),
+        }
     step, label = progress_label(order.status, order.vertical.value)
     return {"step": step, "total_steps": 5, "label": label}
 
@@ -52,6 +61,9 @@ def order_view(order: Order, principal: Principal) -> dict[str, Any]:
             "rider_pay_kobo": order.settlement.rider_pay_kobo,
             # Cash to take at the door (pay on delivery and/or the sender's COD amount); 0 when prepaid.
             "payment_method": "cash" if order.is_pay_on_delivery else "prepaid",
+            # Waybill rider jobs: first mile ends at a hub (staff confirm the hand-over), last mile at the door.
+            "leg_kind": order.leg_kind,
+            "hub_handover": order.leg_kind == "first_mile",
             "collect_cash_kobo": order.cash_to_collect_kobo,
             "cash_collected_at": data["cash_collected_at"],
             "ready_at": data["ready_at"],

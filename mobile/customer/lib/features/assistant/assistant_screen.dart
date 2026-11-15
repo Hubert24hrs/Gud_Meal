@@ -38,6 +38,7 @@ String? routeForScreen(String screen, Map<String, dynamic> params) => switch (sc
       'support' => '/support',
       'profile' => '/profile',
       'wallet' => '/wallet',
+      'waybill' => '/send?mode=interstate',
       'merchant' => params['merchant_id'] != null ? '/restaurants/${params['merchant_id']}' : null,
       'order' => params['order_id'] != null ? '/orders/${params['order_id']}' : '/orders',
       _ => null,
@@ -317,6 +318,32 @@ class _CardView extends StatelessWidget {
                 const Text('Open wallet · top up', style: TextStyle(fontWeight: FontWeight.w800, decoration: TextDecoration.underline)),
               ]),
             ),
+          ),
+        );
+      case 'waybill_options':
+        final rows = (card['destinations'] as List? ?? const []).cast<Map>();
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('From ${card['from']}', style: const TextStyle(fontWeight: FontWeight.w800)),
+              for (final d in rows)
+                Text('${d['to']}: from ${d['price_from']} · ${d['transit']} · '
+                    '${d['door_delivery'] == true ? 'door delivery' : 'collect at ${(d['collection_points'] as List? ?? const []).join(', ')}'}'),
+              const SizedBox(height: 6),
+              FilledButton.tonal(onPressed: () => onOpen('/send?mode=interstate'), child: const Text('Send to another city')),
+            ]),
+          ),
+        );
+      case 'waybill_tracking':
+        final history = (card['history'] as List? ?? const []).cast<String>();
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: ListTile(
+            leading: const Icon(Icons.local_shipping_rounded),
+            title: Text('${card['status']}', style: const TextStyle(fontWeight: FontWeight.w800)),
+            subtitle: Text(['${card['tracking_code']} · ${card['route']}', if (card['delivered'] != true) 'Expected ${card['expected']}', if (history.isNotEmpty) history.join(' → ')].join('\n')),
           ),
         );
       case 'payment_options':

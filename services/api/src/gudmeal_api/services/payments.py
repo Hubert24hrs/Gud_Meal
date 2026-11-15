@@ -976,6 +976,8 @@ class PaymentService:
 
     # ============================================================================ settlement
     async def settle_completed_order(self, order: Order) -> bool:
+        if order.is_leg:
+            return await self._settle_leg(order)
         async with self.db.transaction() as s:
             captured = await s.scalar(
                 select(func.count())
@@ -989,14 +991,16 @@ class PaymentService:
                 s,
                 kind="order_settlement",
                 idempotency_key=f"order:{order.id}:settlement",
-                postings=postings.order_completed(order),
+                postings=postings.waybill_completed(order)
+                if order.is_waybill
+                else postings.order_completed(order),
                 created_by="system",
                 reference=order.short_code,
                 order_id=order.id,
                 description=f"Order {order.short_code} completed",
                 metadata={"restaurant_id": order.restaurant_id, "rider_id": order.rider_id},
             )
-            if created and not order.is_parcel:  # courier jobs earn no commission
+            if created and not order.is_parcel and not order.is_waybill:  # courier jobs earn no commission
                 s.add(
                     CommissionRecord(
                         order_id=order.id,
@@ -1005,6 +1009,26 @@ class PaymentService:
                         commission_bps=order.settlement.commission_bps,
                         commission_kobo=order.settlement.commission_kobo,
                     )
+                )
+        await self.repos.orders.update(order.id, {"settled_at": utcnow()})
+        return created
+
+    async def _settle_leg(self, order: Order) -> bool:
+        """A waybill's first- or last-mile rider job finished: the rider is paid now, as a cost of the shipment.
+        The customer's money is recognised when the whole waybill completes."""
+        created = False
+        if order.rider_id and order.settlement.rider_pay_kobo > 0:
+            async with self.db.transaction() as s:
+                _, created = await self.ledger.post(
+                    s,
+                    kind="waybill_leg",
+                    idempotency_key=f"order:{order.id}:settlement",
+                    postings=postings.leg_rider_pay(order.rider_id, order.settlement.rider_pay_kobo),
+                    created_by="system",
+                    reference=order.short_code,
+                    order_id=order.leg_of,
+                    description=f"Rider leg {order.short_code} of waybill",
+                    metadata={"leg_order_id": order.id, "leg": order.leg_kind, "rider_id": order.rider_id},
                 )
         await self.repos.orders.update(order.id, {"settled_at": utcnow()})
         return created

@@ -3,7 +3,7 @@
 import { formatDateTime, formatNaira, type Order, type OrderSummary } from "@gudmeal/api-client";
 import { ErrorState, Price, Skeleton, StatusBadge, cn } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Package, Receipt, ShoppingBag, ShoppingCart, Sparkles, UtensilsCrossed } from "lucide-react";
+import { Package, Receipt, ShoppingBag, ShoppingCart, Sparkles, Truck, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
@@ -15,7 +15,7 @@ const ACTIVE = new Set([
   "pending_payment", "paid", "submitted_to_restaurant", "restaurant_accepted", "preparing", "ready_for_pickup",
   "rider_assigned", "picked_up", "in_transit", "delivered", "disputed", "refund_pending",
 ]);
-const SERVICE: Record<string, string> = { food: "Food", beauty: "Beauty & Skin care", parcel: "Package Delivery" };
+const SERVICE: Record<string, string> = { food: "Food", beauty: "Beauty & Skin care", parcel: "Package Delivery", waybill: "Interstate" };
 
 export default function OrdersPage() {
   return <RequireAuth reason="Sign in to track your orders and see what you’ve spent."><Orders /></RequireAuth>;
@@ -90,20 +90,25 @@ function SpendCard({ s }: { s: OrderSummary }) {
 
 function OrderRow({ o }: { o: Order }) {
   const parcel = o.vertical === "parcel" ? o.parcel : null;
-  const Icon = parcel ? Package : o.vertical === "beauty" ? Sparkles : UtensilsCrossed;
+  const waybill = o.waybill ?? null;
+  const Icon = waybill ? Truck : parcel ? Package : o.vertical === "beauty" ? Sparkles : UtensilsCrossed;
   return (
     <li>
       <Link href={`/orders/${o.id}`} className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 hover:border-primary">
         <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary-soft text-primary"><Icon className="size-5" aria-hidden="true" /></span>
         <div className="min-w-0 flex-1">
-          <p className="font-bold">{parcel ? `Package to ${parcel.dropoff.name}` : o.restaurant_name}</p>
+          <p className="font-bold">{waybill ? `Waybill to ${waybill.recipient.name}` : parcel ? `Package to ${parcel.dropoff.name}` : o.restaurant_name}</p>
           <p className="truncate text-sm text-muted">
-            {parcel ? `${parcel.pickup.area ?? parcel.pickup.line1} → ${parcel.dropoff.area ?? parcel.dropoff.line1}` : o.lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}
+            {waybill
+              ? `${waybill.origin_city_name} → ${waybill.destination_city_name} · ${waybill.tracking_code ?? ""}`
+              : parcel
+                ? `${parcel.pickup.area ?? parcel.pickup.line1} → ${parcel.dropoff.area ?? parcel.dropoff.line1}`
+                : o.lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}
           </p>
           <p className="text-xs text-muted">#{o.short_code} · {formatDateTime(o.created_at)}</p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          {parcel ? <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary-strong">{(o as Order & { progress?: { label: string } }).progress?.label ?? o.status}</span> : <StatusBadge status={o.status} />}
+          {parcel || waybill ? <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary-strong">{(o as Order & { progress?: { label: string } }).progress?.label ?? o.status}</span> : <StatusBadge status={o.status} />}
           <Price kobo={o.breakdown.total_kobo} className="text-sm font-semibold" />
         </div>
       </Link>

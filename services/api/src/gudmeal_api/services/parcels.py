@@ -42,7 +42,7 @@ class ParcelService:
             raise OutOfDeliveryArea("We deliver packages within Lagos and Enugu for now")
         if pickup_zone.city != dropoff_zone.city:
             raise OutOfDeliveryArea(
-                "Pickup and drop-off are in different cities. Interstate waybill is coming soon.",
+                "Pickup and drop-off are in different cities: book an Interstate waybill instead.",
                 details={"pickup_city": pickup_zone.city, "dropoff_city": dropoff_zone.city},
             )
         return pickup_zone.city, pickup_zone.surge_bps

@@ -186,6 +186,19 @@ T: dict[str, dict[str, str]] = {
         "money for drop-off, e go show for your wallet: move am enter wallet sharp sharp or withdraw am go your bank.",
     },
     "pay_options": {"en": "How you can pay order total {total}:", "pcm": "How you fit pay for {total}:"},
+    "waybill_routes": {
+        "en": "From {origin} we send packages to:",
+        "pcm": "From {origin} we dey send package go:",
+    },
+    "waybill_book": {
+        "en": "Prices are from-prices; the app shows your exact total. Tap the button to book.",
+        "pcm": "Na from-price be dis; the app go show your correct total. Tap the button make you book.",
+    },
+    "waybill_track": {
+        "en": "Waybill {code} ({route}): {status}. Expected {eta}.",
+        "pcm": "Waybill {code} ({route}): {status}. E go reach {eta}.",
+    },
+    "waybill_none": {"en": "You don't have any waybills yet.", "pcm": "You never send any waybill yet."},
     "unknown": {
         "en": "I didn't quite get that. You can ask me for food, beauty products, package delivery, your order status "
         "or how much you've spent.",
@@ -233,6 +246,12 @@ _OPEN = re.compile(
     r"discover|home|wallet)\b"
 )
 _WALLET = re.compile(r"\b(wallet|my balance|top ?up|fund my account)\b")
+_TRACKING_CODE = re.compile(r"\bgmw[2-9a-hj-np-z]{8}\b")
+_WAYBILL = re.compile(
+    r"\b(waybill|interstate|another state|other states?|another city|outside (lagos|enugu))\b"
+)
+_WAYBILL_CITY = re.compile(r"\b(?:to|for|go)\s+(lagos|enugu|abuja|port harcourt|portharcourt|ph)\b")
+_MY_WAYBILL = re.compile(r"\b(where is|track|status of|wetin happen to) (my )?(waybill|interstate)")
 _SELLER_COD = re.compile(
     r"\b(collect (the )?(cash|money|payment) from (my )?(buyer|customer)s?|cash on delivery for (vendors?|sellers?)|"
     r"(vendor|seller) cod|i (sell|dey sell) online)\b"
@@ -480,6 +499,20 @@ class _OfflineAgent:
         screen = _OPEN.search(p)
         if screen and self._can("open_screen"):
             return _call("open_screen", {"screen": _SCREEN_WORDS[screen.group(3)]})
+        code = _TRACKING_CODE.search(p)
+        if code and self._can("track_waybill"):
+            return _call("track_waybill", {"tracking_code": code.group(0).upper()})
+        if _MY_WAYBILL.search(p) and self._can("track_waybill"):
+            return _call("track_waybill", {})
+        city = _WAYBILL_CITY.search(p)
+        if (_WAYBILL.search(p) or (city and _PARCEL.search(p))) and self._can("get_waybill_options"):
+            return _call("get_waybill_options", {"destination": city.group(1)} if city else {})
+        if (
+            city
+            and city.group(1) in ("abuja", "port harcourt", "portharcourt", "ph")
+            and self._can("get_waybill_options")
+        ):
+            return _call("get_waybill_options", {"destination": city.group(1)})
         if _SELLER_COD.search(p):
             if self._can("open_screen"):
                 return _call("open_screen", {"screen": "parcel"})
@@ -667,6 +700,33 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
         if _WALLET_TOPUP.search(text):
             lines.append(say("wallet_topup", lang))
         return "\n".join(lines)
+    if tool == "get_waybill_options":
+        if data.get("same_city") or data.get("available") is False:
+            return data.get("message", "")
+        lines = [say("waybill_routes", lang, origin=data.get("from"))]
+        for d in data.get("destinations") or []:
+            how = (
+                "door delivery"
+                if d.get("door_delivery")
+                else "collect at " + ", ".join(d.get("collection_points") or [])
+            )
+            lines.append(f"• {d['to']}: from {d['price_from']}, {d['transit']} ({how})")
+        lines.append(say("waybill_book", lang))
+        return "\n".join(lines)
+    if tool == "track_waybill":
+        if data.get("message") == "No waybills yet":
+            return say("waybill_none", lang)
+        out = say(
+            "waybill_track",
+            lang,
+            code=data.get("tracking_code"),
+            route=data.get("route"),
+            status=data.get("status"),
+            eta=data.get("expected"),
+        )
+        if data.get("collection_point"):
+            out += f" {data['collection_point']}"
+        return out
     if tool == "get_payment_options":
         lines = [say("pay_options", lang, total=data.get("order_total"))]
         for m in data.get("methods") or []:

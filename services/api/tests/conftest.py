@@ -34,6 +34,9 @@ PRINCIPALS: dict[str, Principal] = {
     "rider2": _p("demo-rider-2", "rider", name="Bola Adeyemi"),
     "rider3": _p("demo-rider-3", "rider"),
     "rider4": _p("demo-rider-4", "rider"),
+    "rider5": _p("demo-rider-5", "rider", name="Ifeanyi Eze"),  # Enugu
+    "rider6": _p("demo-rider-6", "rider", name="Ngozi Nwosu"),  # Enugu
+    "hub": _p("hub-1", "hub_agent"),
     "support": _p("support-1", "support_agent"),
     "ops": _p("ops-1", "operations_manager"),
     "finance": _p("fin-1", "finance_manager"),

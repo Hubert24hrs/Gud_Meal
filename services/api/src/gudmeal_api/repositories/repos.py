@@ -7,6 +7,7 @@ from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel
 
+from ..domain.logistics import WaybillNetwork, default_network
 from ..domain.models import (
     Application,
     CustomerProfile,
@@ -25,6 +26,7 @@ from ..domain.models import (
     SavedAddress,
     SupportTicket,
     Voucher,
+    WaybillQuote,
 )
 from ..domain.pricing import PricingConfig
 from .store import DocumentStore, Filter, OrderBy, to_doc
@@ -89,6 +91,7 @@ class Repositories:
         self.option_groups = TypedCollection(store, "food_customisations", OptionGroup)
         self.quotes = TypedCollection(store, "quotes", Quote)
         self.parcel_quotes = TypedCollection(store, "parcel_quotes", ParcelQuote)
+        self.waybill_quotes = TypedCollection(store, "waybill_quotes", WaybillQuote)
         self.orders = TypedCollection(store, "orders", Order)
         self.order_events = TypedCollection(store, "order_events", OrderEvent)
         self.riders = TypedCollection(store, "rider_profiles", RiderProfile, key="uid")
@@ -158,6 +161,17 @@ class Repositories:
 
     async def save_pricing_config(self, cfg: PricingConfig) -> None:
         await self.store.set("platform_configuration/pricing", to_doc(cfg))
+
+    async def get_waybill_network(self) -> WaybillNetwork:
+        doc = await self.store.get("platform_configuration/logistics")
+        return WaybillNetwork.model_validate(doc) if doc else default_network()
+
+    async def save_waybill_network(self, network: WaybillNetwork) -> None:
+        await self.store.set("platform_configuration/logistics", to_doc(network))
+
+    def waybill_code_path(self, tracking_code: str) -> str:
+        """Public tracking number → order id (looked up without exposing the order id)."""
+        return f"waybill_tracking/{tracking_code}"
 
     async def list_feature_flags(self) -> dict[str, Any]:
         docs = await self.store.query("feature_flags")

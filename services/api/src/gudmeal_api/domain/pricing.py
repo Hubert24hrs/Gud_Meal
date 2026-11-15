@@ -9,8 +9,8 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Mapping
 from datetime import datetime
-from decimal import Decimal
-from typing import Literal
+from decimal import ROUND_CEILING, Decimal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, Field
 
@@ -29,6 +29,9 @@ from .models import (
     Voucher,
 )
 from .money import apply_bps, clamp, multiply_decimal
+
+if TYPE_CHECKING:
+    from .logistics import WaybillLane
 
 
 class DeliveryFeeConfig(BaseModel):
@@ -429,3 +432,71 @@ def parcel_minutes(distance_km: float, cfg: PricingConfig, *, travel_minutes: in
         return int(cfg.parcel.pickup_eta_minutes + travel_minutes)
     travel = road_km(distance_km, cfg) / cfg.avg_speed_kmh * 60
     return int(cfg.parcel.pickup_eta_minutes + int(travel.to_integral_value()) + 1)
+
+
+# ---------------------------------------------------------------------------------------------
+# Interstate waybill
+# ---------------------------------------------------------------------------------------------
+
+
+def waybill_linehaul_fee(lane: WaybillLane, size: ParcelSize, weight_kg: float) -> int:
+    """Lane price for the size, plus a per-kg charge above the weight the size includes (whole kg, rounded up)."""
+    included = Decimal(str(lane.included_kg_by_size[size]))
+    extra = max(Decimal(0), Decimal(str(weight_kg)) - included)
+    extra_kg = int(extra.to_integral_value(rounding=ROUND_CEILING))
+    return lane.base_by_size_kobo[size] + extra_kg * lane.per_extra_kg_kobo
+
+
+def compute_waybill_price(
+    *,
+    lane: WaybillLane,
+    size: ParcelSize,
+    weight_kg: float,
+    max_weight_kg: float,
+    service_fee_kobo: int,
+    pickup_km: float | None,
+    delivery_km: float | None,
+    cod_amount_kobo: int | None,
+    cfg: PricingConfig,
+) -> PricingResult:
+    """Price an interstate shipment: line haul + optional home pickup + optional door delivery + booking fee
+    + cash-on-delivery fee, with VAT on all of it. Home pickup and door delivery are priced like a same-city
+    package (`parcel_fee`), and the riders who do them are paid like package riders (`parcel_rider_pay`)."""
+    if weight_kg > max_weight_kg:
+        raise ValidationFailed(
+            f"A {size.value} package can weigh up to {max_weight_kg:g} kg; choose a bigger size",
+            details={"weight_kg": weight_kg, "max_kg": max_weight_kg},
+        )
+    for km in (pickup_km, delivery_km):
+        if km is not None and km > cfg.parcel.max_distance_km:
+            raise ValidationFailed(
+                "The address is too far from the hub for a bike pickup or delivery",
+                details={"distance_km": round(km, 2), "max_km": cfg.parcel.max_distance_km},
+            )
+    linehaul = waybill_linehaul_fee(lane, size, weight_kg)
+    pickup = parcel_fee(pickup_km, size, cfg) if pickup_km is not None else 0
+    delivery = parcel_fee(delivery_km, size, cfg) if delivery_km is not None else 0
+    c_fee = cod_fee(cod_amount_kobo, cfg)
+    taxable = linehaul + pickup + delivery + service_fee_kobo + c_fee
+    vat = apply_bps(taxable, cfg.vat_bps)
+    breakdown = PriceBreakdown(
+        subtotal_kobo=0,
+        linehaul_fee_kobo=linehaul,
+        pickup_fee_kobo=pickup,
+        delivery_fee_kobo=delivery,
+        service_fee_kobo=service_fee_kobo,
+        cod_fee_kobo=c_fee,
+        vat_kobo=vat,
+        total_kobo=taxable + vat,
+    )
+    riders = (parcel_rider_pay(pickup_km, size, cfg) if pickup_km is not None else 0) + (
+        parcel_rider_pay(delivery_km, size, cfg) if delivery_km is not None else 0
+    )
+    settlement = SettlementTerms(
+        commission_bps=0,
+        commission_kobo=0,
+        rider_pay_kobo=riders,  # estimate; each rider leg is paid from its own job when it completes
+        carrier_cost_kobo=apply_bps(linehaul, lane.carrier_share_bps),
+        restaurant_earning_kobo=0,
+    )
+    return PricingResult(breakdown=breakdown, settlement=settlement)

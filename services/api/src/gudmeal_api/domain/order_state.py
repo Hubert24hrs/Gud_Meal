@@ -70,6 +70,12 @@ TRANSITIONS: dict[tuple[OrderStatus, OrderStatus], TransitionRule] = {
     # OrderService only applies this to parcel orders.
     (S.PAID, S.READY_FOR_PICKUP): _rule(A.SYSTEM),
     (S.PAID, S.REFUND_PENDING): _rule(A.CUSTOMER, A.SYSTEM, A.STAFF),
+    # Interstate waybill: a paid shipment goes in transit when the origin hub receives the package.
+    # OrderService applies this only to waybills.
+    (S.PAID, S.IN_TRANSIT): _rule(A.SYSTEM, A.STAFF),
+    # Internal rider leg of a waybill (no payment of its own): released from draft straight to dispatch.
+    # OrderService applies this only to legs.
+    (S.DRAFT, S.READY_FOR_PICKUP): _rule(A.SYSTEM),
     (S.SUBMITTED_TO_RESTAURANT, S.RESTAURANT_ACCEPTED): _rule(A.RESTAURANT, A.STAFF),
     (S.SUBMITTED_TO_RESTAURANT, S.REFUND_PENDING): _rule(
         A.RESTAURANT, A.CUSTOMER, A.SYSTEM, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)
@@ -96,7 +102,8 @@ TRANSITIONS: dict[tuple[OrderStatus, OrderStatus], TransitionRule] = {
     (S.PICKED_UP, S.IN_TRANSIT): _rule(A.RIDER, A.STAFF),
     (S.PICKED_UP, S.DELIVERED): _rule(A.RIDER, A.STAFF),
     (S.PICKED_UP, S.DISPUTED): _rule(A.STAFF),
-    (S.IN_TRANSIT, S.DELIVERED): _rule(A.RIDER, A.STAFF),
+    # SYSTEM: a waybill is delivered when its last-mile rider leg is (OrderService allows it only for waybills).
+    (S.IN_TRANSIT, S.DELIVERED): _rule(A.RIDER, A.STAFF, A.SYSTEM),
     (S.IN_TRANSIT, S.DISPUTED): _rule(A.STAFF),
     (S.DELIVERED, S.COMPLETED): _rule(A.SYSTEM, A.STAFF),
     (S.DELIVERED, S.DISPUTED): _rule(A.CUSTOMER, A.STAFF, reason_for=(A.CUSTOMER, A.STAFF)),
@@ -117,8 +124,9 @@ TRANSITIONS: dict[tuple[OrderStatus, OrderStatus], TransitionRule] = {
     ),
     (S.RESTAURANT_ACCEPTED, S.CANCELLED): _rule(A.RESTAURANT, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)),
     (S.PREPARING, S.CANCELLED): _rule(A.RESTAURANT, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)),
-    (S.READY_FOR_PICKUP, S.CANCELLED): _rule(A.STAFF),
-    (S.RIDER_ASSIGNED, S.CANCELLED): _rule(A.STAFF),
+    # SYSTEM: a waybill's rider leg is called off with its shipment (legs hold no money).
+    (S.READY_FOR_PICKUP, S.CANCELLED): _rule(A.STAFF, A.SYSTEM),
+    (S.RIDER_ASSIGNED, S.CANCELLED): _rule(A.STAFF, A.SYSTEM),
     (S.PICKED_UP, S.CANCELLED): _rule(A.STAFF),  # e.g. the customer refused to pay at the door
     (S.IN_TRANSIT, S.CANCELLED): _rule(A.STAFF),
 }
@@ -169,6 +177,11 @@ PROGRESS_LABELS: dict[str, dict[OrderStatus, str]] = {
         S.PREPARING: "Packing your order",
         S.READY_FOR_PICKUP: "Packed and ready",
         S.RIDER_ASSIGNED: "Rider on the way to the shop",
+    },
+    "waybill": {
+        S.PAID: "Booked",
+        S.IN_TRANSIT: "On the way",
+        S.DELIVERED: "Delivered",
     },
     "parcel": {
         S.PAID: "Booking confirmed",

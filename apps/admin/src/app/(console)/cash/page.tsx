@@ -44,6 +44,16 @@ export default function CashPage() {
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["seller-payouts"] }); qc.invalidateQueries({ queryKey: ["cash"] }); },
   });
+  const carrierPay = useMutation({
+    mutationFn: ({ id, owed }: { id: string; owed: number }) => {
+      const naira = window.prompt("Amount paid (₦)", String(owed / 100)) ?? "";
+      const amount = Math.round(Number(naira.replace(/[^0-9.]/g, "")) * 100);
+      const ref = (window.prompt("Bank transfer reference") ?? "").trim();
+      if (!amount || ref.length < 4) throw new Error("Enter the amount and the bank reference");
+      return api.admin.carrierPayout(id, amount, ref, newIdempotencyKey("carrier"));
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cash"] }),
+  });
   const block = useMutation({
     mutationFn: () => api.admin.setPayOnDelivery(customer.uid.trim(), customer.blocked, customer.reason.trim()),
   });
@@ -97,6 +107,18 @@ export default function CashPage() {
             {remit.error && <div className="sm:col-span-4"><ErrorState message={(remit.error as Error).message} /></div>}
           </form>
         )}
+      </Card>
+
+      <Card className="space-y-4 p-5">
+        <h2 className="font-semibold">Owed to line-haul carriers (interstate waybills)</h2>
+        {carrierPay.error && <ErrorState message={(carrierPay.error as Error).message} />}
+        <DataTable rows={c?.carriers ?? []} rowKey={(x) => x.carrier_id} empty="Nothing owed to carriers" columns={[
+          { key: "n", header: "Carrier", render: (x) => x.name },
+          { key: "o", header: "Owed", render: (x) => <strong>{formatNaira(x.owed_kobo)}</strong> },
+          { key: "a", header: "", render: (x) => (
+            <Button size="sm" loading={carrierPay.isPending} onClick={() => carrierPay.mutate({ id: x.carrier_id, owed: x.owed_kobo })}>Record payout</Button>
+          ) },
+        ]} />
       </Card>
 
       <Card className="space-y-4 p-5">

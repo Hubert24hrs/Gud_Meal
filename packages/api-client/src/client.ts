@@ -142,6 +142,14 @@ export function createApi(opts: ClientOptions) {
       book: (quoteId: string, key: string, channel: "web" | "app" = "web") =>
         post<T.Order>("/v1/parcels", { quote_id: quoteId, channel }, key),
     },
+    waybills: {
+      origins: () => get<T.WaybillOrigin[]>("/v1/waybill/origins", undefined, false),
+      destinations: (origin: string) => get<T.WaybillDestinations>("/v1/waybill/destinations", { origin }, false),
+      quote: (req: T.WaybillQuoteRequest) => post<T.WaybillQuote>("/v1/waybills/quotes", req),
+      book: (quoteId: string, key: string, channel: "web" | "app" = "web") =>
+        post<T.Order>("/v1/waybills", { quote_id: quoteId, channel }, key),
+      track: (code: string) => get<T.WaybillTracking>(`/v1/track/${encodeURIComponent(code.trim().toUpperCase())}`, undefined, false),
+    },
     payments: {
       verify: (reference: string) => post<T.PaymentView>("/v1/payments/verify", { reference }),
       options: (orderId: string) => get<T.PaymentOptions>(`/v1/orders/${orderId}/payment-options`),
@@ -233,6 +241,16 @@ export function createApi(opts: ClientOptions) {
         post<T.SellerPayout>(`/v1/admin/seller-payouts/${id}/decision`, { approve, bank_reference, note }),
       setPayOnDelivery: (uid: string, blocked: boolean, reason: string) =>
         put<{ uid: string; pay_on_delivery_blocked: boolean }>(`/v1/admin/customers/${uid}/pay-on-delivery`, { blocked, reason }),
+      hubs: () => get<T.WaybillHub[]>("/v1/admin/hubs"),
+      hubBoard: (hubId: string) => get<T.HubBoard>(`/v1/admin/hubs/${hubId}/board`),
+      receiveWaybill: (hub_id: string, tracking_code: string) => post<T.HubItem>("/v1/admin/waybills/receive", { hub_id, tracking_code }),
+      departWaybills: (hub_id: string, tracking_codes: string[], trip_reference: string) =>
+        post<{ departed: string[]; skipped: { tracking_code: string; reason: string }[] }>("/v1/admin/waybills/depart", { hub_id, tracking_codes, trip_reference }),
+      arriveWaybill: (hub_id: string, tracking_code: string) => post<T.HubItem>("/v1/admin/waybills/arrive", { hub_id, tracking_code }),
+      collectWaybill: (hub_id: string, tracking_code: string, code: string) =>
+        post<T.HubItem>("/v1/admin/waybills/collect", { hub_id, tracking_code, code }),
+      carrierPayout: (carrierId: string, amount_kobo: number, bank_reference: string, key: string) =>
+        post<{ transaction_id: string; recorded: boolean; owed_kobo: number }>(`/v1/admin/carriers/${carrierId}/payouts`, { amount_kobo, bank_reference }, key),
       pricing: () => get<T.PricingConfig>("/v1/admin/config/pricing"),
       updatePricing: (cfg: T.PricingConfig) => put<T.PricingConfig>("/v1/admin/config/pricing", cfg),
       flags: () => get<Record<string, { key: string; enabled: boolean; description: string }>>("/v1/admin/flags"),

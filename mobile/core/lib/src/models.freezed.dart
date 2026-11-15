@@ -3562,7 +3562,7 @@ as List<String>,
 /// @nodoc
 mixin _$PriceBreakdown {
 
- int get subtotalKobo; int get deliveryFeeKobo; int get serviceFeeKobo; int get smallOrderFeeKobo; int get vatKobo; int get discountKobo; int get codFeeKobo; int get totalKobo; String? get voucherCode;
+ int get subtotalKobo; int get deliveryFeeKobo; int get serviceFeeKobo; int get smallOrderFeeKobo; int get vatKobo; int get discountKobo; int get codFeeKobo; int get linehaulFeeKobo; int get pickupFeeKobo; int get totalKobo; String? get voucherCode;
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3576,20 +3576,20 @@ $PriceBreakdownCopyWith<PriceBreakdown> get copyWith => _$PriceBreakdownCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as PriceBreakdown;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PriceBreakdown&&(identical(other.subtotalKobo, _this.subtotalKobo) || other.subtotalKobo == _this.subtotalKobo)&&(identical(other.deliveryFeeKobo, _this.deliveryFeeKobo) || other.deliveryFeeKobo == _this.deliveryFeeKobo)&&(identical(other.serviceFeeKobo, _this.serviceFeeKobo) || other.serviceFeeKobo == _this.serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, _this.smallOrderFeeKobo) || other.smallOrderFeeKobo == _this.smallOrderFeeKobo)&&(identical(other.vatKobo, _this.vatKobo) || other.vatKobo == _this.vatKobo)&&(identical(other.discountKobo, _this.discountKobo) || other.discountKobo == _this.discountKobo)&&(identical(other.codFeeKobo, _this.codFeeKobo) || other.codFeeKobo == _this.codFeeKobo)&&(identical(other.totalKobo, _this.totalKobo) || other.totalKobo == _this.totalKobo)&&(identical(other.voucherCode, _this.voucherCode) || other.voucherCode == _this.voucherCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PriceBreakdown&&(identical(other.subtotalKobo, _this.subtotalKobo) || other.subtotalKobo == _this.subtotalKobo)&&(identical(other.deliveryFeeKobo, _this.deliveryFeeKobo) || other.deliveryFeeKobo == _this.deliveryFeeKobo)&&(identical(other.serviceFeeKobo, _this.serviceFeeKobo) || other.serviceFeeKobo == _this.serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, _this.smallOrderFeeKobo) || other.smallOrderFeeKobo == _this.smallOrderFeeKobo)&&(identical(other.vatKobo, _this.vatKobo) || other.vatKobo == _this.vatKobo)&&(identical(other.discountKobo, _this.discountKobo) || other.discountKobo == _this.discountKobo)&&(identical(other.codFeeKobo, _this.codFeeKobo) || other.codFeeKobo == _this.codFeeKobo)&&(identical(other.linehaulFeeKobo, _this.linehaulFeeKobo) || other.linehaulFeeKobo == _this.linehaulFeeKobo)&&(identical(other.pickupFeeKobo, _this.pickupFeeKobo) || other.pickupFeeKobo == _this.pickupFeeKobo)&&(identical(other.totalKobo, _this.totalKobo) || other.totalKobo == _this.totalKobo)&&(identical(other.voucherCode, _this.voucherCode) || other.voucherCode == _this.voucherCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as PriceBreakdown;
-  return Object.hash(runtimeType,_this.subtotalKobo,_this.deliveryFeeKobo,_this.serviceFeeKobo,_this.smallOrderFeeKobo,_this.vatKobo,_this.discountKobo,_this.codFeeKobo,_this.totalKobo,_this.voucherCode);
+  return Object.hash(runtimeType,_this.subtotalKobo,_this.deliveryFeeKobo,_this.serviceFeeKobo,_this.smallOrderFeeKobo,_this.vatKobo,_this.discountKobo,_this.codFeeKobo,_this.linehaulFeeKobo,_this.pickupFeeKobo,_this.totalKobo,_this.voucherCode);
 }
 
 @override
 String toString() {
   final _this = this as PriceBreakdown;
-  return 'PriceBreakdown(subtotalKobo: ${_this.subtotalKobo}, deliveryFeeKobo: ${_this.deliveryFeeKobo}, serviceFeeKobo: ${_this.serviceFeeKobo}, smallOrderFeeKobo: ${_this.smallOrderFeeKobo}, vatKobo: ${_this.vatKobo}, discountKobo: ${_this.discountKobo}, codFeeKobo: ${_this.codFeeKobo}, totalKobo: ${_this.totalKobo}, voucherCode: ${_this.voucherCode})';
+  return 'PriceBreakdown(subtotalKobo: ${_this.subtotalKobo}, deliveryFeeKobo: ${_this.deliveryFeeKobo}, serviceFeeKobo: ${_this.serviceFeeKobo}, smallOrderFeeKobo: ${_this.smallOrderFeeKobo}, vatKobo: ${_this.vatKobo}, discountKobo: ${_this.discountKobo}, codFeeKobo: ${_this.codFeeKobo}, linehaulFeeKobo: ${_this.linehaulFeeKobo}, pickupFeeKobo: ${_this.pickupFeeKobo}, totalKobo: ${_this.totalKobo}, voucherCode: ${_this.voucherCode})';
 }
 
 
@@ -3600,7 +3600,7 @@ abstract mixin class $PriceBreakdownCopyWith<$Res>  {
   factory $PriceBreakdownCopyWith(PriceBreakdown value, $Res Function(PriceBreakdown) _then) = _$PriceBreakdownCopyWithImpl;
 @useResult
 $Res call({
- int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int totalKobo, String? voucherCode
+ int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int linehaulFeeKobo, int pickupFeeKobo, int totalKobo, String? voucherCode
 });
 
 
@@ -3617,7 +3617,7 @@ class _$PriceBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? linehaulFeeKobo = null,Object? pickupFeeKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
   return _then(PriceBreakdown(
 subtotalKobo: null == subtotalKobo ? _self.subtotalKobo : subtotalKobo // ignore: cast_nullable_to_non_nullable
 as int,deliveryFeeKobo: null == deliveryFeeKobo ? _self.deliveryFeeKobo : deliveryFeeKobo // ignore: cast_nullable_to_non_nullable
@@ -3626,6 +3626,8 @@ as int,smallOrderFeeKobo: null == smallOrderFeeKobo ? _self.smallOrderFeeKobo : 
 as int,vatKobo: null == vatKobo ? _self.vatKobo : vatKobo // ignore: cast_nullable_to_non_nullable
 as int,discountKobo: null == discountKobo ? _self.discountKobo : discountKobo // ignore: cast_nullable_to_non_nullable
 as int,codFeeKobo: null == codFeeKobo ? _self.codFeeKobo : codFeeKobo // ignore: cast_nullable_to_non_nullable
+as int,linehaulFeeKobo: null == linehaulFeeKobo ? _self.linehaulFeeKobo : linehaulFeeKobo // ignore: cast_nullable_to_non_nullable
+as int,pickupFeeKobo: null == pickupFeeKobo ? _self.pickupFeeKobo : pickupFeeKobo // ignore: cast_nullable_to_non_nullable
 as int,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
 as int,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -3713,10 +3715,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int totalKobo,  String? voucherCode)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int totalKobo,  String? voucherCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PriceBreakdown() when $default != null:
-return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.totalKobo,_that.voucherCode);case _:
+return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.totalKobo,_that.voucherCode);case _:
   return orElse();
 
 }
@@ -3734,10 +3736,10 @@ return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int totalKobo,  String? voucherCode)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int totalKobo,  String? voucherCode)  $default,) {final _that = this;
 switch (_that) {
 case _PriceBreakdown():
-return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.totalKobo,_that.voucherCode);case _:
+return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.totalKobo,_that.voucherCode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3754,10 +3756,10 @@ return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int totalKobo,  String? voucherCode)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int totalKobo,  String? voucherCode)?  $default,) {final _that = this;
 switch (_that) {
 case _PriceBreakdown() when $default != null:
-return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.totalKobo,_that.voucherCode);case _:
+return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.totalKobo,_that.voucherCode);case _:
   return null;
 
 }
@@ -3769,7 +3771,7 @@ return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_t
 @JsonSerializable()
 
 class _PriceBreakdown implements PriceBreakdown {
-  const _PriceBreakdown({required this.subtotalKobo, this.deliveryFeeKobo = 0, this.serviceFeeKobo = 0, this.smallOrderFeeKobo = 0, this.vatKobo = 0, this.discountKobo = 0, this.codFeeKobo = 0, required this.totalKobo, this.voucherCode});
+  const _PriceBreakdown({required this.subtotalKobo, this.deliveryFeeKobo = 0, this.serviceFeeKobo = 0, this.smallOrderFeeKobo = 0, this.vatKobo = 0, this.discountKobo = 0, this.codFeeKobo = 0, this.linehaulFeeKobo = 0, this.pickupFeeKobo = 0, required this.totalKobo, this.voucherCode});
   factory _PriceBreakdown.fromJson(Map<String, dynamic> json) => _$PriceBreakdownFromJson(json);
 
 @override final  int subtotalKobo;
@@ -3779,6 +3781,8 @@ class _PriceBreakdown implements PriceBreakdown {
 @override@JsonKey() final  int vatKobo;
 @override@JsonKey() final  int discountKobo;
 @override@JsonKey() final  int codFeeKobo;
+@override@JsonKey() final  int linehaulFeeKobo;
+@override@JsonKey() final  int pickupFeeKobo;
 @override final  int totalKobo;
 @override final  String? voucherCode;
 
@@ -3795,18 +3799,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PriceBreakdown&&(identical(other.subtotalKobo, subtotalKobo) || other.subtotalKobo == subtotalKobo)&&(identical(other.deliveryFeeKobo, deliveryFeeKobo) || other.deliveryFeeKobo == deliveryFeeKobo)&&(identical(other.serviceFeeKobo, serviceFeeKobo) || other.serviceFeeKobo == serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, smallOrderFeeKobo) || other.smallOrderFeeKobo == smallOrderFeeKobo)&&(identical(other.vatKobo, vatKobo) || other.vatKobo == vatKobo)&&(identical(other.discountKobo, discountKobo) || other.discountKobo == discountKobo)&&(identical(other.codFeeKobo, codFeeKobo) || other.codFeeKobo == codFeeKobo)&&(identical(other.totalKobo, totalKobo) || other.totalKobo == totalKobo)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PriceBreakdown&&(identical(other.subtotalKobo, subtotalKobo) || other.subtotalKobo == subtotalKobo)&&(identical(other.deliveryFeeKobo, deliveryFeeKobo) || other.deliveryFeeKobo == deliveryFeeKobo)&&(identical(other.serviceFeeKobo, serviceFeeKobo) || other.serviceFeeKobo == serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, smallOrderFeeKobo) || other.smallOrderFeeKobo == smallOrderFeeKobo)&&(identical(other.vatKobo, vatKobo) || other.vatKobo == vatKobo)&&(identical(other.discountKobo, discountKobo) || other.discountKobo == discountKobo)&&(identical(other.codFeeKobo, codFeeKobo) || other.codFeeKobo == codFeeKobo)&&(identical(other.linehaulFeeKobo, linehaulFeeKobo) || other.linehaulFeeKobo == linehaulFeeKobo)&&(identical(other.pickupFeeKobo, pickupFeeKobo) || other.pickupFeeKobo == pickupFeeKobo)&&(identical(other.totalKobo, totalKobo) || other.totalKobo == totalKobo)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,subtotalKobo,deliveryFeeKobo,serviceFeeKobo,smallOrderFeeKobo,vatKobo,discountKobo,codFeeKobo,totalKobo,voucherCode);
+    return Object.hash(runtimeType,subtotalKobo,deliveryFeeKobo,serviceFeeKobo,smallOrderFeeKobo,vatKobo,discountKobo,codFeeKobo,linehaulFeeKobo,pickupFeeKobo,totalKobo,voucherCode);
 }
 
 @override
 String toString() {
-    return 'PriceBreakdown(subtotalKobo: $subtotalKobo, deliveryFeeKobo: $deliveryFeeKobo, serviceFeeKobo: $serviceFeeKobo, smallOrderFeeKobo: $smallOrderFeeKobo, vatKobo: $vatKobo, discountKobo: $discountKobo, codFeeKobo: $codFeeKobo, totalKobo: $totalKobo, voucherCode: $voucherCode)';
+    return 'PriceBreakdown(subtotalKobo: $subtotalKobo, deliveryFeeKobo: $deliveryFeeKobo, serviceFeeKobo: $serviceFeeKobo, smallOrderFeeKobo: $smallOrderFeeKobo, vatKobo: $vatKobo, discountKobo: $discountKobo, codFeeKobo: $codFeeKobo, linehaulFeeKobo: $linehaulFeeKobo, pickupFeeKobo: $pickupFeeKobo, totalKobo: $totalKobo, voucherCode: $voucherCode)';
 }
 
 
@@ -3817,7 +3821,7 @@ abstract mixin class _$PriceBreakdownCopyWith<$Res> implements $PriceBreakdownCo
   factory _$PriceBreakdownCopyWith(_PriceBreakdown value, $Res Function(_PriceBreakdown) _then) = __$PriceBreakdownCopyWithImpl;
 @override @useResult
 $Res call({
- int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int totalKobo, String? voucherCode
+ int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int linehaulFeeKobo, int pickupFeeKobo, int totalKobo, String? voucherCode
 });
 
 
@@ -3834,7 +3838,7 @@ class __$PriceBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? linehaulFeeKobo = null,Object? pickupFeeKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
   return _then(_PriceBreakdown(
 subtotalKobo: null == subtotalKobo ? _self.subtotalKobo : subtotalKobo // ignore: cast_nullable_to_non_nullable
 as int,deliveryFeeKobo: null == deliveryFeeKobo ? _self.deliveryFeeKobo : deliveryFeeKobo // ignore: cast_nullable_to_non_nullable
@@ -3843,6 +3847,8 @@ as int,smallOrderFeeKobo: null == smallOrderFeeKobo ? _self.smallOrderFeeKobo : 
 as int,vatKobo: null == vatKobo ? _self.vatKobo : vatKobo // ignore: cast_nullable_to_non_nullable
 as int,discountKobo: null == discountKobo ? _self.discountKobo : discountKobo // ignore: cast_nullable_to_non_nullable
 as int,codFeeKobo: null == codFeeKobo ? _self.codFeeKobo : codFeeKobo // ignore: cast_nullable_to_non_nullable
+as int,linehaulFeeKobo: null == linehaulFeeKobo ? _self.linehaulFeeKobo : linehaulFeeKobo // ignore: cast_nullable_to_non_nullable
+as int,pickupFeeKobo: null == pickupFeeKobo ? _self.pickupFeeKobo : pickupFeeKobo // ignore: cast_nullable_to_non_nullable
 as int,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
 as int,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -4171,7 +4177,8 @@ $PriceBreakdownCopyWith<$Res> get breakdown {
 /// @nodoc
 mixin _$OrderProgress {
 
- int get step; int get totalSteps; String get label;
+ int get step; int get totalSteps; String get label;/// Waybills use their own steps (Booked, At the hub, On the way, Arrived, Delivered).
+ List<String> get steps;
 /// Create a copy of OrderProgress
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4185,20 +4192,20 @@ $OrderProgressCopyWith<OrderProgress> get copyWith => _$OrderProgressCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as OrderProgress;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderProgress&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.totalSteps, _this.totalSteps) || other.totalSteps == _this.totalSteps)&&(identical(other.label, _this.label) || other.label == _this.label));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderProgress&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.totalSteps, _this.totalSteps) || other.totalSteps == _this.totalSteps)&&(identical(other.label, _this.label) || other.label == _this.label)&&const DeepCollectionEquality().equals(other.steps, _this.steps));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as OrderProgress;
-  return Object.hash(runtimeType,_this.step,_this.totalSteps,_this.label);
+  return Object.hash(runtimeType,_this.step,_this.totalSteps,_this.label,const DeepCollectionEquality().hash(_this.steps));
 }
 
 @override
 String toString() {
   final _this = this as OrderProgress;
-  return 'OrderProgress(step: ${_this.step}, totalSteps: ${_this.totalSteps}, label: ${_this.label})';
+  return 'OrderProgress(step: ${_this.step}, totalSteps: ${_this.totalSteps}, label: ${_this.label}, steps: ${_this.steps})';
 }
 
 
@@ -4209,7 +4216,7 @@ abstract mixin class $OrderProgressCopyWith<$Res>  {
   factory $OrderProgressCopyWith(OrderProgress value, $Res Function(OrderProgress) _then) = _$OrderProgressCopyWithImpl;
 @useResult
 $Res call({
- int step, int totalSteps, String label
+ int step, int totalSteps, String label, List<String> steps
 });
 
 
@@ -4226,12 +4233,13 @@ class _$OrderProgressCopyWithImpl<$Res>
 
 /// Create a copy of OrderProgress
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? step = null,Object? totalSteps = null,Object? label = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? step = null,Object? totalSteps = null,Object? label = null,Object? steps = null,}) {
   return _then(OrderProgress(
 step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
 as int,totalSteps: null == totalSteps ? _self.totalSteps : totalSteps // ignore: cast_nullable_to_non_nullable
 as int,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String,
+as String,steps: null == steps ? _self.steps : steps // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -4316,10 +4324,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int step,  int totalSteps,  String label)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int step,  int totalSteps,  String label,  List<String> steps)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OrderProgress() when $default != null:
-return $default(_that.step,_that.totalSteps,_that.label);case _:
+return $default(_that.step,_that.totalSteps,_that.label,_that.steps);case _:
   return orElse();
 
 }
@@ -4337,10 +4345,10 @@ return $default(_that.step,_that.totalSteps,_that.label);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int step,  int totalSteps,  String label)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int step,  int totalSteps,  String label,  List<String> steps)  $default,) {final _that = this;
 switch (_that) {
 case _OrderProgress():
-return $default(_that.step,_that.totalSteps,_that.label);case _:
+return $default(_that.step,_that.totalSteps,_that.label,_that.steps);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4357,10 +4365,10 @@ return $default(_that.step,_that.totalSteps,_that.label);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int step,  int totalSteps,  String label)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int step,  int totalSteps,  String label,  List<String> steps)?  $default,) {final _that = this;
 switch (_that) {
 case _OrderProgress() when $default != null:
-return $default(_that.step,_that.totalSteps,_that.label);case _:
+return $default(_that.step,_that.totalSteps,_that.label,_that.steps);case _:
   return null;
 
 }
@@ -4372,12 +4380,21 @@ return $default(_that.step,_that.totalSteps,_that.label);case _:
 @JsonSerializable()
 
 class _OrderProgress implements OrderProgress {
-  const _OrderProgress({required this.step, this.totalSteps = 5, required this.label});
+  const _OrderProgress({required this.step, this.totalSteps = 5, required this.label,  List<String> steps = const <String>[]}): _steps = steps;
   factory _OrderProgress.fromJson(Map<String, dynamic> json) => _$OrderProgressFromJson(json);
 
 @override final  int step;
 @override@JsonKey() final  int totalSteps;
 @override final  String label;
+/// Waybills use their own steps (Booked, At the hub, On the way, Arrived, Delivered).
+ final  List<String> _steps;
+/// Waybills use their own steps (Booked, At the hub, On the way, Arrived, Delivered).
+@override@JsonKey() List<String> get steps {
+  if (_steps is EqualUnmodifiableListView) return _steps;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_steps);
+}
+
 
 /// Create a copy of OrderProgress
 /// with the given fields replaced by the non-null parameter values.
@@ -4392,18 +4409,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderProgress&&(identical(other.step, step) || other.step == step)&&(identical(other.totalSteps, totalSteps) || other.totalSteps == totalSteps)&&(identical(other.label, label) || other.label == label));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderProgress&&(identical(other.step, step) || other.step == step)&&(identical(other.totalSteps, totalSteps) || other.totalSteps == totalSteps)&&(identical(other.label, label) || other.label == label)&&const DeepCollectionEquality().equals(other.steps, _steps));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,step,totalSteps,label);
+    return Object.hash(runtimeType,step,totalSteps,label,const DeepCollectionEquality().hash(_steps));
 }
 
 @override
 String toString() {
-    return 'OrderProgress(step: $step, totalSteps: $totalSteps, label: $label)';
+    return 'OrderProgress(step: $step, totalSteps: $totalSteps, label: $label, steps: $steps)';
 }
 
 
@@ -4414,7 +4431,7 @@ abstract mixin class _$OrderProgressCopyWith<$Res> implements $OrderProgressCopy
   factory _$OrderProgressCopyWith(_OrderProgress value, $Res Function(_OrderProgress) _then) = __$OrderProgressCopyWithImpl;
 @override @useResult
 $Res call({
- int step, int totalSteps, String label
+ int step, int totalSteps, String label, List<String> steps
 });
 
 
@@ -4431,12 +4448,13 @@ class __$OrderProgressCopyWithImpl<$Res>
 
 /// Create a copy of OrderProgress
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? step = null,Object? totalSteps = null,Object? label = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? step = null,Object? totalSteps = null,Object? label = null,Object? steps = null,}) {
   return _then(_OrderProgress(
 step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
 as int,totalSteps: null == totalSteps ? _self.totalSteps : totalSteps // ignore: cast_nullable_to_non_nullable
 as int,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String,
+as String,steps: null == steps ? _self._steps : steps // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -4447,7 +4465,9 @@ as String,
 /// @nodoc
 mixin _$Order {
 
- String get id; String get shortCode; String get vertical; String get status; String get restaurantName; String get fulfillment; List<PricedLine> get lines; PriceBreakdown? get breakdown; DeliveryAddress? get deliveryAddress; OrderProgress? get progress; String? get riderName; String? get customerName; String? get restaurantAddress; GeoPoint? get restaurantLocation; DateTime? get estimatedDeliveryAt; DateTime? get readyAt; DateTime? get createdAt; int? get riderPayKobo; bool get reviewed; ParcelDetails? get parcel; int get refundTotalKobo; OrderPayment get payment; DateTime? get cashCollectedAt; String? get paymentMethod; int get collectCashKobo;
+ String get id; String get shortCode; String get vertical; String get status; String get restaurantName; String get fulfillment; List<PricedLine> get lines; PriceBreakdown? get breakdown; DeliveryAddress? get deliveryAddress; OrderProgress? get progress; String? get riderName; String? get customerName; String? get restaurantAddress; GeoPoint? get restaurantLocation; DateTime? get estimatedDeliveryAt; DateTime? get readyAt; DateTime? get createdAt; int? get riderPayKobo; bool get reviewed; ParcelDetails? get parcel; int get refundTotalKobo; OrderPayment get payment; DateTime? get cashCollectedAt; String? get paymentMethod; int get collectCashKobo;/// Interstate waybill details (vertical 'waybill').
+ WaybillDetails? get waybill;/// Rider view of a waybill's rider job: 'first_mile' ends with hub staff, 'last_mile' at the door.
+ String? get legKind; bool get hubHandover;
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4461,20 +4481,20 @@ $OrderCopyWith<Order> get copyWith => _$OrderCopyWithImpl<Order>(this as Order, 
 @override
 bool operator ==(Object other) {
   final _this = this as Order;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.shortCode, _this.shortCode) || other.shortCode == _this.shortCode)&&(identical(other.vertical, _this.vertical) || other.vertical == _this.vertical)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.restaurantName, _this.restaurantName) || other.restaurantName == _this.restaurantName)&&(identical(other.fulfillment, _this.fulfillment) || other.fulfillment == _this.fulfillment)&&const DeepCollectionEquality().equals(other.lines, _this.lines)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.deliveryAddress, _this.deliveryAddress) || other.deliveryAddress == _this.deliveryAddress)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.riderName, _this.riderName) || other.riderName == _this.riderName)&&(identical(other.customerName, _this.customerName) || other.customerName == _this.customerName)&&(identical(other.restaurantAddress, _this.restaurantAddress) || other.restaurantAddress == _this.restaurantAddress)&&(identical(other.restaurantLocation, _this.restaurantLocation) || other.restaurantLocation == _this.restaurantLocation)&&(identical(other.estimatedDeliveryAt, _this.estimatedDeliveryAt) || other.estimatedDeliveryAt == _this.estimatedDeliveryAt)&&(identical(other.readyAt, _this.readyAt) || other.readyAt == _this.readyAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.riderPayKobo, _this.riderPayKobo) || other.riderPayKobo == _this.riderPayKobo)&&(identical(other.reviewed, _this.reviewed) || other.reviewed == _this.reviewed)&&(identical(other.parcel, _this.parcel) || other.parcel == _this.parcel)&&(identical(other.refundTotalKobo, _this.refundTotalKobo) || other.refundTotalKobo == _this.refundTotalKobo)&&(identical(other.payment, _this.payment) || other.payment == _this.payment)&&(identical(other.cashCollectedAt, _this.cashCollectedAt) || other.cashCollectedAt == _this.cashCollectedAt)&&(identical(other.paymentMethod, _this.paymentMethod) || other.paymentMethod == _this.paymentMethod)&&(identical(other.collectCashKobo, _this.collectCashKobo) || other.collectCashKobo == _this.collectCashKobo));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.shortCode, _this.shortCode) || other.shortCode == _this.shortCode)&&(identical(other.vertical, _this.vertical) || other.vertical == _this.vertical)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.restaurantName, _this.restaurantName) || other.restaurantName == _this.restaurantName)&&(identical(other.fulfillment, _this.fulfillment) || other.fulfillment == _this.fulfillment)&&const DeepCollectionEquality().equals(other.lines, _this.lines)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.deliveryAddress, _this.deliveryAddress) || other.deliveryAddress == _this.deliveryAddress)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.riderName, _this.riderName) || other.riderName == _this.riderName)&&(identical(other.customerName, _this.customerName) || other.customerName == _this.customerName)&&(identical(other.restaurantAddress, _this.restaurantAddress) || other.restaurantAddress == _this.restaurantAddress)&&(identical(other.restaurantLocation, _this.restaurantLocation) || other.restaurantLocation == _this.restaurantLocation)&&(identical(other.estimatedDeliveryAt, _this.estimatedDeliveryAt) || other.estimatedDeliveryAt == _this.estimatedDeliveryAt)&&(identical(other.readyAt, _this.readyAt) || other.readyAt == _this.readyAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.riderPayKobo, _this.riderPayKobo) || other.riderPayKobo == _this.riderPayKobo)&&(identical(other.reviewed, _this.reviewed) || other.reviewed == _this.reviewed)&&(identical(other.parcel, _this.parcel) || other.parcel == _this.parcel)&&(identical(other.refundTotalKobo, _this.refundTotalKobo) || other.refundTotalKobo == _this.refundTotalKobo)&&(identical(other.payment, _this.payment) || other.payment == _this.payment)&&(identical(other.cashCollectedAt, _this.cashCollectedAt) || other.cashCollectedAt == _this.cashCollectedAt)&&(identical(other.paymentMethod, _this.paymentMethod) || other.paymentMethod == _this.paymentMethod)&&(identical(other.collectCashKobo, _this.collectCashKobo) || other.collectCashKobo == _this.collectCashKobo)&&(identical(other.waybill, _this.waybill) || other.waybill == _this.waybill)&&(identical(other.legKind, _this.legKind) || other.legKind == _this.legKind)&&(identical(other.hubHandover, _this.hubHandover) || other.hubHandover == _this.hubHandover));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Order;
-  return Object.hashAll([runtimeType,_this.id,_this.shortCode,_this.vertical,_this.status,_this.restaurantName,_this.fulfillment,const DeepCollectionEquality().hash(_this.lines),_this.breakdown,_this.deliveryAddress,_this.progress,_this.riderName,_this.customerName,_this.restaurantAddress,_this.restaurantLocation,_this.estimatedDeliveryAt,_this.readyAt,_this.createdAt,_this.riderPayKobo,_this.reviewed,_this.parcel,_this.refundTotalKobo,_this.payment,_this.cashCollectedAt,_this.paymentMethod,_this.collectCashKobo]);
+  return Object.hashAll([runtimeType,_this.id,_this.shortCode,_this.vertical,_this.status,_this.restaurantName,_this.fulfillment,const DeepCollectionEquality().hash(_this.lines),_this.breakdown,_this.deliveryAddress,_this.progress,_this.riderName,_this.customerName,_this.restaurantAddress,_this.restaurantLocation,_this.estimatedDeliveryAt,_this.readyAt,_this.createdAt,_this.riderPayKobo,_this.reviewed,_this.parcel,_this.refundTotalKobo,_this.payment,_this.cashCollectedAt,_this.paymentMethod,_this.collectCashKobo,_this.waybill,_this.legKind,_this.hubHandover]);
 }
 
 @override
 String toString() {
   final _this = this as Order;
-  return 'Order(id: ${_this.id}, shortCode: ${_this.shortCode}, vertical: ${_this.vertical}, status: ${_this.status}, restaurantName: ${_this.restaurantName}, fulfillment: ${_this.fulfillment}, lines: ${_this.lines}, breakdown: ${_this.breakdown}, deliveryAddress: ${_this.deliveryAddress}, progress: ${_this.progress}, riderName: ${_this.riderName}, customerName: ${_this.customerName}, restaurantAddress: ${_this.restaurantAddress}, restaurantLocation: ${_this.restaurantLocation}, estimatedDeliveryAt: ${_this.estimatedDeliveryAt}, readyAt: ${_this.readyAt}, createdAt: ${_this.createdAt}, riderPayKobo: ${_this.riderPayKobo}, reviewed: ${_this.reviewed}, parcel: ${_this.parcel}, refundTotalKobo: ${_this.refundTotalKobo}, payment: ${_this.payment}, cashCollectedAt: ${_this.cashCollectedAt}, paymentMethod: ${_this.paymentMethod}, collectCashKobo: ${_this.collectCashKobo})';
+  return 'Order(id: ${_this.id}, shortCode: ${_this.shortCode}, vertical: ${_this.vertical}, status: ${_this.status}, restaurantName: ${_this.restaurantName}, fulfillment: ${_this.fulfillment}, lines: ${_this.lines}, breakdown: ${_this.breakdown}, deliveryAddress: ${_this.deliveryAddress}, progress: ${_this.progress}, riderName: ${_this.riderName}, customerName: ${_this.customerName}, restaurantAddress: ${_this.restaurantAddress}, restaurantLocation: ${_this.restaurantLocation}, estimatedDeliveryAt: ${_this.estimatedDeliveryAt}, readyAt: ${_this.readyAt}, createdAt: ${_this.createdAt}, riderPayKobo: ${_this.riderPayKobo}, reviewed: ${_this.reviewed}, parcel: ${_this.parcel}, refundTotalKobo: ${_this.refundTotalKobo}, payment: ${_this.payment}, cashCollectedAt: ${_this.cashCollectedAt}, paymentMethod: ${_this.paymentMethod}, collectCashKobo: ${_this.collectCashKobo}, waybill: ${_this.waybill}, legKind: ${_this.legKind}, hubHandover: ${_this.hubHandover})';
 }
 
 
@@ -4485,11 +4505,11 @@ abstract mixin class $OrderCopyWith<$Res>  {
   factory $OrderCopyWith(Order value, $Res Function(Order) _then) = _$OrderCopyWithImpl;
 @useResult
 $Res call({
- String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo
+ String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo, WaybillDetails? waybill, String? legKind, bool hubHandover
 });
 
 
-$PriceBreakdownCopyWith<$Res>? get breakdown;$DeliveryAddressCopyWith<$Res>? get deliveryAddress;$OrderProgressCopyWith<$Res>? get progress;$GeoPointCopyWith<$Res>? get restaurantLocation;$ParcelDetailsCopyWith<$Res>? get parcel;$OrderPaymentCopyWith<$Res> get payment;
+$PriceBreakdownCopyWith<$Res>? get breakdown;$DeliveryAddressCopyWith<$Res>? get deliveryAddress;$OrderProgressCopyWith<$Res>? get progress;$GeoPointCopyWith<$Res>? get restaurantLocation;$ParcelDetailsCopyWith<$Res>? get parcel;$OrderPaymentCopyWith<$Res> get payment;$WaybillDetailsCopyWith<$Res>? get waybill;
 
 }
 /// @nodoc
@@ -4502,7 +4522,7 @@ class _$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,Object? waybill = freezed,Object? legKind = freezed,Object? hubHandover = null,}) {
   return _then(Order(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
@@ -4529,7 +4549,10 @@ as int,payment: null == payment ? _self.payment : payment // ignore: cast_nullab
 as OrderPayment,cashCollectedAt: freezed == cashCollectedAt ? _self.cashCollectedAt : cashCollectedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,collectCashKobo: null == collectCashKobo ? _self.collectCashKobo : collectCashKobo // ignore: cast_nullable_to_non_nullable
-as int,
+as int,waybill: freezed == waybill ? _self.waybill : waybill // ignore: cast_nullable_to_non_nullable
+as WaybillDetails?,legKind: freezed == legKind ? _self.legKind : legKind // ignore: cast_nullable_to_non_nullable
+as String?,hubHandover: null == hubHandover ? _self.hubHandover : hubHandover // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of Order
@@ -4600,6 +4623,18 @@ $OrderPaymentCopyWith<$Res> get payment {
   
   return $OrderPaymentCopyWith<$Res>(_self.payment, (value) {
     return _then(_self.copyWith(payment: value));
+  });
+}/// Create a copy of Order
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillDetailsCopyWith<$Res>? get waybill {
+    if (_self.waybill == null) {
+    return null;
+  }
+
+  return $WaybillDetailsCopyWith<$Res>(_self.waybill!, (value) {
+    return _then(_self.copyWith(waybill: value));
   });
 }
 }
@@ -4683,10 +4718,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover);case _:
   return orElse();
 
 }
@@ -4704,10 +4739,10 @@ return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.resta
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover)  $default,) {final _that = this;
 switch (_that) {
 case _Order():
-return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4724,10 +4759,10 @@ return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.resta
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover)?  $default,) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover);case _:
   return null;
 
 }
@@ -4739,7 +4774,7 @@ return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.resta
 @JsonSerializable()
 
 class _Order implements Order {
-  const _Order({required this.id, required this.shortCode, this.vertical = 'food', required this.status, required this.restaurantName, this.fulfillment = 'delivery',  List<PricedLine> lines = const <PricedLine>[], this.breakdown, this.deliveryAddress, this.progress, this.riderName, this.customerName, this.restaurantAddress, this.restaurantLocation, this.estimatedDeliveryAt, this.readyAt, this.createdAt, this.riderPayKobo, this.reviewed = false, this.parcel, this.refundTotalKobo = 0, this.payment = const OrderPayment(), this.cashCollectedAt, this.paymentMethod, this.collectCashKobo = 0}): _lines = lines;
+  const _Order({required this.id, required this.shortCode, this.vertical = 'food', required this.status, required this.restaurantName, this.fulfillment = 'delivery',  List<PricedLine> lines = const <PricedLine>[], this.breakdown, this.deliveryAddress, this.progress, this.riderName, this.customerName, this.restaurantAddress, this.restaurantLocation, this.estimatedDeliveryAt, this.readyAt, this.createdAt, this.riderPayKobo, this.reviewed = false, this.parcel, this.refundTotalKobo = 0, this.payment = const OrderPayment(), this.cashCollectedAt, this.paymentMethod, this.collectCashKobo = 0, this.waybill, this.legKind, this.hubHandover = false}): _lines = lines;
   factory _Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
 @override final  String id;
@@ -4773,6 +4808,11 @@ class _Order implements Order {
 @override final  DateTime? cashCollectedAt;
 @override final  String? paymentMethod;
 @override@JsonKey() final  int collectCashKobo;
+/// Interstate waybill details (vertical 'waybill').
+@override final  WaybillDetails? waybill;
+/// Rider view of a waybill's rider job: 'first_mile' ends with hub staff, 'last_mile' at the door.
+@override final  String? legKind;
+@override@JsonKey() final  bool hubHandover;
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
@@ -4787,18 +4827,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.shortCode, shortCode) || other.shortCode == shortCode)&&(identical(other.vertical, vertical) || other.vertical == vertical)&&(identical(other.status, status) || other.status == status)&&(identical(other.restaurantName, restaurantName) || other.restaurantName == restaurantName)&&(identical(other.fulfillment, fulfillment) || other.fulfillment == fulfillment)&&const DeepCollectionEquality().equals(other.lines, _lines)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.riderName, riderName) || other.riderName == riderName)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.restaurantAddress, restaurantAddress) || other.restaurantAddress == restaurantAddress)&&(identical(other.restaurantLocation, restaurantLocation) || other.restaurantLocation == restaurantLocation)&&(identical(other.estimatedDeliveryAt, estimatedDeliveryAt) || other.estimatedDeliveryAt == estimatedDeliveryAt)&&(identical(other.readyAt, readyAt) || other.readyAt == readyAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.riderPayKobo, riderPayKobo) || other.riderPayKobo == riderPayKobo)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed)&&(identical(other.parcel, parcel) || other.parcel == parcel)&&(identical(other.refundTotalKobo, refundTotalKobo) || other.refundTotalKobo == refundTotalKobo)&&(identical(other.payment, payment) || other.payment == payment)&&(identical(other.cashCollectedAt, cashCollectedAt) || other.cashCollectedAt == cashCollectedAt)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.collectCashKobo, collectCashKobo) || other.collectCashKobo == collectCashKobo));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.shortCode, shortCode) || other.shortCode == shortCode)&&(identical(other.vertical, vertical) || other.vertical == vertical)&&(identical(other.status, status) || other.status == status)&&(identical(other.restaurantName, restaurantName) || other.restaurantName == restaurantName)&&(identical(other.fulfillment, fulfillment) || other.fulfillment == fulfillment)&&const DeepCollectionEquality().equals(other.lines, _lines)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.riderName, riderName) || other.riderName == riderName)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.restaurantAddress, restaurantAddress) || other.restaurantAddress == restaurantAddress)&&(identical(other.restaurantLocation, restaurantLocation) || other.restaurantLocation == restaurantLocation)&&(identical(other.estimatedDeliveryAt, estimatedDeliveryAt) || other.estimatedDeliveryAt == estimatedDeliveryAt)&&(identical(other.readyAt, readyAt) || other.readyAt == readyAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.riderPayKobo, riderPayKobo) || other.riderPayKobo == riderPayKobo)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed)&&(identical(other.parcel, parcel) || other.parcel == parcel)&&(identical(other.refundTotalKobo, refundTotalKobo) || other.refundTotalKobo == refundTotalKobo)&&(identical(other.payment, payment) || other.payment == payment)&&(identical(other.cashCollectedAt, cashCollectedAt) || other.cashCollectedAt == cashCollectedAt)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.collectCashKobo, collectCashKobo) || other.collectCashKobo == collectCashKobo)&&(identical(other.waybill, waybill) || other.waybill == waybill)&&(identical(other.legKind, legKind) || other.legKind == legKind)&&(identical(other.hubHandover, hubHandover) || other.hubHandover == hubHandover));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,id,shortCode,vertical,status,restaurantName,fulfillment,const DeepCollectionEquality().hash(_lines),breakdown,deliveryAddress,progress,riderName,customerName,restaurantAddress,restaurantLocation,estimatedDeliveryAt,readyAt,createdAt,riderPayKobo,reviewed,parcel,refundTotalKobo,payment,cashCollectedAt,paymentMethod,collectCashKobo]);
+    return Object.hashAll([runtimeType,id,shortCode,vertical,status,restaurantName,fulfillment,const DeepCollectionEquality().hash(_lines),breakdown,deliveryAddress,progress,riderName,customerName,restaurantAddress,restaurantLocation,estimatedDeliveryAt,readyAt,createdAt,riderPayKobo,reviewed,parcel,refundTotalKobo,payment,cashCollectedAt,paymentMethod,collectCashKobo,waybill,legKind,hubHandover]);
 }
 
 @override
 String toString() {
-    return 'Order(id: $id, shortCode: $shortCode, vertical: $vertical, status: $status, restaurantName: $restaurantName, fulfillment: $fulfillment, lines: $lines, breakdown: $breakdown, deliveryAddress: $deliveryAddress, progress: $progress, riderName: $riderName, customerName: $customerName, restaurantAddress: $restaurantAddress, restaurantLocation: $restaurantLocation, estimatedDeliveryAt: $estimatedDeliveryAt, readyAt: $readyAt, createdAt: $createdAt, riderPayKobo: $riderPayKobo, reviewed: $reviewed, parcel: $parcel, refundTotalKobo: $refundTotalKobo, payment: $payment, cashCollectedAt: $cashCollectedAt, paymentMethod: $paymentMethod, collectCashKobo: $collectCashKobo)';
+    return 'Order(id: $id, shortCode: $shortCode, vertical: $vertical, status: $status, restaurantName: $restaurantName, fulfillment: $fulfillment, lines: $lines, breakdown: $breakdown, deliveryAddress: $deliveryAddress, progress: $progress, riderName: $riderName, customerName: $customerName, restaurantAddress: $restaurantAddress, restaurantLocation: $restaurantLocation, estimatedDeliveryAt: $estimatedDeliveryAt, readyAt: $readyAt, createdAt: $createdAt, riderPayKobo: $riderPayKobo, reviewed: $reviewed, parcel: $parcel, refundTotalKobo: $refundTotalKobo, payment: $payment, cashCollectedAt: $cashCollectedAt, paymentMethod: $paymentMethod, collectCashKobo: $collectCashKobo, waybill: $waybill, legKind: $legKind, hubHandover: $hubHandover)';
 }
 
 
@@ -4809,11 +4849,11 @@ abstract mixin class _$OrderCopyWith<$Res> implements $OrderCopyWith<$Res> {
   factory _$OrderCopyWith(_Order value, $Res Function(_Order) _then) = __$OrderCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo
+ String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo, WaybillDetails? waybill, String? legKind, bool hubHandover
 });
 
 
-@override $PriceBreakdownCopyWith<$Res>? get breakdown;@override $DeliveryAddressCopyWith<$Res>? get deliveryAddress;@override $OrderProgressCopyWith<$Res>? get progress;@override $GeoPointCopyWith<$Res>? get restaurantLocation;@override $ParcelDetailsCopyWith<$Res>? get parcel;@override $OrderPaymentCopyWith<$Res> get payment;
+@override $PriceBreakdownCopyWith<$Res>? get breakdown;@override $DeliveryAddressCopyWith<$Res>? get deliveryAddress;@override $OrderProgressCopyWith<$Res>? get progress;@override $GeoPointCopyWith<$Res>? get restaurantLocation;@override $ParcelDetailsCopyWith<$Res>? get parcel;@override $OrderPaymentCopyWith<$Res> get payment;@override $WaybillDetailsCopyWith<$Res>? get waybill;
 
 }
 /// @nodoc
@@ -4826,7 +4866,7 @@ class __$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,Object? waybill = freezed,Object? legKind = freezed,Object? hubHandover = null,}) {
   return _then(_Order(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
@@ -4853,7 +4893,10 @@ as int,payment: null == payment ? _self.payment : payment // ignore: cast_nullab
 as OrderPayment,cashCollectedAt: freezed == cashCollectedAt ? _self.cashCollectedAt : cashCollectedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,collectCashKobo: null == collectCashKobo ? _self.collectCashKobo : collectCashKobo // ignore: cast_nullable_to_non_nullable
-as int,
+as int,waybill: freezed == waybill ? _self.waybill : waybill // ignore: cast_nullable_to_non_nullable
+as WaybillDetails?,legKind: freezed == legKind ? _self.legKind : legKind // ignore: cast_nullable_to_non_nullable
+as String?,hubHandover: null == hubHandover ? _self.hubHandover : hubHandover // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -4925,6 +4968,18 @@ $OrderPaymentCopyWith<$Res> get payment {
   
   return $OrderPaymentCopyWith<$Res>(_self.payment, (value) {
     return _then(_self.copyWith(payment: value));
+  });
+}/// Create a copy of Order
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillDetailsCopyWith<$Res>? get waybill {
+    if (_self.waybill == null) {
+    return null;
+  }
+
+  return $WaybillDetailsCopyWith<$Res>(_self.waybill!, (value) {
+    return _then(_self.copyWith(waybill: value));
   });
 }
 }
@@ -7242,6 +7297,2751 @@ $SellerSummaryCopyWith<$Res>? get seller {
     return _then(_self.copyWith(seller: value));
   });
 }
+}
+
+
+/// @nodoc
+mixin _$WaybillParty {
+
+ String get name; String get phone; String? get line1; String? get area; GeoPoint? get location; String? get instructions;
+/// Create a copy of WaybillParty
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillPartyCopyWith<WaybillParty> get copyWith => _$WaybillPartyCopyWithImpl<WaybillParty>(this as WaybillParty, _$identity);
+
+  /// Serializes this WaybillParty to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillParty;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillParty&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.line1, _this.line1) || other.line1 == _this.line1)&&(identical(other.area, _this.area) || other.area == _this.area)&&(identical(other.location, _this.location) || other.location == _this.location)&&(identical(other.instructions, _this.instructions) || other.instructions == _this.instructions));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillParty;
+  return Object.hash(runtimeType,_this.name,_this.phone,_this.line1,_this.area,_this.location,_this.instructions);
+}
+
+@override
+String toString() {
+  final _this = this as WaybillParty;
+  return 'WaybillParty(name: ${_this.name}, phone: ${_this.phone}, line1: ${_this.line1}, area: ${_this.area}, location: ${_this.location}, instructions: ${_this.instructions})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillPartyCopyWith<$Res>  {
+  factory $WaybillPartyCopyWith(WaybillParty value, $Res Function(WaybillParty) _then) = _$WaybillPartyCopyWithImpl;
+@useResult
+$Res call({
+ String name, String phone, String? line1, String? area, GeoPoint? location, String? instructions
+});
+
+
+$GeoPointCopyWith<$Res>? get location;
+
+}
+/// @nodoc
+class _$WaybillPartyCopyWithImpl<$Res>
+    implements $WaybillPartyCopyWith<$Res> {
+  _$WaybillPartyCopyWithImpl(this._self, this._then);
+
+  final WaybillParty _self;
+  final $Res Function(WaybillParty) _then;
+
+/// Create a copy of WaybillParty
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? phone = null,Object? line1 = freezed,Object? area = freezed,Object? location = freezed,Object? instructions = freezed,}) {
+  return _then(WaybillParty(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String,line1: freezed == line1 ? _self.line1 : line1 // ignore: cast_nullable_to_non_nullable
+as String?,area: freezed == area ? _self.area : area // ignore: cast_nullable_to_non_nullable
+as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as GeoPoint?,instructions: freezed == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+/// Create a copy of WaybillParty
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GeoPointCopyWith<$Res>? get location {
+    if (_self.location == null) {
+    return null;
+  }
+
+  return $GeoPointCopyWith<$Res>(_self.location!, (value) {
+    return _then(_self.copyWith(location: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillParty].
+extension WaybillPartyPatterns on WaybillParty {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillParty value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillParty() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillParty value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillParty():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillParty value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillParty() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String phone,  String? line1,  String? area,  GeoPoint? location,  String? instructions)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillParty() when $default != null:
+return $default(_that.name,_that.phone,_that.line1,_that.area,_that.location,_that.instructions);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String phone,  String? line1,  String? area,  GeoPoint? location,  String? instructions)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillParty():
+return $default(_that.name,_that.phone,_that.line1,_that.area,_that.location,_that.instructions);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String phone,  String? line1,  String? area,  GeoPoint? location,  String? instructions)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillParty() when $default != null:
+return $default(_that.name,_that.phone,_that.line1,_that.area,_that.location,_that.instructions);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillParty implements WaybillParty {
+  const _WaybillParty({required this.name, required this.phone, this.line1, this.area, this.location, this.instructions});
+  factory _WaybillParty.fromJson(Map<String, dynamic> json) => _$WaybillPartyFromJson(json);
+
+@override final  String name;
+@override final  String phone;
+@override final  String? line1;
+@override final  String? area;
+@override final  GeoPoint? location;
+@override final  String? instructions;
+
+/// Create a copy of WaybillParty
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillPartyCopyWith<_WaybillParty> get copyWith => __$WaybillPartyCopyWithImpl<_WaybillParty>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillPartyToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillParty&&(identical(other.name, name) || other.name == name)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.line1, line1) || other.line1 == line1)&&(identical(other.area, area) || other.area == area)&&(identical(other.location, location) || other.location == location)&&(identical(other.instructions, instructions) || other.instructions == instructions));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,name,phone,line1,area,location,instructions);
+}
+
+@override
+String toString() {
+    return 'WaybillParty(name: $name, phone: $phone, line1: $line1, area: $area, location: $location, instructions: $instructions)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillPartyCopyWith<$Res> implements $WaybillPartyCopyWith<$Res> {
+  factory _$WaybillPartyCopyWith(_WaybillParty value, $Res Function(_WaybillParty) _then) = __$WaybillPartyCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, String phone, String? line1, String? area, GeoPoint? location, String? instructions
+});
+
+
+@override $GeoPointCopyWith<$Res>? get location;
+
+}
+/// @nodoc
+class __$WaybillPartyCopyWithImpl<$Res>
+    implements _$WaybillPartyCopyWith<$Res> {
+  __$WaybillPartyCopyWithImpl(this._self, this._then);
+
+  final _WaybillParty _self;
+  final $Res Function(_WaybillParty) _then;
+
+/// Create a copy of WaybillParty
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? phone = null,Object? line1 = freezed,Object? area = freezed,Object? location = freezed,Object? instructions = freezed,}) {
+  return _then(_WaybillParty(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String,line1: freezed == line1 ? _self.line1 : line1 // ignore: cast_nullable_to_non_nullable
+as String?,area: freezed == area ? _self.area : area // ignore: cast_nullable_to_non_nullable
+as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as GeoPoint?,instructions: freezed == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+/// Create a copy of WaybillParty
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GeoPointCopyWith<$Res>? get location {
+    if (_self.location == null) {
+    return null;
+  }
+
+  return $GeoPointCopyWith<$Res>(_self.location!, (value) {
+    return _then(_self.copyWith(location: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$WaybillDetails {
+
+ String? get trackingCode; String get originCity; String get destinationCity; String get originCityName; String get destinationCityName; String get originHubId; String get destinationHubId; String get originHubName; String get destinationHubName; String get destinationHubAddress; String get destinationHubHours; String get firstMile; String get lastMile; WaybillParty get sender; WaybillParty get recipient; String get size; double get weightKg; String get category; String get description; int? get codAmountKobo; String get carrierName; String? get stage; String? get etaFrom; String? get etaTo;
+/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillDetailsCopyWith<WaybillDetails> get copyWith => _$WaybillDetailsCopyWithImpl<WaybillDetails>(this as WaybillDetails, _$identity);
+
+  /// Serializes this WaybillDetails to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillDetails;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillDetails&&(identical(other.trackingCode, _this.trackingCode) || other.trackingCode == _this.trackingCode)&&(identical(other.originCity, _this.originCity) || other.originCity == _this.originCity)&&(identical(other.destinationCity, _this.destinationCity) || other.destinationCity == _this.destinationCity)&&(identical(other.originCityName, _this.originCityName) || other.originCityName == _this.originCityName)&&(identical(other.destinationCityName, _this.destinationCityName) || other.destinationCityName == _this.destinationCityName)&&(identical(other.originHubId, _this.originHubId) || other.originHubId == _this.originHubId)&&(identical(other.destinationHubId, _this.destinationHubId) || other.destinationHubId == _this.destinationHubId)&&(identical(other.originHubName, _this.originHubName) || other.originHubName == _this.originHubName)&&(identical(other.destinationHubName, _this.destinationHubName) || other.destinationHubName == _this.destinationHubName)&&(identical(other.destinationHubAddress, _this.destinationHubAddress) || other.destinationHubAddress == _this.destinationHubAddress)&&(identical(other.destinationHubHours, _this.destinationHubHours) || other.destinationHubHours == _this.destinationHubHours)&&(identical(other.firstMile, _this.firstMile) || other.firstMile == _this.firstMile)&&(identical(other.lastMile, _this.lastMile) || other.lastMile == _this.lastMile)&&(identical(other.sender, _this.sender) || other.sender == _this.sender)&&(identical(other.recipient, _this.recipient) || other.recipient == _this.recipient)&&(identical(other.size, _this.size) || other.size == _this.size)&&(identical(other.weightKg, _this.weightKg) || other.weightKg == _this.weightKg)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.codAmountKobo, _this.codAmountKobo) || other.codAmountKobo == _this.codAmountKobo)&&(identical(other.carrierName, _this.carrierName) || other.carrierName == _this.carrierName)&&(identical(other.stage, _this.stage) || other.stage == _this.stage)&&(identical(other.etaFrom, _this.etaFrom) || other.etaFrom == _this.etaFrom)&&(identical(other.etaTo, _this.etaTo) || other.etaTo == _this.etaTo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillDetails;
+  return Object.hashAll([runtimeType,_this.trackingCode,_this.originCity,_this.destinationCity,_this.originCityName,_this.destinationCityName,_this.originHubId,_this.destinationHubId,_this.originHubName,_this.destinationHubName,_this.destinationHubAddress,_this.destinationHubHours,_this.firstMile,_this.lastMile,_this.sender,_this.recipient,_this.size,_this.weightKg,_this.category,_this.description,_this.codAmountKobo,_this.carrierName,_this.stage,_this.etaFrom,_this.etaTo]);
+}
+
+@override
+String toString() {
+  final _this = this as WaybillDetails;
+  return 'WaybillDetails(trackingCode: ${_this.trackingCode}, originCity: ${_this.originCity}, destinationCity: ${_this.destinationCity}, originCityName: ${_this.originCityName}, destinationCityName: ${_this.destinationCityName}, originHubId: ${_this.originHubId}, destinationHubId: ${_this.destinationHubId}, originHubName: ${_this.originHubName}, destinationHubName: ${_this.destinationHubName}, destinationHubAddress: ${_this.destinationHubAddress}, destinationHubHours: ${_this.destinationHubHours}, firstMile: ${_this.firstMile}, lastMile: ${_this.lastMile}, sender: ${_this.sender}, recipient: ${_this.recipient}, size: ${_this.size}, weightKg: ${_this.weightKg}, category: ${_this.category}, description: ${_this.description}, codAmountKobo: ${_this.codAmountKobo}, carrierName: ${_this.carrierName}, stage: ${_this.stage}, etaFrom: ${_this.etaFrom}, etaTo: ${_this.etaTo})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillDetailsCopyWith<$Res>  {
+  factory $WaybillDetailsCopyWith(WaybillDetails value, $Res Function(WaybillDetails) _then) = _$WaybillDetailsCopyWithImpl;
+@useResult
+$Res call({
+ String? trackingCode, String originCity, String destinationCity, String originCityName, String destinationCityName, String originHubId, String destinationHubId, String originHubName, String destinationHubName, String destinationHubAddress, String destinationHubHours, String firstMile, String lastMile, WaybillParty sender, WaybillParty recipient, String size, double weightKg, String category, String description, int? codAmountKobo, String carrierName, String? stage, String? etaFrom, String? etaTo
+});
+
+
+$WaybillPartyCopyWith<$Res> get sender;$WaybillPartyCopyWith<$Res> get recipient;
+
+}
+/// @nodoc
+class _$WaybillDetailsCopyWithImpl<$Res>
+    implements $WaybillDetailsCopyWith<$Res> {
+  _$WaybillDetailsCopyWithImpl(this._self, this._then);
+
+  final WaybillDetails _self;
+  final $Res Function(WaybillDetails) _then;
+
+/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? trackingCode = freezed,Object? originCity = null,Object? destinationCity = null,Object? originCityName = null,Object? destinationCityName = null,Object? originHubId = null,Object? destinationHubId = null,Object? originHubName = null,Object? destinationHubName = null,Object? destinationHubAddress = null,Object? destinationHubHours = null,Object? firstMile = null,Object? lastMile = null,Object? sender = null,Object? recipient = null,Object? size = null,Object? weightKg = null,Object? category = null,Object? description = null,Object? codAmountKobo = freezed,Object? carrierName = null,Object? stage = freezed,Object? etaFrom = freezed,Object? etaTo = freezed,}) {
+  return _then(WaybillDetails(
+trackingCode: freezed == trackingCode ? _self.trackingCode : trackingCode // ignore: cast_nullable_to_non_nullable
+as String?,originCity: null == originCity ? _self.originCity : originCity // ignore: cast_nullable_to_non_nullable
+as String,destinationCity: null == destinationCity ? _self.destinationCity : destinationCity // ignore: cast_nullable_to_non_nullable
+as String,originCityName: null == originCityName ? _self.originCityName : originCityName // ignore: cast_nullable_to_non_nullable
+as String,destinationCityName: null == destinationCityName ? _self.destinationCityName : destinationCityName // ignore: cast_nullable_to_non_nullable
+as String,originHubId: null == originHubId ? _self.originHubId : originHubId // ignore: cast_nullable_to_non_nullable
+as String,destinationHubId: null == destinationHubId ? _self.destinationHubId : destinationHubId // ignore: cast_nullable_to_non_nullable
+as String,originHubName: null == originHubName ? _self.originHubName : originHubName // ignore: cast_nullable_to_non_nullable
+as String,destinationHubName: null == destinationHubName ? _self.destinationHubName : destinationHubName // ignore: cast_nullable_to_non_nullable
+as String,destinationHubAddress: null == destinationHubAddress ? _self.destinationHubAddress : destinationHubAddress // ignore: cast_nullable_to_non_nullable
+as String,destinationHubHours: null == destinationHubHours ? _self.destinationHubHours : destinationHubHours // ignore: cast_nullable_to_non_nullable
+as String,firstMile: null == firstMile ? _self.firstMile : firstMile // ignore: cast_nullable_to_non_nullable
+as String,lastMile: null == lastMile ? _self.lastMile : lastMile // ignore: cast_nullable_to_non_nullable
+as String,sender: null == sender ? _self.sender : sender // ignore: cast_nullable_to_non_nullable
+as WaybillParty,recipient: null == recipient ? _self.recipient : recipient // ignore: cast_nullable_to_non_nullable
+as WaybillParty,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as String,weightKg: null == weightKg ? _self.weightKg : weightKg // ignore: cast_nullable_to_non_nullable
+as double,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,codAmountKobo: freezed == codAmountKobo ? _self.codAmountKobo : codAmountKobo // ignore: cast_nullable_to_non_nullable
+as int?,carrierName: null == carrierName ? _self.carrierName : carrierName // ignore: cast_nullable_to_non_nullable
+as String,stage: freezed == stage ? _self.stage : stage // ignore: cast_nullable_to_non_nullable
+as String?,etaFrom: freezed == etaFrom ? _self.etaFrom : etaFrom // ignore: cast_nullable_to_non_nullable
+as String?,etaTo: freezed == etaTo ? _self.etaTo : etaTo // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillPartyCopyWith<$Res> get sender {
+  
+  return $WaybillPartyCopyWith<$Res>(_self.sender, (value) {
+    return _then(_self.copyWith(sender: value));
+  });
+}/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillPartyCopyWith<$Res> get recipient {
+  
+  return $WaybillPartyCopyWith<$Res>(_self.recipient, (value) {
+    return _then(_self.copyWith(recipient: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillDetails].
+extension WaybillDetailsPatterns on WaybillDetails {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillDetails value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillDetails() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillDetails value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillDetails():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillDetails value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillDetails() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? trackingCode,  String originCity,  String destinationCity,  String originCityName,  String destinationCityName,  String originHubId,  String destinationHubId,  String originHubName,  String destinationHubName,  String destinationHubAddress,  String destinationHubHours,  String firstMile,  String lastMile,  WaybillParty sender,  WaybillParty recipient,  String size,  double weightKg,  String category,  String description,  int? codAmountKobo,  String carrierName,  String? stage,  String? etaFrom,  String? etaTo)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillDetails() when $default != null:
+return $default(_that.trackingCode,_that.originCity,_that.destinationCity,_that.originCityName,_that.destinationCityName,_that.originHubId,_that.destinationHubId,_that.originHubName,_that.destinationHubName,_that.destinationHubAddress,_that.destinationHubHours,_that.firstMile,_that.lastMile,_that.sender,_that.recipient,_that.size,_that.weightKg,_that.category,_that.description,_that.codAmountKobo,_that.carrierName,_that.stage,_that.etaFrom,_that.etaTo);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? trackingCode,  String originCity,  String destinationCity,  String originCityName,  String destinationCityName,  String originHubId,  String destinationHubId,  String originHubName,  String destinationHubName,  String destinationHubAddress,  String destinationHubHours,  String firstMile,  String lastMile,  WaybillParty sender,  WaybillParty recipient,  String size,  double weightKg,  String category,  String description,  int? codAmountKobo,  String carrierName,  String? stage,  String? etaFrom,  String? etaTo)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillDetails():
+return $default(_that.trackingCode,_that.originCity,_that.destinationCity,_that.originCityName,_that.destinationCityName,_that.originHubId,_that.destinationHubId,_that.originHubName,_that.destinationHubName,_that.destinationHubAddress,_that.destinationHubHours,_that.firstMile,_that.lastMile,_that.sender,_that.recipient,_that.size,_that.weightKg,_that.category,_that.description,_that.codAmountKobo,_that.carrierName,_that.stage,_that.etaFrom,_that.etaTo);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? trackingCode,  String originCity,  String destinationCity,  String originCityName,  String destinationCityName,  String originHubId,  String destinationHubId,  String originHubName,  String destinationHubName,  String destinationHubAddress,  String destinationHubHours,  String firstMile,  String lastMile,  WaybillParty sender,  WaybillParty recipient,  String size,  double weightKg,  String category,  String description,  int? codAmountKobo,  String carrierName,  String? stage,  String? etaFrom,  String? etaTo)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillDetails() when $default != null:
+return $default(_that.trackingCode,_that.originCity,_that.destinationCity,_that.originCityName,_that.destinationCityName,_that.originHubId,_that.destinationHubId,_that.originHubName,_that.destinationHubName,_that.destinationHubAddress,_that.destinationHubHours,_that.firstMile,_that.lastMile,_that.sender,_that.recipient,_that.size,_that.weightKg,_that.category,_that.description,_that.codAmountKobo,_that.carrierName,_that.stage,_that.etaFrom,_that.etaTo);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillDetails implements WaybillDetails {
+  const _WaybillDetails({this.trackingCode, this.originCity = '', this.destinationCity = '', this.originCityName = '', this.destinationCityName = '', this.originHubId = '', this.destinationHubId = '', this.originHubName = '', this.destinationHubName = '', this.destinationHubAddress = '', this.destinationHubHours = '', this.firstMile = 'pickup', this.lastMile = 'door', required this.sender, required this.recipient, this.size = 'small', this.weightKg = 1, this.category = 'other', this.description = '', this.codAmountKobo, this.carrierName = '', this.stage, this.etaFrom, this.etaTo});
+  factory _WaybillDetails.fromJson(Map<String, dynamic> json) => _$WaybillDetailsFromJson(json);
+
+@override final  String? trackingCode;
+@override@JsonKey() final  String originCity;
+@override@JsonKey() final  String destinationCity;
+@override@JsonKey() final  String originCityName;
+@override@JsonKey() final  String destinationCityName;
+@override@JsonKey() final  String originHubId;
+@override@JsonKey() final  String destinationHubId;
+@override@JsonKey() final  String originHubName;
+@override@JsonKey() final  String destinationHubName;
+@override@JsonKey() final  String destinationHubAddress;
+@override@JsonKey() final  String destinationHubHours;
+@override@JsonKey() final  String firstMile;
+@override@JsonKey() final  String lastMile;
+@override final  WaybillParty sender;
+@override final  WaybillParty recipient;
+@override@JsonKey() final  String size;
+@override@JsonKey() final  double weightKg;
+@override@JsonKey() final  String category;
+@override@JsonKey() final  String description;
+@override final  int? codAmountKobo;
+@override@JsonKey() final  String carrierName;
+@override final  String? stage;
+@override final  String? etaFrom;
+@override final  String? etaTo;
+
+/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillDetailsCopyWith<_WaybillDetails> get copyWith => __$WaybillDetailsCopyWithImpl<_WaybillDetails>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillDetailsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillDetails&&(identical(other.trackingCode, trackingCode) || other.trackingCode == trackingCode)&&(identical(other.originCity, originCity) || other.originCity == originCity)&&(identical(other.destinationCity, destinationCity) || other.destinationCity == destinationCity)&&(identical(other.originCityName, originCityName) || other.originCityName == originCityName)&&(identical(other.destinationCityName, destinationCityName) || other.destinationCityName == destinationCityName)&&(identical(other.originHubId, originHubId) || other.originHubId == originHubId)&&(identical(other.destinationHubId, destinationHubId) || other.destinationHubId == destinationHubId)&&(identical(other.originHubName, originHubName) || other.originHubName == originHubName)&&(identical(other.destinationHubName, destinationHubName) || other.destinationHubName == destinationHubName)&&(identical(other.destinationHubAddress, destinationHubAddress) || other.destinationHubAddress == destinationHubAddress)&&(identical(other.destinationHubHours, destinationHubHours) || other.destinationHubHours == destinationHubHours)&&(identical(other.firstMile, firstMile) || other.firstMile == firstMile)&&(identical(other.lastMile, lastMile) || other.lastMile == lastMile)&&(identical(other.sender, sender) || other.sender == sender)&&(identical(other.recipient, recipient) || other.recipient == recipient)&&(identical(other.size, size) || other.size == size)&&(identical(other.weightKg, weightKg) || other.weightKg == weightKg)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.codAmountKobo, codAmountKobo) || other.codAmountKobo == codAmountKobo)&&(identical(other.carrierName, carrierName) || other.carrierName == carrierName)&&(identical(other.stage, stage) || other.stage == stage)&&(identical(other.etaFrom, etaFrom) || other.etaFrom == etaFrom)&&(identical(other.etaTo, etaTo) || other.etaTo == etaTo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hashAll([runtimeType,trackingCode,originCity,destinationCity,originCityName,destinationCityName,originHubId,destinationHubId,originHubName,destinationHubName,destinationHubAddress,destinationHubHours,firstMile,lastMile,sender,recipient,size,weightKg,category,description,codAmountKobo,carrierName,stage,etaFrom,etaTo]);
+}
+
+@override
+String toString() {
+    return 'WaybillDetails(trackingCode: $trackingCode, originCity: $originCity, destinationCity: $destinationCity, originCityName: $originCityName, destinationCityName: $destinationCityName, originHubId: $originHubId, destinationHubId: $destinationHubId, originHubName: $originHubName, destinationHubName: $destinationHubName, destinationHubAddress: $destinationHubAddress, destinationHubHours: $destinationHubHours, firstMile: $firstMile, lastMile: $lastMile, sender: $sender, recipient: $recipient, size: $size, weightKg: $weightKg, category: $category, description: $description, codAmountKobo: $codAmountKobo, carrierName: $carrierName, stage: $stage, etaFrom: $etaFrom, etaTo: $etaTo)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillDetailsCopyWith<$Res> implements $WaybillDetailsCopyWith<$Res> {
+  factory _$WaybillDetailsCopyWith(_WaybillDetails value, $Res Function(_WaybillDetails) _then) = __$WaybillDetailsCopyWithImpl;
+@override @useResult
+$Res call({
+ String? trackingCode, String originCity, String destinationCity, String originCityName, String destinationCityName, String originHubId, String destinationHubId, String originHubName, String destinationHubName, String destinationHubAddress, String destinationHubHours, String firstMile, String lastMile, WaybillParty sender, WaybillParty recipient, String size, double weightKg, String category, String description, int? codAmountKobo, String carrierName, String? stage, String? etaFrom, String? etaTo
+});
+
+
+@override $WaybillPartyCopyWith<$Res> get sender;@override $WaybillPartyCopyWith<$Res> get recipient;
+
+}
+/// @nodoc
+class __$WaybillDetailsCopyWithImpl<$Res>
+    implements _$WaybillDetailsCopyWith<$Res> {
+  __$WaybillDetailsCopyWithImpl(this._self, this._then);
+
+  final _WaybillDetails _self;
+  final $Res Function(_WaybillDetails) _then;
+
+/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? trackingCode = freezed,Object? originCity = null,Object? destinationCity = null,Object? originCityName = null,Object? destinationCityName = null,Object? originHubId = null,Object? destinationHubId = null,Object? originHubName = null,Object? destinationHubName = null,Object? destinationHubAddress = null,Object? destinationHubHours = null,Object? firstMile = null,Object? lastMile = null,Object? sender = null,Object? recipient = null,Object? size = null,Object? weightKg = null,Object? category = null,Object? description = null,Object? codAmountKobo = freezed,Object? carrierName = null,Object? stage = freezed,Object? etaFrom = freezed,Object? etaTo = freezed,}) {
+  return _then(_WaybillDetails(
+trackingCode: freezed == trackingCode ? _self.trackingCode : trackingCode // ignore: cast_nullable_to_non_nullable
+as String?,originCity: null == originCity ? _self.originCity : originCity // ignore: cast_nullable_to_non_nullable
+as String,destinationCity: null == destinationCity ? _self.destinationCity : destinationCity // ignore: cast_nullable_to_non_nullable
+as String,originCityName: null == originCityName ? _self.originCityName : originCityName // ignore: cast_nullable_to_non_nullable
+as String,destinationCityName: null == destinationCityName ? _self.destinationCityName : destinationCityName // ignore: cast_nullable_to_non_nullable
+as String,originHubId: null == originHubId ? _self.originHubId : originHubId // ignore: cast_nullable_to_non_nullable
+as String,destinationHubId: null == destinationHubId ? _self.destinationHubId : destinationHubId // ignore: cast_nullable_to_non_nullable
+as String,originHubName: null == originHubName ? _self.originHubName : originHubName // ignore: cast_nullable_to_non_nullable
+as String,destinationHubName: null == destinationHubName ? _self.destinationHubName : destinationHubName // ignore: cast_nullable_to_non_nullable
+as String,destinationHubAddress: null == destinationHubAddress ? _self.destinationHubAddress : destinationHubAddress // ignore: cast_nullable_to_non_nullable
+as String,destinationHubHours: null == destinationHubHours ? _self.destinationHubHours : destinationHubHours // ignore: cast_nullable_to_non_nullable
+as String,firstMile: null == firstMile ? _self.firstMile : firstMile // ignore: cast_nullable_to_non_nullable
+as String,lastMile: null == lastMile ? _self.lastMile : lastMile // ignore: cast_nullable_to_non_nullable
+as String,sender: null == sender ? _self.sender : sender // ignore: cast_nullable_to_non_nullable
+as WaybillParty,recipient: null == recipient ? _self.recipient : recipient // ignore: cast_nullable_to_non_nullable
+as WaybillParty,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as String,weightKg: null == weightKg ? _self.weightKg : weightKg // ignore: cast_nullable_to_non_nullable
+as double,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,codAmountKobo: freezed == codAmountKobo ? _self.codAmountKobo : codAmountKobo // ignore: cast_nullable_to_non_nullable
+as int?,carrierName: null == carrierName ? _self.carrierName : carrierName // ignore: cast_nullable_to_non_nullable
+as String,stage: freezed == stage ? _self.stage : stage // ignore: cast_nullable_to_non_nullable
+as String?,etaFrom: freezed == etaFrom ? _self.etaFrom : etaFrom // ignore: cast_nullable_to_non_nullable
+as String?,etaTo: freezed == etaTo ? _self.etaTo : etaTo // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillPartyCopyWith<$Res> get sender {
+  
+  return $WaybillPartyCopyWith<$Res>(_self.sender, (value) {
+    return _then(_self.copyWith(sender: value));
+  });
+}/// Create a copy of WaybillDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillPartyCopyWith<$Res> get recipient {
+  
+  return $WaybillPartyCopyWith<$Res>(_self.recipient, (value) {
+    return _then(_self.copyWith(recipient: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$WaybillQuote {
+
+ String get id; WaybillDetails get details; PriceBreakdown get breakdown; String get etaText; DateTime get expiresAt;
+/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillQuoteCopyWith<WaybillQuote> get copyWith => _$WaybillQuoteCopyWithImpl<WaybillQuote>(this as WaybillQuote, _$identity);
+
+  /// Serializes this WaybillQuote to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillQuote;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillQuote&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.details, _this.details) || other.details == _this.details)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.etaText, _this.etaText) || other.etaText == _this.etaText)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillQuote;
+  return Object.hash(runtimeType,_this.id,_this.details,_this.breakdown,_this.etaText,_this.expiresAt);
+}
+
+@override
+String toString() {
+  final _this = this as WaybillQuote;
+  return 'WaybillQuote(id: ${_this.id}, details: ${_this.details}, breakdown: ${_this.breakdown}, etaText: ${_this.etaText}, expiresAt: ${_this.expiresAt})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillQuoteCopyWith<$Res>  {
+  factory $WaybillQuoteCopyWith(WaybillQuote value, $Res Function(WaybillQuote) _then) = _$WaybillQuoteCopyWithImpl;
+@useResult
+$Res call({
+ String id, WaybillDetails details, PriceBreakdown breakdown, String etaText, DateTime expiresAt
+});
+
+
+$WaybillDetailsCopyWith<$Res> get details;$PriceBreakdownCopyWith<$Res> get breakdown;
+
+}
+/// @nodoc
+class _$WaybillQuoteCopyWithImpl<$Res>
+    implements $WaybillQuoteCopyWith<$Res> {
+  _$WaybillQuoteCopyWithImpl(this._self, this._then);
+
+  final WaybillQuote _self;
+  final $Res Function(WaybillQuote) _then;
+
+/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? details = null,Object? breakdown = null,Object? etaText = null,Object? expiresAt = null,}) {
+  return _then(WaybillQuote(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,details: null == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
+as WaybillDetails,breakdown: null == breakdown ? _self.breakdown : breakdown // ignore: cast_nullable_to_non_nullable
+as PriceBreakdown,etaText: null == etaText ? _self.etaText : etaText // ignore: cast_nullable_to_non_nullable
+as String,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillDetailsCopyWith<$Res> get details {
+  
+  return $WaybillDetailsCopyWith<$Res>(_self.details, (value) {
+    return _then(_self.copyWith(details: value));
+  });
+}/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PriceBreakdownCopyWith<$Res> get breakdown {
+  
+  return $PriceBreakdownCopyWith<$Res>(_self.breakdown, (value) {
+    return _then(_self.copyWith(breakdown: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillQuote].
+extension WaybillQuotePatterns on WaybillQuote {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillQuote value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillQuote() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillQuote value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillQuote():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillQuote value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillQuote() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  WaybillDetails details,  PriceBreakdown breakdown,  String etaText,  DateTime expiresAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillQuote() when $default != null:
+return $default(_that.id,_that.details,_that.breakdown,_that.etaText,_that.expiresAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  WaybillDetails details,  PriceBreakdown breakdown,  String etaText,  DateTime expiresAt)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillQuote():
+return $default(_that.id,_that.details,_that.breakdown,_that.etaText,_that.expiresAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  WaybillDetails details,  PriceBreakdown breakdown,  String etaText,  DateTime expiresAt)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillQuote() when $default != null:
+return $default(_that.id,_that.details,_that.breakdown,_that.etaText,_that.expiresAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillQuote implements WaybillQuote {
+  const _WaybillQuote({required this.id, required this.details, required this.breakdown, this.etaText = '', required this.expiresAt});
+  factory _WaybillQuote.fromJson(Map<String, dynamic> json) => _$WaybillQuoteFromJson(json);
+
+@override final  String id;
+@override final  WaybillDetails details;
+@override final  PriceBreakdown breakdown;
+@override@JsonKey() final  String etaText;
+@override final  DateTime expiresAt;
+
+/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillQuoteCopyWith<_WaybillQuote> get copyWith => __$WaybillQuoteCopyWithImpl<_WaybillQuote>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillQuoteToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillQuote&&(identical(other.id, id) || other.id == id)&&(identical(other.details, details) || other.details == details)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.etaText, etaText) || other.etaText == etaText)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,details,breakdown,etaText,expiresAt);
+}
+
+@override
+String toString() {
+    return 'WaybillQuote(id: $id, details: $details, breakdown: $breakdown, etaText: $etaText, expiresAt: $expiresAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillQuoteCopyWith<$Res> implements $WaybillQuoteCopyWith<$Res> {
+  factory _$WaybillQuoteCopyWith(_WaybillQuote value, $Res Function(_WaybillQuote) _then) = __$WaybillQuoteCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, WaybillDetails details, PriceBreakdown breakdown, String etaText, DateTime expiresAt
+});
+
+
+@override $WaybillDetailsCopyWith<$Res> get details;@override $PriceBreakdownCopyWith<$Res> get breakdown;
+
+}
+/// @nodoc
+class __$WaybillQuoteCopyWithImpl<$Res>
+    implements _$WaybillQuoteCopyWith<$Res> {
+  __$WaybillQuoteCopyWithImpl(this._self, this._then);
+
+  final _WaybillQuote _self;
+  final $Res Function(_WaybillQuote) _then;
+
+/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? details = null,Object? breakdown = null,Object? etaText = null,Object? expiresAt = null,}) {
+  return _then(_WaybillQuote(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,details: null == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
+as WaybillDetails,breakdown: null == breakdown ? _self.breakdown : breakdown // ignore: cast_nullable_to_non_nullable
+as PriceBreakdown,etaText: null == etaText ? _self.etaText : etaText // ignore: cast_nullable_to_non_nullable
+as String,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WaybillDetailsCopyWith<$Res> get details {
+  
+  return $WaybillDetailsCopyWith<$Res>(_self.details, (value) {
+    return _then(_self.copyWith(details: value));
+  });
+}/// Create a copy of WaybillQuote
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PriceBreakdownCopyWith<$Res> get breakdown {
+  
+  return $PriceBreakdownCopyWith<$Res>(_self.breakdown, (value) {
+    return _then(_self.copyWith(breakdown: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$WaybillHub {
+
+ String get id; String get name; String get city; String get address; String get hours; bool get isSample;
+/// Create a copy of WaybillHub
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillHubCopyWith<WaybillHub> get copyWith => _$WaybillHubCopyWithImpl<WaybillHub>(this as WaybillHub, _$identity);
+
+  /// Serializes this WaybillHub to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillHub;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillHub&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.address, _this.address) || other.address == _this.address)&&(identical(other.hours, _this.hours) || other.hours == _this.hours)&&(identical(other.isSample, _this.isSample) || other.isSample == _this.isSample));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillHub;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.city,_this.address,_this.hours,_this.isSample);
+}
+
+@override
+String toString() {
+  final _this = this as WaybillHub;
+  return 'WaybillHub(id: ${_this.id}, name: ${_this.name}, city: ${_this.city}, address: ${_this.address}, hours: ${_this.hours}, isSample: ${_this.isSample})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillHubCopyWith<$Res>  {
+  factory $WaybillHubCopyWith(WaybillHub value, $Res Function(WaybillHub) _then) = _$WaybillHubCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, String city, String address, String hours, bool isSample
+});
+
+
+
+
+}
+/// @nodoc
+class _$WaybillHubCopyWithImpl<$Res>
+    implements $WaybillHubCopyWith<$Res> {
+  _$WaybillHubCopyWithImpl(this._self, this._then);
+
+  final WaybillHub _self;
+  final $Res Function(WaybillHub) _then;
+
+/// Create a copy of WaybillHub
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? city = null,Object? address = null,Object? hours = null,Object? isSample = null,}) {
+  return _then(WaybillHub(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as String,hours: null == hours ? _self.hours : hours // ignore: cast_nullable_to_non_nullable
+as String,isSample: null == isSample ? _self.isSample : isSample // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillHub].
+extension WaybillHubPatterns on WaybillHub {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillHub value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillHub() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillHub value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillHub():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillHub value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillHub() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String city,  String address,  String hours,  bool isSample)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillHub() when $default != null:
+return $default(_that.id,_that.name,_that.city,_that.address,_that.hours,_that.isSample);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String city,  String address,  String hours,  bool isSample)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillHub():
+return $default(_that.id,_that.name,_that.city,_that.address,_that.hours,_that.isSample);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String city,  String address,  String hours,  bool isSample)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillHub() when $default != null:
+return $default(_that.id,_that.name,_that.city,_that.address,_that.hours,_that.isSample);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillHub implements WaybillHub {
+  const _WaybillHub({required this.id, required this.name, required this.city, this.address = '', this.hours = '', this.isSample = true});
+  factory _WaybillHub.fromJson(Map<String, dynamic> json) => _$WaybillHubFromJson(json);
+
+@override final  String id;
+@override final  String name;
+@override final  String city;
+@override@JsonKey() final  String address;
+@override@JsonKey() final  String hours;
+@override@JsonKey() final  bool isSample;
+
+/// Create a copy of WaybillHub
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillHubCopyWith<_WaybillHub> get copyWith => __$WaybillHubCopyWithImpl<_WaybillHub>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillHubToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillHub&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.city, city) || other.city == city)&&(identical(other.address, address) || other.address == address)&&(identical(other.hours, hours) || other.hours == hours)&&(identical(other.isSample, isSample) || other.isSample == isSample));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,name,city,address,hours,isSample);
+}
+
+@override
+String toString() {
+    return 'WaybillHub(id: $id, name: $name, city: $city, address: $address, hours: $hours, isSample: $isSample)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillHubCopyWith<$Res> implements $WaybillHubCopyWith<$Res> {
+  factory _$WaybillHubCopyWith(_WaybillHub value, $Res Function(_WaybillHub) _then) = __$WaybillHubCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, String city, String address, String hours, bool isSample
+});
+
+
+
+
+}
+/// @nodoc
+class __$WaybillHubCopyWithImpl<$Res>
+    implements _$WaybillHubCopyWith<$Res> {
+  __$WaybillHubCopyWithImpl(this._self, this._then);
+
+  final _WaybillHub _self;
+  final $Res Function(_WaybillHub) _then;
+
+/// Create a copy of WaybillHub
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? city = null,Object? address = null,Object? hours = null,Object? isSample = null,}) {
+  return _then(_WaybillHub(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as String,hours: null == hours ? _self.hours : hours // ignore: cast_nullable_to_non_nullable
+as String,isSample: null == isSample ? _self.isSample : isSample // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$WaybillOrigin {
+
+ String get id; String get name; bool get homePickup; List<WaybillHub> get dropoffHubs;
+/// Create a copy of WaybillOrigin
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillOriginCopyWith<WaybillOrigin> get copyWith => _$WaybillOriginCopyWithImpl<WaybillOrigin>(this as WaybillOrigin, _$identity);
+
+  /// Serializes this WaybillOrigin to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillOrigin;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillOrigin&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.homePickup, _this.homePickup) || other.homePickup == _this.homePickup)&&const DeepCollectionEquality().equals(other.dropoffHubs, _this.dropoffHubs));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillOrigin;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.homePickup,const DeepCollectionEquality().hash(_this.dropoffHubs));
+}
+
+@override
+String toString() {
+  final _this = this as WaybillOrigin;
+  return 'WaybillOrigin(id: ${_this.id}, name: ${_this.name}, homePickup: ${_this.homePickup}, dropoffHubs: ${_this.dropoffHubs})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillOriginCopyWith<$Res>  {
+  factory $WaybillOriginCopyWith(WaybillOrigin value, $Res Function(WaybillOrigin) _then) = _$WaybillOriginCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, bool homePickup, List<WaybillHub> dropoffHubs
+});
+
+
+
+
+}
+/// @nodoc
+class _$WaybillOriginCopyWithImpl<$Res>
+    implements $WaybillOriginCopyWith<$Res> {
+  _$WaybillOriginCopyWithImpl(this._self, this._then);
+
+  final WaybillOrigin _self;
+  final $Res Function(WaybillOrigin) _then;
+
+/// Create a copy of WaybillOrigin
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? homePickup = null,Object? dropoffHubs = null,}) {
+  return _then(WaybillOrigin(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,homePickup: null == homePickup ? _self.homePickup : homePickup // ignore: cast_nullable_to_non_nullable
+as bool,dropoffHubs: null == dropoffHubs ? _self.dropoffHubs : dropoffHubs // ignore: cast_nullable_to_non_nullable
+as List<WaybillHub>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillOrigin].
+extension WaybillOriginPatterns on WaybillOrigin {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillOrigin value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillOrigin() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillOrigin value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillOrigin():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillOrigin value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillOrigin() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  bool homePickup,  List<WaybillHub> dropoffHubs)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillOrigin() when $default != null:
+return $default(_that.id,_that.name,_that.homePickup,_that.dropoffHubs);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  bool homePickup,  List<WaybillHub> dropoffHubs)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillOrigin():
+return $default(_that.id,_that.name,_that.homePickup,_that.dropoffHubs);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  bool homePickup,  List<WaybillHub> dropoffHubs)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillOrigin() when $default != null:
+return $default(_that.id,_that.name,_that.homePickup,_that.dropoffHubs);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillOrigin implements WaybillOrigin {
+  const _WaybillOrigin({required this.id, required this.name, this.homePickup = false,  List<WaybillHub> dropoffHubs = const <WaybillHub>[]}): _dropoffHubs = dropoffHubs;
+  factory _WaybillOrigin.fromJson(Map<String, dynamic> json) => _$WaybillOriginFromJson(json);
+
+@override final  String id;
+@override final  String name;
+@override@JsonKey() final  bool homePickup;
+ final  List<WaybillHub> _dropoffHubs;
+@override@JsonKey() List<WaybillHub> get dropoffHubs {
+  if (_dropoffHubs is EqualUnmodifiableListView) return _dropoffHubs;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_dropoffHubs);
+}
+
+
+/// Create a copy of WaybillOrigin
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillOriginCopyWith<_WaybillOrigin> get copyWith => __$WaybillOriginCopyWithImpl<_WaybillOrigin>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillOriginToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillOrigin&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.homePickup, homePickup) || other.homePickup == homePickup)&&const DeepCollectionEquality().equals(other.dropoffHubs, _dropoffHubs));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,name,homePickup,const DeepCollectionEquality().hash(_dropoffHubs));
+}
+
+@override
+String toString() {
+    return 'WaybillOrigin(id: $id, name: $name, homePickup: $homePickup, dropoffHubs: $dropoffHubs)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillOriginCopyWith<$Res> implements $WaybillOriginCopyWith<$Res> {
+  factory _$WaybillOriginCopyWith(_WaybillOrigin value, $Res Function(_WaybillOrigin) _then) = __$WaybillOriginCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, bool homePickup, List<WaybillHub> dropoffHubs
+});
+
+
+
+
+}
+/// @nodoc
+class __$WaybillOriginCopyWithImpl<$Res>
+    implements _$WaybillOriginCopyWith<$Res> {
+  __$WaybillOriginCopyWithImpl(this._self, this._then);
+
+  final _WaybillOrigin _self;
+  final $Res Function(_WaybillOrigin) _then;
+
+/// Create a copy of WaybillOrigin
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? homePickup = null,Object? dropoffHubs = null,}) {
+  return _then(_WaybillOrigin(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,homePickup: null == homePickup ? _self.homePickup : homePickup // ignore: cast_nullable_to_non_nullable
+as bool,dropoffHubs: null == dropoffHubs ? _self._dropoffHubs : dropoffHubs // ignore: cast_nullable_to_non_nullable
+as List<WaybillHub>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$WaybillDestination {
+
+ String get city; String get name; bool get doorDelivery; List<int> get transitDays; int get fromKobo; String get carrier; List<WaybillHub> get collectionHubs;
+/// Create a copy of WaybillDestination
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillDestinationCopyWith<WaybillDestination> get copyWith => _$WaybillDestinationCopyWithImpl<WaybillDestination>(this as WaybillDestination, _$identity);
+
+  /// Serializes this WaybillDestination to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillDestination;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillDestination&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.doorDelivery, _this.doorDelivery) || other.doorDelivery == _this.doorDelivery)&&const DeepCollectionEquality().equals(other.transitDays, _this.transitDays)&&(identical(other.fromKobo, _this.fromKobo) || other.fromKobo == _this.fromKobo)&&(identical(other.carrier, _this.carrier) || other.carrier == _this.carrier)&&const DeepCollectionEquality().equals(other.collectionHubs, _this.collectionHubs));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillDestination;
+  return Object.hash(runtimeType,_this.city,_this.name,_this.doorDelivery,const DeepCollectionEquality().hash(_this.transitDays),_this.fromKobo,_this.carrier,const DeepCollectionEquality().hash(_this.collectionHubs));
+}
+
+@override
+String toString() {
+  final _this = this as WaybillDestination;
+  return 'WaybillDestination(city: ${_this.city}, name: ${_this.name}, doorDelivery: ${_this.doorDelivery}, transitDays: ${_this.transitDays}, fromKobo: ${_this.fromKobo}, carrier: ${_this.carrier}, collectionHubs: ${_this.collectionHubs})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillDestinationCopyWith<$Res>  {
+  factory $WaybillDestinationCopyWith(WaybillDestination value, $Res Function(WaybillDestination) _then) = _$WaybillDestinationCopyWithImpl;
+@useResult
+$Res call({
+ String city, String name, bool doorDelivery, List<int> transitDays, int fromKobo, String carrier, List<WaybillHub> collectionHubs
+});
+
+
+
+
+}
+/// @nodoc
+class _$WaybillDestinationCopyWithImpl<$Res>
+    implements $WaybillDestinationCopyWith<$Res> {
+  _$WaybillDestinationCopyWithImpl(this._self, this._then);
+
+  final WaybillDestination _self;
+  final $Res Function(WaybillDestination) _then;
+
+/// Create a copy of WaybillDestination
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? city = null,Object? name = null,Object? doorDelivery = null,Object? transitDays = null,Object? fromKobo = null,Object? carrier = null,Object? collectionHubs = null,}) {
+  return _then(WaybillDestination(
+city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,doorDelivery: null == doorDelivery ? _self.doorDelivery : doorDelivery // ignore: cast_nullable_to_non_nullable
+as bool,transitDays: null == transitDays ? _self.transitDays : transitDays // ignore: cast_nullable_to_non_nullable
+as List<int>,fromKobo: null == fromKobo ? _self.fromKobo : fromKobo // ignore: cast_nullable_to_non_nullable
+as int,carrier: null == carrier ? _self.carrier : carrier // ignore: cast_nullable_to_non_nullable
+as String,collectionHubs: null == collectionHubs ? _self.collectionHubs : collectionHubs // ignore: cast_nullable_to_non_nullable
+as List<WaybillHub>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillDestination].
+extension WaybillDestinationPatterns on WaybillDestination {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillDestination value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillDestination() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillDestination value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillDestination():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillDestination value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillDestination() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String city,  String name,  bool doorDelivery,  List<int> transitDays,  int fromKobo,  String carrier,  List<WaybillHub> collectionHubs)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillDestination() when $default != null:
+return $default(_that.city,_that.name,_that.doorDelivery,_that.transitDays,_that.fromKobo,_that.carrier,_that.collectionHubs);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String city,  String name,  bool doorDelivery,  List<int> transitDays,  int fromKobo,  String carrier,  List<WaybillHub> collectionHubs)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillDestination():
+return $default(_that.city,_that.name,_that.doorDelivery,_that.transitDays,_that.fromKobo,_that.carrier,_that.collectionHubs);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String city,  String name,  bool doorDelivery,  List<int> transitDays,  int fromKobo,  String carrier,  List<WaybillHub> collectionHubs)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillDestination() when $default != null:
+return $default(_that.city,_that.name,_that.doorDelivery,_that.transitDays,_that.fromKobo,_that.carrier,_that.collectionHubs);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillDestination implements WaybillDestination {
+  const _WaybillDestination({required this.city, required this.name, this.doorDelivery = false,  List<int> transitDays = const <int>[1, 2], this.fromKobo = 0, this.carrier = '',  List<WaybillHub> collectionHubs = const <WaybillHub>[]}): _transitDays = transitDays,_collectionHubs = collectionHubs;
+  factory _WaybillDestination.fromJson(Map<String, dynamic> json) => _$WaybillDestinationFromJson(json);
+
+@override final  String city;
+@override final  String name;
+@override@JsonKey() final  bool doorDelivery;
+ final  List<int> _transitDays;
+@override@JsonKey() List<int> get transitDays {
+  if (_transitDays is EqualUnmodifiableListView) return _transitDays;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_transitDays);
+}
+
+@override@JsonKey() final  int fromKobo;
+@override@JsonKey() final  String carrier;
+ final  List<WaybillHub> _collectionHubs;
+@override@JsonKey() List<WaybillHub> get collectionHubs {
+  if (_collectionHubs is EqualUnmodifiableListView) return _collectionHubs;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_collectionHubs);
+}
+
+
+/// Create a copy of WaybillDestination
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillDestinationCopyWith<_WaybillDestination> get copyWith => __$WaybillDestinationCopyWithImpl<_WaybillDestination>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillDestinationToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillDestination&&(identical(other.city, city) || other.city == city)&&(identical(other.name, name) || other.name == name)&&(identical(other.doorDelivery, doorDelivery) || other.doorDelivery == doorDelivery)&&const DeepCollectionEquality().equals(other.transitDays, _transitDays)&&(identical(other.fromKobo, fromKobo) || other.fromKobo == fromKobo)&&(identical(other.carrier, carrier) || other.carrier == carrier)&&const DeepCollectionEquality().equals(other.collectionHubs, _collectionHubs));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,city,name,doorDelivery,const DeepCollectionEquality().hash(_transitDays),fromKobo,carrier,const DeepCollectionEquality().hash(_collectionHubs));
+}
+
+@override
+String toString() {
+    return 'WaybillDestination(city: $city, name: $name, doorDelivery: $doorDelivery, transitDays: $transitDays, fromKobo: $fromKobo, carrier: $carrier, collectionHubs: $collectionHubs)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillDestinationCopyWith<$Res> implements $WaybillDestinationCopyWith<$Res> {
+  factory _$WaybillDestinationCopyWith(_WaybillDestination value, $Res Function(_WaybillDestination) _then) = __$WaybillDestinationCopyWithImpl;
+@override @useResult
+$Res call({
+ String city, String name, bool doorDelivery, List<int> transitDays, int fromKobo, String carrier, List<WaybillHub> collectionHubs
+});
+
+
+
+
+}
+/// @nodoc
+class __$WaybillDestinationCopyWithImpl<$Res>
+    implements _$WaybillDestinationCopyWith<$Res> {
+  __$WaybillDestinationCopyWithImpl(this._self, this._then);
+
+  final _WaybillDestination _self;
+  final $Res Function(_WaybillDestination) _then;
+
+/// Create a copy of WaybillDestination
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? city = null,Object? name = null,Object? doorDelivery = null,Object? transitDays = null,Object? fromKobo = null,Object? carrier = null,Object? collectionHubs = null,}) {
+  return _then(_WaybillDestination(
+city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,doorDelivery: null == doorDelivery ? _self.doorDelivery : doorDelivery // ignore: cast_nullable_to_non_nullable
+as bool,transitDays: null == transitDays ? _self._transitDays : transitDays // ignore: cast_nullable_to_non_nullable
+as List<int>,fromKobo: null == fromKobo ? _self.fromKobo : fromKobo // ignore: cast_nullable_to_non_nullable
+as int,carrier: null == carrier ? _self.carrier : carrier // ignore: cast_nullable_to_non_nullable
+as String,collectionHubs: null == collectionHubs ? _self._collectionHubs : collectionHubs // ignore: cast_nullable_to_non_nullable
+as List<WaybillHub>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$WaybillDestinations {
+
+ List<WaybillHub> get dropoffHubs; List<WaybillDestination> get destinations;
+/// Create a copy of WaybillDestinations
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillDestinationsCopyWith<WaybillDestinations> get copyWith => _$WaybillDestinationsCopyWithImpl<WaybillDestinations>(this as WaybillDestinations, _$identity);
+
+  /// Serializes this WaybillDestinations to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillDestinations;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillDestinations&&const DeepCollectionEquality().equals(other.dropoffHubs, _this.dropoffHubs)&&const DeepCollectionEquality().equals(other.destinations, _this.destinations));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillDestinations;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.dropoffHubs),const DeepCollectionEquality().hash(_this.destinations));
+}
+
+@override
+String toString() {
+  final _this = this as WaybillDestinations;
+  return 'WaybillDestinations(dropoffHubs: ${_this.dropoffHubs}, destinations: ${_this.destinations})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillDestinationsCopyWith<$Res>  {
+  factory $WaybillDestinationsCopyWith(WaybillDestinations value, $Res Function(WaybillDestinations) _then) = _$WaybillDestinationsCopyWithImpl;
+@useResult
+$Res call({
+ List<WaybillHub> dropoffHubs, List<WaybillDestination> destinations
+});
+
+
+
+
+}
+/// @nodoc
+class _$WaybillDestinationsCopyWithImpl<$Res>
+    implements $WaybillDestinationsCopyWith<$Res> {
+  _$WaybillDestinationsCopyWithImpl(this._self, this._then);
+
+  final WaybillDestinations _self;
+  final $Res Function(WaybillDestinations) _then;
+
+/// Create a copy of WaybillDestinations
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? dropoffHubs = null,Object? destinations = null,}) {
+  return _then(WaybillDestinations(
+dropoffHubs: null == dropoffHubs ? _self.dropoffHubs : dropoffHubs // ignore: cast_nullable_to_non_nullable
+as List<WaybillHub>,destinations: null == destinations ? _self.destinations : destinations // ignore: cast_nullable_to_non_nullable
+as List<WaybillDestination>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillDestinations].
+extension WaybillDestinationsPatterns on WaybillDestinations {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillDestinations value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillDestinations() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillDestinations value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillDestinations():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillDestinations value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillDestinations() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<WaybillHub> dropoffHubs,  List<WaybillDestination> destinations)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillDestinations() when $default != null:
+return $default(_that.dropoffHubs,_that.destinations);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<WaybillHub> dropoffHubs,  List<WaybillDestination> destinations)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillDestinations():
+return $default(_that.dropoffHubs,_that.destinations);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<WaybillHub> dropoffHubs,  List<WaybillDestination> destinations)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillDestinations() when $default != null:
+return $default(_that.dropoffHubs,_that.destinations);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillDestinations implements WaybillDestinations {
+  const _WaybillDestinations({ List<WaybillHub> dropoffHubs = const <WaybillHub>[],  List<WaybillDestination> destinations = const <WaybillDestination>[]}): _dropoffHubs = dropoffHubs,_destinations = destinations;
+  factory _WaybillDestinations.fromJson(Map<String, dynamic> json) => _$WaybillDestinationsFromJson(json);
+
+ final  List<WaybillHub> _dropoffHubs;
+@override@JsonKey() List<WaybillHub> get dropoffHubs {
+  if (_dropoffHubs is EqualUnmodifiableListView) return _dropoffHubs;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_dropoffHubs);
+}
+
+ final  List<WaybillDestination> _destinations;
+@override@JsonKey() List<WaybillDestination> get destinations {
+  if (_destinations is EqualUnmodifiableListView) return _destinations;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_destinations);
+}
+
+
+/// Create a copy of WaybillDestinations
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillDestinationsCopyWith<_WaybillDestinations> get copyWith => __$WaybillDestinationsCopyWithImpl<_WaybillDestinations>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillDestinationsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillDestinations&&const DeepCollectionEquality().equals(other.dropoffHubs, _dropoffHubs)&&const DeepCollectionEquality().equals(other.destinations, _destinations));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_dropoffHubs),const DeepCollectionEquality().hash(_destinations));
+}
+
+@override
+String toString() {
+    return 'WaybillDestinations(dropoffHubs: $dropoffHubs, destinations: $destinations)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillDestinationsCopyWith<$Res> implements $WaybillDestinationsCopyWith<$Res> {
+  factory _$WaybillDestinationsCopyWith(_WaybillDestinations value, $Res Function(_WaybillDestinations) _then) = __$WaybillDestinationsCopyWithImpl;
+@override @useResult
+$Res call({
+ List<WaybillHub> dropoffHubs, List<WaybillDestination> destinations
+});
+
+
+
+
+}
+/// @nodoc
+class __$WaybillDestinationsCopyWithImpl<$Res>
+    implements _$WaybillDestinationsCopyWith<$Res> {
+  __$WaybillDestinationsCopyWithImpl(this._self, this._then);
+
+  final _WaybillDestinations _self;
+  final $Res Function(_WaybillDestinations) _then;
+
+/// Create a copy of WaybillDestinations
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? dropoffHubs = null,Object? destinations = null,}) {
+  return _then(_WaybillDestinations(
+dropoffHubs: null == dropoffHubs ? _self._dropoffHubs : dropoffHubs // ignore: cast_nullable_to_non_nullable
+as List<WaybillHub>,destinations: null == destinations ? _self._destinations : destinations // ignore: cast_nullable_to_non_nullable
+as List<WaybillDestination>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$WaybillScan {
+
+ String get stage; String get label; DateTime get at; String? get place;
+/// Create a copy of WaybillScan
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillScanCopyWith<WaybillScan> get copyWith => _$WaybillScanCopyWithImpl<WaybillScan>(this as WaybillScan, _$identity);
+
+  /// Serializes this WaybillScan to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillScan;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillScan&&(identical(other.stage, _this.stage) || other.stage == _this.stage)&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.at, _this.at) || other.at == _this.at)&&(identical(other.place, _this.place) || other.place == _this.place));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillScan;
+  return Object.hash(runtimeType,_this.stage,_this.label,_this.at,_this.place);
+}
+
+@override
+String toString() {
+  final _this = this as WaybillScan;
+  return 'WaybillScan(stage: ${_this.stage}, label: ${_this.label}, at: ${_this.at}, place: ${_this.place})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillScanCopyWith<$Res>  {
+  factory $WaybillScanCopyWith(WaybillScan value, $Res Function(WaybillScan) _then) = _$WaybillScanCopyWithImpl;
+@useResult
+$Res call({
+ String stage, String label, DateTime at, String? place
+});
+
+
+
+
+}
+/// @nodoc
+class _$WaybillScanCopyWithImpl<$Res>
+    implements $WaybillScanCopyWith<$Res> {
+  _$WaybillScanCopyWithImpl(this._self, this._then);
+
+  final WaybillScan _self;
+  final $Res Function(WaybillScan) _then;
+
+/// Create a copy of WaybillScan
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? stage = null,Object? label = null,Object? at = null,Object? place = freezed,}) {
+  return _then(WaybillScan(
+stage: null == stage ? _self.stage : stage // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,at: null == at ? _self.at : at // ignore: cast_nullable_to_non_nullable
+as DateTime,place: freezed == place ? _self.place : place // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillScan].
+extension WaybillScanPatterns on WaybillScan {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillScan value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillScan() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillScan value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillScan():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillScan value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillScan() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String stage,  String label,  DateTime at,  String? place)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillScan() when $default != null:
+return $default(_that.stage,_that.label,_that.at,_that.place);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String stage,  String label,  DateTime at,  String? place)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillScan():
+return $default(_that.stage,_that.label,_that.at,_that.place);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String stage,  String label,  DateTime at,  String? place)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillScan() when $default != null:
+return $default(_that.stage,_that.label,_that.at,_that.place);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillScan implements WaybillScan {
+  const _WaybillScan({required this.stage, required this.label, required this.at, this.place});
+  factory _WaybillScan.fromJson(Map<String, dynamic> json) => _$WaybillScanFromJson(json);
+
+@override final  String stage;
+@override final  String label;
+@override final  DateTime at;
+@override final  String? place;
+
+/// Create a copy of WaybillScan
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillScanCopyWith<_WaybillScan> get copyWith => __$WaybillScanCopyWithImpl<_WaybillScan>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillScanToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillScan&&(identical(other.stage, stage) || other.stage == stage)&&(identical(other.label, label) || other.label == label)&&(identical(other.at, at) || other.at == at)&&(identical(other.place, place) || other.place == place));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,stage,label,at,place);
+}
+
+@override
+String toString() {
+    return 'WaybillScan(stage: $stage, label: $label, at: $at, place: $place)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillScanCopyWith<$Res> implements $WaybillScanCopyWith<$Res> {
+  factory _$WaybillScanCopyWith(_WaybillScan value, $Res Function(_WaybillScan) _then) = __$WaybillScanCopyWithImpl;
+@override @useResult
+$Res call({
+ String stage, String label, DateTime at, String? place
+});
+
+
+
+
+}
+/// @nodoc
+class __$WaybillScanCopyWithImpl<$Res>
+    implements _$WaybillScanCopyWith<$Res> {
+  __$WaybillScanCopyWithImpl(this._self, this._then);
+
+  final _WaybillScan _self;
+  final $Res Function(_WaybillScan) _then;
+
+/// Create a copy of WaybillScan
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? stage = null,Object? label = null,Object? at = null,Object? place = freezed,}) {
+  return _then(_WaybillScan(
+stage: null == stage ? _self.stage : stage // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,at: null == at ? _self.at : at // ignore: cast_nullable_to_non_nullable
+as DateTime,place: freezed == place ? _self.place : place // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$WaybillTracking {
+
+ String get trackingCode; String get origin; String get destination; String get label; int get step; List<String> get steps; String get etaText; String get lastMile; List<WaybillScan> get milestones; bool get delivered;
+/// Create a copy of WaybillTracking
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WaybillTrackingCopyWith<WaybillTracking> get copyWith => _$WaybillTrackingCopyWithImpl<WaybillTracking>(this as WaybillTracking, _$identity);
+
+  /// Serializes this WaybillTracking to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WaybillTracking;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WaybillTracking&&(identical(other.trackingCode, _this.trackingCode) || other.trackingCode == _this.trackingCode)&&(identical(other.origin, _this.origin) || other.origin == _this.origin)&&(identical(other.destination, _this.destination) || other.destination == _this.destination)&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.step, _this.step) || other.step == _this.step)&&const DeepCollectionEquality().equals(other.steps, _this.steps)&&(identical(other.etaText, _this.etaText) || other.etaText == _this.etaText)&&(identical(other.lastMile, _this.lastMile) || other.lastMile == _this.lastMile)&&const DeepCollectionEquality().equals(other.milestones, _this.milestones)&&(identical(other.delivered, _this.delivered) || other.delivered == _this.delivered));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WaybillTracking;
+  return Object.hash(runtimeType,_this.trackingCode,_this.origin,_this.destination,_this.label,_this.step,const DeepCollectionEquality().hash(_this.steps),_this.etaText,_this.lastMile,const DeepCollectionEquality().hash(_this.milestones),_this.delivered);
+}
+
+@override
+String toString() {
+  final _this = this as WaybillTracking;
+  return 'WaybillTracking(trackingCode: ${_this.trackingCode}, origin: ${_this.origin}, destination: ${_this.destination}, label: ${_this.label}, step: ${_this.step}, steps: ${_this.steps}, etaText: ${_this.etaText}, lastMile: ${_this.lastMile}, milestones: ${_this.milestones}, delivered: ${_this.delivered})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WaybillTrackingCopyWith<$Res>  {
+  factory $WaybillTrackingCopyWith(WaybillTracking value, $Res Function(WaybillTracking) _then) = _$WaybillTrackingCopyWithImpl;
+@useResult
+$Res call({
+ String trackingCode, String origin, String destination, String label, int step, List<String> steps, String etaText, String lastMile, List<WaybillScan> milestones, bool delivered
+});
+
+
+
+
+}
+/// @nodoc
+class _$WaybillTrackingCopyWithImpl<$Res>
+    implements $WaybillTrackingCopyWith<$Res> {
+  _$WaybillTrackingCopyWithImpl(this._self, this._then);
+
+  final WaybillTracking _self;
+  final $Res Function(WaybillTracking) _then;
+
+/// Create a copy of WaybillTracking
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? trackingCode = null,Object? origin = null,Object? destination = null,Object? label = null,Object? step = null,Object? steps = null,Object? etaText = null,Object? lastMile = null,Object? milestones = null,Object? delivered = null,}) {
+  return _then(WaybillTracking(
+trackingCode: null == trackingCode ? _self.trackingCode : trackingCode // ignore: cast_nullable_to_non_nullable
+as String,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
+as String,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
+as int,steps: null == steps ? _self.steps : steps // ignore: cast_nullable_to_non_nullable
+as List<String>,etaText: null == etaText ? _self.etaText : etaText // ignore: cast_nullable_to_non_nullable
+as String,lastMile: null == lastMile ? _self.lastMile : lastMile // ignore: cast_nullable_to_non_nullable
+as String,milestones: null == milestones ? _self.milestones : milestones // ignore: cast_nullable_to_non_nullable
+as List<WaybillScan>,delivered: null == delivered ? _self.delivered : delivered // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WaybillTracking].
+extension WaybillTrackingPatterns on WaybillTracking {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WaybillTracking value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WaybillTracking() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WaybillTracking value)  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillTracking():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WaybillTracking value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WaybillTracking() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String trackingCode,  String origin,  String destination,  String label,  int step,  List<String> steps,  String etaText,  String lastMile,  List<WaybillScan> milestones,  bool delivered)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WaybillTracking() when $default != null:
+return $default(_that.trackingCode,_that.origin,_that.destination,_that.label,_that.step,_that.steps,_that.etaText,_that.lastMile,_that.milestones,_that.delivered);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String trackingCode,  String origin,  String destination,  String label,  int step,  List<String> steps,  String etaText,  String lastMile,  List<WaybillScan> milestones,  bool delivered)  $default,) {final _that = this;
+switch (_that) {
+case _WaybillTracking():
+return $default(_that.trackingCode,_that.origin,_that.destination,_that.label,_that.step,_that.steps,_that.etaText,_that.lastMile,_that.milestones,_that.delivered);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String trackingCode,  String origin,  String destination,  String label,  int step,  List<String> steps,  String etaText,  String lastMile,  List<WaybillScan> milestones,  bool delivered)?  $default,) {final _that = this;
+switch (_that) {
+case _WaybillTracking() when $default != null:
+return $default(_that.trackingCode,_that.origin,_that.destination,_that.label,_that.step,_that.steps,_that.etaText,_that.lastMile,_that.milestones,_that.delivered);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WaybillTracking implements WaybillTracking {
+  const _WaybillTracking({required this.trackingCode, this.origin = '', this.destination = '', this.label = '', this.step = 0,  List<String> steps = const <String>[], this.etaText = '', this.lastMile = 'door',  List<WaybillScan> milestones = const <WaybillScan>[], this.delivered = false}): _steps = steps,_milestones = milestones;
+  factory _WaybillTracking.fromJson(Map<String, dynamic> json) => _$WaybillTrackingFromJson(json);
+
+@override final  String trackingCode;
+@override@JsonKey() final  String origin;
+@override@JsonKey() final  String destination;
+@override@JsonKey() final  String label;
+@override@JsonKey() final  int step;
+ final  List<String> _steps;
+@override@JsonKey() List<String> get steps {
+  if (_steps is EqualUnmodifiableListView) return _steps;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_steps);
+}
+
+@override@JsonKey() final  String etaText;
+@override@JsonKey() final  String lastMile;
+ final  List<WaybillScan> _milestones;
+@override@JsonKey() List<WaybillScan> get milestones {
+  if (_milestones is EqualUnmodifiableListView) return _milestones;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_milestones);
+}
+
+@override@JsonKey() final  bool delivered;
+
+/// Create a copy of WaybillTracking
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WaybillTrackingCopyWith<_WaybillTracking> get copyWith => __$WaybillTrackingCopyWithImpl<_WaybillTracking>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WaybillTrackingToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WaybillTracking&&(identical(other.trackingCode, trackingCode) || other.trackingCode == trackingCode)&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.label, label) || other.label == label)&&(identical(other.step, step) || other.step == step)&&const DeepCollectionEquality().equals(other.steps, _steps)&&(identical(other.etaText, etaText) || other.etaText == etaText)&&(identical(other.lastMile, lastMile) || other.lastMile == lastMile)&&const DeepCollectionEquality().equals(other.milestones, _milestones)&&(identical(other.delivered, delivered) || other.delivered == delivered));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,trackingCode,origin,destination,label,step,const DeepCollectionEquality().hash(_steps),etaText,lastMile,const DeepCollectionEquality().hash(_milestones),delivered);
+}
+
+@override
+String toString() {
+    return 'WaybillTracking(trackingCode: $trackingCode, origin: $origin, destination: $destination, label: $label, step: $step, steps: $steps, etaText: $etaText, lastMile: $lastMile, milestones: $milestones, delivered: $delivered)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WaybillTrackingCopyWith<$Res> implements $WaybillTrackingCopyWith<$Res> {
+  factory _$WaybillTrackingCopyWith(_WaybillTracking value, $Res Function(_WaybillTracking) _then) = __$WaybillTrackingCopyWithImpl;
+@override @useResult
+$Res call({
+ String trackingCode, String origin, String destination, String label, int step, List<String> steps, String etaText, String lastMile, List<WaybillScan> milestones, bool delivered
+});
+
+
+
+
+}
+/// @nodoc
+class __$WaybillTrackingCopyWithImpl<$Res>
+    implements _$WaybillTrackingCopyWith<$Res> {
+  __$WaybillTrackingCopyWithImpl(this._self, this._then);
+
+  final _WaybillTracking _self;
+  final $Res Function(_WaybillTracking) _then;
+
+/// Create a copy of WaybillTracking
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? trackingCode = null,Object? origin = null,Object? destination = null,Object? label = null,Object? step = null,Object? steps = null,Object? etaText = null,Object? lastMile = null,Object? milestones = null,Object? delivered = null,}) {
+  return _then(_WaybillTracking(
+trackingCode: null == trackingCode ? _self.trackingCode : trackingCode // ignore: cast_nullable_to_non_nullable
+as String,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
+as String,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
+as int,steps: null == steps ? _self._steps : steps // ignore: cast_nullable_to_non_nullable
+as List<String>,etaText: null == etaText ? _self.etaText : etaText // ignore: cast_nullable_to_non_nullable
+as String,lastMile: null == lastMile ? _self.lastMile : lastMile // ignore: cast_nullable_to_non_nullable
+as String,milestones: null == milestones ? _self._milestones : milestones // ignore: cast_nullable_to_non_nullable
+as List<WaybillScan>,delivered: null == delivered ? _self.delivered : delivered // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
 }
 
 

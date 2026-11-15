@@ -14,6 +14,7 @@ import 'features/location/nearby_map_screen.dart';
 import 'features/orders/order_screen.dart';
 import 'features/orders/orders_screen.dart';
 import 'features/parcel/parcel_screen.dart';
+import 'features/parcel/waybill_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/restaurant/restaurant_screen.dart';
 import 'features/support/support_screen.dart';
@@ -81,7 +82,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),
       GoRoute(path: '/food', builder: (_, s) => VerticalScreen(vertical: 'food', category: s.uri.queryParameters['category'])),
       GoRoute(path: '/beauty', builder: (_, s) => VerticalScreen(vertical: 'beauty', category: s.uri.queryParameters['category'])),
-      GoRoute(path: '/send', builder: (_, _) => const ParcelScreen()),
+      GoRoute(
+        path: '/send',
+        builder: (_, s) => s.uri.queryParameters['mode'] == 'interstate' ? const WaybillScreen() : const ParcelScreen(),
+      ),
       GoRoute(path: '/map', builder: (_, s) => NearbyMapScreen(vertical: s.uri.queryParameters['vertical'] ?? 'food')),
       GoRoute(
         path: '/restaurants/:id',

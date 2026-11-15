@@ -288,6 +288,8 @@ _PriceBreakdown _$PriceBreakdownFromJson(Map<String, dynamic> json) =>
       vatKobo: (json['vat_kobo'] as num?)?.toInt() ?? 0,
       discountKobo: (json['discount_kobo'] as num?)?.toInt() ?? 0,
       codFeeKobo: (json['cod_fee_kobo'] as num?)?.toInt() ?? 0,
+      linehaulFeeKobo: (json['linehaul_fee_kobo'] as num?)?.toInt() ?? 0,
+      pickupFeeKobo: (json['pickup_fee_kobo'] as num?)?.toInt() ?? 0,
       totalKobo: (json['total_kobo'] as num).toInt(),
       voucherCode: json['voucher_code'] as String?,
     );
@@ -301,6 +303,8 @@ Map<String, dynamic> _$PriceBreakdownToJson(_PriceBreakdown instance) =>
       'vat_kobo': instance.vatKobo,
       'discount_kobo': instance.discountKobo,
       'cod_fee_kobo': instance.codFeeKobo,
+      'linehaul_fee_kobo': instance.linehaulFeeKobo,
+      'pickup_fee_kobo': instance.pickupFeeKobo,
       'total_kobo': instance.totalKobo,
       'voucher_code': ?instance.voucherCode,
     };
@@ -336,6 +340,9 @@ _OrderProgress _$OrderProgressFromJson(Map<String, dynamic> json) =>
       step: (json['step'] as num).toInt(),
       totalSteps: (json['total_steps'] as num?)?.toInt() ?? 5,
       label: json['label'] as String,
+      steps:
+          (json['steps'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          const <String>[],
     );
 
 Map<String, dynamic> _$OrderProgressToJson(_OrderProgress instance) =>
@@ -343,6 +350,7 @@ Map<String, dynamic> _$OrderProgressToJson(_OrderProgress instance) =>
       'step': instance.step,
       'total_steps': instance.totalSteps,
       'label': instance.label,
+      'steps': instance.steps,
     };
 
 _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
@@ -397,6 +405,11 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       : DateTime.parse(json['cash_collected_at'] as String),
   paymentMethod: json['payment_method'] as String?,
   collectCashKobo: (json['collect_cash_kobo'] as num?)?.toInt() ?? 0,
+  waybill: json['waybill'] == null
+      ? null
+      : WaybillDetails.fromJson(json['waybill'] as Map<String, dynamic>),
+  legKind: json['leg_kind'] as String?,
+  hubHandover: json['hub_handover'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
@@ -425,6 +438,9 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
   'cash_collected_at': ?instance.cashCollectedAt?.toIso8601String(),
   'payment_method': ?instance.paymentMethod,
   'collect_cash_kobo': instance.collectCashKobo,
+  'waybill': ?instance.waybill?.toJson(),
+  'leg_kind': ?instance.legKind,
+  'hub_handover': instance.hubHandover,
 };
 
 _OrderPayment _$OrderPaymentFromJson(Map<String, dynamic> json) =>
@@ -590,6 +606,248 @@ Map<String, dynamic> _$WalletOverviewToJson(_WalletOverview instance) =>
       'refund_to_wallet': instance.refundToWallet,
       'transactions': instance.transactions.map((e) => e.toJson()).toList(),
       'seller': ?instance.seller?.toJson(),
+    };
+
+_WaybillParty _$WaybillPartyFromJson(Map<String, dynamic> json) =>
+    _WaybillParty(
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      line1: json['line1'] as String?,
+      area: json['area'] as String?,
+      location: json['location'] == null
+          ? null
+          : GeoPoint.fromJson(json['location'] as Map<String, dynamic>),
+      instructions: json['instructions'] as String?,
+    );
+
+Map<String, dynamic> _$WaybillPartyToJson(_WaybillParty instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'phone': instance.phone,
+      'line1': ?instance.line1,
+      'area': ?instance.area,
+      'location': ?instance.location?.toJson(),
+      'instructions': ?instance.instructions,
+    };
+
+_WaybillDetails _$WaybillDetailsFromJson(Map<String, dynamic> json) =>
+    _WaybillDetails(
+      trackingCode: json['tracking_code'] as String?,
+      originCity: json['origin_city'] as String? ?? '',
+      destinationCity: json['destination_city'] as String? ?? '',
+      originCityName: json['origin_city_name'] as String? ?? '',
+      destinationCityName: json['destination_city_name'] as String? ?? '',
+      originHubId: json['origin_hub_id'] as String? ?? '',
+      destinationHubId: json['destination_hub_id'] as String? ?? '',
+      originHubName: json['origin_hub_name'] as String? ?? '',
+      destinationHubName: json['destination_hub_name'] as String? ?? '',
+      destinationHubAddress: json['destination_hub_address'] as String? ?? '',
+      destinationHubHours: json['destination_hub_hours'] as String? ?? '',
+      firstMile: json['first_mile'] as String? ?? 'pickup',
+      lastMile: json['last_mile'] as String? ?? 'door',
+      sender: WaybillParty.fromJson(json['sender'] as Map<String, dynamic>),
+      recipient: WaybillParty.fromJson(
+        json['recipient'] as Map<String, dynamic>,
+      ),
+      size: json['size'] as String? ?? 'small',
+      weightKg: (json['weight_kg'] as num?)?.toDouble() ?? 1,
+      category: json['category'] as String? ?? 'other',
+      description: json['description'] as String? ?? '',
+      codAmountKobo: (json['cod_amount_kobo'] as num?)?.toInt(),
+      carrierName: json['carrier_name'] as String? ?? '',
+      stage: json['stage'] as String?,
+      etaFrom: json['eta_from'] as String?,
+      etaTo: json['eta_to'] as String?,
+    );
+
+Map<String, dynamic> _$WaybillDetailsToJson(_WaybillDetails instance) =>
+    <String, dynamic>{
+      'tracking_code': ?instance.trackingCode,
+      'origin_city': instance.originCity,
+      'destination_city': instance.destinationCity,
+      'origin_city_name': instance.originCityName,
+      'destination_city_name': instance.destinationCityName,
+      'origin_hub_id': instance.originHubId,
+      'destination_hub_id': instance.destinationHubId,
+      'origin_hub_name': instance.originHubName,
+      'destination_hub_name': instance.destinationHubName,
+      'destination_hub_address': instance.destinationHubAddress,
+      'destination_hub_hours': instance.destinationHubHours,
+      'first_mile': instance.firstMile,
+      'last_mile': instance.lastMile,
+      'sender': instance.sender.toJson(),
+      'recipient': instance.recipient.toJson(),
+      'size': instance.size,
+      'weight_kg': instance.weightKg,
+      'category': instance.category,
+      'description': instance.description,
+      'cod_amount_kobo': ?instance.codAmountKobo,
+      'carrier_name': instance.carrierName,
+      'stage': ?instance.stage,
+      'eta_from': ?instance.etaFrom,
+      'eta_to': ?instance.etaTo,
+    };
+
+_WaybillQuote _$WaybillQuoteFromJson(Map<String, dynamic> json) =>
+    _WaybillQuote(
+      id: json['id'] as String,
+      details: WaybillDetails.fromJson(json['details'] as Map<String, dynamic>),
+      breakdown: PriceBreakdown.fromJson(
+        json['breakdown'] as Map<String, dynamic>,
+      ),
+      etaText: json['eta_text'] as String? ?? '',
+      expiresAt: DateTime.parse(json['expires_at'] as String),
+    );
+
+Map<String, dynamic> _$WaybillQuoteToJson(_WaybillQuote instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'details': instance.details.toJson(),
+      'breakdown': instance.breakdown.toJson(),
+      'eta_text': instance.etaText,
+      'expires_at': instance.expiresAt.toIso8601String(),
+    };
+
+_WaybillHub _$WaybillHubFromJson(Map<String, dynamic> json) => _WaybillHub(
+  id: json['id'] as String,
+  name: json['name'] as String,
+  city: json['city'] as String,
+  address: json['address'] as String? ?? '',
+  hours: json['hours'] as String? ?? '',
+  isSample: json['is_sample'] as bool? ?? true,
+);
+
+Map<String, dynamic> _$WaybillHubToJson(_WaybillHub instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'city': instance.city,
+      'address': instance.address,
+      'hours': instance.hours,
+      'is_sample': instance.isSample,
+    };
+
+_WaybillOrigin _$WaybillOriginFromJson(Map<String, dynamic> json) =>
+    _WaybillOrigin(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      homePickup: json['home_pickup'] as bool? ?? false,
+      dropoffHubs:
+          (json['dropoff_hubs'] as List<dynamic>?)
+              ?.map((e) => WaybillHub.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <WaybillHub>[],
+    );
+
+Map<String, dynamic> _$WaybillOriginToJson(_WaybillOrigin instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'home_pickup': instance.homePickup,
+      'dropoff_hubs': instance.dropoffHubs.map((e) => e.toJson()).toList(),
+    };
+
+_WaybillDestination _$WaybillDestinationFromJson(Map<String, dynamic> json) =>
+    _WaybillDestination(
+      city: json['city'] as String,
+      name: json['name'] as String,
+      doorDelivery: json['door_delivery'] as bool? ?? false,
+      transitDays:
+          (json['transit_days'] as List<dynamic>?)
+              ?.map((e) => (e as num).toInt())
+              .toList() ??
+          const <int>[1, 2],
+      fromKobo: (json['from_kobo'] as num?)?.toInt() ?? 0,
+      carrier: json['carrier'] as String? ?? '',
+      collectionHubs:
+          (json['collection_hubs'] as List<dynamic>?)
+              ?.map((e) => WaybillHub.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <WaybillHub>[],
+    );
+
+Map<String, dynamic> _$WaybillDestinationToJson(
+  _WaybillDestination instance,
+) => <String, dynamic>{
+  'city': instance.city,
+  'name': instance.name,
+  'door_delivery': instance.doorDelivery,
+  'transit_days': instance.transitDays,
+  'from_kobo': instance.fromKobo,
+  'carrier': instance.carrier,
+  'collection_hubs': instance.collectionHubs.map((e) => e.toJson()).toList(),
+};
+
+_WaybillDestinations _$WaybillDestinationsFromJson(Map<String, dynamic> json) =>
+    _WaybillDestinations(
+      dropoffHubs:
+          (json['dropoff_hubs'] as List<dynamic>?)
+              ?.map((e) => WaybillHub.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <WaybillHub>[],
+      destinations:
+          (json['destinations'] as List<dynamic>?)
+              ?.map(
+                (e) => WaybillDestination.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const <WaybillDestination>[],
+    );
+
+Map<String, dynamic> _$WaybillDestinationsToJson(
+  _WaybillDestinations instance,
+) => <String, dynamic>{
+  'dropoff_hubs': instance.dropoffHubs.map((e) => e.toJson()).toList(),
+  'destinations': instance.destinations.map((e) => e.toJson()).toList(),
+};
+
+_WaybillScan _$WaybillScanFromJson(Map<String, dynamic> json) => _WaybillScan(
+  stage: json['stage'] as String,
+  label: json['label'] as String,
+  at: DateTime.parse(json['at'] as String),
+  place: json['place'] as String?,
+);
+
+Map<String, dynamic> _$WaybillScanToJson(_WaybillScan instance) =>
+    <String, dynamic>{
+      'stage': instance.stage,
+      'label': instance.label,
+      'at': instance.at.toIso8601String(),
+      'place': ?instance.place,
+    };
+
+_WaybillTracking _$WaybillTrackingFromJson(Map<String, dynamic> json) =>
+    _WaybillTracking(
+      trackingCode: json['tracking_code'] as String,
+      origin: json['origin'] as String? ?? '',
+      destination: json['destination'] as String? ?? '',
+      label: json['label'] as String? ?? '',
+      step: (json['step'] as num?)?.toInt() ?? 0,
+      steps:
+          (json['steps'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          const <String>[],
+      etaText: json['eta_text'] as String? ?? '',
+      lastMile: json['last_mile'] as String? ?? 'door',
+      milestones:
+          (json['milestones'] as List<dynamic>?)
+              ?.map((e) => WaybillScan.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <WaybillScan>[],
+      delivered: json['delivered'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$WaybillTrackingToJson(_WaybillTracking instance) =>
+    <String, dynamic>{
+      'tracking_code': instance.trackingCode,
+      'origin': instance.origin,
+      'destination': instance.destination,
+      'label': instance.label,
+      'step': instance.step,
+      'steps': instance.steps,
+      'eta_text': instance.etaText,
+      'last_mile': instance.lastMile,
+      'milestones': instance.milestones.map((e) => e.toJson()).toList(),
+      'delivered': instance.delivered,
     };
 
 _TopUpResult _$TopUpResultFromJson(Map<String, dynamic> json) => _TopUpResult(

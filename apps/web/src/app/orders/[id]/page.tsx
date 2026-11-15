@@ -7,6 +7,7 @@ import { Banknote, Bike, KeyRound, MessageCircleWarning, Star, Wallet } from "lu
 import Link from "next/link";
 import { use, useRef, useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
+import { WaybillPanel } from "@/components/waybill-panel";
 import { useApi } from "@/lib/api";
 import { GOOGLE_MAPS_BROWSER_KEY } from "@/lib/maps";
 
@@ -43,7 +44,10 @@ function OrderDetail({ id }: { id: string }) {
   if (order.error || !o) return <div className="container-page py-10"><ErrorState message={(order.error as Error)?.message ?? "Not found"} onRetry={() => order.refetch()} /></div>;
 
   const step = o.progress.step;
-  const canCancel = ["draft", "pending_payment", "submitted_to_restaurant"].includes(o.status);
+  const waybill = o.waybill ?? null;
+  const earlyWaybill = Boolean(waybill && o.status === "paid" && [null, "awaiting_dropoff", "pickup_scheduled"].includes(waybill.stage));
+  const canCancel = ["draft", "pending_payment", "submitted_to_restaurant"].includes(o.status) || earlyWaybill;
+  const showCode = waybill ? ["paid", "in_transit"].includes(o.status) : step < 5 && step >= 1;
 
   return (
     <div className="container-page grid max-w-5xl gap-6 py-8 lg:grid-cols-[1fr_340px]">
@@ -56,7 +60,9 @@ function OrderDetail({ id }: { id: string }) {
           <StatusBadge status={o.status} />
         </div>
 
-        {step >= 0 && (
+        {waybill && <WaybillPanel order={o} />}
+
+        {step >= 0 && !waybill && (
           <Card className="p-5">
             <ol className="grid grid-cols-5 gap-2" aria-label="Order progress">
               {TRACKING_STEPS.map((label, i) => (
@@ -106,14 +112,21 @@ function OrderDetail({ id }: { id: string }) {
           </Card>
         )}
 
-        {codes.data && step < 5 && step >= 1 && (
+        {codes.data && showCode && (
           <Card className="flex items-center gap-4 border-primary/40 p-5">
             <KeyRound className="size-6 text-primary" aria-hidden="true" />
             <div className="text-sm">
-              <p className="font-semibold">{o.fulfillment === "delivery" ? "Delivery code" : "Pickup code"}:{" "}
+              <p className="font-semibold">
+                {waybill ? (waybill.last_mile === "door" ? "Delivery code" : "Collection code") : o.fulfillment === "delivery" ? "Delivery code" : "Pickup code"}:{" "}
                 <span className="font-display text-2xl tracking-[0.3em]">{o.fulfillment === "delivery" ? codes.data.delivery_code : codes.data.pickup_code}</span>
               </p>
-              <p className="text-muted">Share it only when you have your food. Gud Meal will never ask for it by phone.</p>
+              <p className="text-muted">
+                {waybill
+                  ? waybill.last_mile === "door"
+                    ? `Send it to ${waybill.recipient.name}: they give it to the rider when the package arrives.`
+                    : `Send it to ${waybill.recipient.name}: they show it at ${waybill.destination_hub_name} to collect the package.`
+                  : "Share it only when you have your food. Gud Meal will never ask for it by phone."}
+              </p>
             </div>
           </Card>
         )}

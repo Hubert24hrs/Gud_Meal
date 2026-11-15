@@ -158,6 +158,8 @@ abstract class PriceBreakdown with _$PriceBreakdown {
     @Default(0) int vatKobo,
     @Default(0) int discountKobo,
     @Default(0) int codFeeKobo,
+    @Default(0) int linehaulFeeKobo,
+    @Default(0) int pickupFeeKobo,
     required int totalKobo,
     String? voucherCode,
   }) = _PriceBreakdown;
@@ -181,7 +183,13 @@ abstract class Quote with _$Quote {
 
 @freezed
 abstract class OrderProgress with _$OrderProgress {
-  const factory OrderProgress({required int step, @Default(5) int totalSteps, required String label}) = _OrderProgress;
+  const factory OrderProgress({
+    required int step,
+    @Default(5) int totalSteps,
+    required String label,
+    /// Waybills use their own steps (Booked, At the hub, On the way, Arrived, Delivered).
+    @Default(<String>[]) List<String> steps,
+  }) = _OrderProgress;
   factory OrderProgress.fromJson(Map<String, dynamic> json) => _$OrderProgressFromJson(json);
 }
 
@@ -214,6 +222,11 @@ abstract class Order with _$Order {
     // Rider view: cash to take at the door ('cash' = pay on delivery) and the amount (0 when prepaid).
     String? paymentMethod,
     @Default(0) int collectCashKobo,
+    /// Interstate waybill details (vertical 'waybill').
+    WaybillDetails? waybill,
+    /// Rider view of a waybill's rider job: 'first_mile' ends with hub staff, 'last_mile' at the door.
+    String? legKind,
+    @Default(false) bool hubHandover,
   }) = _Order;
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 }
@@ -312,6 +325,135 @@ abstract class WalletOverview with _$WalletOverview {
     SellerSummary? seller,
   }) = _WalletOverview;
   factory WalletOverview.fromJson(Map<String, dynamic> json) => _$WalletOverviewFromJson(json);
+}
+
+// ------------------------------------------------------------------------------------------ waybill
+
+@freezed
+abstract class WaybillParty with _$WaybillParty {
+  const factory WaybillParty({
+    required String name,
+    required String phone,
+    String? line1,
+    String? area,
+    GeoPoint? location,
+    String? instructions,
+  }) = _WaybillParty;
+  factory WaybillParty.fromJson(Map<String, dynamic> json) => _$WaybillPartyFromJson(json);
+}
+
+@freezed
+abstract class WaybillDetails with _$WaybillDetails {
+  const factory WaybillDetails({
+    String? trackingCode,
+    @Default('') String originCity,
+    @Default('') String destinationCity,
+    @Default('') String originCityName,
+    @Default('') String destinationCityName,
+    @Default('') String originHubId,
+    @Default('') String destinationHubId,
+    @Default('') String originHubName,
+    @Default('') String destinationHubName,
+    @Default('') String destinationHubAddress,
+    @Default('') String destinationHubHours,
+    @Default('pickup') String firstMile,
+    @Default('door') String lastMile,
+    required WaybillParty sender,
+    required WaybillParty recipient,
+    @Default('small') String size,
+    @Default(1) double weightKg,
+    @Default('other') String category,
+    @Default('') String description,
+    int? codAmountKobo,
+    @Default('') String carrierName,
+    String? stage,
+    String? etaFrom,
+    String? etaTo,
+  }) = _WaybillDetails;
+  factory WaybillDetails.fromJson(Map<String, dynamic> json) => _$WaybillDetailsFromJson(json);
+}
+
+@freezed
+abstract class WaybillQuote with _$WaybillQuote {
+  const factory WaybillQuote({
+    required String id,
+    required WaybillDetails details,
+    required PriceBreakdown breakdown,
+    @Default('') String etaText,
+    required DateTime expiresAt,
+  }) = _WaybillQuote;
+  factory WaybillQuote.fromJson(Map<String, dynamic> json) => _$WaybillQuoteFromJson(json);
+}
+
+@freezed
+abstract class WaybillHub with _$WaybillHub {
+  const factory WaybillHub({
+    required String id,
+    required String name,
+    required String city,
+    @Default('') String address,
+    @Default('') String hours,
+    @Default(true) bool isSample,
+  }) = _WaybillHub;
+  factory WaybillHub.fromJson(Map<String, dynamic> json) => _$WaybillHubFromJson(json);
+}
+
+@freezed
+abstract class WaybillOrigin with _$WaybillOrigin {
+  const factory WaybillOrigin({
+    required String id,
+    required String name,
+    @Default(false) bool homePickup,
+    @Default(<WaybillHub>[]) List<WaybillHub> dropoffHubs,
+  }) = _WaybillOrigin;
+  factory WaybillOrigin.fromJson(Map<String, dynamic> json) => _$WaybillOriginFromJson(json);
+}
+
+@freezed
+abstract class WaybillDestination with _$WaybillDestination {
+  const factory WaybillDestination({
+    required String city,
+    required String name,
+    @Default(false) bool doorDelivery,
+    @Default(<int>[1, 2]) List<int> transitDays,
+    @Default(0) int fromKobo,
+    @Default('') String carrier,
+    @Default(<WaybillHub>[]) List<WaybillHub> collectionHubs,
+  }) = _WaybillDestination;
+  factory WaybillDestination.fromJson(Map<String, dynamic> json) => _$WaybillDestinationFromJson(json);
+}
+
+@freezed
+abstract class WaybillDestinations with _$WaybillDestinations {
+  const factory WaybillDestinations({
+    @Default(<WaybillHub>[]) List<WaybillHub> dropoffHubs,
+    @Default(<WaybillDestination>[]) List<WaybillDestination> destinations,
+  }) = _WaybillDestinations;
+  factory WaybillDestinations.fromJson(Map<String, dynamic> json) => _$WaybillDestinationsFromJson(json);
+}
+
+@freezed
+abstract class WaybillScan with _$WaybillScan {
+  const factory WaybillScan({required String stage, required String label, required DateTime at, String? place}) =
+      _WaybillScan;
+  factory WaybillScan.fromJson(Map<String, dynamic> json) => _$WaybillScanFromJson(json);
+}
+
+@freezed
+abstract class WaybillTracking with _$WaybillTracking {
+  const factory WaybillTracking({
+    required String trackingCode,
+    @Default('') String origin,
+    @Default('') String destination,
+    @Default('') String label,
+    @Default(0) int step,
+    @Default(<String>[]) List<String> steps,
+    @Default('') String etaText,
+    @Default('door') String lastMile,
+    @Default(<WaybillScan>[]) List<WaybillScan> milestones,
+    @Default(false) bool delivered,
+  }) = _WaybillTracking;
+  factory WaybillTracking.fromJson(Map<String, dynamic> json) => _$WaybillTrackingFromJson(json);
 }
 
 @freezed

@@ -152,6 +152,7 @@ class AdminService:
         now = utcnow()
         since = lagos_day_start(now)
         today = await self.repos.orders.find(where=[("created_at", ">=", since)], limit=10_000)
+        today = [o for o in today if not o.is_leg]  # waybill rider jobs are part of their waybill
         status_counts = Counter(o.status.value for o in today)
         completed = [o for o in today if o.status in (S.COMPLETED, S.PARTIALLY_REFUNDED)]
         riders_online = await self.repos.riders.find(where=[("is_online", "==", True)], limit=5000)
@@ -215,6 +216,7 @@ class AdminService:
         orders = await self.repos.orders.find(
             where=[("created_at", ">=", now - timedelta(days=days))], limit=20_000
         )
+        orders = [o for o in orders if not o.is_leg]
         summary = AnalyticsService.summarise(orders, days, now)
         by_restaurant: Counter[str] = Counter()
         for o in orders:

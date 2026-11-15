@@ -34,6 +34,11 @@ class RemittanceInput(BaseModel):
     note: str | None = Field(default=None, max_length=300)
 
 
+class CarrierPayoutInput(BaseModel):
+    amount_kobo: int = Field(gt=0, le=1_000_000_000)
+    bank_reference: str = Field(min_length=4, max_length=120)
+
+
 class PayOnDeliveryBlockInput(BaseModel):
     blocked: bool
     reason: str = Field(min_length=3, max_length=300)
@@ -136,6 +141,8 @@ class CashService:
             }
             wallets = await self.ledger.balances(s, "liability:wallet:")
             sellers = await self.ledger.balances(s, "liability:vendor:")
+            carriers = await self.ledger.balances(s, "liability:carrier:")
+        network = await self.repos.get_waybill_network()
         held = {a["account"].rsplit(":", 1)[1]: a["balance_kobo"] for a in cash if a["balance_kobo"]}
         profiles = await self.repos.riders.get_many(list(held))
         riders = sorted(
@@ -155,12 +162,57 @@ class CashService:
         return {
             "riders": riders,
             "rider_cash_limit_kobo": self.rider_cash_limit_kobo,
+            "carriers": [
+                {
+                    "carrier_id": cid,
+                    "name": (c.name if (c := network.carrier(cid)) else cid),
+                    "owed_kobo": a["balance_kobo"],
+                }
+                for a in carriers
+                if (cid := a["account"].rsplit(":", 1)[1]) and a["balance_kobo"]
+            ],
             "totals": {
                 "cash_with_riders_kobo": sum(held.values()),
                 "wallet_balances_kobo": sum(a["balance_kobo"] for a in wallets),
                 "seller_balances_kobo": sum(a["balance_kobo"] for a in sellers),
+                "carrier_balances_kobo": sum(a["balance_kobo"] for a in carriers),
             },
         }
+
+    async def record_carrier_payout(
+        self, principal: Principal, carrier_id: str, data: CarrierPayoutInput, idempotency_key: str
+    ) -> dict[str, Any]:
+        """Finance paid a line-haul carrier by bank transfer (amount checked against what we owe them)."""
+        require(principal, Permission.PAYOUTS_APPROVE)
+        if (await self.repos.get_waybill_network()).carrier(carrier_id) is None:
+            raise NotFound("Carrier not found")
+        account = postings.carrier_account(carrier_id)
+        async with self.db.transaction() as s:
+            await self.ledger.lock_account(s, account)
+            owed = await self.ledger.balance(s, account)
+            if data.amount_kobo > owed:
+                raise ValidationFailed("That is more than we owe this carrier", details={"owed_kobo": owed})
+            txn_id, created = await self.ledger.post(
+                s,
+                kind="carrier_payout",
+                idempotency_key=f"carrier-payout:{carrier_id}:{idempotency_key}",
+                postings=postings.payout_made("carrier", carrier_id, data.amount_kobo),
+                created_by=principal.uid,
+                reference=data.bank_reference.strip(),
+                description="Carrier payout",
+            )
+            if created:
+                AuditLog.add(
+                    s,
+                    actor_id=principal.uid,
+                    actor_roles=principal.audit_roles(),
+                    action="carrier.paid",
+                    resource_type="carrier",
+                    resource_id=carrier_id,
+                    details={"amount_kobo": data.amount_kobo, "reference": data.bank_reference},
+                )
+            balance = await self.ledger.balance(s, account)
+        return {"transaction_id": txn_id, "recorded": created, "owed_kobo": balance}
 
     async def record_remittance(
         self, principal: Principal, rider_id: str, data: RemittanceInput, idempotency_key: str

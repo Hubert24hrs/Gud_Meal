@@ -285,7 +285,17 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
           ]),
         ),
         const SizedBox(height: 8),
-        const _ComingSoon(icon: Icons.local_shipping_outlined, title: 'Interstate waybill', body: 'Send between Lagos, Enugu and other states.'),
+        Card(
+          margin: EdgeInsets.zero,
+          child: ListTile(
+            key: const ValueKey('interstate-link'),
+            leading: const Icon(Icons.local_shipping_outlined),
+            title: const Text('Sending to another city?', style: TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: const Text('Book an interstate waybill: Lagos, Enugu, Abuja and Port Harcourt.'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.go('/send?mode=interstate'),
+          ),
+        ),
         if (b != null) ...[
           const SizedBox(height: 12),
           Card(
@@ -398,33 +408,4 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
           Text(formatNaira(kobo), style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w400)),
         ]),
       );
-}
-
-class _ComingSoon extends StatelessWidget {
-  const _ComingSoon({required this.icon, required this.title, required this.body});
-  final IconData icon;
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Opacity(
-      opacity: .75,
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: CircleAvatar(backgroundColor: scheme.surfaceContainerHighest, child: Icon(icon, color: scheme.onSurfaceVariant)),
-        title: Row(children: [
-          Flexible(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w700))),
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(color: scheme.tertiary.withValues(alpha: .25), borderRadius: BorderRadius.circular(6)),
-            child: const Text('Coming soon', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-          ),
-        ]),
-        subtitle: Text(body),
-      ),
-    );
-  }
 }

@@ -10,7 +10,7 @@ export type OrderStatus =
 export type Fulfillment = "delivery" | "pickup";
 export type ItemKind = "main" | "combo" | "side" | "snack" | "drink" | "dessert" | "extra" | "product";
 /** Gud Meal services: food and beauty are sold by merchants; parcels are courier jobs. */
-export type Vertical = "food" | "beauty" | "parcel";
+export type Vertical = "food" | "beauty" | "parcel" | "waybill";
 
 export interface GeoPoint { lat: number; lng: number }
 
@@ -84,6 +84,8 @@ export interface PriceBreakdown {
   discount_kobo: Kobo; total_kobo: Kobo; discount_funded_by: "platform" | "restaurant" | null; voucher_code: string | null;
   /** Cash-on-delivery collection fee (packages). */
   cod_fee_kobo?: Kobo;
+  /** Waybill: carrying the package between cities, and the rider pickup from the sender. */
+  linehaul_fee_kobo?: Kobo; pickup_fee_kobo?: Kobo;
 }
 export interface Quote {
   id: string; restaurant_id: string; restaurant_name: string; lines: PricedLine[]; breakdown: PriceBreakdown;
@@ -105,12 +107,15 @@ export interface Order {
   refund_total_kobo: Kobo; reviewed: boolean; channel: string; created_at: string; updated_at: string;
   /** Set when the rider took cash at the door (pay on delivery and/or a package's COD amount). */
   cash_collected_at?: string | null;
-  progress: { step: number; total_steps: number; label: string };
+  /** Waybill orders: steps are the waybill's own (Booked, At the hub, On the way, Arrived, Delivered). */
+  progress: { step: number; total_steps: number; label: string; steps?: string[] };
   audience: "customer" | "restaurant" | "rider" | "staff";
+  waybill?: WaybillDetails | null;
   // restaurant view
   restaurant_earning_kobo?: Kobo; commission_kobo?: Kobo;
-  // rider view: what to collect at the door
+  // rider view: what to collect at the door, and waybill legs (first mile ends with hub staff)
   payment_method?: "cash" | "prepaid"; collect_cash_kobo?: Kobo;
+  leg_kind?: "first_mile" | "last_mile" | null; hub_handover?: boolean;
   // staff view
   settlement?: { commission_bps: number; commission_kobo: Kobo; rider_pay_kobo: Kobo; restaurant_earning_kobo: Kobo };
 }
@@ -177,7 +182,68 @@ export interface SellerOverview extends SellerSummary { transactions: WalletTran
 export interface CashOverview {
   riders: { rider_id: string; name: string; phone: string | null; cash_held_kobo: Kobo; earnings_kobo: Kobo; over_limit: boolean }[];
   rider_cash_limit_kobo: Kobo;
-  totals: { cash_with_riders_kobo: Kobo; wallet_balances_kobo: Kobo; seller_balances_kobo: Kobo };
+  carriers?: { carrier_id: string; name: string; owed_kobo: Kobo }[];
+  totals: { cash_with_riders_kobo: Kobo; wallet_balances_kobo: Kobo; seller_balances_kobo: Kobo; carrier_balances_kobo?: Kobo };
+}
+
+// ---------------------------------------------------------------- interstate waybill
+export type WaybillStage =
+  | "awaiting_dropoff" | "pickup_scheduled" | "picked_up" | "at_origin_hub" | "departed" | "at_destination_hub"
+  | "out_for_delivery" | "ready_for_collection" | "delivered" | "cancelled";
+export interface WaybillParty {
+  name: string; phone: string; line1?: string | null; area?: string | null; location?: GeoPoint | null; instructions?: string | null;
+}
+export interface WaybillMilestone { stage: WaybillStage; at: string; hub_id: string | null; note: string | null }
+export interface WaybillDetails {
+  tracking_code: string | null; lane_id: string; carrier_id: string; carrier_name: string;
+  origin_city: string; destination_city: string; origin_city_name: string; destination_city_name: string;
+  origin_hub_id: string; destination_hub_id: string; origin_hub_name: string; destination_hub_name: string;
+  destination_hub_address: string; destination_hub_hours: string;
+  first_mile: "pickup" | "dropoff"; last_mile: "door" | "collect"; sender: WaybillParty; recipient: WaybillParty;
+  size: ParcelSize; weight_kg: number; category: ParcelCategory; description: string;
+  declared_value_kobo: Kobo | null; cod_amount_kobo: Kobo | null; eta_from: string; eta_to: string;
+  stage: WaybillStage | null; milestones: WaybillMilestone[];
+  first_mile_order_id: string | null; last_mile_order_id: string | null; trip_reference: string | null;
+}
+export interface WaybillQuoteRequest {
+  origin_city: string; destination_city: string; first_mile: "pickup" | "dropoff"; last_mile: "door" | "collect";
+  origin_hub_id?: string | null; destination_hub_id?: string | null; sender: WaybillParty; recipient: WaybillParty;
+  size: ParcelSize; weight_kg: number; category?: ParcelCategory; description?: string;
+  declared_value_kobo?: Kobo | null; cod_amount_kobo?: Kobo | null;
+}
+export interface WaybillQuote {
+  id: string; details: WaybillDetails; breakdown: PriceBreakdown; pickup_km: number | null; delivery_km: number | null;
+  created_at: string; expires_at: string; order_id: string | null; eta_text: string;
+}
+export interface WaybillHub {
+  id: string; name: string; city: string; kind: "gm_hub" | "partner_terminal"; address: string; location: GeoPoint;
+  phone: string; hours: string; accepts_dropoff: boolean; offers_collection: boolean; is_sample: boolean; city_name?: string;
+}
+export interface WaybillOrigin { id: string; name: string; state: string; home_pickup: boolean; dropoff_hubs: WaybillHub[] }
+export interface WaybillDestination {
+  city: string; name: string; state: string; door_delivery: boolean; transit_days: [number, number]; from_kobo: Kobo;
+  carrier: string; collection_hubs: WaybillHub[];
+}
+export interface WaybillDestinations {
+  origin: { id: string; name: string; home_pickup: boolean }; dropoff_hubs: WaybillHub[];
+  destinations: WaybillDestination[]; max_kg_by_size: Record<ParcelSize, number>;
+}
+export interface WaybillTracking {
+  tracking_code: string; origin: string; destination: string; stage: WaybillStage | null; label: string; step: number;
+  steps: string[]; eta_from: string; eta_to: string; eta_text: string; last_mile: "door" | "collect";
+  collection_point: { name: string; address: string; hours: string } | null;
+  milestones: { stage: WaybillStage; label: string; at: string; place: string | null }[]; delivered: boolean;
+}
+export interface HubItem {
+  order_id: string; tracking_code: string; status: OrderStatus; stage: WaybillStage | null; label: string;
+  origin: string; destination: string; first_mile: "pickup" | "dropoff"; last_mile: "door" | "collect";
+  size: ParcelSize; weight_kg: number; category: string; description: string;
+  sender: { name: string; phone: string }; recipient: { name: string; phone: string };
+  cod_amount_kobo: Kobo | null; carrier: string; trip_reference: string | null; eta_text: string; updated_at: string;
+}
+export interface HubBoard {
+  hub: WaybillHub; expected: HubItem[]; at_hub: HubItem[]; incoming: HubItem[]; out_for_delivery: HubItem[];
+  for_collection: HubItem[];
 }
 
 export interface Me {

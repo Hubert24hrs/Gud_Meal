@@ -273,6 +273,56 @@ class GudMealApi {
   Future<Order> order(String id) => _call(() => _dio.get('/v1/orders/$id'), (d) => Order.fromJson(_map(d)));
   Future<Tracking> tracking(String id) => _call(() => _dio.get('/v1/orders/$id/tracking'), (d) => Tracking.fromJson(_map(d)));
   Future<String?> deliveryCode(String id) => _call(() => _dio.get('/v1/orders/$id/codes'), (d) => _map(d)['delivery_code'] as String?);
+  /// Collection code for hub pickups (and pickup orders).
+  Future<String?> pickupCode(String id) => _call(() => _dio.get('/v1/orders/$id/codes'), (d) => _map(d)['pickup_code'] as String?);
+
+  // ------------------------------------------------------------------- interstate waybill
+  Future<List<WaybillOrigin>> waybillOrigins() =>
+      _call(() => _dio.get('/v1/waybill/origins'), (d) => _list(d).map(WaybillOrigin.fromJson).toList());
+
+  Future<WaybillDestinations> waybillDestinations(String origin) => _call(
+      () => _dio.get('/v1/waybill/destinations', queryParameters: {'origin': origin}),
+      (d) => WaybillDestinations.fromJson(_map(d)));
+
+  Future<WaybillQuote> waybillQuote({
+    required String originCity,
+    required String destinationCity,
+    required String firstMile,
+    required String lastMile,
+    String? originHubId,
+    String? destinationHubId,
+    required WaybillParty sender,
+    required WaybillParty recipient,
+    required String size,
+    required double weightKg,
+    required String category,
+    String description = '',
+    int? codAmountKobo,
+  }) =>
+      _call(
+          () => _dio.post('/v1/waybills/quotes', data: {
+                'origin_city': originCity,
+                'destination_city': destinationCity,
+                'first_mile': firstMile,
+                'last_mile': lastMile,
+                'origin_hub_id': ?originHubId,
+                'destination_hub_id': ?destinationHubId,
+                'sender': sender.toJson(),
+                'recipient': recipient.toJson(),
+                'size': size,
+                'weight_kg': weightKg,
+                'category': category,
+                'description': description,
+                'cod_amount_kobo': ?codAmountKobo,
+              }),
+          (d) => WaybillQuote.fromJson(_map(d)));
+
+  Future<Order> bookWaybill(String quoteId, String idempotencyKey) => _call(
+      () => _dio.post('/v1/waybills', data: {'quote_id': quoteId, 'channel': 'app'}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => Order.fromJson(_map(d)));
+
+  Future<WaybillTracking> trackWaybill(String code) =>
+      _call(() => _dio.get('/v1/track/${Uri.encodeComponent(code)}'), (d) => WaybillTracking.fromJson(_map(d)));
   Future<Order> cancel(String id) => _call(() => _dio.post('/v1/orders/$id/cancel', data: {'reason': 'Cancelled in app'}), (d) => Order.fromJson(_map(d)));
 
   Future<List<DeliveryAddress>> addresses() => _call(() => _dio.get('/v1/me/addresses'), (d) => _list(d).map(DeliveryAddress.fromJson).toList());
