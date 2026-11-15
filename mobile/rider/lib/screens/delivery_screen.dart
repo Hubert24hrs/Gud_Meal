@@ -9,14 +9,23 @@ import '../providers.dart';
 
 final _deliveryProvider = FutureProvider.family<Order, String>((ref, id) async {
   final list = await ref.watch(apiProvider).activeDeliveries();
-  return list.firstWhere((o) => o.id == id, orElse: () => throw ApiException(404, 'not_found', 'This delivery is no longer active'));
+  return list.firstWhere(
+    (o) => o.id == id,
+    orElse: () => throw ApiException(
+      404,
+      'not_found',
+      'This delivery is no longer active',
+    ),
+  );
 });
 
 /// Opens turn-by-turn navigation in Google Maps (riders' preferred navigation app).
 Future<void> navigateTo(GeoPoint p) => launchUrl(
-      Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=driving'),
-      mode: LaunchMode.externalApplication,
-    );
+  Uri.parse(
+    'https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=driving',
+  ),
+  mode: LaunchMode.externalApplication,
+);
 
 class DeliveryScreen extends ConsumerStatefulWidget {
   const DeliveryScreen({super.key, required this.orderId});
@@ -49,7 +58,9 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
       if (updated.status == 'delivered' || updated.status == 'completed') {
         ref.invalidate(earningsProvider);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delivered — well done!')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Delivered — well done!')),
+          );
           context.go('/');
         }
       }
@@ -68,47 +79,183 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
       body: delivery.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('$e')),
-        data: (o) => ListView(padding: const EdgeInsets.all(16), children: [
-          Text('#${o.shortCode} · ${statusLabel(o.status)}', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.storefront_rounded),
-              title: Text(o.restaurantName),
-              subtitle: Text(o.restaurantAddress ?? ''),
-              trailing: o.restaurantLocation == null ? null : IconButton(tooltip: 'Navigate', icon: const Icon(Icons.navigation_rounded), onPressed: () => navigateTo(o.restaurantLocation!)),
-            ),
-          ),
-          if (o.deliveryAddress != null)
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.home_rounded),
-                title: Text(o.customerName ?? 'Customer'),
-                subtitle: Text([o.deliveryAddress!.line1, o.deliveryAddress!.area, o.deliveryAddress!.instructions].whereType<String>().join(' · ')),
-                trailing: IconButton(tooltip: 'Navigate', icon: const Icon(Icons.navigation_rounded), onPressed: () => navigateTo(o.deliveryAddress!.location)),
+        data: (o) {
+          final parcel = o.vertical == 'parcel' ? o.parcel : null;
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                '#${o.shortCode} · ${statusLabel(o.status)}',
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-            ),
-          const SizedBox(height: 8),
-          Text('Items: ${o.lines.map((l) => '${l.quantity}× ${l.name}').join(', ')}'),
-          Text('You earn ${formatNaira(o.riderPayKobo)}', style: const TextStyle(fontWeight: FontWeight.w700)),
-          if (o.status == 'rider_assigned' && o.readyAt == null)
-            const Padding(padding: EdgeInsets.only(top: 8), child: Text('The kitchen is still preparing this order.')),
-          const SizedBox(height: 20),
-          if (o.status == 'rider_assigned')
-            FilledButton(onPressed: _busy ? null : () => _act((api) => api.pickup(o.id)), child: const Text('Confirm pickup')),
-          if (o.status == 'picked_up')
-            FilledButton(onPressed: _busy ? null : () => _act((api) => api.inTransit(o.id)), child: const Text('Start trip to customer')),
-          if (o.status == 'picked_up' || o.status == 'in_transit') DeliveryCodeForm(controller: _code, busy: _busy, onSubmit: (code) => _act((api) => api.deliver(o.id, code))),
-          if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
-        ]),
+              if (parcel != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Chip(
+                    avatar: const Icon(Icons.inventory_2_rounded, size: 18),
+                    label: Text(
+                      'Package · ${parcel.size} · ${parcel.category}',
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 8),
+              Card(
+                child: ListTile(
+                  leading: Icon(
+                    parcel == null
+                        ? Icons.storefront_rounded
+                        : Icons.trip_origin_rounded,
+                  ),
+                  title: Text(
+                    parcel == null
+                        ? o.restaurantName
+                        : 'Pickup: ${parcel.pickup.name}',
+                  ),
+                  subtitle: Text(
+                    [
+                      o.restaurantAddress ?? '',
+                      if (parcel?.pickup.instructions != null)
+                        parcel!.pickup.instructions!,
+                    ].join(' · '),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (parcel != null)
+                        _CallButton(
+                          phone: parcel.pickup.phone,
+                          who: parcel.pickup.name,
+                        ),
+                      if (o.restaurantLocation != null)
+                        IconButton(
+                          tooltip: 'Navigate',
+                          icon: const Icon(Icons.navigation_rounded),
+                          onPressed: () => navigateTo(o.restaurantLocation!),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              if (o.deliveryAddress != null)
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.home_rounded),
+                    title: Text(
+                      parcel == null
+                          ? (o.customerName ?? 'Customer')
+                          : 'Drop-off: ${parcel.dropoff.name}',
+                    ),
+                    subtitle: Text(
+                      [
+                        o.deliveryAddress!.line1,
+                        o.deliveryAddress!.area,
+                        o.deliveryAddress!.instructions,
+                      ].whereType<String>().join(' · '),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (parcel != null)
+                          _CallButton(
+                            phone: parcel.dropoff.phone,
+                            who: parcel.dropoff.name,
+                          ),
+                        IconButton(
+                          tooltip: 'Navigate',
+                          icon: const Icon(Icons.navigation_rounded),
+                          onPressed: () =>
+                              navigateTo(o.deliveryAddress!.location),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 8),
+              if (parcel == null)
+                Text(
+                  'Items: ${o.lines.map((l) => '${l.quantity}× ${l.name}').join(', ')}',
+                )
+              else if (parcel.description.isNotEmpty)
+                Text('Contents: ${parcel.description}'),
+              Text(
+                'You earn ${formatNaira(o.riderPayKobo)}',
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              if (parcel == null &&
+                  o.status == 'rider_assigned' &&
+                  o.readyAt == null)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text('The kitchen is still preparing this order.'),
+                ),
+              const SizedBox(height: 20),
+              if (o.status == 'rider_assigned')
+                FilledButton(
+                  onPressed: _busy
+                      ? null
+                      : () => _act((api) => api.pickup(o.id)),
+                  child: Text(
+                    parcel == null ? 'Confirm pickup' : 'Package collected',
+                  ),
+                ),
+              if (o.status == 'picked_up')
+                FilledButton(
+                  onPressed: _busy
+                      ? null
+                      : () => _act((api) => api.inTransit(o.id)),
+                  child: Text(
+                    parcel == null
+                        ? 'Start trip to customer'
+                        : 'Start trip to recipient',
+                  ),
+                ),
+              if (o.status == 'picked_up' || o.status == 'in_transit')
+                DeliveryCodeForm(
+                  controller: _code,
+                  busy: _busy,
+                  onSubmit: (code) => _act((api) => api.deliver(o.id, code)),
+                ),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    _error!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
+/// Riders call senders and recipients of packages (numbers come from the booking).
+class _CallButton extends StatelessWidget {
+  const _CallButton({required this.phone, required this.who});
+  final String phone;
+  final String who;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: 'Call $who',
+    icon: const Icon(Icons.call_rounded),
+    onPressed: () =>
+        launchUrl(Uri(scheme: 'tel', path: phone.replaceAll(' ', ''))),
+  );
+}
+
 /// 4-digit code the customer reads out on arrival. Validated locally, verified by the API (5 attempts max).
 class DeliveryCodeForm extends StatelessWidget {
-  const DeliveryCodeForm({super.key, required this.controller, required this.onSubmit, this.busy = false});
+  const DeliveryCodeForm({
+    super.key,
+    required this.controller,
+    required this.onSubmit,
+    this.busy = false,
+  });
   final TextEditingController controller;
   final ValueChanged<String> onSubmit;
   final bool busy;
@@ -119,19 +266,34 @@ class DeliveryCodeForm extends StatelessWidget {
       padding: const EdgeInsets.only(top: 16),
       child: ValueListenableBuilder<TextEditingValue>(
         valueListenable: controller,
-        builder: (context, value, _) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            maxLength: 4,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 28, letterSpacing: 12, fontWeight: FontWeight.w800),
-            decoration: const InputDecoration(labelText: "Customer's delivery code", counterText: ''),
-          ),
-          const SizedBox(height: 8),
-          FilledButton(onPressed: busy || value.text.length != 4 ? null : () => onSubmit(value.text), child: const Text('Complete delivery')),
-        ]),
+        builder: (context, value, _) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              maxLength: 4,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 28,
+                letterSpacing: 12,
+                fontWeight: FontWeight.w800,
+              ),
+              decoration: const InputDecoration(
+                labelText: "Customer's delivery code",
+                counterText: '',
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: busy || value.text.length != 4
+                  ? null
+                  : () => onSubmit(value.text),
+              child: const Text('Complete delivery'),
+            ),
+          ],
+        ),
       ),
     );
   }

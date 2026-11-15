@@ -38,6 +38,7 @@ DeliveryOffer offer(DateTime expiresAt) => DeliveryOffer(
     );
 
 void main() {
+  parcelTests();
   testWidgets('offer shows countdown, payout and disables actions once expired', (tester) async {
     final now = DateTime.utc(2026, 11, 14, 20, 0, 0);
     await tester.pumpWidget(ProviderScope(
@@ -99,5 +100,52 @@ void main() {
       expect(reporter.last?.lat, 6.44);
       await reporter.stop();
     });
+  });
+}
+
+class _ParcelApi extends GudMealApi {
+  _ParcelApi() : super(baseUrl: 'http://fake', token: () async => 'tok');
+
+  @override
+  Future<List<Order>> activeDeliveries() async => [
+        const Order(
+          id: 'p1',
+          shortCode: 'PKG123',
+          vertical: 'parcel',
+          status: 'rider_assigned',
+          restaurantName: 'Package from Ada',
+          restaurantAddress: '5 Bisola Durosinmi-Etti Drive, Lekki Phase 1',
+          restaurantLocation: GeoPoint(lat: 6.44, lng: 3.46),
+          riderPayKobo: 120000,
+          deliveryAddress: DeliveryAddress(line1: '4 Herbert Macaulay Way', area: 'Yaba', location: GeoPoint(lat: 6.51, lng: 3.37), contactPhone: '+2348055555555'),
+          parcel: ParcelDetails(
+            pickup: ParcelStop(name: 'Ada', phone: '+2348011111111', line1: '5 Bisola Durosinmi-Etti Drive', location: GeoPoint(lat: 6.44, lng: 3.46)),
+            dropoff: ParcelStop(name: 'Ngozi', phone: '+2348055555555', line1: '4 Herbert Macaulay Way', location: GeoPoint(lat: 6.51, lng: 3.37)),
+            size: 'medium',
+            category: 'clothing',
+            description: 'Two dresses',
+          ),
+        ),
+      ];
+}
+
+void parcelTests() {
+  testWidgets('package jobs show sender and recipient contacts and package wording', (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(FakeAuthRepository(const GmUser(uid: 'demo-rider-1'))),
+        apiProvider.overrideWithValue(_ParcelApi()),
+      ],
+      child: const MaterialApp(home: DeliveryScreen(orderId: 'p1')),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Package · medium · clothing'), findsOneWidget);
+    expect(find.text('Pickup: Ada'), findsOneWidget);
+    expect(find.text('Drop-off: Ngozi'), findsOneWidget);
+    expect(find.text('Contents: Two dresses'), findsOneWidget);
+    expect(find.byTooltip('Call Ada'), findsOneWidget);
+    expect(find.byTooltip('Call Ngozi'), findsOneWidget);
+    expect(find.text('Package collected'), findsOneWidget);
+    expect(find.textContaining('kitchen'), findsNothing);
   });
 }
