@@ -290,6 +290,7 @@ _PriceBreakdown _$PriceBreakdownFromJson(Map<String, dynamic> json) =>
       codFeeKobo: (json['cod_fee_kobo'] as num?)?.toInt() ?? 0,
       linehaulFeeKobo: (json['linehaul_fee_kobo'] as num?)?.toInt() ?? 0,
       pickupFeeKobo: (json['pickup_fee_kobo'] as num?)?.toInt() ?? 0,
+      plusSavingsKobo: (json['plus_savings_kobo'] as num?)?.toInt() ?? 0,
       totalKobo: (json['total_kobo'] as num).toInt(),
       voucherCode: json['voucher_code'] as String?,
     );
@@ -305,6 +306,7 @@ Map<String, dynamic> _$PriceBreakdownToJson(_PriceBreakdown instance) =>
       'cod_fee_kobo': instance.codFeeKobo,
       'linehaul_fee_kobo': instance.linehaulFeeKobo,
       'pickup_fee_kobo': instance.pickupFeeKobo,
+      'plus_savings_kobo': instance.plusSavingsKobo,
       'total_kobo': instance.totalKobo,
       'voucher_code': ?instance.voucherCode,
     };
@@ -410,6 +412,7 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       : WaybillDetails.fromJson(json['waybill'] as Map<String, dynamic>),
   legKind: json['leg_kind'] as String?,
   hubHandover: json['hub_handover'] as bool? ?? false,
+  groupOrderId: json['group_order_id'] as String?,
 );
 
 Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
@@ -441,6 +444,7 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
   'waybill': ?instance.waybill?.toJson(),
   'leg_kind': ?instance.legKind,
   'hub_handover': instance.hubHandover,
+  'group_order_id': ?instance.groupOrderId,
 };
 
 _OrderPayment _$OrderPaymentFromJson(Map<String, dynamic> json) =>
@@ -848,6 +852,390 @@ Map<String, dynamic> _$WaybillTrackingToJson(_WaybillTracking instance) =>
       'last_mile': instance.lastMile,
       'milestones': instance.milestones.map((e) => e.toJson()).toList(),
       'delivered': instance.delivered,
+    };
+
+_PlusPlan _$PlusPlanFromJson(Map<String, dynamic> json) => _PlusPlan(
+  enabled: json['enabled'] as bool? ?? true,
+  priceKobo: (json['price_kobo'] as num).toInt(),
+  vatKobo: (json['vat_kobo'] as num?)?.toInt() ?? 0,
+  periodDays: (json['period_days'] as num?)?.toInt() ?? 30,
+  freeDeliveryMinSubtotalKobo:
+      (json['free_delivery_min_subtotal_kobo'] as num?)?.toInt() ?? 0,
+  serviceFeeDiscountBps:
+      (json['service_fee_discount_bps'] as num?)?.toInt() ?? 0,
+  pointsMultiplier: (json['points_multiplier'] as num?)?.toInt() ?? 1,
+  benefits:
+      (json['benefits'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const <String>[],
+);
+
+Map<String, dynamic> _$PlusPlanToJson(_PlusPlan instance) => <String, dynamic>{
+  'enabled': instance.enabled,
+  'price_kobo': instance.priceKobo,
+  'vat_kobo': instance.vatKobo,
+  'period_days': instance.periodDays,
+  'free_delivery_min_subtotal_kobo': instance.freeDeliveryMinSubtotalKobo,
+  'service_fee_discount_bps': instance.serviceFeeDiscountBps,
+  'points_multiplier': instance.pointsMultiplier,
+  'benefits': instance.benefits,
+};
+
+_PlusMembership _$PlusMembershipFromJson(Map<String, dynamic> json) =>
+    _PlusMembership(
+      status: json['status'] as String? ?? 'active',
+      paidThrough: DateTime.parse(json['paid_through'] as String),
+      paidThroughText: json['paid_through_text'] as String? ?? '',
+      daysLeft: (json['days_left'] as num?)?.toInt() ?? 0,
+      autoRenew: json['auto_renew'] as bool? ?? true,
+      canRenew: json['can_renew'] as bool? ?? false,
+      periods: (json['periods'] as num?)?.toInt() ?? 0,
+      savingsKobo: (json['savings_kobo'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$PlusMembershipToJson(_PlusMembership instance) =>
+    <String, dynamic>{
+      'status': instance.status,
+      'paid_through': instance.paidThrough.toIso8601String(),
+      'paid_through_text': instance.paidThroughText,
+      'days_left': instance.daysLeft,
+      'auto_renew': instance.autoRenew,
+      'can_renew': instance.canRenew,
+      'periods': instance.periods,
+      'savings_kobo': instance.savingsKobo,
+    };
+
+_PlusOverview _$PlusOverviewFromJson(Map<String, dynamic> json) =>
+    _PlusOverview(
+      plan: PlusPlan.fromJson(json['plan'] as Map<String, dynamic>),
+      member: json['member'] as bool? ?? false,
+      membership: json['membership'] == null
+          ? null
+          : PlusMembership.fromJson(json['membership'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$PlusOverviewToJson(_PlusOverview instance) =>
+    <String, dynamic>{
+      'plan': instance.plan.toJson(),
+      'member': instance.member,
+      'membership': ?instance.membership?.toJson(),
+    };
+
+_RewardVoucher _$RewardVoucherFromJson(Map<String, dynamic> json) =>
+    _RewardVoucher(
+      code: json['code'] as String,
+      description: json['description'] as String? ?? '',
+      valueKobo: (json['value_kobo'] as num).toInt(),
+      minSubtotalKobo: (json['min_subtotal_kobo'] as num?)?.toInt() ?? 0,
+      endsAt: json['ends_at'] == null
+          ? null
+          : DateTime.parse(json['ends_at'] as String),
+      source: json['source'] as String? ?? 'points',
+    );
+
+Map<String, dynamic> _$RewardVoucherToJson(_RewardVoucher instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'description': instance.description,
+      'value_kobo': instance.valueKobo,
+      'min_subtotal_kobo': instance.minSubtotalKobo,
+      'ends_at': ?instance.endsAt?.toIso8601String(),
+      'source': instance.source,
+    };
+
+_PointsEntry _$PointsEntryFromJson(Map<String, dynamic> json) => _PointsEntry(
+  id: json['id'] as String,
+  kind: json['kind'] as String,
+  points: (json['points'] as num).toInt(),
+  orderId: json['order_id'] as String?,
+  voucherCode: json['voucher_code'] as String?,
+  note: json['note'] as String? ?? '',
+  at: DateTime.parse(json['at'] as String),
+);
+
+Map<String, dynamic> _$PointsEntryToJson(_PointsEntry instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'kind': instance.kind,
+      'points': instance.points,
+      'order_id': ?instance.orderId,
+      'voucher_code': ?instance.voucherCode,
+      'note': instance.note,
+      'at': instance.at.toIso8601String(),
+    };
+
+_RewardsRedeem _$RewardsRedeemFromJson(Map<String, dynamic> json) =>
+    _RewardsRedeem(
+      enabled: json['enabled'] as bool? ?? true,
+      stepPoints: (json['step_points'] as num?)?.toInt() ?? 500,
+      stepValueKobo: (json['step_value_kobo'] as num?)?.toInt() ?? 50000,
+      redeemablePoints: (json['redeemable_points'] as num?)?.toInt() ?? 0,
+      pointsToNext: (json['points_to_next'] as num?)?.toInt() ?? 0,
+      minSubtotalKobo: (json['min_subtotal_kobo'] as num?)?.toInt() ?? 0,
+      validDays: (json['valid_days'] as num?)?.toInt() ?? 90,
+    );
+
+Map<String, dynamic> _$RewardsRedeemToJson(_RewardsRedeem instance) =>
+    <String, dynamic>{
+      'enabled': instance.enabled,
+      'step_points': instance.stepPoints,
+      'step_value_kobo': instance.stepValueKobo,
+      'redeemable_points': instance.redeemablePoints,
+      'points_to_next': instance.pointsToNext,
+      'min_subtotal_kobo': instance.minSubtotalKobo,
+      'valid_days': instance.validDays,
+    };
+
+_RewardsReferral _$RewardsReferralFromJson(Map<String, dynamic> json) =>
+    _RewardsReferral(
+      enabled: json['enabled'] as bool? ?? true,
+      code: json['code'] as String? ?? '',
+      friendGetsKobo: (json['friend_gets_kobo'] as num?)?.toInt() ?? 0,
+      youGetKobo: (json['you_get_kobo'] as num?)?.toInt() ?? 0,
+      minSubtotalKobo: (json['min_subtotal_kobo'] as num?)?.toInt() ?? 0,
+      friendsRewarded: (json['friends_rewarded'] as num?)?.toInt() ?? 0,
+      applied: json['applied'] as bool? ?? false,
+      canApply: json['can_apply'] as bool? ?? false,
+      shareText: json['share_text'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$RewardsReferralToJson(_RewardsReferral instance) =>
+    <String, dynamic>{
+      'enabled': instance.enabled,
+      'code': instance.code,
+      'friend_gets_kobo': instance.friendGetsKobo,
+      'you_get_kobo': instance.youGetKobo,
+      'min_subtotal_kobo': instance.minSubtotalKobo,
+      'friends_rewarded': instance.friendsRewarded,
+      'applied': instance.applied,
+      'can_apply': instance.canApply,
+      'share_text': instance.shareText,
+    };
+
+_RewardsOverview _$RewardsOverviewFromJson(Map<String, dynamic> json) =>
+    _RewardsOverview(
+      points: (json['points'] as num?)?.toInt() ?? 0,
+      lifetimePoints: (json['lifetime_points'] as num?)?.toInt() ?? 0,
+      pointsValueKobo: (json['points_value_kobo'] as num?)?.toInt() ?? 0,
+      redeem: RewardsRedeem.fromJson(json['redeem'] as Map<String, dynamic>),
+      referral: RewardsReferral.fromJson(
+        json['referral'] as Map<String, dynamic>,
+      ),
+      vouchers:
+          (json['vouchers'] as List<dynamic>?)
+              ?.map((e) => RewardVoucher.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <RewardVoucher>[],
+      history:
+          (json['history'] as List<dynamic>?)
+              ?.map((e) => PointsEntry.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <PointsEntry>[],
+    );
+
+Map<String, dynamic> _$RewardsOverviewToJson(_RewardsOverview instance) =>
+    <String, dynamic>{
+      'points': instance.points,
+      'lifetime_points': instance.lifetimePoints,
+      'points_value_kobo': instance.pointsValueKobo,
+      'redeem': instance.redeem.toJson(),
+      'referral': instance.referral.toJson(),
+      'vouchers': instance.vouchers.map((e) => e.toJson()).toList(),
+      'history': instance.history.map((e) => e.toJson()).toList(),
+    };
+
+_GroupMemberView _$GroupMemberViewFromJson(Map<String, dynamic> json) =>
+    _GroupMemberView(
+      uid: json['uid'] as String,
+      name: json['name'] as String,
+      isHost: json['is_host'] as bool? ?? false,
+      me: json['me'] as bool? ?? false,
+      ready: json['ready'] as bool? ?? false,
+      items: (json['items'] as num?)?.toInt() ?? 0,
+      itemsKobo: (json['items_kobo'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$GroupMemberViewToJson(_GroupMemberView instance) =>
+    <String, dynamic>{
+      'uid': instance.uid,
+      'name': instance.name,
+      'is_host': instance.isHost,
+      'me': instance.me,
+      'ready': instance.ready,
+      'items': instance.items,
+      'items_kobo': instance.itemsKobo,
+    };
+
+_GroupLineView _$GroupLineViewFromJson(Map<String, dynamic> json) =>
+    _GroupLineView(
+      id: json['id'] as String,
+      memberUid: json['member_uid'] as String,
+      member: json['member'] as String? ?? '',
+      itemId: json['item_id'] as String,
+      name: json['name'] as String,
+      quantity: (json['quantity'] as num).toInt(),
+      selections:
+          (json['selections'] as List<dynamic>?)
+              ?.map((e) => OptionSelection.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <OptionSelection>[],
+      options:
+          (json['options'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
+      notes: json['notes'] as String?,
+      lineTotalKobo: (json['line_total_kobo'] as num?)?.toInt() ?? 0,
+      problem: json['problem'] as String?,
+    );
+
+Map<String, dynamic> _$GroupLineViewToJson(_GroupLineView instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'member_uid': instance.memberUid,
+      'member': instance.member,
+      'item_id': instance.itemId,
+      'name': instance.name,
+      'quantity': instance.quantity,
+      'selections': instance.selections.map((e) => e.toJson()).toList(),
+      'options': instance.options,
+      'notes': ?instance.notes,
+      'line_total_kobo': instance.lineTotalKobo,
+      'problem': ?instance.problem,
+    };
+
+_GroupShareView _$GroupShareViewFromJson(Map<String, dynamic> json) =>
+    _GroupShareView(
+      uid: json['uid'] as String,
+      name: json['name'] as String,
+      me: json['me'] as bool? ?? false,
+      itemsKobo: (json['items_kobo'] as num?)?.toInt() ?? 0,
+      amountKobo: (json['amount_kobo'] as num).toInt(),
+      status: json['status'] as String? ?? 'unpaid',
+      paidByHost: json['paid_by_host'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$GroupShareViewToJson(_GroupShareView instance) =>
+    <String, dynamic>{
+      'uid': instance.uid,
+      'name': instance.name,
+      'me': instance.me,
+      'items_kobo': instance.itemsKobo,
+      'amount_kobo': instance.amountKobo,
+      'status': instance.status,
+      'paid_by_host': instance.paidByHost,
+    };
+
+_GroupOrderRef _$GroupOrderRefFromJson(Map<String, dynamic> json) =>
+    _GroupOrderRef(
+      id: json['id'] as String,
+      shortCode: json['short_code'] as String? ?? '',
+      status: json['status'] as String,
+      totalKobo: (json['total_kobo'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$GroupOrderRefToJson(_GroupOrderRef instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'short_code': instance.shortCode,
+      'status': instance.status,
+      'total_kobo': instance.totalKobo,
+    };
+
+_GroupMyShare _$GroupMyShareFromJson(Map<String, dynamic> json) =>
+    _GroupMyShare(
+      amountKobo: (json['amount_kobo'] as num).toInt(),
+      itemsKobo: (json['items_kobo'] as num?)?.toInt() ?? 0,
+      status: json['status'] as String? ?? 'unpaid',
+    );
+
+Map<String, dynamic> _$GroupMyShareToJson(_GroupMyShare instance) =>
+    <String, dynamic>{
+      'amount_kobo': instance.amountKobo,
+      'items_kobo': instance.itemsKobo,
+      'status': instance.status,
+    };
+
+_GroupRestaurant _$GroupRestaurantFromJson(Map<String, dynamic> json) =>
+    _GroupRestaurant(id: json['id'] as String, name: json['name'] as String);
+
+Map<String, dynamic> _$GroupRestaurantToJson(_GroupRestaurant instance) =>
+    <String, dynamic>{'id': instance.id, 'name': instance.name};
+
+_GroupOrder _$GroupOrderFromJson(Map<String, dynamic> json) => _GroupOrder(
+  id: json['id'] as String,
+  code: json['code'] as String,
+  status: json['status'] as String,
+  splitMode: json['split_mode'] as String? ?? 'each',
+  isHost: json['is_host'] as bool? ?? false,
+  hostName: json['host_name'] as String? ?? '',
+  restaurant: GroupRestaurant.fromJson(
+    json['restaurant'] as Map<String, dynamic>,
+  ),
+  fulfillment: json['fulfillment'] as String? ?? 'delivery',
+  deliveryArea: json['delivery_area'] as String?,
+  members:
+      (json['members'] as List<dynamic>?)
+          ?.map((e) => GroupMemberView.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <GroupMemberView>[],
+  maxMembers: (json['max_members'] as num?)?.toInt() ?? 10,
+  lines:
+      (json['lines'] as List<dynamic>?)
+          ?.map((e) => GroupLineView.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <GroupLineView>[],
+  estimatedItemsKobo: (json['estimated_items_kobo'] as num?)?.toInt() ?? 0,
+  expiresAt: json['expires_at'] == null
+      ? null
+      : DateTime.parse(json['expires_at'] as String),
+  order: json['order'] == null
+      ? null
+      : GroupOrderRef.fromJson(json['order'] as Map<String, dynamic>),
+  totalKobo: (json['total_kobo'] as num?)?.toInt() ?? 0,
+  shares:
+      (json['shares'] as List<dynamic>?)
+          ?.map((e) => GroupShareView.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <GroupShareView>[],
+  myShare: json['my_share'] == null
+      ? null
+      : GroupMyShare.fromJson(json['my_share'] as Map<String, dynamic>),
+  paidKobo: (json['paid_kobo'] as num?)?.toInt() ?? 0,
+  remainingKobo: (json['remaining_kobo'] as num?)?.toInt() ?? 0,
+  payBy: json['pay_by'] == null
+      ? null
+      : DateTime.parse(json['pay_by'] as String),
+  canPay: json['can_pay'] as bool? ?? false,
+  canCoverRest: json['can_cover_rest'] as bool? ?? false,
+  cancelReason: json['cancel_reason'] as String?,
+);
+
+Map<String, dynamic> _$GroupOrderToJson(_GroupOrder instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'code': instance.code,
+      'status': instance.status,
+      'split_mode': instance.splitMode,
+      'is_host': instance.isHost,
+      'host_name': instance.hostName,
+      'restaurant': instance.restaurant.toJson(),
+      'fulfillment': instance.fulfillment,
+      'delivery_area': ?instance.deliveryArea,
+      'members': instance.members.map((e) => e.toJson()).toList(),
+      'max_members': instance.maxMembers,
+      'lines': instance.lines.map((e) => e.toJson()).toList(),
+      'estimated_items_kobo': instance.estimatedItemsKobo,
+      'expires_at': ?instance.expiresAt?.toIso8601String(),
+      'order': ?instance.order?.toJson(),
+      'total_kobo': instance.totalKobo,
+      'shares': instance.shares.map((e) => e.toJson()).toList(),
+      'my_share': ?instance.myShare?.toJson(),
+      'paid_kobo': instance.paidKobo,
+      'remaining_kobo': instance.remainingKobo,
+      'pay_by': ?instance.payBy?.toIso8601String(),
+      'can_pay': instance.canPay,
+      'can_cover_rest': instance.canCoverRest,
+      'cancel_reason': ?instance.cancelReason,
     };
 
 _TopUpResult _$TopUpResultFromJson(Map<String, dynamic> json) => _TopUpResult(

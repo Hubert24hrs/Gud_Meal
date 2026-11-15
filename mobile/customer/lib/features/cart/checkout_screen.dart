@@ -146,6 +146,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ],
         const SizedBox(height: 8),
         TextField(controller: _voucher, textCapitalization: TextCapitalization.characters, decoration: const InputDecoration(labelText: 'Voucher (optional)')),
+        if (ref.watch(myVouchersProvider).asData?.value case final vouchers? when vouchers.isNotEmpty)
+          Wrap(spacing: 8, children: [
+            for (final v in vouchers)
+              ActionChip(
+                label: Text('${formatNaira(v.valueKobo)} off · ${v.code}'),
+                onPressed: () => setState(() {
+                  _voucher.text = v.code;
+                  _quote = null;
+                }),
+              ),
+          ]),
         const SizedBox(height: 16),
         if (b != null) ...[
           _row('Subtotal', b.subtotalKobo),
@@ -153,6 +164,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           _row('Service fee', b.serviceFeeKobo + b.smallOrderFeeKobo),
           _row('VAT (7.5% on fees)', b.vatKobo),
           if (b.discountKobo > 0) _row('Discount', -b.discountKobo),
+          if (b.plusSavingsKobo > 0) _row('Gud Meal Plus saved you', b.plusSavingsKobo),
           const Divider(),
           _row('Total', b.totalKobo, bold: true),
           Text('Arrives around ${formatLagosTime(_quote!.estimatedDeliveryAt)} · price held until ${formatLagosTime(_quote!.expiresAt)}',

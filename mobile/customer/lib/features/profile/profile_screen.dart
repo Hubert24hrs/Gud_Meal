@@ -90,8 +90,9 @@ class ProfileScreen extends ConsumerWidget {
               ],
               _tile(context, Icons.local_offer_outlined, 'Promo codes', onTap: () => _promos(context, ref)),
               _tile(context, Icons.credit_card_outlined, 'Payments', onTap: () => _payments(context)),
-              _tile(context, Icons.workspace_premium_outlined, 'Gud Meal Plus', badge: 'Soon', onTap: () => _soon(context, 'Gud Meal Plus: free delivery and member-only deals for a monthly fee.')),
-              _tile(context, Icons.group_add_outlined, 'Invite friends', badge: 'Soon', onTap: () => _soon(context, 'Invite friends and earn credit when they order. Referral and loyalty rewards are coming soon.')),
+              _tile(context, Icons.workspace_premium_outlined, 'Gud Meal Plus', badge: 'Free delivery', onTap: () => context.push('/plus')),
+              _tile(context, Icons.card_giftcard_rounded, 'Gud points and invite friends', onTap: () => context.push('/rewards')),
+              _tile(context, Icons.groups_outlined, 'Group orders', onTap: () => context.push('/group')),
               _tile(context, Icons.settings_outlined, 'App settings', onTap: () => _settings(context, ref)),
               _tile(context, Icons.quiz_outlined, 'FAQ', onTap: () => context.go('/support')),
               if (user != null)
@@ -125,9 +126,6 @@ class ProfileScreen extends ConsumerWidget {
       const Divider(height: 1, indent: 16, endIndent: 16),
     ]);
   }
-
-  void _soon(BuildContext context, String message) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 
   void _account(BuildContext context, GmUser user) => showModalBottomSheet<void>(
         context: context,

@@ -132,6 +132,13 @@ final orderSummaryProvider = FutureProvider<OrderSummary>((ref) => ref.watch(api
 final supportContactsProvider = FutureProvider<SupportContacts>((ref) => ref.watch(apiProvider).supportContacts());
 final walletProvider = FutureProvider<WalletOverview>((ref) => ref.watch(apiProvider).wallet());
 
+// ------------------------------------------------------------------------------------------ growth (phase 4)
+final plusProvider = FutureProvider<PlusOverview>((ref) => ref.watch(apiProvider).plus());
+final rewardsProvider = FutureProvider<RewardsOverview>((ref) => ref.watch(apiProvider).rewards());
+final myVouchersProvider = FutureProvider<List<RewardVoucher>>((ref) => ref.watch(apiProvider).myVouchers());
+final myGroupsProvider = FutureProvider<List<GroupOrder>>((ref) => ref.watch(apiProvider).myGroups());
+final groupProvider = FutureProvider.family<GroupOrder, String>((ref, id) => ref.watch(apiProvider).group(id));
+
 /// Favourite stores (hearts). Kept on the device for now.
 class FavouritesController extends Notifier<Set<String>> {
   @override

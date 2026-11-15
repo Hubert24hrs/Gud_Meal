@@ -9,13 +9,16 @@ import 'features/assistant/assistant_screen.dart';
 import 'features/auth/sign_in_screen.dart';
 import 'features/cart/checkout_screen.dart';
 import 'features/discover/discover_screen.dart';
+import 'features/group/group_screens.dart';
 import 'features/home/home_screen.dart';
 import 'features/orders/order_screen.dart';
 import 'features/orders/orders_screen.dart';
 import 'features/parcel/parcel_screen.dart';
 import 'features/parcel/waybill_screen.dart';
+import 'features/plus/plus_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/restaurant/restaurant_screen.dart';
+import 'features/rewards/rewards_screen.dart';
 import 'features/support/support_screen.dart';
 import 'features/vertical/vertical_screen.dart';
 import 'features/wallet/wallet_screen.dart';
@@ -37,7 +40,7 @@ class _AuthListenable extends ChangeNotifier {
 }
 
 /// Screens that need an account. Tabs (Orders, Profile) show a sign-in prompt instead of redirecting.
-const _protected = ['/checkout', '/assistant', '/send', '/orders/', '/wallet'];
+const _protected = ['/checkout', '/assistant', '/send', '/orders/', '/wallet', '/plus', '/rewards', '/group'];
 
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -91,6 +94,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/checkout', builder: (_, _) => const CheckoutScreen()),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletScreen()),
+      GoRoute(path: '/plus', builder: (_, _) => const PlusScreen()),
+      GoRoute(path: '/rewards', builder: (_, _) => const RewardsScreen()),
+      GoRoute(
+        path: '/group',
+        builder: (_, s) => GroupHubScreen(initialCode: s.uri.queryParameters['code']),
+        routes: [GoRoute(path: ':id', builder: (_, s) => GroupScreen(id: s.pathParameters['id']!))],
+      ),
       GoRoute(path: '/assistant', builder: (_, s) => AssistantScreen(initial: s.uri.queryParameters['q'])),
     ],
   );

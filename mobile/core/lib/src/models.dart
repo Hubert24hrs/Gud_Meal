@@ -160,6 +160,8 @@ abstract class PriceBreakdown with _$PriceBreakdown {
     @Default(0) int codFeeKobo,
     @Default(0) int linehaulFeeKobo,
     @Default(0) int pickupFeeKobo,
+    /// Gud Meal Plus: fees and VAT the member did not pay (informational).
+    @Default(0) int plusSavingsKobo,
     required int totalKobo,
     String? voucherCode,
   }) = _PriceBreakdown;
@@ -227,6 +229,8 @@ abstract class Order with _$Order {
     /// Rider view of a waybill's rider job: 'first_mile' ends with hub staff, 'last_mile' at the door.
     String? legKind,
     @Default(false) bool hubHandover,
+    /// Placed by the host of a group order.
+    String? groupOrderId,
   }) = _Order;
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 }
@@ -455,6 +459,227 @@ abstract class WaybillTracking with _$WaybillTracking {
   }) = _WaybillTracking;
   factory WaybillTracking.fromJson(Map<String, dynamic> json) => _$WaybillTrackingFromJson(json);
 }
+
+// ------------------------------------------------------------------------------------------ growth (phase 4)
+
+@freezed
+abstract class PlusPlan with _$PlusPlan {
+  const factory PlusPlan({
+    @Default(true) bool enabled,
+    required int priceKobo,
+    @Default(0) int vatKobo,
+    @Default(30) int periodDays,
+    @Default(0) int freeDeliveryMinSubtotalKobo,
+    @Default(0) int serviceFeeDiscountBps,
+    @Default(1) int pointsMultiplier,
+    @Default(<String>[]) List<String> benefits,
+  }) = _PlusPlan;
+  factory PlusPlan.fromJson(Map<String, dynamic> json) => _$PlusPlanFromJson(json);
+}
+
+@freezed
+abstract class PlusMembership with _$PlusMembership {
+  const factory PlusMembership({
+    @Default('active') String status,
+    required DateTime paidThrough,
+    @Default('') String paidThroughText,
+    @Default(0) int daysLeft,
+    @Default(true) bool autoRenew,
+    @Default(false) bool canRenew,
+    @Default(0) int periods,
+    @Default(0) int savingsKobo,
+  }) = _PlusMembership;
+  factory PlusMembership.fromJson(Map<String, dynamic> json) => _$PlusMembershipFromJson(json);
+}
+
+@freezed
+abstract class PlusOverview with _$PlusOverview {
+  const factory PlusOverview({required PlusPlan plan, @Default(false) bool member, PlusMembership? membership}) =
+      _PlusOverview;
+  factory PlusOverview.fromJson(Map<String, dynamic> json) => _$PlusOverviewFromJson(json);
+}
+
+@freezed
+abstract class RewardVoucher with _$RewardVoucher {
+  const factory RewardVoucher({
+    required String code,
+    @Default('') String description,
+    required int valueKobo,
+    @Default(0) int minSubtotalKobo,
+    DateTime? endsAt,
+    @Default('points') String source,
+  }) = _RewardVoucher;
+  factory RewardVoucher.fromJson(Map<String, dynamic> json) => _$RewardVoucherFromJson(json);
+}
+
+@freezed
+abstract class PointsEntry with _$PointsEntry {
+  const factory PointsEntry({
+    required String id,
+    required String kind,
+    required int points,
+    String? orderId,
+    String? voucherCode,
+    @Default('') String note,
+    required DateTime at,
+  }) = _PointsEntry;
+  factory PointsEntry.fromJson(Map<String, dynamic> json) => _$PointsEntryFromJson(json);
+}
+
+@freezed
+abstract class RewardsRedeem with _$RewardsRedeem {
+  const factory RewardsRedeem({
+    @Default(true) bool enabled,
+    @Default(500) int stepPoints,
+    @Default(50000) int stepValueKobo,
+    @Default(0) int redeemablePoints,
+    @Default(0) int pointsToNext,
+    @Default(0) int minSubtotalKobo,
+    @Default(90) int validDays,
+  }) = _RewardsRedeem;
+  factory RewardsRedeem.fromJson(Map<String, dynamic> json) => _$RewardsRedeemFromJson(json);
+}
+
+@freezed
+abstract class RewardsReferral with _$RewardsReferral {
+  const factory RewardsReferral({
+    @Default(true) bool enabled,
+    @Default('') String code,
+    @Default(0) int friendGetsKobo,
+    @Default(0) int youGetKobo,
+    @Default(0) int minSubtotalKobo,
+    @Default(0) int friendsRewarded,
+    @Default(false) bool applied,
+    @Default(false) bool canApply,
+    @Default('') String shareText,
+  }) = _RewardsReferral;
+  factory RewardsReferral.fromJson(Map<String, dynamic> json) => _$RewardsReferralFromJson(json);
+}
+
+@freezed
+abstract class RewardsOverview with _$RewardsOverview {
+  const factory RewardsOverview({
+    @Default(0) int points,
+    @Default(0) int lifetimePoints,
+    @Default(0) int pointsValueKobo,
+    required RewardsRedeem redeem,
+    required RewardsReferral referral,
+    @Default(<RewardVoucher>[]) List<RewardVoucher> vouchers,
+    @Default(<PointsEntry>[]) List<PointsEntry> history,
+  }) = _RewardsOverview;
+  factory RewardsOverview.fromJson(Map<String, dynamic> json) => _$RewardsOverviewFromJson(json);
+}
+
+@freezed
+abstract class GroupMemberView with _$GroupMemberView {
+  const factory GroupMemberView({
+    required String uid,
+    required String name,
+    @Default(false) bool isHost,
+    @Default(false) bool me,
+    @Default(false) bool ready,
+    @Default(0) int items,
+    @Default(0) int itemsKobo,
+  }) = _GroupMemberView;
+  factory GroupMemberView.fromJson(Map<String, dynamic> json) => _$GroupMemberViewFromJson(json);
+}
+
+@freezed
+abstract class GroupLineView with _$GroupLineView {
+  const factory GroupLineView({
+    required String id,
+    required String memberUid,
+    @Default('') String member,
+    required String itemId,
+    required String name,
+    required int quantity,
+    @Default(<OptionSelection>[]) List<OptionSelection> selections,
+    @Default(<String>[]) List<String> options,
+    String? notes,
+    @Default(0) int lineTotalKobo,
+    String? problem,
+  }) = _GroupLineView;
+  factory GroupLineView.fromJson(Map<String, dynamic> json) => _$GroupLineViewFromJson(json);
+}
+
+@freezed
+abstract class GroupShareView with _$GroupShareView {
+  const factory GroupShareView({
+    required String uid,
+    required String name,
+    @Default(false) bool me,
+    @Default(0) int itemsKobo,
+    required int amountKobo,
+    @Default('unpaid') String status,
+    @Default(false) bool paidByHost,
+  }) = _GroupShareView;
+  factory GroupShareView.fromJson(Map<String, dynamic> json) => _$GroupShareViewFromJson(json);
+}
+
+@freezed
+abstract class GroupOrderRef with _$GroupOrderRef {
+  const factory GroupOrderRef({required String id, @Default('') String shortCode, required String status, @Default(0) int totalKobo}) =
+      _GroupOrderRef;
+  factory GroupOrderRef.fromJson(Map<String, dynamic> json) => _$GroupOrderRefFromJson(json);
+}
+
+@freezed
+abstract class GroupMyShare with _$GroupMyShare {
+  const factory GroupMyShare({required int amountKobo, @Default(0) int itemsKobo, @Default('unpaid') String status}) =
+      _GroupMyShare;
+  factory GroupMyShare.fromJson(Map<String, dynamic> json) => _$GroupMyShareFromJson(json);
+}
+
+@freezed
+abstract class GroupRestaurant with _$GroupRestaurant {
+  const factory GroupRestaurant({required String id, required String name}) = _GroupRestaurant;
+  factory GroupRestaurant.fromJson(Map<String, dynamic> json) => _$GroupRestaurantFromJson(json);
+}
+
+@freezed
+abstract class GroupOrder with _$GroupOrder {
+  const factory GroupOrder({
+    required String id,
+    required String code,
+    required String status,
+    @Default('each') String splitMode,
+    @Default(false) bool isHost,
+    @Default('') String hostName,
+    required GroupRestaurant restaurant,
+    @Default('delivery') String fulfillment,
+    String? deliveryArea,
+    @Default(<GroupMemberView>[]) List<GroupMemberView> members,
+    @Default(10) int maxMembers,
+    @Default(<GroupLineView>[]) List<GroupLineView> lines,
+    @Default(0) int estimatedItemsKobo,
+    DateTime? expiresAt,
+    GroupOrderRef? order,
+    @Default(0) int totalKobo,
+    @Default(<GroupShareView>[]) List<GroupShareView> shares,
+    GroupMyShare? myShare,
+    @Default(0) int paidKobo,
+    @Default(0) int remainingKobo,
+    DateTime? payBy,
+    @Default(false) bool canPay,
+    @Default(false) bool canCoverRest,
+    String? cancelReason,
+  }) = _GroupOrder;
+  factory GroupOrder.fromJson(Map<String, dynamic> json) => _$GroupOrderFromJson(json);
+}
+
+/// Shown on group cards and screens: what the group is waiting for.
+String groupStatusLabel(GroupOrder g) => switch (g.status) {
+      'open' => 'Collecting orders',
+      'locked' => 'Cart locked by the host',
+      'cancelled' => 'Cancelled',
+      'expired' => 'Expired',
+      _ => switch (g.order?.status) {
+          'pending_payment' => 'Waiting for everyone to pay',
+          'draft' => g.splitMode == 'host' ? 'Waiting for the host to pay' : 'Order placed',
+          final s? => s.replaceAll('_', ' '),
+          null => 'Order placed',
+        },
+    };
 
 @freezed
 abstract class TopUpResult with _$TopUpResult {

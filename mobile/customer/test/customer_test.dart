@@ -39,6 +39,9 @@ class FakeApi extends GudMealApi {
   Future<WalletOverview> wallet() async => const WalletOverview(balanceKobo: 2000000);
 
   @override
+  Future<List<RewardVoucher>> myVouchers() async => const [];
+
+  @override
   Future<OrderSummary> orderSummary() async => const OrderSummary(completedCount: 1);
 }
 
