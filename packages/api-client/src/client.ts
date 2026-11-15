@@ -158,6 +158,39 @@ export function createApi(opts: ClientOptions) {
       moveToWallet: (amount_kobo: number, key: string) =>
         post<{ transaction_id: string; moved: boolean; wallet_balance_kobo: number }>("/v1/seller/move-to-wallet", { amount_kobo }, key),
     },
+    plus: {
+      get: () => get<T.PlusOverview>("/v1/plus"),
+      subscribe: (key: string, provider?: string, auto_renew = true) =>
+        post<T.PlusSubscribeResult>("/v1/plus/subscribe", provider ? { provider, auto_renew } : { auto_renew }, key),
+      setAutoRenew: (auto_renew: boolean) => put<T.PlusOverview>("/v1/plus/auto-renew", { auto_renew }),
+    },
+    rewards: {
+      get: () => get<T.RewardsOverview>("/v1/rewards"),
+      vouchers: () => get<T.RewardVoucher[]>("/v1/rewards/vouchers"),
+      applyReferral: (code: string) =>
+        post<{ applied: boolean; voucher: T.RewardVoucher | null }>("/v1/rewards/referral", { code }),
+      redeem: (points: number, key: string) =>
+        post<{ voucher: T.RewardVoucher; points: number }>("/v1/rewards/redeem", { points }, key),
+    },
+    groups: {
+      mine: () => get<T.GroupOrder[]>("/v1/group-orders"),
+      create: (body: T.GroupCreateRequest) => post<T.GroupOrder>("/v1/group-orders", body),
+      join: (code: string) => post<T.GroupOrder>("/v1/group-orders/join", { code }),
+      get: (id: string) => get<T.GroupOrder>(`/v1/group-orders/${id}`),
+      setLines: (id: string, lines: T.CartLine[]) => put<T.GroupOrder>(`/v1/group-orders/${id}/lines`, { lines }),
+      setReady: (id: string, ready: boolean) => put<T.GroupOrder>(`/v1/group-orders/${id}/ready`, { ready }),
+      setSplitMode: (id: string, split_mode: T.SplitMode) =>
+        put<T.GroupOrder>(`/v1/group-orders/${id}/settings`, { split_mode }),
+      lock: (id: string) => post<T.GroupOrder>(`/v1/group-orders/${id}/lock`),
+      unlock: (id: string) => post<T.GroupOrder>(`/v1/group-orders/${id}/unlock`),
+      removeMember: (id: string, uid: string) =>
+        del<T.GroupOrder | { left: true }>(`/v1/group-orders/${id}/members/${uid}`),
+      checkout: (id: string, key: string, body: { voucher_code?: string; contact_phone?: string; channel?: "web" | "app" } = {}) =>
+        post<T.GroupOrder>(`/v1/group-orders/${id}/checkout`, { channel: "web", ...body }, key),
+      pay: (id: string, key: string, body: { provider?: string; cover_rest?: boolean } = {}) =>
+        post<T.GroupPayResult>(`/v1/group-orders/${id}/pay`, body, key),
+      cancel: (id: string) => post<T.GroupOrder>(`/v1/group-orders/${id}/cancel`),
+    },
     mealPlans: (body: { budget_kobo: number; party_size: number; location: T.GeoPoint; deliver_by?: string | null }) =>
       post<T.MealPlanResult>("/v1/meal-plans", body),
     support: {
@@ -235,6 +268,9 @@ export function createApi(opts: ClientOptions) {
         post<T.HubItem>("/v1/admin/waybills/collect", { hub_id, tracking_code, code }),
       carrierPayout: (carrierId: string, amount_kobo: number, bank_reference: string, key: string) =>
         post<{ transaction_id: string; recorded: boolean; owed_kobo: number }>(`/v1/admin/carriers/${carrierId}/payouts`, { amount_kobo, bank_reference }, key),
+      growth: () => get<T.GrowthStats>("/v1/admin/growth"),
+      growthConfig: () => get<T.GrowthConfig>("/v1/admin/config/growth"),
+      saveGrowthConfig: (cfg: T.GrowthConfig) => put<T.GrowthConfig>("/v1/admin/config/growth", cfg),
       pricing: () => get<T.PricingConfig>("/v1/admin/config/pricing"),
       updatePricing: (cfg: T.PricingConfig) => put<T.PricingConfig>("/v1/admin/config/pricing", cfg),
       flags: () => get<Record<string, { key: string; enabled: boolean; description: string }>>("/v1/admin/flags"),

@@ -64,6 +64,19 @@
         "title": "AssignInput",
         "type": "object"
       },
+      "AutoRenewInput": {
+        "properties": {
+          "auto_renew": {
+            "title": "Auto Renew",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "auto_renew"
+        ],
+        "title": "AutoRenewInput",
+        "type": "object"
+      },
       "Carrier": {
         "properties": {
           "id": {
@@ -958,6 +971,278 @@
           "lng"
         ],
         "title": "GeoPoint",
+        "type": "object"
+      },
+      "GroupCheckoutInput": {
+        "properties": {
+          "channel": {
+            "default": "app",
+            "enum": [
+              "app",
+              "web"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "contact_phone": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Phone"
+          },
+          "voucher_code": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voucher Code"
+          }
+        },
+        "title": "GroupCheckoutInput",
+        "type": "object"
+      },
+      "GroupCreateInput": {
+        "properties": {
+          "delivery_address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fulfillment": {
+            "$ref": "#/components/schemas/Fulfillment",
+            "default": "delivery"
+          },
+          "restaurant_id": {
+            "maxLength": 80,
+            "title": "Restaurant Id",
+            "type": "string"
+          },
+          "split_mode": {
+            "default": "each",
+            "enum": [
+              "host",
+              "each"
+            ],
+            "title": "Split Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "restaurant_id"
+        ],
+        "title": "GroupCreateInput",
+        "type": "object"
+      },
+      "GroupJoinInput": {
+        "properties": {
+          "code": {
+            "maxLength": 12,
+            "minLength": 6,
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "GroupJoinInput",
+        "type": "object"
+      },
+      "GroupLinesInput": {
+        "properties": {
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/CartLine"
+            },
+            "maxItems": 20,
+            "title": "Lines",
+            "type": "array"
+          }
+        },
+        "title": "GroupLinesInput",
+        "type": "object"
+      },
+      "GroupPayInput": {
+        "properties": {
+          "cover_rest": {
+            "default": false,
+            "title": "Cover Rest",
+            "type": "boolean"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "enum": [
+                  "wallet",
+                  "paystack",
+                  "flutterwave",
+                  "local_sandbox"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          }
+        },
+        "title": "GroupPayInput",
+        "type": "object"
+      },
+      "GroupReadyInput": {
+        "properties": {
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ready"
+        ],
+        "title": "GroupReadyInput",
+        "type": "object"
+      },
+      "GroupSettingsInput": {
+        "properties": {
+          "split_mode": {
+            "enum": [
+              "host",
+              "each"
+            ],
+            "title": "Split Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "split_mode"
+        ],
+        "title": "GroupSettingsInput",
+        "type": "object"
+      },
+      "GrowthConfig": {
+        "description": "Gud points, referrals and group orders (`platform_configuration/growth`).",
+        "properties": {
+          "group_max_members": {
+            "default": 10,
+            "maximum": 30.0,
+            "minimum": 2.0,
+            "title": "Group Max Members",
+            "type": "integer"
+          },
+          "group_open_hours": {
+            "default": 3,
+            "maximum": 48.0,
+            "minimum": 1.0,
+            "title": "Group Open Hours",
+            "type": "integer"
+          },
+          "group_orders_enabled": {
+            "default": true,
+            "title": "Group Orders Enabled",
+            "type": "boolean"
+          },
+          "point_value_kobo": {
+            "default": 100,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Point Value Kobo",
+            "type": "integer"
+          },
+          "points_enabled": {
+            "default": true,
+            "title": "Points Enabled",
+            "type": "boolean"
+          },
+          "points_per_100_naira": {
+            "default": 1,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Points Per 100 Naira",
+            "type": "integer"
+          },
+          "redeem_min_subtotal_kobo": {
+            "default": 200000,
+            "minimum": 0.0,
+            "title": "Redeem Min Subtotal Kobo",
+            "type": "integer"
+          },
+          "redeem_step_points": {
+            "default": 500,
+            "maximum": 1000000.0,
+            "minimum": 1.0,
+            "title": "Redeem Step Points",
+            "type": "integer"
+          },
+          "redeem_valid_days": {
+            "default": 90,
+            "maximum": 730.0,
+            "minimum": 1.0,
+            "title": "Redeem Valid Days",
+            "type": "integer"
+          },
+          "referee_min_subtotal_kobo": {
+            "default": 300000,
+            "minimum": 0.0,
+            "title": "Referee Min Subtotal Kobo",
+            "type": "integer"
+          },
+          "referee_reward_kobo": {
+            "default": 100000,
+            "maximum": 10000000.0,
+            "minimum": 0.0,
+            "title": "Referee Reward Kobo",
+            "type": "integer"
+          },
+          "referral_valid_days": {
+            "default": 30,
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Referral Valid Days",
+            "type": "integer"
+          },
+          "referrals_enabled": {
+            "default": true,
+            "title": "Referrals Enabled",
+            "type": "boolean"
+          },
+          "referrer_monthly_cap": {
+            "default": 10,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Referrer Monthly Cap",
+            "type": "integer"
+          },
+          "referrer_reward_kobo": {
+            "default": 100000,
+            "maximum": 10000000.0,
+            "minimum": 0.0,
+            "title": "Referrer Reward Kobo",
+            "type": "integer"
+          },
+          "version": {
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "title": "GrowthConfig",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -2013,6 +2298,67 @@
         "title": "PayoutInput",
         "type": "object"
       },
+      "PlusConfig": {
+        "description": "Gud Meal Plus membership. Product defaults, to be confirmed by the owner (ADR-0016).",
+        "properties": {
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "free_delivery_min_subtotal_kobo": {
+            "default": 300000,
+            "minimum": 0.0,
+            "title": "Free Delivery Min Subtotal Kobo",
+            "type": "integer"
+          },
+          "period_days": {
+            "default": 30,
+            "maximum": 366.0,
+            "minimum": 1.0,
+            "title": "Period Days",
+            "type": "integer"
+          },
+          "points_multiplier": {
+            "default": 2,
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Points Multiplier",
+            "type": "integer"
+          },
+          "price_kobo": {
+            "default": 150000,
+            "exclusiveMinimum": 0.0,
+            "maximum": 10000000.0,
+            "title": "Price Kobo",
+            "type": "integer"
+          },
+          "renew_window_hours": {
+            "default": 24,
+            "maximum": 168.0,
+            "minimum": 1.0,
+            "title": "Renew Window Hours",
+            "type": "integer"
+          },
+          "service_fee_discount_bps": {
+            "default": 5000,
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Service Fee Discount Bps",
+            "type": "integer"
+          },
+          "verticals": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Verticals",
+            "type": "array"
+          }
+        },
+        "title": "PlusConfig",
+        "type": "object"
+      },
       "PricingConfig-Input": {
         "properties": {
           "avg_speed_kmh": {
@@ -2044,6 +2390,9 @@
           },
           "parcel": {
             "$ref": "#/components/schemas/ParcelFeeConfig"
+          },
+          "plus": {
+            "$ref": "#/components/schemas/PlusConfig"
           },
           "rider_pay": {
             "$ref": "#/components/schemas/RiderPayConfig"
@@ -2126,6 +2475,9 @@
           },
           "parcel": {
             "$ref": "#/components/schemas/ParcelFeeConfig"
+          },
+          "plus": {
+            "$ref": "#/components/schemas/PlusConfig"
           },
           "rider_pay": {
             "$ref": "#/components/schemas/RiderPayConfig"
@@ -2346,6 +2698,36 @@
           "lines"
         ],
         "title": "QuoteRequest",
+        "type": "object"
+      },
+      "RedeemInput": {
+        "properties": {
+          "points": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 10000000.0,
+            "title": "Points",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "points"
+        ],
+        "title": "RedeemInput",
+        "type": "object"
+      },
+      "ReferralInput": {
+        "properties": {
+          "code": {
+            "maxLength": 20,
+            "minLength": 3,
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "ReferralInput",
         "type": "object"
       },
       "RefundDecisionInput": {
@@ -3224,6 +3606,34 @@
         "title": "SettlementPeriod",
         "type": "object"
       },
+      "SubscribeInput": {
+        "properties": {
+          "auto_renew": {
+            "default": true,
+            "title": "Auto Renew",
+            "type": "boolean"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "enum": [
+                  "wallet",
+                  "paystack",
+                  "flutterwave",
+                  "local_sandbox"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          }
+        },
+        "title": "SubscribeInput",
+        "type": "object"
+      },
       "TicketInput": {
         "properties": {
           "category": {
@@ -3497,6 +3907,17 @@
             "title": "Code",
             "type": "string"
           },
+          "customer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
           "description": {
             "default": "",
             "title": "Description",
@@ -3570,6 +3991,17 @@
               }
             ],
             "title": "Restaurant Id"
+          },
+          "source": {
+            "default": "campaign",
+            "enum": [
+              "campaign",
+              "points",
+              "referral",
+              "referrer"
+            ],
+            "title": "Source",
+            "type": "string"
           },
           "starts_at": {
             "anyOf": [
@@ -4689,6 +5121,144 @@
         ]
       }
     },
+    "/v1/admin/config/growth": {
+      "get": {
+        "operationId": "growth_config_v1_admin_config_growth_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthConfig"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Growth Config",
+        "tags": [
+          "admin"
+        ]
+      },
+      "put": {
+        "operationId": "save_growth_config_v1_admin_config_growth_put",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrowthConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthConfig"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Growth Config",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/config/logistics": {
       "get": {
         "operationId": "get_logistics_v1_admin_config_logistics_get",
@@ -5193,6 +5763,73 @@
           }
         },
         "summary": "Set Flag",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/growth": {
+      "get": {
+        "operationId": "growth_overview_v1_admin_growth_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Growth Overview V1 Admin Growth Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Growth Overview",
         "tags": [
           "admin"
         ]
@@ -8139,6 +8776,1071 @@
         "summary": "Discover Dishes",
         "tags": [
           "public"
+        ]
+      }
+    },
+    "/v1/group-orders": {
+      "get": {
+        "operationId": "my_group_orders_v1_group_orders_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response My Group Orders V1 Group Orders Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Group Orders",
+        "tags": [
+          "growth"
+        ]
+      },
+      "post": {
+        "operationId": "create_group_order_v1_group_orders_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupCreateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Create Group Order V1 Group Orders Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Group Order",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/join": {
+      "post": {
+        "operationId": "join_group_order_v1_group_orders_join_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupJoinInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Join Group Order V1 Group Orders Join Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Join Group Order",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}": {
+      "get": {
+        "operationId": "group_order_v1_group_orders__group_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Group Order V1 Group Orders  Group Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Group Order",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/cancel": {
+      "post": {
+        "operationId": "cancel_group_v1_group_orders__group_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Cancel Group V1 Group Orders  Group Id  Cancel Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Group",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/checkout": {
+      "post": {
+        "operationId": "group_checkout_v1_group_orders__group_id__checkout_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupCheckoutInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Group Checkout",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/lines": {
+      "put": {
+        "operationId": "set_group_lines_v1_group_orders__group_id__lines_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupLinesInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Set Group Lines V1 Group Orders  Group Id  Lines Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Group Lines",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/lock": {
+      "post": {
+        "operationId": "lock_group_v1_group_orders__group_id__lock_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Lock Group V1 Group Orders  Group Id  Lock Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lock Group",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/members/{uid}": {
+      "delete": {
+        "operationId": "remove_group_member_v1_group_orders__group_id__members__uid__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uid",
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Remove Group Member V1 Group Orders  Group Id  Members  Uid  Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Remove Group Member",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/pay": {
+      "post": {
+        "operationId": "pay_group_share_v1_group_orders__group_id__pay_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupPayInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Pay Group Share",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/ready": {
+      "put": {
+        "operationId": "set_group_ready_v1_group_orders__group_id__ready_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupReadyInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Set Group Ready V1 Group Orders  Group Id  Ready Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Group Ready",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/settings": {
+      "put": {
+        "operationId": "group_settings_v1_group_orders__group_id__settings_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupSettingsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Group Settings V1 Group Orders  Group Id  Settings Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Group Settings",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/group-orders/{group_id}/unlock": {
+      "post": {
+        "operationId": "unlock_group_v1_group_orders__group_id__unlock_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Unlock Group V1 Group Orders  Group Id  Unlock Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Unlock Group",
+        "tags": [
+          "growth"
         ]
       }
     },
@@ -12221,6 +13923,239 @@
         ]
       }
     },
+    "/v1/plus": {
+      "get": {
+        "operationId": "plus_v1_plus_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Plus V1 Plus Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Plus",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/plus/auto-renew": {
+      "put": {
+        "operationId": "plus_auto_renew_v1_plus_auto_renew_put",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutoRenewInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Plus Auto Renew V1 Plus Auto Renew Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Plus Auto Renew",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/plus/subscribe": {
+      "post": {
+        "operationId": "plus_subscribe_v1_plus_subscribe_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Plus Subscribe",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
     "/v1/quotes": {
       "post": {
         "operationId": "create_quote_v1_quotes_post",
@@ -12735,6 +14670,309 @@
         "summary": "Restaurant Reviews",
         "tags": [
           "public"
+        ]
+      }
+    },
+    "/v1/rewards": {
+      "get": {
+        "operationId": "rewards_v1_rewards_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Rewards V1 Rewards Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rewards",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/rewards/redeem": {
+      "post": {
+        "operationId": "redeem_points_v1_rewards_redeem_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedeemInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Redeem Points",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/rewards/referral": {
+      "post": {
+        "operationId": "apply_referral_v1_rewards_referral_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReferralInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Apply Referral V1 Rewards Referral Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Apply Referral",
+        "tags": [
+          "growth"
+        ]
+      }
+    },
+    "/v1/rewards/vouchers": {
+      "get": {
+        "operationId": "my_vouchers_v1_rewards_vouchers_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response My Vouchers V1 Rewards Vouchers Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Vouchers",
+        "tags": [
+          "growth"
         ]
       }
     },
