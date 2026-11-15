@@ -61,3 +61,27 @@ Parcel orders are ordinary orders with `vertical: "parcel"` and a `parcel` objec
 size, contents); they skip the merchant (`paid → ready_for_pickup`) and are cancellable with a full refund until a
 rider is assigned. `GET /v1/config/public` also returns `cities` and `support` contacts (`placeholders: true` until
 real contacts are configured).
+
+## Interstate waybill (phase 3, [ADR-0015](adr/0015-interstate-waybill.md))
+
+| Method & path | Who | Purpose |
+|---|---|---|
+| `GET /v1/waybill/origins` | public | Cities you can send from: home pickup yes/no, drop-off hubs |
+| `GET /v1/waybill/destinations?origin=` | public | Where a city sends to: from-price, transit days, door delivery or collection hubs, carrier |
+| `POST /v1/waybills/quotes` · `GET /v1/waybills/quotes/{id}` | customer | Price a waybill and get the expected dates. Inputs: route, pickup or drop-off, door or collection, sender, recipient, size, weight, category, declared value, cash on delivery |
+| `POST /v1/waybills` (Idempotency-Key) | customer | Book from a quote (re-priced; `price_changed` if it moved). Returns the order with `waybill.tracking_code`. Pay with `POST /v1/orders/{id}/checkout`, by card or wallet only |
+| `GET /v1/track/{code}` | public, rate-limited per client address | Route, step, milestones, places, expected dates, collection point; **no names, phones or addresses** |
+| `GET /v1/admin/hubs` · `GET /v1/admin/hubs/{hub_id}/board` | `hubs:operate` (hub agents, operations) | Hubs; the board lists packages expected, in the hub, departed and arriving |
+| `POST /v1/admin/waybills/receive` · `…/depart` · `…/arrive` · `…/collect` | `hubs:operate` | Scan in at the origin hub, send a batch with a trip reference, mark arrival, hand over against the recipient's collection code |
+| `GET` · `PUT /v1/admin/config/logistics` | `config:read` / `config:write` | The network (cities, hubs, carriers, lanes and their prices); versioned and audited |
+| `POST /v1/admin/carriers/{carrier_id}/payouts` (Idempotency-Key) | finance (`payouts:approve`) | Record a bank payment to a carrier (at most what is owed) |
+
+Waybill fields in other responses:
+
+- Orders with `vertical: "waybill"` carry a `waybill` object (tracking number, hubs, parties, stage, milestones,
+  expected dates) and `progress.steps`, the five step labels.
+- The breakdown adds `linehaul_fee_kobo` and `pickup_fee_kobo`.
+- Rider views of waybill jobs carry `leg_kind` (`first_mile` | `last_mile`) and `hub_handover` (first-mile jobs end
+  with hub staff, not with a code).
+- `GET /v1/admin/cash` adds `carriers` and `totals.carrier_balances_kobo`.
+- Customer order lists never include rider jobs. Rider jobs cannot be checked out, cancelled or disputed.

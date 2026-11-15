@@ -6,7 +6,7 @@
 - Roles are Firebase **custom claims** set only by the API's admin endpoints:
   `roles: [..]`, `restaurant_roles: {restaurantId: "owner"|"manager"|"staff"}`.
 - Roles: `customer`, `restaurant_owner`, `restaurant_manager`, `restaurant_staff`, `rider`,
-  `support_agent`, `operations_manager`, `finance_manager`, `marketing_manager`, `super_admin`.
+  `support_agent`, `operations_manager`, `finance_manager`, `marketing_manager`, `hub_agent`, `super_admin`.
 - The API verifies ID tokens with the Firebase Admin SDK (`check_revoked=True` for privileged routes)
   and maps roles to fine-grained permissions in `security/rbac.py` (deny by default).
 
@@ -19,6 +19,7 @@
 | Rider ↔ rider | `order.rider_id == uid`; riders see only the drop-off details needed for the active delivery |
 | Staff | permission-based; every privileged mutation writes an `audit_events` row |
 | AI threads | thread ownership table checked on every call; memory never shared across users |
+| Waybill tracking | public `GET /v1/track/{code}` returns progress, places and dates only (no names, phones or addresses), rate-limited per client address; hub scans need `hubs:operate` and are accepted only at the package's booked hub for each step |
 
 ## Platform controls
 

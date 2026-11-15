@@ -20,6 +20,8 @@ stateDiagram-v2
   pending_payment --> paid: verified payment (system only)
   pending_payment --> cancelled: customer / payment timeout
   paid --> submitted_to_restaurant: system
+  paid --> in_transit: waybill received at the origin hub (staff)
+  draft --> ready_for_pickup: waybill rider job created (system)
   paid --> refund_pending
   submitted_to_restaurant --> restaurant_accepted: restaurant
   submitted_to_restaurant --> refund_pending: rejected / timeout / customer cancel
@@ -75,6 +77,20 @@ The exhaustive table — including which actor may perform each transition and i
 - **→ delivered** requires the customer's 4-digit delivery code; 5 failed attempts lock the code. Orders with cash
   to collect (pay on delivery, vendor COD) also need the rider's `cash_collected` confirmation.
 - **ready_for_pickup → completed** requires `fulfillment == "pickup"` and the pickup code.
+- **Waybills** (`vertical = "waybill"`, [ADR-0015](../adr/0015-interstate-waybill.md)):
+  - `paid → in_transit` happens when the origin hub scans the package in.
+  - `in_transit → delivered` is done by the system when the last-mile rider delivers with the recipient's
+    code, or by hub staff at collection with the recipient's collection code.
+  - The detail (at the hub, departed, arrived, ready for collection, out for delivery) is `waybill.stage`
+    plus milestones, changed by compare-and-set with each transition.
+  - `_flow_guard` keeps these edges for waybills only.
+- **Waybill rider jobs** (`leg_of` set):
+  - They go `draft → ready_for_pickup` (system) without payment.
+  - First-mile jobs are completed by the hub's scan, never by the rider.
+  - Customers cannot check them out, cancel them or dispute them; the system can call them off before
+    pickup.
+- **Packages and waybills** never go to `submitted_to_restaurant`, so they never take the pay-on-delivery
+  step.
 - **rider transitions** require `order.rider_id == actor.uid`.
 - **restaurant transitions** require the actor to hold a restaurant role for `order.restaurant_id`.
 - Every transition is a compare-and-set on the current status (Firestore transaction) and appends an

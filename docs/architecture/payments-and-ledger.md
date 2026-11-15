@@ -59,6 +59,10 @@ Tables: `financial_accounts`, `financial_transactions`, `ledger_entries` (see [d
 | `liability:vendor:{uid}` | liability | Cash-on-delivery money collected for a seller, not yet paid out |
 | `receivable:rider_cash:{uid}` | asset | Cash a rider collected at the door and has not handed in |
 | `revenue:cod_fee` | revenue | Cash-on-delivery collection fees on packages |
+| `liability:carrier:{id}` | liability | Owed to a line-haul carrier for interstate waybills |
+| `revenue:waybill` | revenue | Waybill line haul, pickup, door delivery and booking fees (net of VAT and the COD fee) |
+| `expense:linehaul` | expense | Carriers' share of waybill line haul |
+| `expense:waybill_riders` | expense | Rider pay for waybill pickups and door deliveries |
 
 ### Postings
 
@@ -83,7 +87,8 @@ Balanced because `T = S + F + V + X − Dr − Dp`.
 **Refund before completion**: Dr `liability:customer_funds` / Cr `cash:<provider>`.
 **Refund after completion**: Dr `liability:restaurant:{id}` (restaurant at fault) or `expense:refunds`
 (platform absorbs) / Cr `cash:<provider>`.
-**Payout**: Dr `liability:restaurant:{id}`, `liability:rider:{id}` or `liability:vendor:{id}` / Cr `cash:bank`.
+**Payout**: Dr `liability:restaurant:{id}`, `liability:rider:{id}`, `liability:vendor:{id}` or
+`liability:carrier:{id}` / Cr `cash:bank`.
 
 ### Wallet, pay on delivery and vendor COD (phase 2, [ADR-0013](../adr/0013-wallet-and-cash.md))
 
@@ -104,6 +109,21 @@ webhooks for them are refused, and reconciliation skips them. Pay-on-delivery re
 entry) until the rider confirms the cash; if the order is called off first they become `abandoned`. Settlement
 refuses any order without a succeeded payment record. Refunds record their `destination` (`original` or
 `wallet`); wallet and cash payments are always refunded into the wallet.
+
+### Interstate waybill (phase 3, [ADR-0015](../adr/0015-interstate-waybill.md))
+
+| Event | Debit | Credit |
+|---|---|---|
+| Waybill paid (card or wallet; pay on delivery is not offered) | as for any order | `liability:customer_funds` |
+| A waybill rider job (pickup or door delivery) completed | `expense:waybill_riders` | `liability:rider:{rider}` |
+| Last-mile rider confirms cash on delivery | `receivable:rider_cash:{rider}` | `liability:vendor:{sender}` |
+| Waybill completed: total `T`, VAT `X`, COD fee `C` | `liability:customer_funds` T | `liability:vat` X, `revenue:cod_fee` C, `revenue:waybill` T − X − C |
+| ↳ in the same transaction: carrier cost `L` (lane share of the line haul, fixed at quote time) | `expense:linehaul` L | `liability:carrier:{carrier}` L |
+| Carrier paid by bank transfer (finance, bank reference, at most the balance owed) | `liability:carrier:{carrier}` | `cash:bank` |
+
+All waybill postings are recorded against the waybill's order id. Rider jobs are internal orders with
+`payment.provider = "internal"`: they hold no customer money and are never sent to a gateway. A customer
+cancellation before the package reaches a rider or a hub is refunded in full like any paid order.
 
 ### Gateway failover
 

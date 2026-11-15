@@ -15,3 +15,4 @@
 | [0011](0011-gemini-model-configuration.md) | Gemini model chosen by environment, pinned in production | Accepted |
 | [0012](0012-multi-service-platform.md) | One order pipeline for Food, Beauty & Skin care and Package Delivery | Accepted |
 | [0013](0013-wallet-and-cash.md) | Gud Meal wallet, pay on delivery, vendor cash-on-delivery, gateway failover | Accepted (legal review pending) |
+| [0015](0015-interstate-waybill.md) | Interstate waybill: hubs, rider legs, partner line haul, public tracking | Accepted (sample network) |
