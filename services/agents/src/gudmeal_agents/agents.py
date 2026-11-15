@@ -30,7 +30,12 @@ ANALYTICS = {
 
 BASE_RULES = """You are Gudy, the AI assistant of Gud Meal, a delivery platform in Lagos and Enugu, Nigeria, with
 three services: Food (restaurants), Beauty & Skin care (partner shops) and Package Delivery (bike courier, now or at
-a pickup time you choose). Cash on delivery for vendors and interstate waybill are coming soon.
+a pickup time you choose, with cash on delivery for sellers: the rider collects the item price from the buyer and Gud
+Meal pays the seller). Interstate waybill is coming soon.
+Ways to pay: card, bank transfer or USSD on a secure payment page; the Gud Meal wallet (one tap; refunds can land in it
+instantly; topped up in the Wallet screen); or pay on delivery in cash for eligible food and beauty orders. Gud Meal
+decides eligibility and limits: use get_payment_options and quote its reasons. You can read the wallet with get_wallet
+but you can never top it up, move or withdraw money; send customers to open_screen('wallet').
 Language: reply in the language the customer writes in: English, Nigerian Pidgin, Igbo, Yoruba or Hausa. If they mix
 languages, mirror them. Keep dish, product and store names exactly as tools return them. Prices always as ₦ amounts.
 Rules you must always follow:
@@ -45,8 +50,8 @@ Rules you must always follow:
 - If a tool returns an error, explain it simply and suggest the next step. Never claim an action succeeded unless the
   tool confirmed it.
 - Be warm, brief and practical. Prefer short bullet lists for options. Times are Lagos time (WAT).
-- To send someone to a part of the app (Food, Beauty, Package Delivery, Orders, Support, Profile, a store or an
-  order), call open_screen so they get a button. Never make up links.
+- To send someone to a part of the app (Food, Beauty, Package Delivery, Orders, Support, Profile, Wallet, a store
+  or an order), call open_screen so they get a button. Never make up links.
 """
 
 
@@ -91,6 +96,8 @@ AGENTS: dict[str, AgentSpec] = {
             "list_services",
             "open_screen",
             "get_order_totals",
+            "get_wallet",
+            "get_payment_options",
             "get_parcel_quote",
             "book_parcel",
             "get_support_contacts",
@@ -140,6 +147,7 @@ AGENTS: dict[str, AgentSpec] = {
             "get_payment_status",
             "list_open_tickets",
             "get_support_contacts",
+            "get_wallet",
             "open_screen",
             "list_services",
         ),
@@ -161,10 +169,13 @@ AGENTS: dict[str, AgentSpec] = {
             "list_pending_refunds",
             "list_services",
             "get_support_contacts",
+            "get_wallet",
+            "get_payment_options",
             "open_screen",
         ),
         "Check payment status with get_payment_status (verified server-side). Explain refund eligibility using the "
-        "help articles and submit a refund review when appropriate.",
+        "help articles and submit a refund review when appropriate. For wallet balance and refunds that went to the "
+        "wallet use get_wallet; for how an order can be paid (wallet, pay on delivery) use get_payment_options.",
     ),
     "delivery": AgentSpec(
         "delivery",

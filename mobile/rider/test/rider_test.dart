@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 import 'package:gud_meal_rider/providers.dart';
 import 'package:gud_meal_rider/screens/delivery_screen.dart';
@@ -39,6 +40,7 @@ DeliveryOffer offer(DateTime expiresAt) => DeliveryOffer(
 
 void main() {
   parcelTests();
+  cashTests();
   testWidgets('offer shows countdown, payout and disables actions once expired', (tester) async {
     final now = DateTime.utc(2026, 11, 14, 20, 0, 0);
     await tester.pumpWidget(ProviderScope(
@@ -127,6 +129,64 @@ class _ParcelApi extends GudMealApi {
           ),
         ),
       ];
+}
+
+class _CashApi extends GudMealApi {
+  _CashApi() : super(baseUrl: 'http://fake', token: () async => 'tok');
+  final delivered = <(String, bool)>[];
+
+  static const cashOrder = Order(
+    id: 'c1',
+    shortCode: 'CASH12',
+    status: 'in_transit',
+    restaurantName: 'Jollof Junction',
+    restaurantLocation: GeoPoint(lat: 6.44, lng: 3.46),
+    riderPayKobo: 90000,
+    paymentMethod: 'cash',
+    collectCashKobo: 1136500,
+    deliveryAddress: DeliveryAddress(line1: '5 Admiralty Way', area: 'Lekki Phase 1', location: GeoPoint(lat: 6.44, lng: 3.47)),
+  );
+
+  @override
+  Future<List<Order>> activeDeliveries() async => [cashOrder];
+
+  @override
+  Future<Order> deliver(String orderId, String code, {bool cashCollected = false}) async {
+    delivered.add((code, cashCollected));
+    return cashOrder.copyWith(status: 'delivered');
+  }
+}
+
+void cashTests() {
+  testWidgets('cash jobs show the amount and need the rider to confirm the cash before delivery', (tester) async {
+    final api = _CashApi();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(FakeAuthRepository(const GmUser(uid: 'demo-rider-1'))),
+        apiProvider.overrideWithValue(api),
+      ],
+      child: MaterialApp.router(
+        routerConfig: GoRouter(initialLocation: '/deliveries/c1', routes: [
+          GoRoute(path: '/', builder: (_, _) => const Scaffold(body: Text('HOME'))),
+          GoRoute(path: '/deliveries/:id', builder: (_, s) => DeliveryScreen(orderId: s.pathParameters['id']!)),
+        ]),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Collect ₦11,365 in cash'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '4118');
+    await tester.pump();
+    final button = find.widgetWithText(FilledButton, 'Complete delivery');
+    await tester.ensureVisible(button);
+    expect(tester.widget<FilledButton>(button).onPressed, isNull); // cash not confirmed yet
+    await tester.tap(find.byKey(const ValueKey('cash-taken')));
+    await tester.pump();
+    expect(tester.widget<FilledButton>(button).onPressed, isNotNull);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(api.delivered.single, ('4118', true));
+    expect(find.text('HOME'), findsOneWidget);
+  });
 }
 
 void parcelTests() {

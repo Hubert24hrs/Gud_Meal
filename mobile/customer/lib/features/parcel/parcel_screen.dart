@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../providers.dart';
 import '../../ui/components.dart';
 import '../../ui/illustrations.dart';
+import '../../ui/payment_picker.dart';
 
 const _sizes = [
   ('small', 'Small', 'Documents, phone, shoes · up to 5 kg', Icons.mail_outline_rounded),
@@ -59,7 +60,12 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
   bool _busy = false;
   final _scroll = ScrollController();
   final _orderKey = newIdempotencyKey('parcel');
-  final _checkoutKey = newIdempotencyKey('checkout');
+  final _checkoutKeys = <PayMethod, String>{};
+  PayMethod _method = PayMethod.card;
+  bool _cod = false;
+  final _codAmount = TextEditingController();
+
+  int get _codKobo => ((double.tryParse(_codAmount.text.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0) * 100).round();
 
   @override
   void initState() {
@@ -75,6 +81,7 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
     _pickup.dispose();
     _dropoff.dispose();
     _what.dispose();
+    _codAmount.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -91,6 +98,7 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
     if (_pickup.area!.city != _dropoff.area!.city) {
       return 'Pickup and drop-off must be in the same city. Interstate waybill is coming soon.';
     }
+    if (_cod && _codKobo < 100) return 'Enter the amount the rider should collect from your buyer';
     return null;
   }
 
@@ -122,6 +130,7 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
             category: _category,
             description: _what.text.trim(),
             scheduledFor: _when,
+            codAmountKobo: _cod ? _codKobo : null,
           );
       setState(() => _quote = q);
       // Bring the price breakdown into view.
@@ -144,9 +153,16 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
     try {
       final api = ref.read(apiProvider);
       final order = await api.createParcel(quote.id, _orderKey);
-      final checkout = await api.checkout(order.id, _checkoutKey);
+      final key = _checkoutKeys.putIfAbsent(_method, () => newIdempotencyKey('checkout'));
+      final checkout = await api.checkout(order.id, key, provider: _method.provider);
+      ref.invalidate(walletProvider);
+      final url = checkout.authorizationUrl;
+      if (url == null) {
+        if (mounted) context.go('/orders/${order.id}'); // paid from the wallet
+        return;
+      }
       // Provider-hosted payment page: card details never touch the app.
-      await launchUrl(Uri.parse(checkout.authorizationUrl), mode: LaunchMode.inAppBrowserView);
+      await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);
       if (mounted) context.go('/orders/${order.id}?ref=${checkout.reference}');
     } on ApiException catch (e) {
       setState(() => _error = e.message);
@@ -238,7 +254,37 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
                 style: theme.textTheme.bodySmall),
           ),
         const SizedBox(height: 16),
-        const _ComingSoon(icon: Icons.payments_outlined, title: 'Cash on delivery for vendors', body: 'Riders collect payment from your buyer and we pay you out.'),
+        Card(
+          margin: EdgeInsets.zero,
+          child: Column(children: [
+            SwitchListTile(
+              key: const ValueKey('cod-switch'),
+              value: _cod,
+              secondary: const Icon(Icons.payments_outlined),
+              title: const Text('Collect cash from my buyer', style: TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: const Text('The rider collects the price at drop-off. Move it to your wallet or withdraw it to your bank.'),
+              onChanged: (on) => setState(() {
+                _cod = on;
+                _quote = null;
+              }),
+            ),
+            if (_cod)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: TextField(
+                  key: const ValueKey('cod-amount'),
+                  controller: _codAmount,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(
+                    labelText: 'Amount to collect (₦)',
+                    helperText: 'Up to ₦100,000. A 1.5% collection fee (min ₦100) is added to your booking.',
+                  ),
+                  onChanged: (_) => _changed(),
+                ),
+              ),
+          ]),
+        ),
+        const SizedBox(height: 8),
         const _ComingSoon(icon: Icons.local_shipping_outlined, title: 'Interstate waybill', body: 'Send between Lagos, Enugu and other states.'),
         if (b != null) ...[
           const SizedBox(height: 12),
@@ -248,9 +294,18 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
               child: Column(children: [
                 _row('Delivery (${_quote!.distanceKm.toStringAsFixed(1)} km, $_size)', b.deliveryFeeKobo),
                 _row('Booking fee', b.serviceFeeKobo),
+                if (b.codFeeKobo > 0) _row('Cash collection fee', b.codFeeKobo),
                 _row('VAT (7.5%)', b.vatKobo),
                 const Divider(),
                 _row('Total', b.totalKobo, bold: true),
+                if ((_quote!.details.codAmountKobo ?? 0) > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      'The rider collects ${formatNaira(_quote!.details.codAmountKobo)} from ${_quote!.details.dropoff.name} for you.',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 const SizedBox(height: 6),
                 Text(
                   '${_quote!.scheduledFor != null ? 'Scheduled pickup' : 'Rider assigned after payment'} · delivered around ${formatLagosTime(_quote!.estimatedDeliveryAt)} · price held until ${formatLagosTime(_quote!.expiresAt)}',
@@ -258,6 +313,14 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
                 ),
               ]),
             ),
+          ),
+          const SizedBox(height: 12),
+          Text('Pay with', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          PaymentMethodPicker(
+            totalKobo: b.totalKobo,
+            value: _method,
+            onChanged: (m) => setState(() => _method = m),
+            offerCash: false,
           ),
         ],
       ]),
@@ -273,7 +336,11 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
             FilledButton(
               key: const ValueKey('parcel-primary'),
               onPressed: _busy ? null : (_quote == null ? _price : _book),
-              child: Text(_busy ? 'Please wait…' : _quote == null ? 'See price' : 'Book & pay ${formatNaira(_quote!.breakdown.totalKobo)}'),
+              child: Text(_busy
+                  ? 'Please wait…'
+                  : _quote == null
+                      ? 'See price'
+                      : 'Book & pay ${formatNaira(_quote!.breakdown.totalKobo)}${_method == PayMethod.wallet ? ' from wallet' : ''}'),
             ),
           ]),
         ),

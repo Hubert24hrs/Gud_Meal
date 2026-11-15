@@ -87,11 +87,18 @@ class LedgerEntry(Base):
     )
 
 
+# Providers that are not payment gateways: the customer's Gud Meal wallet and cash paid to the rider.
+INTERNAL_PROVIDERS = ("wallet", "cash")
+
+
 class PaymentRecord(Base):
+    """Money a customer pays: for an order (gateway, wallet or cash on delivery) or to top up their wallet."""
+
     __tablename__ = "payment_records"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    order_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    order_id: Mapped[str | None] = mapped_column(String(64), index=True)  # None for wallet top-ups
     customer_id: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
+    purpose: Mapped[str] = mapped_column(String(16), nullable=False, default="order", server_default="order")
     provider: Mapped[str] = mapped_column(String(24), nullable=False)
     reference: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     amount_kobo: Mapped[int] = mapped_column(BigInteger, nullable=False)
@@ -113,6 +120,8 @@ class PaymentRecord(Base):
             "status IN ('initialized','pending','succeeded','failed','abandoned','flagged')",
             name="ck_payment_status",
         ),
+        CheckConstraint("purpose IN ('order','wallet_topup')", name="ck_payment_purpose"),
+        CheckConstraint("purpose <> 'order' OR order_id IS NOT NULL", name="ck_payment_order_ref"),
         Index("ix_payment_records_status_created", "status", "created_at"),
     )
 
@@ -144,12 +153,17 @@ class RefundRecord(Base):
     decided_by: Mapped[str | None] = mapped_column(String(128))
     decision_note: Mapped[str | None] = mapped_column(Text)
     provider_refund_id: Mapped[str | None] = mapped_column(String(120))
+    # original = back to the card/bank/provider; wallet = instantly into the customer's Gud Meal wallet
+    destination: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="original", server_default="original"
+    )
     idempotency_key: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     __table_args__ = (
         CheckConstraint("amount_kobo > 0", name="ck_refund_positive"),
+        CheckConstraint("destination IN ('original','wallet')", name="ck_refund_destination"),
         CheckConstraint(
             "status IN ('requested','approved','processing','succeeded','failed','rejected')",
             name="ck_refund_status",
@@ -208,6 +222,30 @@ class RiderPayout(Base):
         CheckConstraint(
             "status IN ('requested','approved','paid','rejected','failed')", name="ck_payout_status"
         ),
+    )
+
+
+class VendorPayout(Base):
+    """A seller's request to withdraw cash-on-delivery money collected for them (reviewed by finance)."""
+
+    __tablename__ = "vendor_payouts"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    vendor_id: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
+    amount_kobo: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    bank_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    account_number: Mapped[str] = mapped_column(String(10), nullable=False)
+    account_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="requested")
+    idempotency_key: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
+    decided_by: Mapped[str | None] = mapped_column(String(128))
+    decision_note: Mapped[str | None] = mapped_column(Text)
+    reference: Mapped[str | None] = mapped_column(String(120))
+    requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        CheckConstraint("amount_kobo > 0", name="ck_vendor_payout_positive"),
+        CheckConstraint("status IN ('requested','paid','rejected')", name="ck_vendor_payout_status"),
     )
 
 

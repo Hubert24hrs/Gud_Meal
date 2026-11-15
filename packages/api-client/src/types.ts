@@ -78,6 +78,8 @@ export interface PricedLine {
 export interface PriceBreakdown {
   subtotal_kobo: Kobo; delivery_fee_kobo: Kobo; service_fee_kobo: Kobo; small_order_fee_kobo: Kobo; vat_kobo: Kobo;
   discount_kobo: Kobo; total_kobo: Kobo; discount_funded_by: "platform" | "restaurant" | null; voucher_code: string | null;
+  /** Cash-on-delivery collection fee (packages). */
+  cod_fee_kobo?: Kobo;
 }
 export interface Quote {
   id: string; restaurant_id: string; restaurant_name: string; lines: PricedLine[]; breakdown: PriceBreakdown;
@@ -95,10 +97,14 @@ export interface Order {
   accepted_at: string | null; ready_at: string | null; picked_up_at: string | null; delivered_at: string | null;
   completed_at: string | null; cancelled_at: string | null; cancellation_reason: string | null;
   refund_total_kobo: Kobo; reviewed: boolean; channel: string; created_at: string; updated_at: string;
+  /** Set when the rider took cash at the door (pay on delivery and/or a package's COD amount). */
+  cash_collected_at?: string | null;
   progress: { step: number; total_steps: number; label: string };
   audience: "customer" | "restaurant" | "rider" | "staff";
   // restaurant view
   restaurant_earning_kobo?: Kobo; commission_kobo?: Kobo;
+  // rider view: what to collect at the door
+  payment_method?: "cash" | "prepaid"; collect_cash_kobo?: Kobo;
   // staff view
   settlement?: { commission_bps: number; commission_kobo: Kobo; rider_pay_kobo: Kobo; restaurant_earning_kobo: Kobo };
 }
@@ -114,12 +120,51 @@ export interface Tracking {
 }
 
 export interface CheckoutResult {
-  order_id: string; status: string; provider: string; reference: string; authorization_url: string;
-  amount_kobo: Kobo;
+  order_id: string; status: string; provider: string; reference: string;
+  /** Null for wallet and pay-on-delivery checkouts (nothing to open). */
+  authorization_url: string | null;
+  amount_kobo: Kobo; payment_status?: string;
+  /** Set when the default gateway was down and the backup gateway took the payment. */
+  failover_from?: string;
 }
 export interface PaymentView {
-  id: string; order_id: string; provider: string; reference: string; amount_kobo: Kobo; status: string;
-  paid_at: string | null; refunded_kobo: Kobo; created_at: string; failure_reason: string | null; channel: string | null;
+  id: string; order_id: string | null; purpose?: "order" | "wallet_topup"; provider: string; reference: string;
+  amount_kobo: Kobo; status: string; paid_at: string | null; refunded_kobo: Kobo; created_at: string;
+  failure_reason: string | null; channel: string | null;
+}
+
+export type PaymentMethodId = "card" | "wallet" | "cash";
+export interface PaymentMethodOption {
+  id: PaymentMethodId; label: string; available: boolean; reason: string | null;
+  provider?: string; balance_kobo?: Kobo; short_by_kobo?: Kobo;
+}
+export interface PaymentOptions { order_id: string; total_kobo: Kobo; methods: PaymentMethodOption[] }
+
+export interface WalletTransaction {
+  id: string; kind: string; reference: string | null; order_id: string | null; description: string;
+  created_at: string; direction: "in" | "out"; amount_kobo: Kobo;
+}
+export interface SellerSummary {
+  cod_balance_kobo: Kobo; pending_payouts_kobo: Kobo; available_kobo: Kobo; min_payout_kobo: Kobo;
+}
+export interface WalletOverview {
+  balance_kobo: Kobo; currency: "NGN"; enabled: boolean;
+  limits: { min_topup_kobo: Kobo; max_topup_kobo: Kobo; max_balance_kobo: Kobo };
+  refund_to_wallet: boolean; transactions: WalletTransaction[]; seller: SellerSummary | null;
+}
+export interface TopUpResult {
+  provider: string; reference: string; authorization_url: string | null; amount_kobo: Kobo; failover_from?: string;
+}
+export interface SellerPayout {
+  id: string; vendor_id: string; amount_kobo: Kobo; bank_name: string; account_number: string; account_name: string;
+  status: "requested" | "paid" | "rejected"; reference: string | null; decision_note: string | null;
+  requested_at: string; decided_at: string | null; paid_at: string | null;
+}
+export interface SellerOverview extends SellerSummary { transactions: WalletTransaction[]; payouts: SellerPayout[] }
+export interface CashOverview {
+  riders: { rider_id: string; name: string; phone: string | null; cash_held_kobo: Kobo; earnings_kobo: Kobo; over_limit: boolean }[];
+  rider_cash_limit_kobo: Kobo;
+  totals: { cash_with_riders_kobo: Kobo; wallet_balances_kobo: Kobo; seller_balances_kobo: Kobo };
 }
 
 export interface Me {
@@ -129,6 +174,7 @@ export interface Me {
 export interface CustomerProfile {
   uid: string; display_name: string | null; dietary: string[]; allergens: string[]; favourite_cuisines: string[];
   favourite_restaurant_ids: string[]; personalisation_consent: boolean; marketing_consent: boolean; loyalty_points: number;
+  refund_to_wallet?: boolean; pay_on_delivery_blocked?: boolean;
 }
 
 export interface MealPlan {
@@ -166,6 +212,8 @@ export interface Application {
 export interface Refund {
   id: string; order_id: string; payment_id: string; amount_kobo: Kobo; reason: string; liability: string; stage: string;
   status: string; requested_by: string; decided_by: string | null; decision_note: string | null; created_at: string;
+  /** "wallet" = refunded instantly into the customer's Gud Meal wallet. */
+  destination?: "original" | "wallet";
 }
 
 export interface SupportTicket {
@@ -229,10 +277,12 @@ export interface ParcelStop {
 }
 export interface ParcelDetails {
   pickup: ParcelStop; dropoff: ParcelStop; size: ParcelSize; category: ParcelCategory; description: string; city: string;
+  /** Cash the rider collects from the recipient for the sender (vendor cash-on-delivery). */
+  cod_amount_kobo?: Kobo | null;
 }
 export interface ParcelQuoteRequest {
   pickup: ParcelStop; dropoff: ParcelStop; size: ParcelSize; category: ParcelCategory; description?: string;
-  scheduled_for?: string | null;
+  scheduled_for?: string | null; cod_amount_kobo?: Kobo | null;
 }
 export interface ParcelQuote {
   id: string; details: ParcelDetails; breakdown: PriceBreakdown; distance_km: number; eta_minutes: number;

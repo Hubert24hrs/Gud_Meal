@@ -28,6 +28,7 @@ Screen = Literal[
     "profile",
     "merchant",
     "order",
+    "wallet",
 ]
 SCREEN_LABELS: dict[str, str] = {
     "home": "Go to Home",
@@ -40,6 +41,7 @@ SCREEN_LABELS: dict[str, str] = {
     "profile": "Open my profile",
     "merchant": "Open the store",
     "order": "Track this order",
+    "wallet": "Open my wallet",
 }
 
 
@@ -150,6 +152,60 @@ async def open_screen(args: OpenScreenArgs, ctx: ToolContext) -> ToolOutput:
     }
     card = {"type": "navigate", "screen": args.screen, "params": params, "label": SCREEN_LABELS[args.screen]}
     return ToolOutput({"shown_button": card["label"]}, card=card)
+
+
+class OptionalOrderArgs(ToolArgs):
+    order_id: str | None = Field(
+        default=None, max_length=64, description="Order to pay for; defaults to the latest order in this chat"
+    )
+
+
+async def get_wallet(args: NoArgs, ctx: ToolContext) -> ToolOutput:
+    """Read-only: Gudy can tell the balance but never tops up, moves or withdraws money."""
+    w = await ctx.api.get("/v1/wallet")
+    recent = [
+        {
+            "what": t["description"],
+            "amount": ("+" if t["direction"] == "in" else "-") + naira(t["amount_kobo"]),
+            "when": lagos_time(t["created_at"]),
+        }
+        for t in w["transactions"][:5]
+    ]
+    data: dict[str, Any] = {
+        "balance": naira(w["balance_kobo"]),
+        "wallet_available": w["enabled"],
+        "refunds_go_to_wallet": w["refund_to_wallet"],
+        "recent": recent,
+        "top_up_limits": f"{naira(w['limits']['min_topup_kobo'])} to {naira(w['limits']['max_topup_kobo'])} per top-up",
+        "note": "Gudy cannot top up or move money. To top up, the customer opens the Wallet screen (open_screen).",
+    }
+    if w.get("seller"):
+        data["cash_on_delivery_balance"] = naira(w["seller"]["available_kobo"])
+    card = {"type": "wallet", "balance": data["balance"], "recent": recent}
+    if "cash_on_delivery_balance" in data:
+        card["cash_on_delivery_balance"] = data["cash_on_delivery_balance"]
+    return ToolOutput(data, card=card)
+
+
+async def get_payment_options(args: OptionalOrderArgs, ctx: ToolContext) -> ToolOutput:
+    order_id = args.order_id or ctx.artifacts.get("last_order_id")
+    if not order_id:
+        raise ToolError("invalid_arguments", "Which order? Create or open an order first.")
+    try:
+        opts = await ctx.api.get(f"/v1/orders/{order_id}/payment-options")
+    except ApiError as exc:
+        raise ToolError(exc.code, exc.message) from exc
+    methods = [
+        {
+            "method": m["label"],
+            "available": m["available"],
+            **({"why_not": m["reason"]} if m.get("reason") else {}),
+            **({"wallet_balance": naira(m["balance_kobo"])} if m["id"] == "wallet" else {}),
+        }
+        for m in opts["methods"]
+    ]
+    data = {"order_total": naira(opts["total_kobo"]), "methods": methods}
+    return ToolOutput(data, card={"type": "payment_options", **data})
 
 
 async def get_support_contacts(args: NoArgs, ctx: ToolContext) -> ToolOutput:
@@ -337,6 +393,26 @@ def register(reg: ToolRegistry) -> None:
             open_screen,
             EVERYONE,
             rate_per_minute=30,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_wallet",
+            "The customer's Gud Meal wallet: balance, recent activity, refund setting and any cash-on-delivery "
+            "money collected for them as a seller. Read-only.",
+            NoArgs,
+            get_wallet,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_payment_options",
+            "How the customer can pay an order (card/transfer/USSD, Gud Meal wallet, pay on delivery in cash) and "
+            "why an option is unavailable. Gud Meal decides eligibility; quote the reasons exactly.",
+            OptionalOrderArgs,
+            get_payment_options,
+            EVERYONE,
         )
     )
     add(

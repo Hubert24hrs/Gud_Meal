@@ -29,6 +29,21 @@
         "title": "AcceptingInput",
         "type": "object"
       },
+      "AmountInput": {
+        "properties": {
+          "amount_kobo": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100000000.0,
+            "title": "Amount Kobo",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "amount_kobo"
+        ],
+        "title": "AmountInput",
+        "type": "object"
+      },
       "AssignInput": {
         "properties": {
           "reason": {
@@ -115,7 +130,9 @@
                 "enum": [
                   "paystack",
                   "flutterwave",
-                  "local_sandbox"
+                  "local_sandbox",
+                  "wallet",
+                  "cash"
                 ],
                 "type": "string"
               },
@@ -178,6 +195,29 @@
         "title": "CreateOrderInput",
         "type": "object"
       },
+      "CreateParcelInput": {
+        "properties": {
+          "channel": {
+            "default": "app",
+            "enum": [
+              "app",
+              "web",
+              "ai_agent"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "quote_id": {
+            "title": "Quote Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quote_id"
+        ],
+        "title": "CreateParcelInput",
+        "type": "object"
+      },
       "DecisionInput": {
         "properties": {
           "approve": {
@@ -205,6 +245,11 @@
       },
       "DeliverInput": {
         "properties": {
+          "cash_collected": {
+            "default": false,
+            "title": "Cash Collected",
+            "type": "boolean"
+          },
           "code": {
             "pattern": "^\\d{4}$",
             "title": "Code",
@@ -333,6 +378,12 @@
             ],
             "default": "1.35",
             "title": "Road Factor"
+          },
+          "round_to_kobo": {
+            "default": 5000,
+            "minimum": 1.0,
+            "title": "Round To Kobo",
+            "type": "integer"
           }
         },
         "title": "DeliveryFeeConfig",
@@ -368,6 +419,12 @@
             "default": "1.35",
             "title": "Road Factor",
             "type": "string"
+          },
+          "round_to_kobo": {
+            "default": 5000,
+            "minimum": 1.0,
+            "title": "Round To Kobo",
+            "type": "integer"
           }
         },
         "title": "DeliveryFeeConfig",
@@ -640,7 +697,8 @@
           "snack",
           "drink",
           "dessert",
-          "extra"
+          "extra",
+          "product"
         ],
         "title": "ItemKind",
         "type": "string"
@@ -912,6 +970,18 @@
             "maxItems": 15,
             "title": "Tags",
             "type": "array"
+          },
+          "unit_label": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Label"
           }
         },
         "required": [
@@ -1151,6 +1221,270 @@
         "title": "PaidInput",
         "type": "object"
       },
+      "ParcelFeeConfig": {
+        "description": "Package Delivery (courier) pricing. Customer fee = base for the size + per road km, rounded to \u20a650.",
+        "properties": {
+          "base_by_size_kobo": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ParcelSize"
+            },
+            "title": "Base By Size Kobo",
+            "type": "object"
+          },
+          "cod_fee_bps": {
+            "default": 150,
+            "maximum": 2000.0,
+            "minimum": 0.0,
+            "title": "Cod Fee Bps",
+            "type": "integer"
+          },
+          "cod_fee_min_kobo": {
+            "default": 10000,
+            "minimum": 0.0,
+            "title": "Cod Fee Min Kobo",
+            "type": "integer"
+          },
+          "cod_fee_round_to_kobo": {
+            "default": 1000,
+            "minimum": 1.0,
+            "title": "Cod Fee Round To Kobo",
+            "type": "integer"
+          },
+          "cod_max_kobo": {
+            "default": 10000000,
+            "minimum": 0.0,
+            "title": "Cod Max Kobo",
+            "type": "integer"
+          },
+          "max_distance_km": {
+            "default": 40.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Max Distance Km",
+            "type": "number"
+          },
+          "max_kobo": {
+            "default": 1500000,
+            "minimum": 0.0,
+            "title": "Max Kobo",
+            "type": "integer"
+          },
+          "min_kobo": {
+            "default": 100000,
+            "minimum": 0.0,
+            "title": "Min Kobo",
+            "type": "integer"
+          },
+          "per_km_kobo": {
+            "default": 15000,
+            "minimum": 0.0,
+            "title": "Per Km Kobo",
+            "type": "integer"
+          },
+          "pickup_eta_minutes": {
+            "default": 25,
+            "minimum": 0.0,
+            "title": "Pickup Eta Minutes",
+            "type": "integer"
+          },
+          "rider_bonus_by_size_kobo": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ParcelSize"
+            },
+            "title": "Rider Bonus By Size Kobo",
+            "type": "object"
+          },
+          "round_to_kobo": {
+            "default": 5000,
+            "minimum": 1.0,
+            "title": "Round To Kobo",
+            "type": "integer"
+          },
+          "service_fee_kobo": {
+            "default": 10000,
+            "minimum": 0.0,
+            "title": "Service Fee Kobo",
+            "type": "integer"
+          }
+        },
+        "title": "ParcelFeeConfig",
+        "type": "object"
+      },
+      "ParcelQuoteRequest": {
+        "properties": {
+          "category": {
+            "default": "other",
+            "enum": [
+              "documents",
+              "clothing",
+              "electronics",
+              "food",
+              "cosmetics",
+              "household",
+              "other"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "cod_amount_kobo": {
+            "anyOf": [
+              {
+                "maximum": 50000000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cod Amount Kobo"
+          },
+          "declared_value_kobo": {
+            "anyOf": [
+              {
+                "maximum": 50000000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declared Value Kobo"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Description",
+            "type": "string"
+          },
+          "dropoff": {
+            "$ref": "#/components/schemas/ParcelStop"
+          },
+          "pickup": {
+            "$ref": "#/components/schemas/ParcelStop"
+          },
+          "scheduled_for": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled For"
+          },
+          "size": {
+            "$ref": "#/components/schemas/ParcelSize",
+            "default": "small"
+          }
+        },
+        "required": [
+          "pickup",
+          "dropoff"
+        ],
+        "title": "ParcelQuoteRequest",
+        "type": "object"
+      },
+      "ParcelSize": {
+        "enum": [
+          "small",
+          "medium",
+          "large"
+        ],
+        "title": "ParcelSize",
+        "type": "string"
+      },
+      "ParcelStop": {
+        "description": "Where a package is collected or dropped, and who to meet there.",
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area"
+          },
+          "city": {
+            "default": "Lagos",
+            "maxLength": 60,
+            "title": "City",
+            "type": "string"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "line1": {
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Line1",
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/GeoPoint"
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "phone": {
+            "pattern": "^\\+?[0-9 ]{7,20}$",
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "phone",
+          "line1",
+          "location"
+        ],
+        "title": "ParcelStop",
+        "type": "object"
+      },
+      "PayOnDeliveryBlockInput": {
+        "properties": {
+          "blocked": {
+            "title": "Blocked",
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocked",
+          "reason"
+        ],
+        "title": "PayOnDeliveryBlockInput",
+        "type": "object"
+      },
       "PayoutDecisionInput": {
         "properties": {
           "approve": {
@@ -1218,6 +1552,9 @@
             "default": 8,
             "title": "Dispatch Buffer Minutes",
             "type": "integer"
+          },
+          "parcel": {
+            "$ref": "#/components/schemas/ParcelFeeConfig"
           },
           "rider_pay": {
             "$ref": "#/components/schemas/RiderPayConfig"
@@ -1297,6 +1634,9 @@
             "default": 8,
             "title": "Dispatch Buffer Minutes",
             "type": "integer"
+          },
+          "parcel": {
+            "$ref": "#/components/schemas/ParcelFeeConfig"
           },
           "rider_pay": {
             "$ref": "#/components/schemas/RiderPayConfig"
@@ -1440,6 +1780,24 @@
         "title": "ProfileUpdate",
         "type": "object"
       },
+      "PromoBadge": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label"
+        ],
+        "title": "PromoBadge",
+        "type": "object"
+      },
       "QuoteRequest": {
         "properties": {
           "delivery_address": {
@@ -1539,6 +1897,55 @@
           "reason"
         ],
         "title": "RejectInput",
+        "type": "object"
+      },
+      "RemittanceInput": {
+        "properties": {
+          "amount_kobo": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100000000.0,
+            "title": "Amount Kobo",
+            "type": "integer"
+          },
+          "method": {
+            "enum": [
+              "bank_transfer",
+              "cash_deposit",
+              "earnings_offset"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference"
+          }
+        },
+        "required": [
+          "amount_kobo",
+          "method"
+        ],
+        "title": "RemittanceInput",
         "type": "object"
       },
       "ReorderInput": {
@@ -1655,6 +2062,11 @@
         "properties": {
           "area": {
             "title": "Area",
+            "type": "string"
+          },
+          "city": {
+            "default": "lagos",
+            "title": "City",
             "type": "string"
           },
           "cover_url": {
@@ -1774,6 +2186,13 @@
             "title": "Price Level",
             "type": "integer"
           },
+          "promotions": {
+            "items": {
+              "$ref": "#/components/schemas/PromoBadge"
+            },
+            "title": "Promotions",
+            "type": "array"
+          },
           "rating": {
             "title": "Rating",
             "type": "number"
@@ -1800,6 +2219,11 @@
             },
             "title": "Tags",
             "type": "array"
+          },
+          "vertical": {
+            "default": "food",
+            "title": "Vertical",
+            "type": "string"
           }
         },
         "required": [
@@ -2218,6 +2642,78 @@
         "title": "RolesInput",
         "type": "object"
       },
+      "SellerPayoutDecisionInput": {
+        "properties": {
+          "approve": {
+            "title": "Approve",
+            "type": "boolean"
+          },
+          "bank_reference": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bank Reference"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "required": [
+          "approve"
+        ],
+        "title": "SellerPayoutDecisionInput",
+        "type": "object"
+      },
+      "SellerPayoutInput": {
+        "properties": {
+          "account_name": {
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Account Name",
+            "type": "string"
+          },
+          "account_number": {
+            "pattern": "^\\d{10}$",
+            "title": "Account Number",
+            "type": "string"
+          },
+          "amount_kobo": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100000000.0,
+            "title": "Amount Kobo",
+            "type": "integer"
+          },
+          "bank_name": {
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Bank Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount_kobo",
+          "bank_name",
+          "account_number",
+          "account_name"
+        ],
+        "title": "SellerPayoutInput",
+        "type": "object"
+      },
       "SettlementPeriod": {
         "properties": {
           "period_end": {
@@ -2367,6 +2863,37 @@
           "close"
         ],
         "title": "TimeRange",
+        "type": "object"
+      },
+      "TopUpInput": {
+        "properties": {
+          "amount_kobo": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1000000000.0,
+            "title": "Amount Kobo",
+            "type": "integer"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "enum": [
+                  "paystack",
+                  "flutterwave",
+                  "local_sandbox"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          }
+        },
+        "required": [
+          "amount_kobo"
+        ],
+        "title": "TopUpInput",
         "type": "object"
       },
       "TransitionInput": {
@@ -2606,10 +3133,28 @@
         "title": "Voucher",
         "type": "object"
       },
+      "WalletSettingsInput": {
+        "properties": {
+          "refund_to_wallet": {
+            "title": "Refund To Wallet",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "refund_to_wallet"
+        ],
+        "title": "WalletSettingsInput",
+        "type": "object"
+      },
       "ZoneConfig": {
         "properties": {
           "center": {
             "$ref": "#/components/schemas/GeoPoint"
+          },
+          "city": {
+            "default": "lagos",
+            "title": "City",
+            "type": "string"
           },
           "id": {
             "title": "Id",
@@ -3104,6 +3649,72 @@
         ]
       }
     },
+    "/v1/admin/cash": {
+      "get": {
+        "description": "Cash held by riders (pay on delivery + COD), wallet balances and money owed to sellers.",
+        "operationId": "cash_overview_v1_admin_cash_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Cash Overview V1 Admin Cash Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cash Overview",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/config/pricing": {
       "get": {
         "operationId": "get_pricing_v1_admin_config_pricing_get",
@@ -3237,6 +3848,90 @@
           }
         },
         "summary": "Put Pricing",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/customers/{uid}/pay-on-delivery": {
+      "put": {
+        "operationId": "customer_pay_on_delivery_v1_admin_customers__uid__pay_on_delivery_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uid",
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayOnDeliveryBlockInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Customer Pay On Delivery V1 Admin Customers  Uid  Pay On Delivery Put"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Customer Pay On Delivery",
         "tags": [
           "admin"
         ]
@@ -4481,6 +5176,104 @@
         ]
       }
     },
+    "/v1/admin/riders/{uid}/cash-remittances": {
+      "post": {
+        "operationId": "record_remittance_v1_admin_riders__uid__cash_remittances_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uid",
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemittanceInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Record Remittance",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/riders/{uid}/status": {
       "put": {
         "operationId": "rider_status_v1_admin_riders__uid__status_put",
@@ -4553,6 +5346,171 @@
           }
         },
         "summary": "Rider Status",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/seller-payouts": {
+      "get": {
+        "operationId": "seller_payouts_v1_admin_seller_payouts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Seller Payouts V1 Admin Seller Payouts Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Seller Payouts",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/seller-payouts/{payout_id}/decision": {
+      "post": {
+        "operationId": "seller_payout_decision_v1_admin_seller_payouts__payout_id__decision_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "payout_id",
+            "required": true,
+            "schema": {
+              "title": "Payout Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellerPayoutDecisionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Seller Payout Decision V1 Admin Seller Payouts  Payout Id  Decision Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Seller Payout Decision",
         "tags": [
           "admin"
         ]
@@ -5411,6 +6369,32 @@
         ]
       }
     },
+    "/v1/cities": {
+      "get": {
+        "operationId": "cities_v1_cities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Cities V1 Cities Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Cities",
+        "tags": [
+          "public"
+        ]
+      }
+    },
     "/v1/config/public": {
       "get": {
         "operationId": "public_config_v1_config_public_get",
@@ -5437,6 +6421,28 @@
     "/v1/cuisines": {
       "get": {
         "operationId": "cuisines_v1_cuisines_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "vertical",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "food",
+                    "beauty"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vertical"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -5452,6 +6458,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Cuisines",
@@ -6116,6 +7132,74 @@
           }
         },
         "summary": "Notifications",
+        "tags": [
+          "customer"
+        ]
+      }
+    },
+    "/v1/me/order-summary": {
+      "get": {
+        "description": "Totals across all of the customer's paid orders (used by the Orders tab and Gudy).",
+        "operationId": "my_order_summary_v1_me_order_summary_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response My Order Summary V1 Me Order Summary Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Order Summary",
         "tags": [
           "customer"
         ]
@@ -6999,6 +8083,82 @@
         ]
       }
     },
+    "/v1/orders/{order_id}/payment-options": {
+      "get": {
+        "operationId": "payment_options_v1_orders__order_id__payment_options_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Payment Options V1 Orders  Order Id  Payment Options Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Payment Options",
+        "tags": [
+          "wallet"
+        ]
+      }
+    },
     "/v1/orders/{order_id}/payments": {
       "get": {
         "operationId": "order_payments_v1_orders__order_id__payments_get",
@@ -7319,6 +8479,248 @@
           }
         },
         "summary": "Order Tracking",
+        "tags": [
+          "customer"
+        ]
+      }
+    },
+    "/v1/parcels": {
+      "post": {
+        "operationId": "create_parcel_v1_parcels_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateParcelInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Parcel",
+        "tags": [
+          "customer"
+        ]
+      }
+    },
+    "/v1/parcels/quotes": {
+      "post": {
+        "operationId": "create_parcel_quote_v1_parcels_quotes_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParcelQuoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Create Parcel Quote V1 Parcels Quotes Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Parcel Quote",
+        "tags": [
+          "customer"
+        ]
+      }
+    },
+    "/v1/parcels/quotes/{quote_id}": {
+      "get": {
+        "operationId": "get_parcel_quote_v1_parcels_quotes__quote_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_id",
+            "required": true,
+            "schema": {
+              "title": "Quote Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Parcel Quote V1 Parcels Quotes  Quote Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Parcel Quote",
         "tags": [
           "customer"
         ]
@@ -9033,6 +10435,126 @@
         ]
       }
     },
+    "/v1/places/areas": {
+      "get": {
+        "description": "Neighbourhoods we serve (approximate centres) for address entry without a map pin.",
+        "operationId": "place_areas_v1_places_areas_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Place Areas V1 Places Areas Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Place Areas",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/places/resolve": {
+      "get": {
+        "description": "Best-matching neighbourhood for free text, e.g. '12 Admiralty Way, Lekki Phase 1'.",
+        "operationId": "place_resolve_v1_places_resolve_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 2,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Place Resolve V1 Places Resolve Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Place Resolve",
+        "tags": [
+          "public"
+        ]
+      }
+    },
     "/v1/quotes": {
       "post": {
         "operationId": "create_quote_v1_quotes_post",
@@ -9213,6 +10735,7 @@
     },
     "/v1/restaurants": {
       "get": {
+        "description": "Merchants for a service: restaurants (`vertical=food`, default) or beauty shops (`vertical=beauty`).",
         "operationId": "list_restaurants_v1_restaurants_get",
         "parameters": [
           {
@@ -9321,6 +10844,65 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "vertical",
+            "required": false,
+            "schema": {
+              "default": "food",
+              "enum": [
+                "food",
+                "beauty",
+                "all"
+              ],
+              "title": "Vertical",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pickup",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Pickup",
+              "type": "boolean"
             }
           }
         ],
@@ -10589,6 +12171,43 @@
               ],
               "title": "Lng"
             }
+          },
+          {
+            "in": "query",
+            "name": "vertical",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "food",
+                    "beauty"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vertical"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
           }
         ],
         "responses": {
@@ -10616,6 +12235,375 @@
           }
         },
         "summary": "Search",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/seller/balance": {
+      "get": {
+        "operationId": "seller_balance_v1_seller_balance_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Seller Balance V1 Seller Balance Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Seller Balance",
+        "tags": [
+          "wallet"
+        ]
+      }
+    },
+    "/v1/seller/move-to-wallet": {
+      "post": {
+        "operationId": "seller_move_to_wallet_v1_seller_move_to_wallet_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AmountInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Seller Move To Wallet",
+        "tags": [
+          "wallet"
+        ]
+      }
+    },
+    "/v1/seller/payouts": {
+      "post": {
+        "operationId": "seller_payout_v1_seller_payouts_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellerPayoutInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Seller Payout",
+        "tags": [
+          "wallet"
+        ]
+      }
+    },
+    "/v1/services": {
+      "get": {
+        "description": "Gud Meal's services (Food, Beauty & Skin care, Package Delivery) and their availability.",
+        "operationId": "services_v1_services_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Services V1 Services Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Services",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/services/{vertical}/categories": {
+      "get": {
+        "operationId": "service_categories_v1_services__vertical__categories_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vertical",
+            "required": true,
+            "schema": {
+              "enum": [
+                "food",
+                "beauty"
+              ],
+              "title": "Vertical",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 30,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Service Categories V1 Services  Vertical  Categories Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Service Categories",
         "tags": [
           "public"
         ]
@@ -10756,6 +12744,321 @@
         "summary": "Open Ticket",
         "tags": [
           "customer"
+        ]
+      }
+    },
+    "/v1/wallet": {
+      "get": {
+        "operationId": "wallet_v1_wallet_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Wallet V1 Wallet Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wallet",
+        "tags": [
+          "wallet"
+        ]
+      }
+    },
+    "/v1/wallet/settings": {
+      "put": {
+        "operationId": "wallet_settings_v1_wallet_settings_put",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletSettingsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Wallet Settings V1 Wallet Settings Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wallet Settings",
+        "tags": [
+          "wallet"
+        ]
+      }
+    },
+    "/v1/wallet/topups": {
+      "post": {
+        "operationId": "wallet_topup_v1_wallet_topups_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopUpInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wallet Topup",
+        "tags": [
+          "wallet"
+        ]
+      }
+    },
+    "/v1/wallet/transactions": {
+      "get": {
+        "operationId": "wallet_transactions_v1_wallet_transactions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Wallet Transactions V1 Wallet Transactions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wallet Transactions",
+        "tags": [
+          "wallet"
         ]
       }
     },

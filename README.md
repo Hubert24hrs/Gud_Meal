@@ -14,8 +14,8 @@ service — one ecosystem sharing identity (Firebase Auth), data (Firestore + Po
 
 | Path | What | Stack |
 |---|---|---|
-| `services/api` | Core API: merchants (food, beauty), parcels, pricing, quotes, orders, payments, ledger, dispatch, admin | Python 3.13, FastAPI, SQLAlchemy, Firestore |
-| `services/agents` | Gudy: LangGraph orchestrator + 8 specialist agents, 36 approval-gated tools, offline mode | LangGraph, Gemini |
+| `services/api` | Core API: merchants (food, beauty), parcels, pricing, quotes, orders, payments (gateways with failover, wallet, pay on delivery, vendor COD), ledger, dispatch, admin | Python 3.13, FastAPI, SQLAlchemy, Firestore |
+| `services/agents` | Gudy: LangGraph orchestrator + 8 specialist agents, 38 approval-gated tools, offline mode | LangGraph, Gemini |
 | `apps/web` | Customer website (service bubbles, Food, Beauty, Send a package, Discover, Support, Gudy) | Next.js 16, Tailwind 4 |
 | `apps/partner` | Gud Meal Partner — restaurant dashboard | Next.js 16 |
 | `apps/admin` | Gud Meal Command Centre — super admin | Next.js 16 |
@@ -53,11 +53,11 @@ Details: [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
 
 | Suite | Command | Result (last run) |
 |---|---|---|
-| API (unit + HTTP integration) | `cd services/api && uv run pytest` | 435 passed |
+| API (unit + HTTP integration) | `cd services/api && uv run pytest` | 482 passed |
 | API on PostgreSQL | `TEST_DATABASE_URL=postgresql+asyncpg://… uv run pytest tests/integration` | 40 passed |
-| Agents | `cd services/agents && uv run pytest` | 39 passed (1 live-Gemini test skipped without a key) |
-| Web | `npx vitest run --root packages/api-client` · `--root apps/web` · `npm run build` | 17 passed, 3 builds |
-| Flutter | `flutter test` in `mobile/core`, `mobile/customer`, `mobile/rider` | 31 passed |
+| Agents | `cd services/agents && uv run pytest` | 40 passed (1 live-Gemini test skipped without a key) |
+| Web | `npx vitest run --root packages/api-client` · `--root apps/web` · `npm run build` | 20 passed, 3 builds |
+| Flutter | `flutter test` in `mobile/core`, `mobile/customer`, `mobile/rider` | 35 passed |
 | Firestore/Storage rules + Firestore adapter | `npm run test:rules` (needs Java 21 for the emulators) | passed in CI |
 
 ## Key documents

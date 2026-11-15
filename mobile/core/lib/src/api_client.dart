@@ -152,9 +152,43 @@ class GudMealApi {
           options: Options(headers: {'Idempotency-Key': idempotencyKey})),
       (d) => Order.fromJson(_map(d)));
 
-  Future<CheckoutResult> checkout(String orderId, String idempotencyKey) => _call(
-      () => _dio.post('/v1/orders/$orderId/checkout', data: const {}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+  /// [provider]: null = card/transfer/USSD (the server picks the gateway, with failover), 'wallet' or 'cash'.
+  Future<CheckoutResult> checkout(String orderId, String idempotencyKey, {String? provider}) => _call(
+      () => _dio.post('/v1/orders/$orderId/checkout',
+          data: {'provider': ?provider}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
       (d) => CheckoutResult.fromJson(_map(d)));
+
+  Future<PaymentOptions> paymentOptions(String orderId) =>
+      _call(() => _dio.get('/v1/orders/$orderId/payment-options'), (d) => PaymentOptions.fromJson(_map(d)));
+
+  // ------------------------------------------------------------------- wallet & seller cash on delivery
+  Future<WalletOverview> wallet() => _call(() => _dio.get('/v1/wallet'), (d) => WalletOverview.fromJson(_map(d)));
+
+  Future<TopUpResult> topUpWallet(int amountKobo, String idempotencyKey) => _call(
+      () => _dio.post('/v1/wallet/topups',
+          data: {'amount_kobo': amountKobo}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => TopUpResult.fromJson(_map(d)));
+
+  Future<void> setRefundToWallet(bool on) =>
+      _call(() => _dio.put('/v1/wallet/settings', data: {'refund_to_wallet': on}), (_) {});
+
+  Future<int> moveCodToWallet(int amountKobo, String idempotencyKey) => _call(
+      () => _dio.post('/v1/seller/move-to-wallet',
+          data: {'amount_kobo': amountKobo}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => (_map(d)['wallet_balance_kobo'] as num).toInt());
+
+  Future<void> requestSellerPayout({
+    required int amountKobo,
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    required String idempotencyKey,
+  }) =>
+      _call(
+          () => _dio.post('/v1/seller/payouts',
+              data: {'amount_kobo': amountKobo, 'bank_name': bankName, 'account_number': accountNumber, 'account_name': accountName},
+              options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+          (_) {});
 
   Future<String> verifyPayment(String reference) =>
       _call(() => _dio.post('/v1/payments/verify', data: {'reference': reference}), (d) => '${_map(d)['status']}');
@@ -167,6 +201,7 @@ class GudMealApi {
     required String category,
     String description = '',
     DateTime? scheduledFor,
+    int? codAmountKobo,
   }) =>
       _call(
           () => _dio.post('/v1/parcels/quotes', data: {
@@ -176,6 +211,7 @@ class GudMealApi {
                 'category': category,
                 'description': description,
                 if (scheduledFor != null) 'scheduled_for': scheduledFor.toUtc().toIso8601String(),
+                'cod_amount_kobo': ?codAmountKobo,
               }),
           (d) => ParcelQuote.fromJson(_map(d)));
 
@@ -212,8 +248,10 @@ class GudMealApi {
   Future<List<Order>> activeDeliveries() => _call(() => _dio.get('/v1/rider/deliveries'), (d) => _list(d).map(Order.fromJson).toList());
   Future<Order> pickup(String orderId) => _call(() => _dio.post('/v1/rider/deliveries/$orderId/pickup'), (d) => Order.fromJson(_map(d)));
   Future<Order> inTransit(String orderId) => _call(() => _dio.post('/v1/rider/deliveries/$orderId/in-transit'), (d) => Order.fromJson(_map(d)));
-  Future<Order> deliver(String orderId, String code) =>
-      _call(() => _dio.post('/v1/rider/deliveries/$orderId/deliver', data: {'code': code}), (d) => Order.fromJson(_map(d)));
+  /// [cashCollected] must be true when the order has cash to collect; the amount always comes from the server.
+  Future<Order> deliver(String orderId, String code, {bool cashCollected = false}) => _call(
+      () => _dio.post('/v1/rider/deliveries/$orderId/deliver', data: {'code': code, 'cash_collected': cashCollected}),
+      (d) => Order.fromJson(_map(d)));
   Future<Earnings> earnings() => _call(() => _dio.get('/v1/rider/earnings'), (d) => Earnings.fromJson(_map(d)));
   Future<void> requestPayout(int amountKobo, String key) => _call(
       () => _dio.post('/v1/rider/payouts', data: {'amount_kobo': amountKobo}, options: Options(headers: {'Idempotency-Key': key})), (_) {});

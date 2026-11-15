@@ -3,7 +3,7 @@
 import { formatDateTime, formatTime, newIdempotencyKey, TRACKING_STEPS, type Order } from "@gudmeal/api-client";
 import { Badge, Button, Card, ErrorState, Price, Skeleton, StatusBadge, Textarea, cn } from "@gudmeal/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bike, KeyRound, MessageCircleWarning, Star } from "lucide-react";
+import { Banknote, Bike, KeyRound, MessageCircleWarning, Star, Wallet } from "lucide-react";
 import Link from "next/link";
 import { use, useRef, useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
@@ -26,10 +26,16 @@ function OrderDetail({ id }: { id: string }) {
   });
   const o = order.data;
   const enRoute = o && ["rider_assigned", "picked_up", "in_transit"].includes(o.status);
-  const codes = useQuery({ queryKey: ["codes", id], queryFn: () => api.orders.codes(id), enabled: Boolean(o && o.payment.status === "paid") });
+  const payOnDelivery = o?.payment.provider === "cash";
+  const cashDue = Boolean(payOnDelivery && o && o.payment.status !== "paid" && !["cancelled", "draft", "pending_payment"].includes(o.status));
+  // Pay-on-delivery orders get their delivery code as soon as the kitchen has them (cash is paid at the door).
+  const codes = useQuery({ queryKey: ["codes", id], queryFn: () => api.orders.codes(id), enabled: Boolean(o && (o.payment.status === "paid" || cashDue)) });
   const tracking = useQuery({ queryKey: ["tracking", id], queryFn: () => api.orders.tracking(id), enabled: Boolean(enRoute), refetchInterval: 5000 });
   const payKey = useRef(newIdempotencyKey("checkout"));
-  const pay = useMutation({ mutationFn: () => api.orders.checkout(id, payKey.current), onSuccess: (r) => window.location.assign(r.authorization_url) });
+  const pay = useMutation({
+    mutationFn: () => api.orders.checkout(id, payKey.current),
+    onSuccess: (r) => (r.authorization_url ? window.location.assign(r.authorization_url) : order.refetch()),
+  });
   const cancel = useMutation({ mutationFn: () => api.orders.cancel(id, "Cancelled from website"), onSuccess: () => qc.invalidateQueries({ queryKey: ["order", id] }) });
 
   if (order.isLoading) return <div className="container-page py-10"><Skeleton className="h-72" /></div>;
@@ -69,6 +75,16 @@ function OrderDetail({ id }: { id: string }) {
           <Card className="flex flex-wrap items-center justify-between gap-3 border-accent bg-accent-soft p-5">
             <p className="text-sm">Payment hasn&apos;t been completed for this order yet.</p>
             <Button onClick={() => pay.mutate()} loading={pay.isPending}>Complete payment</Button>
+          </Card>
+        )}
+
+        {cashDue && (
+          <Card className="flex items-center gap-4 border-secondary/40 bg-secondary-soft p-5">
+            <Banknote className="size-6 shrink-0 text-secondary" aria-hidden="true" />
+            <div className="text-sm">
+              <p className="font-semibold">Pay {o.breakdown.total_kobo ? <Price kobo={o.breakdown.total_kobo} /> : null} in cash when it arrives</p>
+              <p className="text-muted">Have the exact amount ready if you can. Share your delivery code only after you pay and get your order.</p>
+            </div>
           </Card>
         )}
 
@@ -112,7 +128,23 @@ function OrderDetail({ id }: { id: string }) {
             ))}
           </ul>
           <div className="flex justify-between border-t border-border pt-2 font-bold"><span>Total</span><Price kobo={o.breakdown.total_kobo} /></div>
-          {o.refund_total_kobo > 0 && <Badge tone="warning">Refunded <Price kobo={o.refund_total_kobo} /></Badge>}
+          {o.payment.provider === "wallet" && o.payment.status !== "unpaid" && (
+            <p className="flex items-center gap-1.5 text-xs text-muted"><Wallet className="size-4" aria-hidden="true" /> Paid from your Gud Meal wallet</p>
+          )}
+          {payOnDelivery && o.payment.status === "paid" && (
+            <p className="flex items-center gap-1.5 text-xs text-muted"><Banknote className="size-4" aria-hidden="true" /> Paid in cash on delivery</p>
+          )}
+          {o.parcel?.cod_amount_kobo ? (
+            <p className="rounded-lg bg-secondary-soft p-2 text-xs">
+              {o.cash_collected_at ? "Collected" : "Rider collects"} <strong><Price kobo={o.parcel.cod_amount_kobo} /></strong> from {o.parcel.dropoff.name} for you
+              {o.cash_collected_at ? ": it's in your wallet's cash-on-delivery balance." : "."}
+            </p>
+          ) : null}
+          {o.refund_total_kobo > 0 && (
+            <Badge tone="warning">
+              Refunded <Price kobo={o.refund_total_kobo} />{["wallet", "cash"].includes(o.payment.provider ?? "") ? " to your wallet" : ""}
+            </Badge>
+          )}
           {o.delivery_address && <p className="text-xs text-muted">Delivering to {o.delivery_address.line1}, {o.delivery_address.area}</p>}
         </Card>
         {canCancel && (

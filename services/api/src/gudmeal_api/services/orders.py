@@ -97,6 +97,7 @@ class OrderService:
         notifier: Notifier,
         tasks: TaskQueue,
         payments: Any,
+        cash: Any = None,
         restaurant_accept_timeout_seconds: int = 480,
         unpaid_order_ttl_seconds: int = 1800,
         code_max_attempts: int = 5,
@@ -107,6 +108,7 @@ class OrderService:
         self.notifier = notifier
         self.tasks = tasks
         self.payments = payments
+        self.cash = cash  # CashService: pay-on-delivery eligibility
         self.accept_timeout = restaurant_accept_timeout_seconds
         self.unpaid_ttl = unpaid_order_ttl_seconds
         self.code_max_attempts = code_max_attempts
@@ -128,6 +130,7 @@ class OrderService:
         updates: dict[str, Any] = {"status": to, "updated_at": now, "version": order.version + 1}
         if patch:
             updates.update(patch(order) if callable(patch) else patch)
+        _money_guard(order, to, updates)
         event = OrderEvent(
             id=uuid.uuid4().hex,
             order_id=order.id,
@@ -385,15 +388,24 @@ class OrderService:
     async def checkout(
         self, principal: Principal, order_id: str, *, provider: str | None, idempotency_key: str
     ) -> dict[str, Any]:
+        """Pay for an order: gateway (card/transfer/USSD), Gud Meal wallet, or cash on delivery."""
         order = await self.get(order_id)
         if order.customer_id != principal.uid:
             raise NotFound("Order not found")
+        if order.status not in (S.DRAFT, S.PENDING_PAYMENT):
+            raise InvalidTransition(f"Order is already {order.status.value}")
+        if provider == "cash":
+            await self.cash.assert_pay_on_delivery(principal, order)  # refused orders stay payable online
         if order.status == S.DRAFT:
             order = await self.transition(
                 order_id, S.PENDING_PAYMENT, actor_type=A.CUSTOMER, actor_id=principal.uid
             )
-        elif order.status != S.PENDING_PAYMENT:
-            raise InvalidTransition(f"Order is already {order.status.value}")
+        if provider == "wallet":
+            payment = await self.payments.pay_with_wallet(order, principal, idempotency_key)
+            order = await self.get(order_id)  # payment.succeeded has already moved it on
+            return {"order_id": order_id, "status": order.status.value, **payment}
+        if provider == "cash":
+            return await self._submit_pay_on_delivery(order, idempotency_key)
         payment = await self.payments.initiate(order, principal, provider, idempotency_key)
         await self.repos.orders.update(
             order_id,
@@ -408,11 +420,66 @@ class OrderService:
         )
         return {"order_id": order_id, "status": S.PENDING_PAYMENT.value, **payment}
 
+    async def _submit_pay_on_delivery(self, order: Order, idempotency_key: str) -> dict[str, Any]:
+        """Eligible cash order: record the cash due and send it to the merchant without online payment."""
+        payment = await self.payments.start_cash_payment(order, idempotency_key)
+        summary = PaymentSummary(provider="cash", reference=payment["reference"], status="pending")
+        order = await self.transition(
+            order.id,
+            S.SUBMITTED_TO_RESTAURANT,
+            actor_type=A.SYSTEM,
+            actor_id="payments",
+            patch={"payment": to_doc(summary)},
+            metadata={"payment_method": "cash", "reference": payment["reference"]},
+            check=lambda o: _expect(o, {S.PENDING_PAYMENT}),
+        )
+        await self._issue_codes(order)
+        await self._record_voucher_use(order)
+        await self._notify_merchant(order)
+        return {"order_id": order.id, "status": order.status.value, **payment}
+
+    async def _issue_codes(self, order: Order) -> None:
+        await self.repos.store.set(
+            self.repos.codes_path(order.id),
+            {
+                "order_id": order.id,
+                "customer_id": order.customer_id,
+                "delivery_code": new_code(),
+                "pickup_code": new_code(),
+                "attempts": 0,
+                "locked": False,
+            },
+        )
+
+    async def _notify_merchant(self, order: Order) -> None:
+        """New order for the merchant, and the timer that refunds/cancels it if nobody accepts."""
+        cash_note = " · customer pays cash on delivery" if order.is_pay_on_delivery else ""
+        await self.notifier.notify_restaurant(
+            order.restaurant_id,
+            "New order",
+            f"Order {order.short_code} · {format_naira(order.breakdown.subtotal_kobo)}{cash_note}",
+            {"order_id": order.id},
+        )
+        await self.tasks.enqueue(
+            TASK_RESTAURANT_TIMEOUT, {"order_id": order.id}, delay_seconds=self.accept_timeout
+        )
+
     async def cancel_by_customer(self, principal: Principal, order_id: str, reason: str | None) -> Order:
         order = await self.get(order_id)
         if order.customer_id != principal.uid:
             raise NotFound("Order not found")
         reason = (reason or "Cancelled by customer").strip()[:300]
+        if order.awaiting_cash_payment and order.status == S.SUBMITTED_TO_RESTAURANT:
+            # Pay on delivery before the merchant accepted: nothing was paid, so nothing to refund.
+            return await self.transition(
+                order_id,
+                S.CANCELLED,
+                actor_type=A.CUSTOMER,
+                actor_id=principal.uid,
+                reason=reason,
+                patch={"cancelled_at": utcnow(), "cancellation_reason": reason},
+                check=lambda o: _expect(o, {S.SUBMITTED_TO_RESTAURANT}),
+            )
         if order.status in (S.DRAFT, S.PENDING_PAYMENT):
             return await self.transition(
                 order_id,
@@ -463,8 +530,12 @@ class OrderService:
                 )
             )
         }
-        if order.status == S.CANCELLED:
-            # Customer paid after the order was cancelled/expired → refund automatically.
+        reference = payload.get("reference")
+        if order.status == S.CANCELLED or (
+            order.status not in (S.DRAFT, S.PENDING_PAYMENT) and order.payment.reference != reference
+        ):
+            # Paid after the order was cancelled/expired, or a second payment for an order that is already paid
+            # (another gateway, the wallet, or switched to pay on delivery) → refund this payment automatically.
             await self.emitter.emit(
                 "payment.orphaned",
                 {
@@ -492,34 +563,16 @@ class OrderService:
                 patch=payment_patch,
                 metadata={"reference": payload.get("reference")},
             )
-            await self.repos.store.set(
-                self.repos.codes_path(order_id),
-                {
-                    "order_id": order_id,
-                    "customer_id": order.customer_id,
-                    "delivery_code": new_code(),
-                    "pickup_code": new_code(),
-                    "attempts": 0,
-                    "locked": False,
-                },
-            )
+            await self._issue_codes(order)
             await self._record_voucher_use(order)
         if order.status == S.PAID and order.is_parcel:
             await self._schedule_parcel_release(order)
             return
         if order.status == S.PAID:
-            await self.transition(
+            order = await self.transition(
                 order_id, S.SUBMITTED_TO_RESTAURANT, actor_type=A.SYSTEM, actor_id="payments"
             )
-            await self.notifier.notify_restaurant(
-                order.restaurant_id,
-                "New order",
-                f"Order {order.short_code} · {format_naira(order.breakdown.subtotal_kobo)}",
-                {"order_id": order_id},
-            )
-            await self.tasks.enqueue(
-                TASK_RESTAURANT_TIMEOUT, {"order_id": order_id}, delay_seconds=self.accept_timeout
-            )
+            await self._notify_merchant(order)
 
     async def _record_voucher_use(self, order: Order) -> None:
         code = order.breakdown.voucher_code
@@ -614,6 +667,7 @@ class OrderService:
                 description=d.description,
                 declared_value_kobo=d.declared_value_kobo,
                 scheduled_for=quote.scheduled_for,
+                cod_amount_kobo=d.cod_amount_kobo,
             ),
             now=now,
         )
@@ -780,14 +834,17 @@ class OrderService:
     async def reject(self, principal: Principal, order_id: str, reason: str) -> Order:
         order = await self.get(order_id)
         actor, actor_id = self._restaurant_actor(principal, order)
+        unpaid = order.awaiting_cash_payment  # pay on delivery: cancel, nothing to refund
         return await self.transition(
             order_id,
-            S.REFUND_PENDING,
+            S.CANCELLED if unpaid else S.REFUND_PENDING,
             actor_type=actor,
             actor_id=actor_id,
             reason=reason,
             patch={"cancelled_at": utcnow(), "cancellation_reason": reason},
-            metadata=refund_meta(order.breakdown.total_kobo, "platform", "before_completion", auto=True),
+            metadata=None
+            if unpaid
+            else refund_meta(order.breakdown.total_kobo, "platform", "before_completion", auto=True),
             check=lambda o: _expect(o, {S.SUBMITTED_TO_RESTAURANT, S.RESTAURANT_ACCEPTED, S.PREPARING}),
         )
 
@@ -846,14 +903,17 @@ class OrderService:
         order = await self.repos.orders.get(str(payload["order_id"]))
         if order is None or order.status != S.SUBMITTED_TO_RESTAURANT:
             return
+        unpaid = order.awaiting_cash_payment
         await self.transition(
             order.id,
-            S.REFUND_PENDING,
+            S.CANCELLED if unpaid else S.REFUND_PENDING,
             actor_type=A.SYSTEM,
             actor_id="scheduler",
             reason="Restaurant did not respond in time",
             patch={"cancelled_at": utcnow(), "cancellation_reason": "restaurant_timeout"},
-            metadata=refund_meta(order.breakdown.total_kobo, "platform", "before_completion", auto=True),
+            metadata=None
+            if unpaid
+            else refund_meta(order.breakdown.total_kobo, "platform", "before_completion", auto=True),
         )
 
     # ============================================================================ rider flows
@@ -884,17 +944,40 @@ class OrderService:
             check=lambda o: _rider_check(o, principal.uid),
         )
 
-    async def rider_deliver(self, principal: Principal, order_id: str, code: str) -> Order:
-        await self._rider_order(principal, order_id)
+    async def rider_deliver(
+        self, principal: Principal, order_id: str, code: str, *, cash_collected: bool = False
+    ) -> Order:
+        order = await self._rider_order(principal, order_id)
+        due = order.cash_to_collect_kobo
+        if due and not cash_collected:
+            raise ValidationFailed(
+                f"Collect {format_naira(due)} in cash, then confirm delivery",
+                details={"cash_to_collect_kobo": due},
+            )
+        _expect(order, {S.PICKED_UP, S.IN_TRANSIT})
         await self.verify_code(order_id, "delivery_code", code)
+        now = utcnow()
+        patch: dict[str, Any] = {"delivered_at": now}
+        if due:
+            # Ledger first (idempotent): an order is never delivered without its cash being on the books.
+            cash_held = await self.payments.record_cash_collection(order, principal.uid)
+            patch["cash_collected_at"] = now
+            if order.awaiting_cash_payment:
+                patch["payment"] = to_doc(
+                    PaymentSummary(
+                        provider="cash", reference=order.payment.reference, status="paid", paid_at=now
+                    )
+                )
         order = await self.transition(
             order_id,
             S.DELIVERED,
             actor_type=A.RIDER,
             actor_id=principal.uid,
-            patch={"delivered_at": utcnow()},
+            patch=patch,
             check=lambda o: _rider_check(o, principal.uid),
         )
+        if due:
+            await self.repos.riders.update(principal.uid, {"cash_held_kobo": cash_held})
         return order
 
     async def verify_code(
@@ -989,6 +1072,23 @@ def refund_meta(amount_kobo: int, liability: str, stage: str, *, auto: bool) -> 
 def _expect(order: Order, allowed: set[OrderStatus]) -> None:
     if order.status not in allowed:
         raise InvalidTransition(f"Order is {order.status.value}")
+
+
+def _money_guard(order: Order, to: OrderStatus, updates: dict[str, Any]) -> None:
+    """Keep order status consistent with money: an order holding customer money is refunded, never just
+    cancelled; an unpaid pay-on-delivery order is cancelled (there is nothing to refund); and only cash orders
+    reach the merchant without an online payment."""
+    pay = updates.get("payment")
+    provider = pay.get("provider") if isinstance(pay, dict) else order.payment.provider
+    status = updates.get("payment.status") or (pay.get("status") if isinstance(pay, dict) else None)
+    status = status or order.payment.status
+    unpaid_cash = provider == "cash" and status != "paid"
+    if to == S.CANCELLED and order.status not in (S.DRAFT, S.PENDING_PAYMENT) and not unpaid_cash:
+        raise InvalidTransition("This order has been paid, so it must be refunded rather than cancelled")
+    if to == S.REFUND_PENDING and unpaid_cash:
+        raise InvalidTransition("Nothing has been paid for this order yet; cancel it instead")
+    if to == S.SUBMITTED_TO_RESTAURANT and order.status == S.PENDING_PAYMENT and provider != "cash":
+        raise InvalidTransition("Only pay-on-delivery orders go to the merchant before payment")
 
 
 def _rider_check(order: Order, uid: str) -> None:

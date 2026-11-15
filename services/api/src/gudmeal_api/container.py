@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 
 from .config import Settings
+from .domain.money import format_naira
 from .ledger.audit import AuditLog
 from .ledger.db import Database
 from .ledger.idempotency import IdempotencyService
@@ -25,6 +26,7 @@ from .security.rate_limit import RateLimiter
 from .services import dispatch as dispatch_mod
 from .services import orders as orders_mod
 from .services.admin import AdminService, AnalyticsService
+from .services.cash import CashService
 from .services.catalog import CatalogService
 from .services.dispatch import DispatchService
 from .services.engagement import (
@@ -51,6 +53,7 @@ from .services.orders import OrderService
 from .services.parcels import ParcelService
 from .services.payments import PaymentService
 from .services.quotes import QuoteService
+from .services.wallet import WalletService
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +83,8 @@ class Container:
     quotes: QuoteService
     parcels: ParcelService
     payments: PaymentService
+    wallet: WalletService
+    cash: CashService
     orders: OrderService
     dispatch: DispatchService
     profiles: ProfileService
@@ -222,6 +227,29 @@ async def build_container(
         callback_url=settings.payment_callback_url,
         email_fallback_domain=settings.customer_email_fallback_domain,
         refund_auto_approve_limit_kobo=settings.refund_auto_approve_limit_kobo,
+        failover_provider=settings.payment_failover_provider,
+        wallet_enabled=settings.wallet_enabled,
+    )
+    cash = CashService(
+        repos=repos,
+        db=db,
+        ledger=ledger,
+        audit=audit,
+        enabled=settings.pay_on_delivery_enabled,
+        max_order_kobo=settings.pay_on_delivery_max_kobo,
+        min_completed_orders=settings.pay_on_delivery_min_completed_orders,
+        rider_cash_limit_kobo=settings.rider_cash_limit_kobo,
+    )
+    wallet = WalletService(
+        repos=repos,
+        db=db,
+        ledger=ledger,
+        payments=payments,
+        cash=cash,
+        enabled=settings.wallet_enabled,
+        min_topup_kobo=settings.wallet_min_topup_kobo,
+        max_topup_kobo=settings.wallet_max_topup_kobo,
+        max_balance_kobo=settings.wallet_max_balance_kobo,
     )
     orders = OrderService(
         repos,
@@ -230,6 +258,7 @@ async def build_container(
         notifier=notifier,
         tasks=tasks,
         payments=payments,
+        cash=cash,
         restaurant_accept_timeout_seconds=settings.restaurant_accept_timeout_seconds,
         unpaid_order_ttl_seconds=settings.unpaid_order_ttl_seconds,
         code_max_attempts=settings.delivery_code_max_attempts,
@@ -241,6 +270,7 @@ async def build_container(
         notifier=notifier,
         emitter=emitter,
         offer_timeout_seconds=settings.dispatch_offer_timeout_seconds,
+        rider_cash_limit_kobo=settings.rider_cash_limit_kobo,
     )
     analytics = AnalyticsService(repos)
     container = Container(
@@ -267,6 +297,8 @@ async def build_container(
         quotes=quotes,
         parcels=ParcelService(repos),
         payments=payments,
+        wallet=wallet,
+        cash=cash,
         orders=orders,
         dispatch=dispatch,
         profiles=ProfileService(repos),
@@ -300,7 +332,25 @@ def register_handlers(c: Container) -> None:
             requested_by="system",
             idempotency_key=f"order:{payload['order_id']}:refund:{key}",
             auto_approve=bool(meta.get("refund_auto_approve")),
+            payment_id=payload.get("payment_id") if not payload.get("event_id") else None,
         )
+
+    async def wallet_topped_up(payload: dict[str, Any]) -> None:
+        await c.notifier.notify_user(
+            str(payload["customer_id"]),
+            "Wallet topped up",
+            f"{format_naira(int(payload['amount_kobo']))} was added to your Gud Meal wallet",
+            {"screen": "wallet"},
+        )
+
+    async def refund_in_wallet(payload: dict[str, Any]) -> None:
+        if payload.get("destination") == "wallet" and payload.get("customer_id"):
+            await c.notifier.notify_user(
+                str(payload["customer_id"]),
+                "Refund in your wallet",
+                f"{format_naira(int(payload['amount_kobo']))} is back in your Gud Meal wallet",
+                {"order_id": str(payload["order_id"]), "screen": "wallet"},
+            )
 
     async def dispatch_start(payload: dict[str, Any]) -> None:
         if payload.get("fulfillment") == "delivery":
@@ -316,6 +366,11 @@ def register_handlers(c: Container) -> None:
     h.on("payment.orphaned", refund_from_event)
     h.on("order.refund_pending", refund_from_event)
     h.on("refund.succeeded", c.orders.on_refund_succeeded)
+    h.on("refund.succeeded", refund_in_wallet)
+    h.on("wallet.topped_up", wallet_topped_up)
+    h.on("order.cancelled", c.payments.on_order_cancelled)
+    h.on("order.cancelled", c.dispatch.on_order_called_off)
+    h.on("order.refund_pending", c.dispatch.on_order_called_off)
     h.on("refund.rejected", c.orders.on_refund_rejected)
     h.on("order.restaurant_accepted", dispatch_start)
     h.on("order.preparing", dispatch_start)

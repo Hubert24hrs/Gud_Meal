@@ -133,6 +133,22 @@ export function createApi(opts: ClientOptions) {
     },
     payments: {
       verify: (reference: string) => post<T.PaymentView>("/v1/payments/verify", { reference }),
+      options: (orderId: string) => get<T.PaymentOptions>(`/v1/orders/${orderId}/payment-options`),
+    },
+    wallet: {
+      get: () => get<T.WalletOverview>("/v1/wallet"),
+      transactions: (limit = 50) => get<T.WalletTransaction[]>("/v1/wallet/transactions", { limit }),
+      topUp: (amount_kobo: number, key: string, provider?: string) =>
+        post<T.TopUpResult>("/v1/wallet/topups", provider ? { amount_kobo, provider } : { amount_kobo }, key),
+      setRefundToWallet: (refund_to_wallet: boolean) =>
+        put<{ refund_to_wallet: boolean }>("/v1/wallet/settings", { refund_to_wallet }),
+    },
+    seller: {
+      balance: () => get<T.SellerOverview>("/v1/seller/balance"),
+      requestPayout: (body: { amount_kobo: number; bank_name: string; account_number: string; account_name: string }, key: string) =>
+        post<T.SellerPayout>("/v1/seller/payouts", body, key),
+      moveToWallet: (amount_kobo: number, key: string) =>
+        post<{ transaction_id: string; moved: boolean; wallet_balance_kobo: number }>("/v1/seller/move-to-wallet", { amount_kobo }, key),
     },
     mealPlans: (body: { budget_kobo: number; party_size: number; location: T.GeoPoint; deliver_by?: string | null }) =>
       post<T.MealPlanResult>("/v1/meal-plans", body),
@@ -190,6 +206,17 @@ export function createApi(opts: ClientOptions) {
       markSettlementPaid: (id: string, bank_reference: string) => post(`/v1/admin/settlements/${id}/paid`, { bank_reference }),
       payouts: (status?: string) => get<{ id: string; rider_id: string; amount_kobo: number; status: string; requested_at: string }[]>("/v1/admin/payouts", { status }),
       decidePayout: (id: string, approve: boolean, bank_reference?: string) => post(`/v1/admin/payouts/${id}/decision`, { approve, bank_reference }),
+      cash: () => get<T.CashOverview>("/v1/admin/cash"),
+      recordRemittance: (
+        uid: string,
+        body: { amount_kobo: number; method: "bank_transfer" | "cash_deposit" | "earnings_offset"; reference?: string; note?: string },
+        key: string,
+      ) => post<{ transaction_id: string; recorded: boolean; cash_held_kobo: number }>(`/v1/admin/riders/${uid}/cash-remittances`, body, key),
+      sellerPayouts: (status?: string) => get<T.SellerPayout[]>("/v1/admin/seller-payouts", { status }),
+      decideSellerPayout: (id: string, approve: boolean, bank_reference?: string, note?: string) =>
+        post<T.SellerPayout>(`/v1/admin/seller-payouts/${id}/decision`, { approve, bank_reference, note }),
+      setPayOnDelivery: (uid: string, blocked: boolean, reason: string) =>
+        put<{ uid: string; pay_on_delivery_blocked: boolean }>(`/v1/admin/customers/${uid}/pay-on-delivery`, { blocked, reason }),
       pricing: () => get<T.PricingConfig>("/v1/admin/config/pricing"),
       updatePricing: (cfg: T.PricingConfig) => put<T.PricingConfig>("/v1/admin/config/pricing", cfg),
       flags: () => get<Record<string, { key: string; enabled: boolean; description: string }>>("/v1/admin/flags"),

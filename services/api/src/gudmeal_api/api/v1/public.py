@@ -160,6 +160,13 @@ async def public_config(c: Ctr) -> dict[str, Any]:
         ],
         "features": {k: bool(v.get("enabled")) for k, v in flags.items()},
         "payment_providers": sorted(c.providers),
+        "wallet": {"enabled": c.settings.wallet_enabled, **c.wallet.limits()},
+        "pay_on_delivery": {
+            "enabled": c.settings.pay_on_delivery_enabled
+            and flags.get("pay_on_delivery", {}).get("enabled", True),
+            "max_order_kobo": c.settings.pay_on_delivery_max_kobo,
+        },
+        "cash_on_delivery": {"max_kobo": cfg.parcel.cod_max_kobo, "fee_bps": cfg.parcel.cod_fee_bps},
         "cities": [{"id": x.id, "name": x.name} for x in CITIES.values()],
         "support": {
             "whatsapp": c.settings.support_whatsapp,

@@ -82,6 +82,11 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 _tile(context, Icons.person_outline_rounded, 'Account', onTap: () => _account(context, user)),
                 _tile(context, Icons.location_on_outlined, 'Saved addresses', onTap: () => _addresses(context)),
+                _tile(context, Icons.account_balance_wallet_outlined, 'Gud Meal wallet',
+                    badge: ref.watch(walletProvider).asData?.value.balanceKobo == null
+                        ? null
+                        : formatNaira(ref.watch(walletProvider).asData!.value.balanceKobo),
+                    onTap: () => context.push('/wallet')),
               ],
               _tile(context, Icons.local_offer_outlined, 'Promo codes', onTap: () => _promos(context, ref)),
               _tile(context, Icons.credit_card_outlined, 'Payments', onTap: () => _payments(context)),
@@ -145,9 +150,9 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Payments', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
               SizedBox(height: 8),
-              ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.lock_outline_rounded), title: Text('Card, bank transfer or USSD'), subtitle: Text('Paid on Paystack’s secure page. Gud Meal never stores your card.')),
-              ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.account_balance_wallet_outlined), title: Text('Gud Meal wallet'), subtitle: Text('Coming soon: top up, instant refunds, one-tap payments.')),
-              ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.payments_outlined), title: Text('Pay on delivery'), subtitle: Text('Coming soon: pay the rider by cash or transfer.')),
+              ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.lock_outline_rounded), title: Text('Card, bank transfer or USSD'), subtitle: Text('Paid on a secure payment page. Gud Meal never stores your card.')),
+              ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.account_balance_wallet_outlined), title: Text('Gud Meal wallet'), subtitle: Text('Top up once, pay in one tap, and get refunds instantly. Open it from your profile.')),
+              ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.payments_outlined), title: Text('Pay on delivery'), subtitle: Text('Pay the rider in cash for food and beauty orders, after your first completed order.')),
             ]),
           ),
         ),

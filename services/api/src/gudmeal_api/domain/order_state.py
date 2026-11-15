@@ -61,6 +61,9 @@ TRANSITIONS: dict[tuple[OrderStatus, OrderStatus], TransitionRule] = {
     (S.DRAFT, S.CANCELLED): _rule(A.CUSTOMER, A.SYSTEM, A.STAFF),
     (S.PENDING_PAYMENT, S.PAID): _rule(A.SYSTEM),  # only the payment verifier
     (S.PENDING_PAYMENT, S.CANCELLED): _rule(A.CUSTOMER, A.SYSTEM, A.STAFF),
+    # Pay on delivery: nothing is paid online, so an eligible order goes straight to the merchant and the rider
+    # collects cash at the door. OrderService applies this only to cash orders.
+    (S.PENDING_PAYMENT, S.SUBMITTED_TO_RESTAURANT): _rule(A.SYSTEM),
     # hand-off to the kitchen / shop
     (S.PAID, S.SUBMITTED_TO_RESTAURANT): _rule(A.SYSTEM),
     # Package Delivery has no merchant: once paid (and at the scheduled time) the parcel is ready for a rider.
@@ -107,6 +110,17 @@ TRANSITIONS: dict[tuple[OrderStatus, OrderStatus], TransitionRule] = {
     (S.REFUND_PENDING, S.COMPLETED): _rule(A.STAFF),  # refund rejected after completion
     (S.PARTIALLY_REFUNDED, S.DISPUTED): _rule(A.CUSTOMER, A.STAFF, reason_for=(A.CUSTOMER, A.STAFF)),
     (S.PARTIALLY_REFUNDED, S.REFUND_PENDING): _rule(A.STAFF, A.SYSTEM),
+    # Unpaid pay-on-delivery orders are cancelled, not refunded (no money moved). OrderService refuses these
+    # for any order that holds customer money, which must go through REFUND_PENDING instead.
+    (S.SUBMITTED_TO_RESTAURANT, S.CANCELLED): _rule(
+        A.RESTAURANT, A.CUSTOMER, A.SYSTEM, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)
+    ),
+    (S.RESTAURANT_ACCEPTED, S.CANCELLED): _rule(A.RESTAURANT, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)),
+    (S.PREPARING, S.CANCELLED): _rule(A.RESTAURANT, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)),
+    (S.READY_FOR_PICKUP, S.CANCELLED): _rule(A.STAFF),
+    (S.RIDER_ASSIGNED, S.CANCELLED): _rule(A.STAFF),
+    (S.PICKED_UP, S.CANCELLED): _rule(A.STAFF),  # e.g. the customer refused to pay at the door
+    (S.IN_TRANSIT, S.CANCELLED): _rule(A.STAFF),
 }
 
 TERMINAL: frozenset[OrderStatus] = frozenset({S.CANCELLED, S.REFUNDED})

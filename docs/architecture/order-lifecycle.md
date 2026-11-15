@@ -67,7 +67,13 @@ The exhaustive table — including which actor may perform each transition and i
 ## Guards
 
 - **→ paid** only from the payment service after server-side verification of amount, currency and reference.
-- **→ delivered** requires the customer's 4-digit delivery code; 5 failed attempts lock the code.
+- **pending_payment → submitted_to_restaurant** (system) only for eligible **pay-on-delivery** orders; the cash
+  is recorded when the rider confirms it at the door, before `delivered`.
+- **Money guard** (`_money_guard`): an order holding customer money can only be refunded (`refund_pending`),
+  never just cancelled; an unpaid pay-on-delivery order can only be cancelled (from any pre-delivery state,
+  by the actors allowed for that state). See [ADR-0013](../adr/0013-wallet-and-cash.md).
+- **→ delivered** requires the customer's 4-digit delivery code; 5 failed attempts lock the code. Orders with cash
+  to collect (pay on delivery, vendor COD) also need the rider's `cash_collected` confirmation.
 - **ready_for_pickup → completed** requires `fulfillment == "pickup"` and the pickup code.
 - **rider transitions** require `order.rider_id == actor.uid`.
 - **restaurant transitions** require the actor to hold a restaurant role for `order.restaurant_id`.

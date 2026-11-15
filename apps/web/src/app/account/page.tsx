@@ -1,5 +1,6 @@
 "use client";
 
+import { formatNaira } from "@gudmeal/api-client";
 import { Button, Card, Field, Input, Skeleton, Toggle } from "@gudmeal/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -19,6 +20,7 @@ function Account() {
   const qc = useQueryClient();
   const { user, signOut } = useAuth();
   const profile = useQuery({ queryKey: ["profile"], queryFn: () => api.me.profile() });
+  const wallet = useQuery({ queryKey: ["wallet"], queryFn: () => api.wallet.get() });
   const addresses = useQuery({ queryKey: ["addresses"], queryFn: () => api.me.addresses() });
   const [allergens, setAllergens] = useState("");
   const [dietary, setDietary] = useState("");
@@ -63,8 +65,14 @@ function Account() {
           <Link href="/orders" className="flex items-center justify-between p-4 hover:bg-surface-muted">
             <span className="font-medium">Order history</span><span className="rounded-full bg-surface-muted px-3 py-1 text-sm font-bold">View in Orders</span>
           </Link>
+          <Link href="/wallet" className="flex items-center justify-between p-4 hover:bg-surface-muted">
+            <span className="font-medium">Gud Meal wallet</span>
+            <span className="rounded-full bg-secondary-soft px-3 py-1 text-sm font-bold text-secondary">
+              {wallet.data ? formatNaira(wallet.data.balance_kobo) : "Open"}
+            </span>
+          </Link>
           <Link href="/food?category=promotions" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">Promo codes and deals</span><span aria-hidden="true">›</span></Link>
-          <button type="button" onClick={soon("Pay with card, bank transfer or USSD on Paystack’s secure page. Gud Meal never stores your card. The Gud Meal wallet and pay on delivery are coming soon.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Payments</span><span aria-hidden="true">›</span></button>
+          <button type="button" onClick={soon("Pay with card, bank transfer or USSD on a secure payment page (Gud Meal never stores your card), from your Gud Meal wallet, or in cash on delivery once you have completed your first order.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Payment methods</span><span aria-hidden="true">›</span></button>
           <button type="button" onClick={soon("Gud Meal Plus: free delivery and member-only deals for a monthly fee. Coming soon.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Gud Meal Plus <span className="ml-1 rounded bg-secondary-soft px-1.5 py-0.5 text-[11px] font-bold text-secondary">Soon</span></span><span aria-hidden="true">›</span></button>
           <button type="button" onClick={soon("Invite friends and earn credit when they order. Referral and loyalty rewards are coming soon.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Invite friends <span className="ml-1 rounded bg-secondary-soft px-1.5 py-0.5 text-[11px] font-bold text-secondary">Soon</span></span><span aria-hidden="true">›</span></button>
           <Link href="/help" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">FAQ, privacy and terms</span><span aria-hidden="true">›</span></Link>

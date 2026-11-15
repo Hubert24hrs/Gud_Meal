@@ -234,3 +234,38 @@ async def test_parcel_quote_and_booking_via_tools(stack):
         and order["status"] == "pending_payment"
     )
     assert order["parcel"]["dropoff"]["name"] == "Ngozi" and order["parcel"]["size"] == "medium"
+
+
+async def test_offline_gudy_reads_the_wallet_and_explains_cash_payments(offline_stack):
+    client, api = offline_stack["client"], offline_stack["api"]
+    r = await api.post(
+        "/v1/wallet/topups",
+        json={"amount_kobo": 250_000},
+        headers={**bearer("customer"), "Idempotency-Key": "test-topup-key-1"},
+    )
+    assert r.status_code == 201, r.text
+    await api.post(f"/v1/dev/sandbox-checkout/{r.json()['reference']}/complete?outcome=success")
+
+    wallet = await chat(client, "How much is in my wallet?")
+    assert "₦2,500" in wallet["reply"] and "Wallet top-up: +₦2,500" in wallet["reply"]
+    card = next(c for c in wallet["cards"] if c["type"] == "wallet")
+    assert card["balance"] == "₦2,500"
+    topup = await chat(client, "abeg I wan top up my wallet")
+    assert "can't move money" not in topup["reply"] and "no fit move money" in topup["reply"]
+
+    pod = await chat(client, "Can I pay on delivery?")
+    assert "first order" in pod["reply"] and "Pay on delivery" in pod["reply"]
+
+    seller = await chat(client, "I sell online. Can the rider collect cash from my buyer?")
+    nav = next(c for c in seller["cards"] if c["type"] == "navigate")
+    assert nav["screen"] == "parcel" and "Collect cash from my buyer" in seller["reply"]
+
+    opened = await chat(client, "open my wallet")
+    assert next(c for c in opened["cards"] if c["type"] == "navigate")["screen"] == "wallet"
+
+    invocations = await offline_stack["store"].recent_invocations()
+    assert "get_wallet" in {i["tool"] for i in invocations}
+    # Gudy has no tool that can move money in or out of a wallet.
+    from gudmeal_agents.tools.registry import FORBIDDEN_ARG_NAMES
+
+    assert {"amount", "amount_kobo"} <= set(FORBIDDEN_ARG_NAMES)

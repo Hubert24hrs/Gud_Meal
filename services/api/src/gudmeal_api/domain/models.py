@@ -218,6 +218,9 @@ class ParcelQuoteRequest(Model):
     description: str = Field(default="", max_length=200)
     declared_value_kobo: int | None = Field(default=None, ge=0, le=50_000_000)  # max ₦500,000
     scheduled_for: datetime | None = None  # pickup time; None = as soon as possible
+    # Vendor cash-on-delivery: the rider collects this item price from the recipient for the sender.
+    # The real ceiling comes from the pricing config (ParcelFeeConfig.cod_max_kobo).
+    cod_amount_kobo: int | None = Field(default=None, ge=0, le=50_000_000)
 
 
 class ParcelDetails(Model):
@@ -228,6 +231,7 @@ class ParcelDetails(Model):
     description: str = ""
     declared_value_kobo: int | None = None
     city: str = "lagos"
+    cod_amount_kobo: int | None = None  # cash the rider collects from the recipient for the sender
 
 
 class PricedLine(Model):
@@ -250,6 +254,7 @@ class PriceBreakdown(Model):
     small_order_fee_kobo: int = 0
     vat_kobo: int = 0
     discount_kobo: int = 0
+    cod_fee_kobo: int = 0  # cash-on-delivery collection fee (parcels)
     total_kobo: int
     discount_funded_by: Literal["platform", "restaurant"] | None = None
     voucher_code: str | None = None
@@ -346,6 +351,7 @@ class Order(Model):
     cancelled_at: datetime | None = None
     cancellation_reason: str | None = None
     refund_total_kobo: int = 0
+    cash_collected_at: datetime | None = None  # rider took cash at the door (pay on delivery and/or COD)
     settled_at: datetime | None = None
     reviewed: bool = False
     channel: Literal["app", "web", "ai_agent", "admin"] = "app"
@@ -357,6 +363,25 @@ class Order(Model):
     @property
     def is_parcel(self) -> bool:
         return self.vertical == Vertical.PARCEL
+
+    @property
+    def is_pay_on_delivery(self) -> bool:
+        return self.payment.provider == "cash"
+
+    @property
+    def awaiting_cash_payment(self) -> bool:
+        """Pay-on-delivery order whose cash has not been collected: nothing to refund if it is called off."""
+        return self.is_pay_on_delivery and self.payment.status != "paid"
+
+    @property
+    def cash_to_collect_kobo(self) -> int:
+        """Cash the rider must take at the door: the order total (pay on delivery) plus any vendor COD."""
+        if self.cash_collected_at is not None:
+            return 0
+        due = self.breakdown.total_kobo if self.awaiting_cash_payment else 0
+        if self.parcel is not None and self.parcel.cod_amount_kobo:
+            due += self.parcel.cod_amount_kobo
+        return due
 
 
 class OrderEvent(Model):
@@ -403,6 +428,7 @@ class RiderProfile(Model):
     offers_accepted: int = 0
     active_order_ids: list[str] = Field(default_factory=list)
     completed_deliveries: int = 0
+    cash_held_kobo: int = 0  # copy of the ledger's receivable:rider_cash balance, used by dispatch
     zone_id: str = "lagos"
     last_location: GeoPoint | None = None
     last_location_at: datetime | None = None
@@ -455,6 +481,8 @@ class CustomerProfile(Model):
     personalisation_consent: bool = True
     marketing_consent: bool = False
     loyalty_points: int = 0
+    refund_to_wallet: bool = False  # card refunds go instantly into the Gud Meal wallet instead
+    pay_on_delivery_blocked: bool = False  # set by support after a refused or failed cash delivery
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

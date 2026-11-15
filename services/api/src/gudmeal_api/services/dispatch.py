@@ -48,6 +48,7 @@ class DispatchService:
         emitter: Emitter,
         offer_timeout_seconds: int = 45,
         config: DispatchConfig | None = None,
+        rider_cash_limit_kobo: int = 5_000_000,
     ) -> None:
         self.repos = repos
         self.orders = orders
@@ -56,6 +57,7 @@ class DispatchService:
         self.emitter = emitter
         self.offer_timeout = offer_timeout_seconds
         self.cfg = config or DispatchConfig()
+        self.cash_limit = rider_cash_limit_kobo
 
     # ============================================================================ rider self-service
     async def rider_profile(self, principal: Principal) -> RiderProfile:
@@ -135,6 +137,9 @@ class DispatchService:
         riders = await self.repos.riders.find(
             where=[("is_online", "==", True), ("status", "==", RiderStatus.ACTIVE.value)], limit=500
         )
+        cash_due = order.cash_to_collect_kobo
+        if cash_due:  # don't send riders out with more cash than they may carry
+            riders = [r for r in riders if r.cash_held_kobo + cash_due <= self.cash_limit]
         ranked = rank_riders(
             riders,
             restaurant_location=order.restaurant_location,
@@ -372,6 +377,26 @@ class DispatchService:
             tx.update(f"rider_profiles/{rider_id}", changes)
 
         await self.repos.store.run_transaction(fn)
+
+    async def on_order_called_off(self, payload: dict[str, Any]) -> None:
+        """Cancelled or refunded before delivery: free the rider and tell them not to pick up."""
+        if payload.get("from") not in (S.RIDER_ASSIGNED.value, S.PICKED_UP.value, S.IN_TRANSIT.value):
+            return
+        order = await self.repos.orders.get(str(payload["order_id"]))
+        if order is None or not order.rider_id:
+            return
+        await self.release_rider(order.rider_id, order.id, completed=False)
+        if order.assignment_id:
+            await self.repos.assignments.update(
+                order.assignment_id,
+                {"status": AssignmentStatus.CANCELLED.value, "decline_reason": "order called off"},
+            )
+        await self.notifier.notify_user(
+            order.rider_id,
+            "Delivery cancelled",
+            f"Order {order.short_code} was cancelled. Please contact support if you already collected it.",
+            {"order_id": order.id},
+        )
 
     async def on_order_delivered(self, payload: dict[str, Any]) -> None:
         order = await self.repos.orders.get(str(payload["order_id"]))

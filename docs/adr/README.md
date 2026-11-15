@@ -14,3 +14,4 @@
 | [0010](0010-events-outbox-pubsub-tasks.md) | Transactional outbox → Pub/Sub; Cloud Tasks for timers | Accepted |
 | [0011](0011-gemini-model-configuration.md) | Gemini model chosen by environment, pinned in production | Accepted |
 | [0012](0012-multi-service-platform.md) | One order pipeline for Food, Beauty & Skin care and Package Delivery | Accepted |
+| [0013](0013-wallet-and-cash.md) | Gud Meal wallet, pay on delivery, vendor cash-on-delivery, gateway failover | Accepted (legal review pending) |
