@@ -2,7 +2,7 @@
 
 import { Logo, cn } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Banknote, Bike, Bot, ClipboardCheck, Gauge, Landmark, LifeBuoy, ListOrdered, ReceiptText, ScrollText, Settings2, Store, Undo2 } from "lucide-react";
+import { Banknote, Bike, Bot, ClipboardCheck, Gauge, Landmark, LifeBuoy, ListOrdered, ReceiptText, ScrollText, Settings2, Store, Undo2, Warehouse } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -13,7 +13,7 @@ import { useAuth } from "@/lib/auth";
 const NAV = [
   ["/", "Overview", Gauge], ["/orders", "Orders", ListOrdered], ["/applications", "Verification", ClipboardCheck],
   ["/restaurants", "Restaurants", Store], ["/riders", "Riders", Bike], ["/refunds", "Refunds", Undo2],
-  ["/payments", "Payments", ReceiptText], ["/finance", "Finance", Landmark], ["/cash", "Cash & wallets", Banknote],
+  ["/payments", "Payments", ReceiptText], ["/finance", "Finance", Landmark], ["/cash", "Cash & wallets", Banknote], ["/hubs", "Hubs", Warehouse],
   ["/support", "Support", LifeBuoy],
   ["/ai", "AI agents", Bot], ["/config", "Configuration", Settings2], ["/audit", "Audit log", ScrollText],
 ] as const;

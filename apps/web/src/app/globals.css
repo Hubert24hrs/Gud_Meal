@@ -36,3 +36,11 @@
 @media (prefers-reduced-motion: reduce) {
   .gm-blink, .gm-pulse { animation: none; }
 }
+
+/* Waybill label: when a page has a .print-area, print only that. */
+@media print {
+  body:has(.print-area) * { visibility: hidden; }
+  body:has(.print-area) .print-area,
+  body:has(.print-area) .print-area * { visibility: visible; }
+  body:has(.print-area) .print-area { position: absolute; inset: 0 auto auto 0; width: 100%; border-color: #000; }
+}

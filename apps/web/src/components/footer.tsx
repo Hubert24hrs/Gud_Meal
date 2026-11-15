@@ -9,7 +9,7 @@ export function Footer() {
           <Logo />
           <p className="max-w-xs text-sm text-muted">Food, beauty & skin care and package delivery in Lagos and Enugu, with Gudy, an AI assistant that plans to your budget.</p>
         </div>
-        <FooterCol title="Order" links={[["Food", "/food"], ["Beauty & Skin care", "/beauty"], ["Send a package", "/send"], ["Ask Gudy", "/assistant"], ["My orders", "/orders"]]} />
+        <FooterCol title="Order" links={[["Food", "/food"], ["Beauty & Skin care", "/beauty"], ["Send a package", "/send"], ["Track a package", "/track"], ["Ask Gudy", "/assistant"], ["My orders", "/orders"]]} />
         <FooterCol title="Partner" links={[["Add your business", "/partner-with-us"], ["Ride with Gud Meal", "/ride"]]} />
         <FooterCol title="Help" links={[["Support", "/support"], ["Help centre", "/help"], ["Privacy", "/help#privacy"], ["Terms", "/help#terms"]]} />
       </div>

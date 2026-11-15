@@ -14,6 +14,7 @@ import {
 import { Button, Field, Input, Select } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
 import { CircleDot, MapPin, Package, Timer } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ParcelArt } from "@/components/illustrations";
@@ -228,10 +229,10 @@ export function SendForm() {
         )}
       </section>
 
-      <div className="rounded-2xl border border-dashed border-border p-3 opacity-80">
-        <p className="font-bold">Interstate waybill <span className="ml-1 rounded bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold">Coming soon</span></p>
-        <p className="text-sm text-muted">Send between Lagos, Enugu and other states.</p>
-      </div>
+      <Link href="/send?mode=interstate" className="block rounded-2xl border border-border p-3 hover:border-primary">
+        <p className="font-bold">Sending to another city? <span className="text-primary">Book an interstate waybill →</span></p>
+        <p className="text-sm text-muted">Lagos, Enugu, Abuja and Port Harcourt, with pickup or hub drop-off.</p>
+      </Link>
 
       {quote && b && (
         <div className="rounded-2xl border border-border bg-surface p-4" aria-live="polite">
