@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 
+import 'discover.dart';
 import 'models.dart';
 
 typedef TokenProvider = Future<String?> Function();
@@ -99,6 +100,16 @@ class GudMealApi {
   Future<List<BrowseCategory>> categories(String vertical, {String? city}) => _call(
       () => _dio.get('/v1/services/$vertical/categories', queryParameters: {'city': ?city}),
       (d) => _list(d).map(BrowseCategory.fromJson).toList());
+
+  /// Discover tab: most loved dishes, new kitchens and top-rated kitchens (with delivery fee/ETA near [near]).
+  Future<DiscoverFeed> discover({String? city, GeoPoint? near, int limit = 6}) => _call(
+      () => _dio.get('/v1/discover/dishes', queryParameters: {
+            'city': ?city,
+            if (near != null) 'lat': near.lat,
+            if (near != null) 'lng': near.lng,
+            'limit': limit,
+          }),
+      (d) => DiscoverFeed.fromJson(_map(d)));
 
   /// Items (dishes or products) and merchants matching [query].
   Future<({List<Map<String, dynamic>> items, List<RestaurantCard> merchants})> search(String query, {String? vertical, GeoPoint? near}) =>

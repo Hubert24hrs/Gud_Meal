@@ -80,7 +80,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/food', builder: (_, s) => VerticalScreen(vertical: 'food', category: s.uri.queryParameters['category'])),
       GoRoute(path: '/beauty', builder: (_, s) => VerticalScreen(vertical: 'beauty', category: s.uri.queryParameters['category'])),
       GoRoute(path: '/send', builder: (_, _) => const ParcelScreen()),
-      GoRoute(path: '/restaurants/:id', builder: (_, s) => RestaurantScreen(id: s.pathParameters['id']!)),
+      GoRoute(
+        path: '/restaurants/:id',
+        builder: (_, s) => RestaurantScreen(id: s.pathParameters['id']!, initialItemId: s.uri.queryParameters['item']),
+      ),
       GoRoute(path: '/checkout', builder: (_, _) => const CheckoutScreen()),
       GoRoute(path: '/assistant', builder: (_, s) => AssistantScreen(initial: s.uri.queryParameters['q'])),
     ],
