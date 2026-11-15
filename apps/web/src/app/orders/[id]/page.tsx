@@ -1,13 +1,14 @@
 "use client";
 
-import { formatDateTime, formatTime, newIdempotencyKey, TRACKING_STEPS, type Order } from "@gudmeal/api-client";
-import { Badge, Button, Card, ErrorState, Price, Skeleton, StatusBadge, Textarea, cn } from "@gudmeal/ui";
+import { formatDateTime, formatTime, isMeasured, newIdempotencyKey, TRACKING_STEPS, type Order, type Tracking } from "@gudmeal/api-client";
+import { Badge, Button, Card, ErrorState, MapView, Price, Skeleton, StatusBadge, Textarea, cn, type MapPin } from "@gudmeal/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Banknote, Bike, KeyRound, MessageCircleWarning, Star, Wallet } from "lucide-react";
 import Link from "next/link";
 import { use, useRef, useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
 import { useApi } from "@/lib/api";
+import { GOOGLE_MAPS_BROWSER_KEY } from "@/lib/maps";
 
 const LIVE = new Set(["pending_payment", "paid", "submitted_to_restaurant", "restaurant_accepted", "preparing", "ready_for_pickup", "rider_assigned", "picked_up", "in_transit", "delivered", "refund_pending"]);
 
@@ -89,14 +90,18 @@ function OrderDetail({ id }: { id: string }) {
         )}
 
         {enRoute && (
-          <Card className="flex items-center gap-4 p-5">
-            <span className="grid size-12 place-items-center rounded-full bg-secondary-soft text-secondary"><Bike className="size-6" aria-hidden="true" /></span>
-            <div className="text-sm">
-              <p className="font-semibold">{o.rider_name ?? "Your rider"} {o.status === "rider_assigned" ? "is heading to the restaurant" : "is on the way"}</p>
-              <p className="text-muted">
-                {tracking.data?.eta_minutes ? `About ${tracking.data.eta_minutes} min away` : "Live location updates every few seconds"}
-                {tracking.data?.updated_at && ` · updated ${formatTime(tracking.data.updated_at)}`}
-              </p>
+          <Card className="space-y-4 p-5">
+            {tracking.data && <MapView height={260} route={tracking.data.route_polyline} googleKey={GOOGLE_MAPS_BROWSER_KEY} pins={livePins(o, tracking.data)} />}
+            <div className="flex items-center gap-4">
+              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-secondary-soft text-secondary"><Bike className="size-6" aria-hidden="true" /></span>
+              <div className="text-sm">
+                <p className="font-semibold">{o.rider_name ?? "Your rider"} {o.status === "rider_assigned" ? "is heading to the restaurant" : "is on the way"}</p>
+                <p className="text-muted">
+                  {tracking.data?.eta_minutes ? `About ${tracking.data.eta_minutes} min away` : "Live location updates every few seconds"}
+                  {tracking.data?.eta_minutes ? (isMeasured(tracking.data.eta_source) ? " (live traffic)" : " (estimate)") : ""}
+                  {tracking.data?.updated_at && ` · updated ${formatTime(tracking.data.updated_at)}`}
+                </p>
+              </div>
             </div>
           </Card>
         )}
@@ -155,6 +160,16 @@ function OrderDetail({ id }: { id: string }) {
       </aside>
     </div>
   );
+}
+
+/** Kitchen (or package pickup), the customer's door and the rider (only shared while on this delivery). */
+function livePins(o: Order, t: Tracking): MapPin[] {
+  const parcel = o.vertical === "parcel";
+  const pins: MapPin[] = [];
+  if (t.pickup_location) pins.push({ point: t.pickup_location, kind: "kitchen", label: parcel ? "Pickup" : o.restaurant_name });
+  if (t.dropoff_location) pins.push({ point: t.dropoff_location, kind: "home", label: parcel ? "Drop-off" : "You" });
+  if (t.rider_location) pins.push({ point: t.rider_location, kind: "rider", label: o.rider_name ?? "Rider" });
+  return pins;
 }
 
 function AfterSales({ order }: { order: Order }) {

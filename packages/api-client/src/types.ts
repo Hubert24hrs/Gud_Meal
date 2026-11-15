@@ -29,6 +29,8 @@ export interface RestaurantCard {
   next_opening_at: string | null; distance_km: number | null; eta_minutes: number | null;
   delivery_fee_kobo: Kobo | null; min_order_kobo: Kobo; supports_delivery: boolean; supports_pickup: boolean;
   delivers_to_location: boolean | null;
+  /** The shop's public pin (for maps). */
+  location?: GeoPoint | null;
 }
 
 export interface OptionChoice { id: string; name: string; price_delta_kobo: Kobo; is_available: boolean }
@@ -59,6 +61,8 @@ export interface Restaurant {
 export interface DeliveryAddress {
   label?: string | null; line1: string; area?: string | null; city?: string; state?: string; location: GeoPoint;
   instructions?: string | null; contact_phone?: string | null;
+  /** Google place ID when the address came from search. */
+  place_id?: string | null;
 }
 export interface SavedAddress extends DeliveryAddress { id: string }
 
@@ -85,6 +89,8 @@ export interface Quote {
   id: string; restaurant_id: string; restaurant_name: string; lines: PricedLine[]; breakdown: PriceBreakdown;
   fulfillment: Fulfillment; delivery_address: DeliveryAddress | null; distance_km: number | null; eta_minutes: number;
   estimated_delivery_at: string; scheduled_for: string | null; created_at: string; expires_at: string;
+  /** Road distance the delivery fee used, and whether Google measured it. */
+  road_distance_km?: number | null; route_source?: "google" | "estimate" | null;
 }
 
 export interface Order {
@@ -115,8 +121,15 @@ export interface OrderEvent {
 }
 
 export interface Tracking {
-  order_id: string; status: OrderStatus; rider_name: string | null; rider_location: GeoPoint | null;
+  order_id: string; status: OrderStatus; rider_name: string | null;
+  /** Only while a rider is on this delivery (the API enforces it). */
+  rider_location: GeoPoint | null;
   eta_minutes: number | null; updated_at: string | null; estimated_delivery_at: string | null;
+  /** "google" = measured with live traffic, "estimate" = Gud Meal's own estimate. */
+  eta_source?: MapSource | null;
+  /** Current leg as a Google encoded polyline (decode with `decodePolyline`). */
+  route_polyline?: string | null;
+  pickup_location?: GeoPoint | null; dropoff_location?: GeoPoint | null;
 }
 
 export interface CheckoutResult {
@@ -295,3 +308,49 @@ export interface OrderSummary {
   first_order_at: string | null; last_order_at: string | null;
 }
 export interface SupportContacts { whatsapp: string; phone: string; email: string; hours: string; placeholders: boolean }
+
+// ------------------------------------------------------------------------------------------ maps
+/** Where a distance, time or place came from: Google (measured) or Gud Meal's own estimate. */
+export type MapSource = "google" | "estimate" | "local";
+export type PlacePrecision = "rooftop" | "street" | "area" | "approximate";
+
+export interface PlaceSuggestion {
+  place_id: string; title: string; subtitle: string; distance_m: number | null; source: "google" | "local";
+}
+
+export interface PlaceResult {
+  place_id: string | null; formatted_address: string; location: GeoPoint; area: string | null; city: string | null;
+  precision: PlacePrecision; source: "google" | "local";
+}
+
+/** A place plus whether Gud Meal delivers there. */
+export interface PlaceLookup { place: PlaceResult; serviceable: boolean; zone: string | null; city: string | null }
+
+export interface DeliveryEstimate {
+  restaurant_id: string; name: string; area: string; road_distance_km: number; travel_minutes: number;
+  eta_minutes: number; delivery_fee_kobo: Kobo | null; delivers: boolean; is_open: boolean; source: "google" | "estimate";
+}
+
+export interface RestaurantLocation {
+  restaurant_id: string; address: string; area: string; city: string; location: GeoPoint; delivery_radius_km: number;
+  zone: string | null; in_service_area: boolean; maps_provider: "google" | "local";
+}
+
+export interface RestaurantLocationUpdate {
+  address: string; location: GeoPoint; area?: string | null; place_id?: string | null;
+  /** Keep the pin even though the address check suggests another spot. */
+  confirm_pin?: boolean;
+  /** Staff only. */
+  delivery_radius_km?: number;
+}
+
+export interface LiveRider {
+  rider_id: string; name: string; vehicle: string; location: GeoPoint | null; located_at: string | null;
+  /** Idle riders are only ever known to about 1 km. */
+  precision: "precise" | "coarse"; on_delivery: boolean; active_order_ids: string[]; zone_id: string | null;
+}
+
+export interface MapsStatus {
+  provider: "google" | "local"; routes: "google" | "estimate"; traffic_aware: boolean; live_eta_refresh_seconds: number;
+  requests_today: number; daily_cap: number;
+}

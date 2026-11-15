@@ -1,7 +1,7 @@
 "use client";
 
-import { ApiError, formatNaira, formatTime, newIdempotencyKey, type DeliveryAddress, type Fulfillment, type Quote } from "@gudmeal/api-client";
-import { Button, Card, EmptyState, ErrorState, Field, Input, Price, Select, Skeleton, cn } from "@gudmeal/ui";
+import { ApiError, formatNaira, formatTime, isMeasured, newIdempotencyKey, type DeliveryAddress, type Fulfillment, type PlaceLookup, type Quote } from "@gudmeal/api-client";
+import { AddressSearch, Button, Card, EmptyState, ErrorState, Field, Input, MapView, Price, Select, Skeleton, cn } from "@gudmeal/ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Bike, ShieldCheck, Store } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +11,8 @@ import { checkoutProvider, continueAfterCheckout, PaymentMethodPicker, type PayM
 import { RequireAuth } from "@/components/require-auth";
 import { useApi } from "@/lib/api";
 import { toCartLines, useCart } from "@/lib/cart";
-import { LAGOS_AREAS, useLocation } from "@/lib/location";
+import { CITY_NAMES, LAGOS_AREAS, useLocation } from "@/lib/location";
+import { GOOGLE_MAPS_BROWSER_KEY } from "@/lib/maps";
 
 export default function CheckoutPage() {
   return (
@@ -29,6 +30,8 @@ function Checkout() {
   const [addressId, setAddressId] = useState<string>("new");
   const [line1, setLine1] = useState("");
   const [areaName, setAreaName] = useState(area.name);
+  /** Exact place from address search or "use my location"; without it the neighbourhood centre is used. */
+  const [picked, setPicked] = useState<PlaceLookup | null>(null);
   const [phone, setPhone] = useState("");
   const [instructions, setInstructions] = useState("");
   const [voucher, setVoucher] = useState("");
@@ -48,9 +51,22 @@ function Checkout() {
     const saved = addresses.data?.find((a) => a.id === addressId);
     if (saved) return saved;
     if (line1.trim().length < 3) return null;
+    if (picked) {
+      const city = picked.place.city === "enugu" ? CITY_NAMES.enugu : CITY_NAMES.lagos;
+      return {
+        line1: line1.trim(), area: picked.place.area ?? areaName, city, state: city, location: picked.place.location,
+        place_id: picked.place.place_id, contact_phone: phone || null, instructions: instructions || null,
+      };
+    }
     const a = LAGOS_AREAS.find((x) => x.name === areaName)!;
     return { line1: line1.trim(), area: a.name, location: a.location, contact_phone: phone || null, instructions: instructions || null };
-  }, [fulfillment, addresses.data, addressId, line1, areaName, phone, instructions]);
+  }, [fulfillment, addresses.data, addressId, line1, areaName, phone, instructions, picked]);
+
+  function onPicked(found: PlaceLookup) {
+    setPicked(found);
+    if (found.place.precision === "rooftop" || found.place.precision === "street") setLine1(found.place.formatted_address);
+    if (found.place.area && LAGOS_AREAS.some((a) => a.name === found.place.area)) setAreaName(found.place.area);
+  }
 
   const quoteReady = cart.items.length > 0 && cart.restaurant_id && (fulfillment === "pickup" || address);
   const quote = useQuery({
@@ -119,15 +135,41 @@ function Checkout() {
               </Field>
             )}
             {addressId === "new" && (
+              <div className="space-y-3">
+                <AddressSearch
+                  search={(q, session) => api.places.suggestions(q, session, area.location, area.city).then((r) => r.suggestions)}
+                  details={(placeId, session) => api.places.details(placeId, session)}
+                  reverse={(point) => api.places.reverse(point)}
+                  onPicked={onPicked}
+                />
+                {picked && (
+                  <div className="space-y-2">
+                    <MapView height={180} pins={[{ point: picked.place.location, kind: "home", label: picked.place.area ?? "Your address" }]} googleKey={GOOGLE_MAPS_BROWSER_KEY} />
+                    <p className={cn("text-sm font-semibold", picked.serviceable ? "text-secondary" : "text-danger")} role="status">
+                      {picked.serviceable ? "Gud Meal delivers here." : "This address is outside our delivery area for now."}
+                      {picked.place.precision !== "rooftop" && picked.place.precision !== "street" && (
+                        <span className="block font-normal text-muted">Add your street, house number and a landmark below so the rider can find you.</span>
+                      )}
+                    </p>
+                    <button type="button" className="text-sm text-muted underline-offset-2 hover:underline" onClick={() => setPicked(null)}>
+                      Clear and choose an area instead
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {addressId === "new" && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Street address" htmlFor="line1">
                   <Input id="line1" value={line1} onChange={(e) => setLine1(e.target.value)} placeholder="12 Admiralty Way" autoComplete="street-address" />
                 </Field>
-                <Field label="Area" htmlFor="area">
-                  <Select id="area" value={areaName} onChange={(e) => setAreaName(e.target.value)}>
-                    {LAGOS_AREAS.map((a) => <option key={a.name}>{a.name}</option>)}
-                  </Select>
-                </Field>
+                {!picked && (
+                  <Field label="Area" htmlFor="area">
+                    <Select id="area" value={areaName} onChange={(e) => setAreaName(e.target.value)}>
+                      {LAGOS_AREAS.map((a) => <option key={a.name}>{a.name}</option>)}
+                    </Select>
+                  </Field>
+                )}
                 <Field label="Phone for the rider" htmlFor="phone">
                   <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0803 000 0000" inputMode="tel" autoComplete="tel" />
                 </Field>
@@ -219,6 +261,11 @@ function Breakdown({ quote }: { quote: Quote }) {
       <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
         <dt>Total</dt><dd><Price kobo={b.total_kobo} /></dd>
       </div>
+      {quote.fulfillment === "delivery" && quote.road_distance_km ? (
+        <p className="pt-1 text-xs text-muted">
+          Delivery priced on a {quote.road_distance_km.toFixed(1)} km road trip{isMeasured(quote.route_source) ? " (measured with live traffic)" : " (estimate)"}.
+        </p>
+      ) : null}
       <p className="pt-1 text-xs text-muted">
         {quote.fulfillment === "delivery" ? `Estimated arrival ${formatTime(quote.estimated_delivery_at)}` : `Ready in about ${quote.eta_minutes} min`}
         {" · "}price held until {formatTime(quote.expires_at)}

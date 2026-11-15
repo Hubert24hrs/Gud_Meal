@@ -97,6 +97,17 @@ export function createApi(opts: ClientOptions) {
       cuisines: () => get<{ name: string; restaurants: number }[]>("/v1/cuisines", undefined, false),
       publicConfig: () => get<Record<string, unknown>>("/v1/config/public", undefined, false),
     },
+    /** Address search and distances. Google runs behind the API (no key in browsers); without it, estimates. */
+    places: {
+      suggestions: (q: string, session: string, near?: T.GeoPoint, city?: string) =>
+        get<{ suggestions: T.PlaceSuggestion[]; provider: "google" | "local" }>("/v1/places/autocomplete", { q, session, ...near, city }),
+      details: (placeId: string, session?: string) => get<T.PlaceLookup>("/v1/places/details", { place_id: placeId, session }),
+      reverse: (point: T.GeoPoint) => get<T.PlaceLookup>("/v1/places/reverse", { ...point }),
+      estimates: (restaurantIds: string[], to: T.GeoPoint) =>
+        get<{ estimates: T.DeliveryEstimate[]; provider: "google" | "local" }>("/v1/delivery/estimates", {
+          restaurant_ids: restaurantIds.slice(0, 10).join(","), ...to,
+        }),
+    },
     me: {
       get: () => get<T.Me>("/v1/me"),
       profile: () => get<T.CustomerProfile>("/v1/me/profile"),
@@ -182,6 +193,9 @@ export function createApi(opts: ClientOptions) {
       handover: (rid: string, oid: string, code: string) => post<T.Order>(`/v1/partner/restaurants/${rid}/orders/${oid}/handover`, { code }),
       analytics: (rid: string, days = 14) => get<T.Analytics>(`/v1/partner/restaurants/${rid}/analytics`, { days }),
       settlements: (rid: string) => get<T.Settlement[]>(`/v1/partner/restaurants/${rid}/settlements`),
+      location: (rid: string) => get<T.RestaurantLocation>(`/v1/partner/restaurants/${rid}/location`),
+      updateLocation: (rid: string, body: T.RestaurantLocationUpdate) =>
+        put<T.RestaurantLocation>(`/v1/partner/restaurants/${rid}/location`, body),
     },
     admin: {
       overview: () => get<T.Overview>("/v1/admin/overview"),
@@ -196,6 +210,8 @@ export function createApi(opts: ClientOptions) {
       restaurants: () => get<T.Restaurant[]>("/v1/admin/restaurants"),
       setRestaurantStatus: (id: string, status: string, reason: string) => put(`/v1/admin/restaurants/${id}/status`, { status, reason }),
       riders: () => get<T.RiderProfile[]>("/v1/admin/riders"),
+      liveRiders: () => get<T.LiveRider[]>("/v1/admin/riders/live"),
+      mapsStatus: () => get<T.MapsStatus>("/v1/admin/maps/status"),
       setRiderStatus: (uid: string, status: string, reason: string) => put(`/v1/admin/riders/${uid}/status`, { status, reason }),
       refunds: (status?: string) => get<T.Refund[]>("/v1/admin/refunds", { status }),
       decideRefund: (id: string, approve: boolean, note?: string) => post<T.Refund>(`/v1/admin/refunds/${id}/decision`, { approve, note }),
