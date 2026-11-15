@@ -15,7 +15,7 @@ const itemSchema = z.object({
   description: z.string().max(400, "Keep the description under 400 characters"),
   price_naira: z.coerce.number().positive("Enter a price").max(1_000_000, "That price looks too high"),
   category_id: z.string().min(1, "Choose a category"),
-  kind: z.enum(["main", "combo", "side", "snack", "drink", "dessert", "extra"]),
+  kind: z.enum(["main", "combo", "side", "snack", "drink", "dessert", "extra", "product"]),
   serves: z.coerce.number().int("Use a whole number").min(1, "At least 1 person").max(20, "At most 20 people"),
   tags: z.string(),
   allergens: z.string(),
@@ -108,7 +108,7 @@ function ItemEditor({ rid, item, categories, onClose }: { rid: string; item: Men
         <div className="sm:col-span-2"><Field label="Description" htmlFor="d"><Textarea id="d" {...register("description")} /></Field></div>
         <Field label="Category" htmlFor="c"><Select id="c" {...register("category_id")}>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>
         <Field label="Type" htmlFor="k">
-          <Select id="k" {...register("kind")}>{["main", "combo", "side", "snack", "drink", "dessert", "extra"].map((k) => <option key={k} value={k}>{k}</option>)}</Select>
+          <Select id="k" {...register("kind")}>{["main", "combo", "side", "snack", "drink", "dessert", "extra", "product"].map((k) => <option key={k} value={k}>{k}</option>)}</Select>
         </Field>
         <Field label="Serves" htmlFor="s" error={e.serves?.message}><Input id="s" type="number" min={1} max={20} {...register("serves")} /></Field>
         <Field label="Tags" htmlFor="t" hint="Comma separated — helps search"><Input id="t" {...register("tags")} /></Field>
