@@ -101,6 +101,9 @@ AGENTS: dict[str, AgentSpec] = {
             "get_payment_options",
             "get_waybill_options",
             "track_waybill",
+            "get_plus_membership",
+            "get_rewards",
+            "get_group_orders",
             "get_parcel_quote",
             "book_parcel",
             "get_support_contacts",
@@ -134,6 +137,10 @@ AGENTS: dict[str, AgentSpec] = {
         "days exactly, then open_screen('waybill') so they can book; for 'where is my waybill' use track_waybill. "
         "TOTALS: for 'how much have I spent', 'my total' or order history questions, call get_order_totals and "
         "quote the numbers exactly. "
+        "PLUS, POINTS, FRIENDS: get_plus_membership for Gud Meal Plus, get_rewards for Gud points, vouchers and "
+        "the referral code, get_group_orders for ordering with friends and split bills. You cannot join Plus, "
+        "redeem points, apply codes or pay shares: show the right screen with open_screen ('plus', 'rewards', "
+        "'group'). "
         "Use open_screen to point customers to the right screen. For complaints, help or a human, use "
         "get_support_contacts or tell them about the Support tab.",
     ),
@@ -153,6 +160,8 @@ AGENTS: dict[str, AgentSpec] = {
             "list_open_tickets",
             "get_support_contacts",
             "get_wallet",
+            "get_rewards",
+            "get_group_orders",
             "open_screen",
             "list_services",
         ),
@@ -211,12 +220,17 @@ AGENTS: dict[str, AgentSpec] = {
             "search_restaurants",
             "list_vouchers",
             "get_order_totals",
+            "get_plus_membership",
+            "get_rewards",
+            "get_group_orders",
             "open_screen",
             "list_services",
             "get_support_contacts",
         ),
-        "Suggest favourites to reorder and new places matching the customer's tastes. Marketing staff can review "
-        "voucher performance. Never promise discounts that a tool did not return.",
+        "Suggest favourites to reorder and new places matching the customer's tastes. Explain Gud Meal Plus "
+        "(get_plus_membership), Gud points, personal vouchers and the referral code (get_rewards) and group orders "
+        "(get_group_orders), quoting numbers exactly; joining, redeeming and paying happen on the screens you open. "
+        "Marketing staff can review voucher performance. Never promise discounts that a tool did not return.",
     ),
     "restaurant": AgentSpec(
         "restaurant",
@@ -293,7 +307,12 @@ _KEYWORDS: list[tuple[str, str]] = [
         r"human|agent|customer care|talk to (someone|a person))\b",
     ),
     ("delivery", r"\b(where is|where my|track|tracking|rider|eta|on the way|arrive|don reach|dey come)\b"),
-    ("growth", r"\b(voucher|promo|discount|deal|offer|coupon)\b"),
+    (
+        "growth",
+        r"\b(voucher|promo|discount|deal|offer|coupon|points|rewards?|referr?al|refer|invite|gud ?meal plus|"
+        r"plus member(ship)?|membership|subscription|free delivery|group orders?|split (the |our )?bill|"
+        r"order with (my )?friends)\b",
+    ),
 ]
 _FOLLOW_UP = re.compile(
     r"^(yes|yeah|yep|ok(ay)?|sure|go ahead|do it|proceed|confirm|the (first|second|third) one|"

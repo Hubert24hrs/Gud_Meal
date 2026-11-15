@@ -333,3 +333,48 @@ def test_offline_waybill_reply_drops_the_eta_once_delivered():
         "delivered": True,
     }
     assert render("track_waybill", data, "en") == "Waybill GMW23456789 (Lagos to Abuja): Delivered."
+
+
+async def test_offline_gudy_explains_plus_points_referrals_and_group_orders(offline_stack):
+    client, api = offline_stack["client"], offline_stack["api"]
+    pitch = await chat(client, "Is Gud Meal Plus worth it? Am I a member?")
+    assert "Gud Meal Plus costs ₦1,500 every 30 days (VAT included):" in pitch["reply"]
+    assert "Free delivery on Food and Beauty orders of ₦3,000 or more" in pitch["reply"]
+    assert next(c for c in pitch["cards"] if c["type"] == "plus")["member"] is False
+
+    r = await api.post(
+        "/v1/wallet/topups",
+        json={"amount_kobo": 150_000},
+        headers={**bearer("customer"), "Idempotency-Key": "gudy-plus-1"},
+    )
+    await api.post(f"/v1/dev/sandbox-checkout/{r.json()['reference']}/complete?outcome=success")
+    r = await api.post(
+        "/v1/plus/subscribe",
+        json={"provider": "wallet"},
+        headers={**bearer("customer"), "Idempotency-Key": "gudy-plus-2"},
+    )
+    assert r.status_code == 201, r.text
+    member = await chat(client, "my plus membership")
+    assert "You're a Gud Meal Plus member until" in member["reply"] and "is on" in member["reply"]
+
+    points = await chat(client, "How many points do I have?")
+    assert "You have 0 Gud points (worth ₦0)" in points["reply"]
+    assert "Your referral code is ADA" in points["reply"] and "500 more points" in points["reply"]
+    pidgin = await chat(client, "abeg wetin be my referral code?")
+    assert "Your referral code na ADA" in pidgin["reply"]
+
+    none = await chat(client, "I want to do a group order with my friends")
+    assert "not in any group orders" in none["reply"]
+    from conftest import LEKKI_ADDRESS
+
+    g = await api.post(
+        "/v1/group-orders",
+        json={"restaurant_id": "r-jollof-junction", "delivery_address": LEKKI_ADDRESS},
+        headers=bearer("customer"),
+    )
+    assert g.status_code == 201, g.text
+    groups = await chat(client, "show my group orders")
+    assert f"Jollof Junction: collecting everyone's orders, code {g.json()['code']}" in groups["reply"]
+    assert (
+        next(c for c in groups["cards"] if c["type"] == "group_orders")["groups"][0]["you_are_host"] is True
+    )
