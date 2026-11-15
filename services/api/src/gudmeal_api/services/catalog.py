@@ -397,10 +397,10 @@ class CatalogService:
             {
                 "id": "parcel",
                 "name": "Package Delivery",
-                "tagline": "Send packages across the city by bike, now or at a time you choose",
+                "tagline": "Send packages across the city by bike, now or later, and interstate by waybill",
                 "available": city is None or city in parcel_cities,
-                "options": ["instant", "scheduled", "cash_on_delivery"],
-                "coming_soon": ["interstate"],
+                "options": ["instant", "scheduled", "cash_on_delivery", "interstate"],
+                "coming_soon": [],
                 "cities": parcel_cities,
             },
         ]

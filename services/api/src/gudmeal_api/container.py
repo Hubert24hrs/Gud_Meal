@@ -54,6 +54,7 @@ from .services.parcels import ParcelService
 from .services.payments import PaymentService
 from .services.quotes import QuoteService
 from .services.wallet import WalletService
+from .services.waybills import WaybillService
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,7 @@ class Container:
     payments: PaymentService
     wallet: WalletService
     cash: CashService
+    waybills: WaybillService
     orders: OrderService
     dispatch: DispatchService
     profiles: ProfileService
@@ -299,6 +301,14 @@ async def build_container(
         payments=payments,
         wallet=wallet,
         cash=cash,
+        waybills=WaybillService(
+            repos,
+            orders,
+            tasks=tasks,
+            notifier=notifier,
+            audit=audit,
+            unpaid_order_ttl_seconds=settings.unpaid_order_ttl_seconds,
+        ),
         orders=orders,
         dispatch=dispatch,
         profiles=ProfileService(repos),
@@ -371,6 +381,12 @@ def register_handlers(c: Container) -> None:
     h.on("order.cancelled", c.payments.on_order_cancelled)
     h.on("order.cancelled", c.dispatch.on_order_called_off)
     h.on("order.refund_pending", c.dispatch.on_order_called_off)
+    # Interstate waybills: booking follow-up after payment, rider legs moving the shipment, call-offs.
+    h.on("waybill.paid", c.waybills.on_paid)
+    h.on("order.picked_up", c.waybills.on_leg_event)
+    h.on("order.delivered", c.waybills.on_leg_event)
+    h.on("order.refund_pending", c.waybills.on_called_off)
+    h.on("order.cancelled", c.waybills.on_called_off)
     h.on("refund.rejected", c.orders.on_refund_rejected)
     h.on("order.restaurant_accepted", dispatch_start)
     h.on("order.preparing", dispatch_start)

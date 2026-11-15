@@ -62,7 +62,7 @@ async def test_services_categories_and_cities(client):
     assert list(services) == ["food", "beauty", "parcel"]
     assert services["food"]["merchants"] == 14 and services["beauty"]["merchants"] == 5
     assert services["parcel"]["cities"] == ["enugu", "lagos"] and services["parcel"]["available"]
-    assert "interstate" in services["parcel"]["coming_soon"]
+    assert "interstate" in services["parcel"]["options"] and services["parcel"]["coming_soon"] == []
     enugu = {s["id"]: s for s in (await client.get("/v1/services", params={"city": "enugu"})).json()}
     assert enugu["food"]["merchants"] == 4 and enugu["beauty"]["merchants"] == 2
 

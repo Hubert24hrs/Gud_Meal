@@ -17,6 +17,7 @@ from ..domain.models import (
     OrderEvent,
     PaymentSummary,
     Vertical,
+    WaybillStage,
 )
 from ..domain.money import format_naira
 from ..domain.order_state import ACTIVE_FULFILMENT, ActorType, OrderStatus, assert_transition
@@ -49,6 +50,11 @@ NOTIFY_BY_VERTICAL: dict[Vertical, dict[OrderStatus, tuple[str, str]]] = {
     Vertical.BEAUTY: {
         S.RESTAURANT_ACCEPTED: ("Order accepted", "{restaurant} is packing your order"),
         S.DELIVERED: ("Delivered", "Your order from {restaurant} has arrived"),
+    },
+    Vertical.WAYBILL: {
+        S.DELIVERED: ("Delivered", "Your interstate package has been delivered"),
+        S.REFUND_PENDING: ("Refund started", "We're refunding your waybill booking"),
+        S.CANCELLED: ("Booking cancelled", "Your waybill booking was cancelled"),
     },
     Vertical.PARCEL: {
         S.READY_FOR_PICKUP: ("Finding a rider", "We're assigning a rider to collect your package"),
@@ -131,6 +137,7 @@ class OrderService:
         if patch:
             updates.update(patch(order) if callable(patch) else patch)
         _money_guard(order, to, updates)
+        _flow_guard(order, to, actor_type)
         event = OrderEvent(
             id=uuid.uuid4().hex,
             order_id=order.id,
@@ -201,6 +208,8 @@ class OrderService:
             "actor_type": event.actor_type.value,
         }
         await self.emitter.emit(f"order.{order.status.value}", payload)
+        if order.is_leg:
+            return  # internal rider job of a waybill: the waybill sends the customer its own updates
         template = NOTIFY_BY_VERTICAL.get(order.vertical, {}).get(order.status) or CUSTOMER_NOTIFY.get(
             order.status
         )
@@ -237,9 +246,10 @@ class OrderService:
         return order
 
     async def list_for_customer(self, uid: str, limit: int = 20) -> list[Order]:
-        return await self.repos.orders.find(
+        orders = await self.repos.orders.find(
             where=[("customer_id", "==", uid)], order_by=[("created_at", "desc")], limit=min(limit, 100)
         )
+        return [o for o in orders if not o.is_leg]  # waybill rider jobs are internal
 
     async def list_for_restaurant(
         self,
@@ -468,7 +478,11 @@ class OrderService:
         order = await self.get(order_id)
         if order.customer_id != principal.uid:
             raise NotFound("Order not found")
+        if order.is_leg:
+            raise InvalidTransition("This is part of a waybill; cancel the waybill instead")
         reason = (reason or "Cancelled by customer").strip()[:300]
+        if order.is_waybill and order.status == S.PAID:
+            return await self._cancel_waybill(principal, order, reason)
         if order.awaiting_cash_payment and order.status == S.SUBMITTED_TO_RESTAURANT:
             # Pay on delivery before the merchant accepted: nothing was paid, so nothing to refund.
             return await self.transition(
@@ -505,10 +519,33 @@ class OrderService:
             )
         raise InvalidTransition("This order can no longer be cancelled in the app; please contact support")
 
+    async def _cancel_waybill(self, principal: Principal, order: Order, reason: str) -> Order:
+        """Full refund until the package is with a rider or at the hub; after that, support decides."""
+        w = order.waybill
+        assert w is not None
+        leg = await self.repos.orders.get(w.first_mile_order_id) if w.first_mile_order_id else None
+        early = w.stage in (None, WaybillStage.AWAITING_DROPOFF, WaybillStage.PICKUP_SCHEDULED)
+        if not early or (leg is not None and leg.status not in (S.DRAFT, S.READY_FOR_PICKUP, S.CANCELLED)):
+            raise InvalidTransition(
+                "Your package is already with a rider or at the hub; please contact support to cancel"
+            )
+        return await self.transition(
+            order.id,
+            S.REFUND_PENDING,
+            actor_type=A.CUSTOMER,
+            actor_id=principal.uid,
+            reason=reason,
+            patch={"cancelled_at": utcnow(), "cancellation_reason": reason},
+            metadata=refund_meta(order.breakdown.total_kobo, "platform", "before_completion", auto=True),
+            check=lambda o: _expect(o, {S.PAID}),
+        )
+
     async def dispute(self, principal: Principal, order_id: str, reason: str) -> Order:
         order = await self.get(order_id)
         if order.customer_id != principal.uid:
             raise NotFound("Order not found")
+        if order.is_leg:
+            raise InvalidTransition("This is part of a waybill; raise the issue on the waybill")
         if order.completed_at and utcnow() - order.completed_at > timedelta(days=2):
             raise InvalidTransition("Disputes must be raised within 48 hours of delivery")
         return await self.transition(
@@ -567,6 +604,10 @@ class OrderService:
             await self._record_voucher_use(order)
         if order.status == S.PAID and order.is_parcel:
             await self._schedule_parcel_release(order)
+            return
+        if order.status == S.PAID and order.is_waybill:
+            # Rider pickup or hub drop-off is arranged by WaybillService (after the codes above exist).
+            await self.emitter.emit("waybill.paid", {"order_id": order_id})
             return
         if order.status == S.PAID:
             order = await self.transition(
@@ -948,6 +989,8 @@ class OrderService:
         self, principal: Principal, order_id: str, code: str, *, cash_collected: bool = False
     ) -> Order:
         order = await self._rider_order(principal, order_id)
+        if order.leg_kind == "first_mile":
+            raise InvalidTransition("Hand the package to the hub staff; they confirm it in the hub console")
         due = order.cash_to_collect_kobo
         if due and not cash_collected:
             raise ValidationFailed(
@@ -1082,13 +1125,24 @@ def _money_guard(order: Order, to: OrderStatus, updates: dict[str, Any]) -> None
     provider = pay.get("provider") if isinstance(pay, dict) else order.payment.provider
     status = updates.get("payment.status") or (pay.get("status") if isinstance(pay, dict) else None)
     status = status or order.payment.status
-    unpaid_cash = provider == "cash" and status != "paid"
+    # Cash orders before the rider takes the money, and waybill rider jobs (paid through their waybill), hold none.
+    unpaid_cash = provider in ("cash", "internal") and status != "paid"
     if to == S.CANCELLED and order.status not in (S.DRAFT, S.PENDING_PAYMENT) and not unpaid_cash:
         raise InvalidTransition("This order has been paid, so it must be refunded rather than cancelled")
     if to == S.REFUND_PENDING and unpaid_cash:
         raise InvalidTransition("Nothing has been paid for this order yet; cancel it instead")
     if to == S.SUBMITTED_TO_RESTAURANT and order.status == S.PENDING_PAYMENT and provider != "cash":
         raise InvalidTransition("Only pay-on-delivery orders go to the merchant before payment")
+
+
+def _flow_guard(order: Order, to: OrderStatus, actor: ActorType) -> None:
+    """Transitions that exist only for interstate waybills and their internal rider jobs."""
+    if order.status == S.PAID and to == S.IN_TRANSIT and not order.is_waybill:
+        raise InvalidTransition("Only waybills go in transit straight from payment")
+    if order.status == S.DRAFT and to == S.READY_FOR_PICKUP and not order.is_leg:
+        raise InvalidTransition("Only waybill rider jobs skip payment")
+    if to == S.DELIVERED and actor == A.SYSTEM and not order.is_waybill:
+        raise InvalidTransition("Only waybills are marked delivered by the system")
 
 
 def _rider_check(order: Order, uid: str) -> None:

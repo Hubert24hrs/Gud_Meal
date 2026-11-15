@@ -57,6 +57,7 @@ OWNED_ACCOUNTS = {
     ("liability", "wallet"),  # a customer's Gud Meal wallet (closed-loop stored value)
     ("liability", "vendor"),  # cash-on-delivery money collected for a seller
     ("receivable", "rider_cash"),  # cash a rider collected at the door and still has to hand in
+    ("liability", "carrier"),  # owed to a line-haul carrier for interstate waybills
 }
 
 
@@ -74,6 +75,10 @@ def rider_account(uid: str) -> str:
 
 def rider_cash_account(uid: str) -> str:
     return f"receivable:rider_cash:{uid}"
+
+
+def carrier_account(carrier_id: str) -> str:
+    return f"liability:carrier:{carrier_id}"
 
 
 def _owner(code: str) -> tuple[str | None, str | None]:
@@ -171,11 +176,40 @@ def refund_issued(
 
 
 def payout_made(
-    owner_type: Literal["restaurant", "rider", "vendor"], owner_id: str, amount_kobo: int
+    owner_type: Literal["restaurant", "rider", "vendor", "carrier"], owner_id: str, amount_kobo: int
 ) -> list[Posting]:
     return [
         Posting(f"liability:{owner_type}:{owner_id}", "debit", amount_kobo),
         Posting("cash:bank", "credit", amount_kobo),
+    ]
+
+
+def waybill_completed(order: Order) -> list[Posting]:
+    """Recognise an interstate shipment when it is delivered: all fees (net of VAT and the COD fee) are waybill
+    revenue, and the carrier's share of the line haul becomes an expense owed to the carrier. Riders who did the
+    first and last mile were paid from their own legs (`leg_rider_pay`) when those finished."""
+    if order.waybill is None:
+        raise LedgerError("Not a waybill order")
+    b, s = order.breakdown, order.settlement
+    postings = net(
+        [
+            Posting("liability:customer_funds", "debit", b.total_kobo),
+            Posting("liability:vat", "credit", b.vat_kobo),
+            Posting("revenue:cod_fee", "credit", b.cod_fee_kobo),
+            Posting("revenue:waybill", "credit", b.total_kobo - b.vat_kobo - b.cod_fee_kobo),
+            Posting("expense:linehaul", "debit", s.carrier_cost_kobo),
+            Posting(carrier_account(order.waybill.carrier_id), "credit", s.carrier_cost_kobo),
+        ]
+    )
+    validate_postings(postings)
+    return postings
+
+
+def leg_rider_pay(rider_id: str, amount_kobo: int) -> list[Posting]:
+    """A rider finished a waybill's first- or last-mile leg: their pay is a cost of the shipment."""
+    return [
+        Posting("expense:waybill_riders", "debit", amount_kobo),
+        Posting(rider_account(rider_id), "credit", amount_kobo),
     ]
 
 

@@ -5,7 +5,7 @@ Conventions: money fields are integer kobo and end in `_kobo`; datetimes are tim
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 from typing import Any, Literal
 
@@ -37,6 +37,7 @@ class Vertical(StrEnum):
     FOOD = "food"
     BEAUTY = "beauty"
     PARCEL = "parcel"
+    WAYBILL = "waybill"  # interstate: rider/hub first mile, partner line haul, rider/hub last mile
 
 
 MERCHANT_VERTICALS = (Vertical.FOOD, Vertical.BEAUTY)
@@ -234,6 +235,103 @@ class ParcelDetails(Model):
     cod_amount_kobo: int | None = None  # cash the rider collects from the recipient for the sender
 
 
+# ----------------------------------------------------------------------------------------------
+# Interstate waybill
+# ----------------------------------------------------------------------------------------------
+
+WaybillFirstMile = Literal[
+    "pickup", "dropoff"
+]  # rider collects from the sender, or the sender drops at a hub
+WaybillLastMile = Literal["door", "collect"]  # rider delivers to the door, or the recipient collects at a hub
+WaybillLegKind = Literal["first_mile", "last_mile"]
+
+
+class WaybillStage(StrEnum):
+    AWAITING_DROPOFF = "awaiting_dropoff"
+    PICKUP_SCHEDULED = "pickup_scheduled"
+    PICKED_UP = "picked_up"
+    AT_ORIGIN_HUB = "at_origin_hub"
+    DEPARTED = "departed"
+    AT_DESTINATION_HUB = "at_destination_hub"
+    OUT_FOR_DELIVERY = "out_for_delivery"
+    READY_FOR_COLLECTION = "ready_for_collection"
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
+
+
+class WaybillParty(Model):
+    """Sender or recipient. The address is required only where a rider goes (home pickup, door delivery)."""
+
+    name: str = Field(min_length=2, max_length=80)
+    phone: str = Field(pattern=r"^\+?[0-9 ]{7,20}$")
+    line1: str | None = Field(default=None, min_length=3, max_length=200)
+    area: str | None = Field(default=None, max_length=80)
+    location: GeoPoint | None = None
+    instructions: str | None = Field(default=None, max_length=300)
+
+
+class WaybillQuoteRequest(Model):
+    origin_city: str = Field(pattern=r"^[a-z][a-z-]{1,30}$")
+    destination_city: str = Field(pattern=r"^[a-z][a-z-]{1,30}$")
+    first_mile: WaybillFirstMile = "pickup"
+    last_mile: WaybillLastMile = "door"
+    origin_hub_id: str | None = Field(default=None, max_length=40)  # drop-off hub (nearest hub when omitted)
+    destination_hub_id: str | None = Field(
+        default=None, max_length=40
+    )  # collection hub (nearest when omitted)
+    sender: WaybillParty
+    recipient: WaybillParty
+    size: ParcelSize = ParcelSize.SMALL
+    weight_kg: float = Field(gt=0, le=50)
+    category: ParcelCategory = "other"
+    description: str = Field(default="", max_length=200)
+    declared_value_kobo: int | None = Field(default=None, ge=0, le=50_000_000)
+    cod_amount_kobo: int | None = Field(
+        default=None, ge=0, le=50_000_000
+    )  # door delivery in Gud Meal cities only
+
+
+class WaybillMilestone(Model):
+    stage: WaybillStage
+    at: datetime
+    hub_id: str | None = None
+    note: str | None = None
+
+
+class WaybillDetails(Model):
+    tracking_code: str | None = None  # set when the order is created; also the public tracking number
+    lane_id: str
+    carrier_id: str
+    carrier_name: str
+    origin_city: str
+    destination_city: str
+    origin_city_name: str = ""
+    destination_city_name: str = ""
+    origin_hub_id: str
+    destination_hub_id: str
+    origin_hub_name: str = ""
+    destination_hub_name: str = ""
+    destination_hub_address: str = ""  # where the recipient collects (last_mile = collect)
+    destination_hub_hours: str = ""
+    first_mile: WaybillFirstMile
+    last_mile: WaybillLastMile
+    sender: WaybillParty
+    recipient: WaybillParty
+    size: ParcelSize
+    weight_kg: float
+    category: ParcelCategory = "other"
+    description: str = ""
+    declared_value_kobo: int | None = None
+    cod_amount_kobo: int | None = None
+    eta_from: date
+    eta_to: date
+    stage: WaybillStage | None = None  # set once paid
+    milestones: list[WaybillMilestone] = Field(default_factory=list)
+    first_mile_order_id: str | None = None
+    last_mile_order_id: str | None = None
+    trip_reference: str | None = None  # carrier trip / manifest reference recorded at departure
+
+
 class PricedLine(Model):
     item_id: str
     name: str
@@ -255,6 +353,8 @@ class PriceBreakdown(Model):
     vat_kobo: int = 0
     discount_kobo: int = 0
     cod_fee_kobo: int = 0  # cash-on-delivery collection fee (parcels)
+    linehaul_fee_kobo: int = 0  # waybill: carrying the package between cities
+    pickup_fee_kobo: int = 0  # waybill: rider collects from the sender's address
     total_kobo: int
     discount_funded_by: Literal["platform", "restaurant"] | None = None
     voucher_code: str | None = None
@@ -269,6 +369,7 @@ class SettlementTerms(Model):
     restaurant_funded_discount_kobo: int = 0
     platform_funded_discount_kobo: int = 0
     restaurant_earning_kobo: int
+    carrier_cost_kobo: int = 0  # waybill: owed to the line-haul carrier when the shipment completes
 
 
 class Quote(Model):
@@ -304,6 +405,20 @@ class ParcelQuote(Model):
     estimated_delivery_at: datetime
     scheduled_for: datetime | None = None
     pricing_version: int
+    created_at: datetime
+    expires_at: datetime
+    order_id: str | None = None
+
+
+class WaybillQuote(Model):
+    id: str
+    customer_id: str
+    details: WaybillDetails
+    breakdown: PriceBreakdown
+    settlement: SettlementTerms
+    pickup_km: float | None = None  # sender → origin hub (home pickup)
+    delivery_km: float | None = None  # destination hub → recipient (door delivery)
+    network_version: int
     created_at: datetime
     expires_at: datetime
     order_id: str | None = None
@@ -356,6 +471,10 @@ class Order(Model):
     reviewed: bool = False
     channel: Literal["app", "web", "ai_agent", "admin"] = "app"
     parcel: ParcelDetails | None = None  # set for vertical == parcel
+    waybill: WaybillDetails | None = None  # set for vertical == waybill
+    # Internal rider job that moves a waybill between an address and a hub (no payment of its own).
+    leg_of: str | None = None
+    leg_kind: WaybillLegKind | None = None
     created_at: datetime
     updated_at: datetime
     version: int = 0
@@ -363,6 +482,14 @@ class Order(Model):
     @property
     def is_parcel(self) -> bool:
         return self.vertical == Vertical.PARCEL
+
+    @property
+    def is_waybill(self) -> bool:
+        return self.vertical == Vertical.WAYBILL
+
+    @property
+    def is_leg(self) -> bool:
+        return self.leg_of is not None
 
     @property
     def is_pay_on_delivery(self) -> bool:

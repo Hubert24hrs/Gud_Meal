@@ -19,6 +19,7 @@ class Role(StrEnum):
     OPERATIONS_MANAGER = "operations_manager"
     FINANCE_MANAGER = "finance_manager"
     MARKETING_MANAGER = "marketing_manager"
+    HUB_AGENT = "hub_agent"  # receives, dispatches and hands over interstate waybills at a hub
     SUPER_ADMIN = "super_admin"
 
 
@@ -28,6 +29,7 @@ STAFF_ROLES = frozenset(
         Role.OPERATIONS_MANAGER,
         Role.FINANCE_MANAGER,
         Role.MARKETING_MANAGER,
+        Role.HUB_AGENT,
         Role.SUPER_ADMIN,
     }
 )
@@ -57,6 +59,7 @@ class Permission(StrEnum):
     AUDIT_READ = "audit:read"
     ANALYTICS_READ = "analytics:read"
     AI_MONITOR = "ai:monitor"
+    HUB_OPERATE = "hubs:operate"
 
 
 P = Permission
@@ -77,6 +80,7 @@ ROLE_PERMISSIONS: dict[Role, frozenset[Permission]] = {
             P.AUDIT_READ,
             P.CONFIG_READ,
             P.AI_MONITOR,
+            P.HUB_OPERATE,
         }
     ),
     Role.FINANCE_MANAGER: frozenset(
@@ -94,6 +98,7 @@ ROLE_PERMISSIONS: dict[Role, frozenset[Permission]] = {
         }
     ),
     Role.MARKETING_MANAGER: frozenset({P.PROMOTIONS_MANAGE, P.ANALYTICS_READ, P.CONFIG_READ}),
+    Role.HUB_AGENT: frozenset({P.HUB_OPERATE}),
     Role.SUPER_ADMIN: frozenset(Permission),
 }
 

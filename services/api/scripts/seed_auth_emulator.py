@@ -42,6 +42,7 @@ USERS = [
     ("demo-rider-1", "rider@gudmeal.test", "Chidi Okafor", ["rider"], {}),
     ("demo-support-1", "support@gudmeal.test", "Support Agent", ["support_agent"], {}),
     ("demo-finance-1", "finance@gudmeal.test", "Finance Manager", ["finance_manager"], {}),
+    ("demo-hub-1", "hub@gudmeal.test", "Hub Agent", ["hub_agent"], {}),
     ("demo-admin-1", "admin@gudmeal.test", "Super Admin", ["super_admin"], {}),
 ]
 
