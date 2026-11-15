@@ -1,3 +1,12 @@
+import java.util.Properties
+
+// Google Maps key for Android, never committed: android/local.properties (MAPS_API_KEY=...) or env MAPS_API_KEY.
+val mapsApiKey: String = Properties().run {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+    getProperty("MAPS_API_KEY") ?: System.getenv("MAPS_API_KEY") ?: ""
+}
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -27,6 +36,7 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {

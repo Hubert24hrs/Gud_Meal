@@ -26,6 +26,11 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
       ref.invalidate(offersProvider);
       ref.invalidate(activeDeliveriesProvider);
     });
+    // App reopened while still online (e.g. mid-delivery): resume sharing the position.
+    ref.listenManual(riderProfileProvider, (_, next) {
+      final reporter = ref.read(locationReporterProvider);
+      if (next.value?.isOnline == true && !reporter.active && !reporter.stoppedByServer) reporter.start();
+    }, fireImmediately: true);
   }
 
   @override
@@ -35,20 +40,9 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
   }
 
   Future<void> _setOnline(bool online) async {
-    final reporter = ref.read(locationReporterProvider);
-    try {
-      if (online && !await reporter.start()) {
-        setState(() => _message = 'Location permission is required to go online.');
-        return;
-      }
-      await ref.read(apiProvider).setOnline(online);
-      if (!online) await reporter.stop();
-      ref.invalidate(riderProfileProvider);
-      setState(() => _message = null);
-    } on ApiException catch (e) {
-      await reporter.stop();
-      setState(() => _message = e.message);
-    }
+    final message = await setRiderOnline(ref.read(apiProvider), ref.read(locationReporterProvider), online);
+    ref.invalidate(riderProfileProvider);
+    if (mounted) setState(() => _message = message);
   }
 
   @override

@@ -44,6 +44,7 @@ final earningsProvider = FutureProvider<Earnings>((ref) => ref.watch(apiProvider
 
 /// Streams the rider's GPS position to the API while online. Poor connectivity: failed pings are dropped
 /// (the next position supersedes them) rather than queued, so the server never receives stale bursts.
+/// The API refuses positions from offline riders (409); the reporter then stops sharing.
 class LocationReporter {
   LocationReporter(this._api, this._source);
   final GudMealApi _api;
@@ -53,15 +54,27 @@ class LocationReporter {
 
   bool get active => _sub != null;
 
+  /// True when the server said this rider is offline and sharing stopped.
+  bool stoppedByServer = false;
+
+  Future<bool> ensurePermission() => _source.ensurePermission();
+
   Future<bool> start() async {
     if (_sub != null) return true;
     if (!await _source.ensurePermission()) return false;
+    stoppedByServer = false;
     _sub = _source.positions().listen((event) async {
       last = event.$1;
       try {
         await _api.sendLocation(event.$1, accuracyM: event.$2);
+      } on ApiException catch (e) {
+        if (e.status == 409) {
+          stoppedByServer = true;
+          await stop();
+        }
+        // Otherwise offline or rate limited: skip this ping.
       } catch (_) {
-        // Offline or rate limited: skip this ping.
+        // Skip this ping.
       }
     });
     return true;
@@ -78,3 +91,22 @@ final locationReporterProvider = Provider<LocationReporter>((ref) {
   ref.onDispose(reporter.stop);
   return reporter;
 });
+
+/// Goes online or offline in the order the API needs: online first, then share positions; stop sharing first,
+/// then go offline. Returns a message to show, or null on success.
+Future<String?> setRiderOnline(GudMealApi api, LocationReporter reporter, bool online) async {
+  try {
+    if (online) {
+      if (!await reporter.ensurePermission()) return 'Location permission is required to go online.';
+      await api.setOnline(true);
+      await reporter.start();
+    } else {
+      await reporter.stop();
+      await api.setOnline(false);
+    }
+    return null;
+  } on ApiException catch (e) {
+    await reporter.stop();
+    return e.message;
+  }
+}

@@ -278,7 +278,7 @@ class _AddressPickerScreenState extends ConsumerState<AddressPickerScreen> {
         pins: [MapPin(_pin ?? place.location, PinKind.home, label: place.area ?? 'Your address')],
         onPinMoved: (p) => setState(() => _pin = p),
       ),
-      if (mapsEnabled)
+      if (googleMapsReady)
         Padding(padding: const EdgeInsets.only(top: 6), child: Text('Drag the pin to your exact gate if it is off.', style: theme.textTheme.bodySmall)),
       const SizedBox(height: 12),
       Card(

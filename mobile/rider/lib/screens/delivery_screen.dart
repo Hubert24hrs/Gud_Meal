@@ -19,13 +19,8 @@ final _deliveryProvider = FutureProvider.family<Order, String>((ref, id) async {
   );
 });
 
-/// Opens turn-by-turn navigation in Google Maps (riders' preferred navigation app).
-Future<void> navigateTo(GeoPoint p) => launchUrl(
-  Uri.parse(
-    'https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=driving',
-  ),
-  mode: LaunchMode.externalApplication,
-);
+/// Opens turn-by-turn navigation in the Google Maps app (no API key involved).
+Future<void> navigateTo(GeoPoint p) => launchUrl(navigationUri(p), mode: LaunchMode.externalApplication);
 
 class DeliveryScreen extends ConsumerStatefulWidget {
   const DeliveryScreen({super.key, required this.orderId});

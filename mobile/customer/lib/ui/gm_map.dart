@@ -1,13 +1,18 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gm;
 import 'package:gud_meal_core/gud_meal_core.dart';
 
-/// Google map tiles are shown only in builds made with `--dart-define=MAPS_ENABLED=true` (and a restricted app or
-/// browser key configured, see docs/GOOGLE_MAPS.md). Otherwise the same pins and route are drawn as a schematic
-/// map, so every screen works without a key.
+/// Google map tiles are shown only in builds made with `--dart-define=MAPS_ENABLED=true` and a restricted key:
+/// the Android/iOS app key from the platform config, or `--dart-define=MAPS_BROWSER_KEY=...` on the web (see
+/// docs/GOOGLE_MAPS.md). Otherwise the same pins and route are drawn as a schematic map, so every screen works
+/// without a key.
 const mapsEnabled = bool.fromEnvironment('MAPS_ENABLED');
+
+/// Whether Google tiles can be drawn right now. On the web, main.dart sets it once the Maps script has loaded.
+bool googleMapsReady = mapsEnabled && !kIsWeb;
 
 enum PinKind { kitchen, home, rider, place, you }
 
@@ -76,7 +81,7 @@ class GmMap extends StatelessWidget {
         height: height,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(18),
-          child: mapsEnabled
+          child: googleMapsReady
               ? _GoogleMapView(pins: pins, route: route, onPinTap: onPinTap, onPinMoved: onPinMoved)
               : SchematicMap(
                   pins: pins,

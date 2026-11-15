@@ -33,6 +33,26 @@ class RecordingApi extends GudMealApi {
   }
 }
 
+/// Records the order of online/offline switches and pings; can act as if the server thinks the rider is offline.
+class _OrderApi extends GudMealApi {
+  _OrderApi() : super(baseUrl: 'http://fake', token: () async => 't');
+  final events = <String>[];
+  bool offlineOnServer = false;
+
+  @override
+  Future<RiderProfile> setOnline(bool online) async {
+    events.add(online ? 'online' : 'offline');
+    offlineOnServer = !online;
+    return RiderProfile(uid: 'r1', name: 'Musa', isOnline: online);
+  }
+
+  @override
+  Future<void> sendLocation(GeoPoint p, {double? accuracyM}) async {
+    if (offlineOnServer) throw ApiException(409, 'invalid_transition', 'Go online to share your location');
+    events.add('ping');
+  }
+}
+
 DeliveryOffer offer(DateTime expiresAt) => DeliveryOffer(
       id: 'a1', orderId: 'o1', restaurantName: 'Suya Lane', distanceToRestaurantKm: 1.2, payoutKobo: 121960,
       expiresAt: expiresAt, pickup: const GeoPoint(lat: 6.43, lng: 3.42), dropoffArea: 'Lekki Phase 1',
@@ -90,6 +110,34 @@ void main() {
       final reporter = LocationReporter(RecordingApi(), FakeLocation(allowed: false));
       expect(await reporter.start(), isFalse);
       expect(reporter.active, isFalse);
+    });
+
+    test('stops sharing when the server says the rider is offline', () async {
+      final api = _OrderApi()..offlineOnServer = true;
+      final source = FakeLocation();
+      final reporter = LocationReporter(api, source);
+      await reporter.start();
+      source.controller.add((const GeoPoint(lat: 6.44, lng: 3.46), 8.0));
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(reporter.active, isFalse);
+      expect(reporter.stoppedByServer, isTrue);
+    });
+
+    test('goes online before sharing and stops sharing before going offline', () async {
+      final api = _OrderApi();
+      final source = FakeLocation();
+      final reporter = LocationReporter(api, source);
+      expect(await setRiderOnline(api, reporter, true), isNull);
+      source.controller.add((const GeoPoint(lat: 6.44, lng: 3.46), 8.0));
+      await Future<void>.delayed(Duration.zero);
+      expect(await setRiderOnline(api, reporter, false), isNull);
+      expect(api.events, ['online', 'ping', 'offline']);
+      expect(reporter.active, isFalse);
+
+      final denied = LocationReporter(api, FakeLocation(allowed: false));
+      expect(await setRiderOnline(api, denied, true), 'Location permission is required to go online.');
+      expect(api.events.last, 'offline'); // never went online without location
     });
 
     test('drops pings while offline instead of crashing', () async {
