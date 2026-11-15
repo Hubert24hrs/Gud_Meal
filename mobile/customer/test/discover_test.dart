@@ -190,6 +190,34 @@ void main() {
     expect(key.currentState!.index, 1);
   });
 
+  testWidgets('dark theme: the rating stays readable where it overlaps the pastel badge', (tester) async {
+    phone(tester);
+    await tester.pumpWidget(MaterialApp(
+      theme: buildGudMealTheme(Brightness.dark),
+      home: const Scaffold(body: SingleChildScrollView(child: DishOrbitCarousel(dishes: [jollofRice, beefSuya], autoPlay: null))),
+    ));
+    await tester.pumpAndSettle();
+    final numbers = tester.widgetList<Text>(find.text('4.7')).toList();
+    expect(numbers, hasLength(2), reason: 'light ink over the card, dark ink clipped to the badge');
+    expect(numbers.map((t) => t.style!.color).toSet(), hasLength(2));
+  });
+
+  testWidgets('mid-swap the order button still names the dish whose title is showing', (tester) async {
+    phone(tester);
+    final key = GlobalKey<DishOrbitCarouselState>();
+    DiscoverDish? ordered;
+    await tester.pumpWidget(carousel([jollofRice, beefSuya], key: key, onOrder: (d) => ordered = d));
+    await tester.pumpAndSettle();
+    key.currentState!.step(1);
+    await tester.pump(); // the swap's ticker starts on this frame
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('Order food · ₦5,500'), findsOneWidget, reason: 'the jollof title is still up');
+    await tester.tap(find.text('Order food · ₦5,500'));
+    expect(ordered, jollofRice);
+    await tester.pumpAndSettle();
+    expect(find.text('Order food · ₦4,500'), findsOneWidget);
+  });
+
   testWidgets('with reduced motion the dish changes instantly', (tester) async {
     phone(tester, reduceMotion: true);
     final key = GlobalKey<DishOrbitCarouselState>();

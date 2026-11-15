@@ -293,14 +293,24 @@ class DishOrbitCarouselState extends State<DishOrbitCarousel> with SingleTickerP
                 label: 'Featured dishes',
                 child: ClipRect(
                   child: Stack(children: [
-                    Positioned.fill(child: CustomPaint(painter: _BandPainter(a0: band.a0, a1: band.a1, tint: band.tint))),
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: _BandPainter(
+                          a0: band.a0,
+                          a1: band.a1,
+                          tint: band.tint,
+                          // a pastel at 34% turns muddy on a dark background; it needs more body there
+                          opacity: Theme.of(context).brightness == Brightness.dark ? .5 : .34,
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, plateTop, 16, 18),
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         _stage(plate, t),
                         const SizedBox(height: 10),
                         _heads(w - 72, t),
-                        _actions(context),
+                        _actions(context, t),
                         const SizedBox(height: 12),
                         _card(context, t),
                         // announces the dish for screen readers without showing anything
@@ -427,27 +437,35 @@ class DishOrbitCarouselState extends State<DishOrbitCarousel> with SingleTickerP
       );
 
   // -------------------------------------------------------------------- actions
-  Widget _actions(BuildContext context) {
+  /// The dish whose title is on screen: mid-swap the outgoing title stays up until 0.5 s.
+  DiscoverDish _titled(double t) {
+    final out = _out;
+    return out != null && t < 0.5 ? out.dish : _dish;
+  }
+
+  Widget _actions(BuildContext context, double t) {
     final ink = Theme.of(context).colorScheme.onSurface;
     final style = TextButton.styleFrom(
       foregroundColor: ink,
       textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     );
+    // The buttons (and the price) follow the title, so they always talk about the dish being shown.
+    final dish = _titled(t);
     return Wrap(alignment: WrapAlignment.center, spacing: 28, children: [
       if (widget.onAskGudy != null)
         TextButton.icon(
           style: style,
-          onPressed: () => widget.onAskGudy!(_dish),
+          onPressed: () => widget.onAskGudy!(dish),
           icon: const Icon(Icons.auto_awesome_rounded, size: 16),
           label: const Text('Ask Gudy'),
         ),
       if (widget.onOrder != null)
         TextButton.icon(
           style: style,
-          onPressed: () => widget.onOrder!(_dish),
+          onPressed: () => widget.onOrder!(dish),
           icon: const Icon(Icons.eject_rounded, size: 18),
-          label: Text('Order food · ${formatNaira(_dish.priceKobo)}'),
+          label: Text('Order food · ${formatNaira(dish.priceKobo)}'),
         ),
     ]);
   }
@@ -661,36 +679,58 @@ class _RatingBadge extends StatelessWidget {
   final double rating;
   final Color accent;
 
+  static const _badge = Rect.fromLTWH(6, 0, 46, 62);
+  static const _darkInk = Color(0xFF1F1F1F);
+
   @override
   Widget build(BuildContext context) {
-    final ink = Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
+    final ink = theme.colorScheme.onSurface;
+    final style = TextStyle(fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -1.5, height: 1, color: ink);
+    final number = rating.toStringAsFixed(1);
     return Semantics(
-      label: 'Kitchen rated ${rating.toStringAsFixed(1)} out of 5',
+      label: 'Kitchen rated $number out of 5',
       excludeSemantics: true,
       child: SizedBox(
         height: 62,
         width: 120,
         child: Stack(clipBehavior: Clip.none, children: [
-          Positioned(
-            left: 6,
-            top: 0,
+          Positioned.fromRect(
+            rect: _badge,
             child: Container(
-              width: 46,
-              height: 62,
               decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(10)),
               alignment: const Alignment(0, .78),
               child: const Icon(Icons.star_rounded, size: 14, color: Color(0xCC1F1F1F)),
             ),
           ),
-          Positioned(
-            left: 16,
-            top: 2,
-            child: Text(rating.toStringAsFixed(1), style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -1.5, height: 1, color: ink)),
-          ),
+          Positioned(left: 16, top: 2, child: Text(number, style: style)),
+          // Dark theme: light ink vanishes on the pastel badge, so redraw the number in dark ink where it
+          // overlaps the badge (light over the card, dark over the badge).
+          if (theme.brightness == Brightness.dark)
+            Positioned.fill(
+              child: ClipRect(
+                clipper: const _RectClipper(_badge),
+                child: Stack(clipBehavior: Clip.none, children: [
+                  Positioned(left: 16, top: 2, child: Text(number, style: style.copyWith(color: _darkInk))),
+                ]),
+              ),
+            ),
         ]),
       ),
     );
   }
+}
+
+/// Clips to a fixed rectangle in the child's coordinates.
+class _RectClipper extends CustomClipper<Rect> {
+  const _RectClipper(this.rect);
+  final Rect rect;
+
+  @override
+  Rect getClip(Size size) => rect;
+
+  @override
+  bool shouldReclip(_RectClipper old) => old.rect != rect;
 }
 
 /// Clips [left] / [right] fractions away (CSS `clip-path: inset(...)`), for the title wipes.
@@ -709,10 +749,11 @@ class _InsetClipper extends CustomClipper<Rect> {
 /// The pastel arc behind the plate, in the phone layout of the original: the 960 × 520 design canvas
 /// drawn at twice the width, shifted 60% to the left and 30 px up.
 class _BandPainter extends CustomPainter {
-  const _BandPainter({required this.a0, required this.a1, required this.tint});
+  const _BandPainter({required this.a0, required this.a1, required this.tint, this.opacity = .34});
   final double a0;
   final double a1;
   final Color tint;
+  final double opacity;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -720,10 +761,10 @@ class _BandPainter extends CustomPainter {
     canvas.save();
     canvas.translate(-0.6 * w, -30);
     canvas.scale(2 * w / 960);
-    canvas.drawPath(arcPath(a0, a1, _orbitX, _orbitY, _orbitR, _bandWidth), Paint()..color = tint.withValues(alpha: .34));
+    canvas.drawPath(arcPath(a0, a1, _orbitX, _orbitY, _orbitR, _bandWidth), Paint()..color = tint.withValues(alpha: opacity));
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(_BandPainter old) => old.a0 != a0 || old.a1 != a1 || old.tint != tint;
+  bool shouldRepaint(_BandPainter old) => old.a0 != a0 || old.a1 != a1 || old.tint != tint || old.opacity != opacity;
 }
