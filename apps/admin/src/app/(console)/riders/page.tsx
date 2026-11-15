@@ -4,6 +4,7 @@ import { formatDateTime } from "@gudmeal/api-client";
 import { Badge, Button, DataTable, ErrorState, Skeleton } from "@gudmeal/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "@/lib/api";
+import { LiveRidersMap } from "./live-map";
 
 export default function RidersPage() {
   const api = useApi();
@@ -20,6 +21,7 @@ export default function RidersPage() {
   return (
     <div className="space-y-4">
       <h1 className="font-display text-3xl">Riders</h1>
+      <LiveRidersMap />
       {setStatus.error && <ErrorState message={(setStatus.error as Error).message} />}
       {list.isLoading ? <Skeleton className="h-96" /> : list.error ? <ErrorState message={(list.error as Error).message} /> : (
         <DataTable rows={list.data ?? []} rowKey={(r) => r.uid} columns={[

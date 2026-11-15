@@ -4,6 +4,7 @@ import { Button, Card, ErrorState, Field, Input, Skeleton, Toggle } from "@gudme
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use, useEffect, useState } from "react";
 import { useApi } from "@/lib/api";
+import { LocationCard } from "./location-card";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -46,6 +47,7 @@ export default function SettingsPage({ params }: { params: Promise<{ rid: string
   return (
     <div className="max-w-2xl space-y-6">
       <h2 className="font-display text-2xl">Settings</h2>
+      <LocationCard rid={rid} />
       <Card className="space-y-4 p-5">
         <h3 className="font-semibold">Opening hours (Lagos time)</h3>
         {hours.map((h, i) => (
