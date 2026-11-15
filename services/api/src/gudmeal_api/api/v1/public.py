@@ -7,9 +7,10 @@ from typing import Annotated, Any, Literal
 from fastapi import APIRouter, Query
 from sqlalchemy import text
 
+from ...domain import places
 from ...domain.cities import CITIES
 from ...domain.geo import GeoPoint
-from ...errors import ServiceUnavailable, ValidationFailed
+from ...errors import NotFound, ServiceUnavailable, ValidationFailed
 from ...services.catalog import RestaurantCard, RestaurantDetail
 from ..deps import Ctr
 
@@ -112,6 +113,24 @@ async def service_categories(
     vertical: Literal["food", "beauty"], c: Ctr, city: Annotated[str | None, Query(max_length=30)] = None
 ) -> list[dict[str, Any]]:
     return await c.catalog.browse_categories(vertical, city=city)
+
+
+@router.get("/places/areas")
+async def place_areas(city: Annotated[str | None, Query(max_length=30)] = None) -> list[dict[str, Any]]:
+    """Neighbourhoods we serve (approximate centres) for address entry without a map pin."""
+    return [{"name": a.name, "city": a.city, "lat": a.lat, "lng": a.lng} for a in places.areas(city)]
+
+
+@router.get("/places/resolve")
+async def place_resolve(
+    q: Annotated[str, Query(min_length=2, max_length=200)],
+    city: Annotated[str | None, Query(max_length=30)] = None,
+) -> dict[str, Any]:
+    """Best-matching neighbourhood for free text, e.g. '12 Admiralty Way, Lekki Phase 1'."""
+    area = places.find_area(q, city)
+    if area is None:
+        raise NotFound("We couldn't place that address. Add the neighbourhood, e.g. 'Yaba' or 'GRA Enugu'.")
+    return {"name": area.name, "city": area.city, "lat": area.lat, "lng": area.lng}
 
 
 @router.get("/cities")

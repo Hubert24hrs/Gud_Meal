@@ -46,6 +46,10 @@ PRICING = PricingConfig(
         ZoneConfig(
             id="lagos-mainland", name="Lagos Mainland", center=GeoPoint(lat=6.5450, lng=3.3550), radius_km=16
         ),
+        ZoneConfig(
+            id="lagos-lekki-ajah", name="Lekki to Ajah", center=GeoPoint(lat=6.4700, lng=3.5800), radius_km=12
+        ),
+        ZoneConfig(id="lagos-ikorodu", name="Ikorodu", center=GeoPoint(lat=6.6194, lng=3.5105), radius_km=9),
         ENUGU_ZONE,
     ]
 )

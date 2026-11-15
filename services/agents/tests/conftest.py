@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
 from typing import Any
 
 import httpx
@@ -108,6 +109,21 @@ def last_tool_data(messages: list[Any]) -> dict[str, Any]:
 
 @pytest.fixture
 async def stack() -> AsyncIterator[dict[str, Any]]:
+    async with make_stack(ScriptedModels()) as s:
+        yield s
+
+
+@pytest.fixture
+async def offline_stack() -> AsyncIterator[dict[str, Any]]:
+    """Gudy without a Gemini key: the rule-based offline model drives the same graph and tools."""
+    from gudmeal_agents.offline import OfflineModels
+
+    async with make_stack(OfflineModels()) as s:
+        yield s
+
+
+@asynccontextmanager
+async def make_stack(models: Any) -> AsyncIterator[dict[str, Any]]:
     api_settings = ApiSettings(
         environment="test",
         database_url="sqlite+aiosqlite:///:memory:",
@@ -129,7 +145,6 @@ async def stack() -> AsyncIterator[dict[str, Any]]:
     api_app = create_api_app(api_settings, container=container)
     api_http = httpx.AsyncClient(transport=httpx.ASGITransport(app=api_app), base_url="http://api.test")
 
-    models = ScriptedModels()
     settings = Settings(
         environment="test",
         api_base_url="http://api.test",

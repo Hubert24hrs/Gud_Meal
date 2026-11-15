@@ -16,9 +16,10 @@ from .config import Settings, get_settings
 from .graph import build_graph
 from .identity import AuthError, Caller, FirebaseVerifier, Verifier
 from .llm import GeminiFactory, ModelFactory
+from .offline import OfflineModels
 from .service import AgentService, NoPendingApprovalError, RateLimitedError
 from .store import AgentStore, ThreadAccessError
-from .tools import customer, operations
+from .tools import customer, operations, services
 from .tools.registry import ToolRegistry
 
 logger = logging.getLogger("gudmeal_agents")
@@ -28,6 +29,7 @@ def build_registry() -> ToolRegistry:
     registry = ToolRegistry()
     customer.register(registry)
     operations.register(registry)
+    services.register(registry)
     return registry
 
 
@@ -114,6 +116,9 @@ def create_app(
         model_factory = models
         if model_factory is None and settings.llm_configured:
             model_factory = GeminiFactory(settings)
+        if model_factory is None:
+            # No Gemini key: Gudy still works in rule-based offline mode (same tools, approvals and audit).
+            model_factory = OfflineModels()
         saver = checkpointer
         if saver is None:
             assert stack is not None
@@ -137,7 +142,8 @@ def create_app(
             http=client,
             model_name=model_factory.model_name if model_factory else "unconfigured",
         )
-        app.state.llm_ready = model_factory is not None
+        app.state.llm_ready = not isinstance(model_factory, OfflineModels)
+        app.state.ai_mode = "offline" if isinstance(model_factory, OfflineModels) else "llm"
 
     app = FastAPI(
         title="Gud Meal Agents",
@@ -170,7 +176,12 @@ def create_app(
 
     @app.get("/health")
     async def health(request: Request) -> dict[str, Any]:
-        return {"status": "ok", "llm_configured": bool(getattr(request.app.state, "llm_ready", False))}
+        return {
+            "status": "ok",
+            "llm_configured": bool(getattr(request.app.state, "llm_ready", False)),
+            "ai_mode": getattr(request.app.state, "ai_mode", "unknown"),
+            "assistant": "Gudy",
+        }
 
     @app.post("/v1/chat")
     async def chat(data: ChatInput, caller: CallerDep, request: Request) -> dict[str, Any]:

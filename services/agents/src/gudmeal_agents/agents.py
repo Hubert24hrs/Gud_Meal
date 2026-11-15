@@ -28,7 +28,11 @@ ANALYTICS = {
     "super_admin",
 }
 
-BASE_RULES = """You are the Gud Meal assistant for a food delivery platform in Lagos, Nigeria.
+BASE_RULES = """You are Gudy, the AI assistant of Gud Meal, a delivery platform in Lagos and Enugu, Nigeria, with
+three services: Food (restaurants), Beauty & Skin care (partner shops) and Package Delivery (bike courier, now or at
+a pickup time you choose). Cash on delivery for vendors and interstate waybill are coming soon.
+Language: reply in the language the customer writes in: English, Nigerian Pidgin, Igbo, Yoruba or Hausa. If they mix
+languages, mirror them. Keep dish, product and store names exactly as tools return them. Prices always as ₦ amounts.
 Rules you must always follow:
 - Use tools for every fact. Never invent restaurants, dishes, prices, fees, delivery times or order statuses.
 - Never calculate, estimate or change prices yourself. Quote totals exactly as tools return them (₦ with commas).
@@ -41,6 +45,8 @@ Rules you must always follow:
 - If a tool returns an error, explain it simply and suggest the next step. Never claim an action succeeded unless the
   tool confirmed it.
 - Be warm, brief and practical. Prefer short bullet lists for options. Times are Lagos time (WAT).
+- To send someone to a part of the app (Food, Beauty, Package Delivery, Orders, Support, Profile, a store or an
+  order), call open_screen so they get a button. Never make up links.
 """
 
 
@@ -77,10 +83,17 @@ class AgentSpec:
 AGENTS: dict[str, AgentSpec] = {
     "customer": AgentSpec(
         "customer",
-        "Customer Agent (food concierge)",
-        "Food discovery, recommendations, budget meal planning, building and placing orders, reordering.",
+        "Customer Agent (Gudy: food, beauty and package delivery concierge)",
+        "Greetings, what Gud Meal offers, food and beauty discovery, budget meal planning, placing and reordering "
+        "orders, package delivery quotes and bookings, order totals and spending, opening parts of the app.",
         frozenset({"customer"}),
         (
+            "list_services",
+            "open_screen",
+            "get_order_totals",
+            "get_parcel_quote",
+            "book_parcel",
+            "get_support_contacts",
             "search_restaurants",
             "search_food_items",
             "get_restaurant_menu",
@@ -96,10 +109,21 @@ AGENTS: dict[str, AgentSpec] = {
             "list_saved_addresses",
             "get_delivery_tracking",
         ),
-        "Help the customer decide what to eat and order it. For requests with a budget, party size or deadline, call "
-        "plan_meal_within_budget (budget is the TOTAL including fees; deadline as HH:MM 24h). Present up to three "
-        "options with their exact totals and arrival times, recommend one, then create_order_draft with its plan_ref. "
-        "When the customer wants to proceed, call confirm_order. Respect allergies from get_my_preferences.",
+        "Engage the customer like a friendly Nigerian concierge and get things done. "
+        "FOOD: for requests with a budget, party size or deadline, call plan_meal_within_budget (budget is the TOTAL "
+        "including fees; deadline as HH:MM 24h). Present up to three options with exact totals and arrival times, "
+        "recommend one, then create_order_draft with its plan_ref. When the customer wants to proceed, call "
+        "confirm_order. Respect allergies from get_my_preferences. "
+        "BEAUTY: use search_restaurants with service='beauty' or search_food_items with service='beauty', show "
+        "products with prices, then create_order_draft with the shop id and item ids (products may need a shade "
+        "choice). "
+        "PACKAGES: collect the drop-off address with its neighbourhood, the recipient's name and phone, the size and "
+        "what is inside (pickup defaults to the customer's address), call get_parcel_quote, show the total, then "
+        "book_parcel when they agree. "
+        "TOTALS: for 'how much have I spent', 'my total' or order history questions, call get_order_totals and "
+        "quote the numbers exactly. "
+        "Use open_screen to point customers to the right screen. For complaints, help or a human, use "
+        "get_support_contacts or tell them about the Support tab.",
     ),
     "support": AgentSpec(
         "support",
@@ -115,8 +139,12 @@ AGENTS: dict[str, AgentSpec] = {
             "search_help_articles",
             "get_payment_status",
             "list_open_tickets",
+            "get_support_contacts",
+            "open_screen",
+            "list_services",
         ),
-        "Classify the problem, check the order, answer policy questions from help articles, and open a ticket or "
+        "You are Gudy on support duty: answer first, and hand over to a human when the customer asks or the problem "
+        "needs judgement. Classify the problem, check the order, answer policy questions from help articles, and open a ticket or "
         "refund review when needed. You cannot issue refunds yourself; the Gud Meal team decides.",
     ),
     "payment": AgentSpec(
@@ -131,6 +159,9 @@ AGENTS: dict[str, AgentSpec] = {
             "request_refund_review",
             "search_help_articles",
             "list_pending_refunds",
+            "list_services",
+            "get_support_contacts",
+            "open_screen",
         ),
         "Check payment status with get_payment_status (verified server-side). Explain refund eligibility using the "
         "help articles and submit a refund review when appropriate.",
@@ -140,7 +171,15 @@ AGENTS: dict[str, AgentSpec] = {
         "Delivery Agent",
         "Where is my order, rider tracking, ETAs; for operations staff: rider availability and manual dispatch.",
         frozenset({"customer"}),
-        ("get_delivery_tracking", "get_order_status", "get_available_riders", "request_rider_assignment"),
+        (
+            "get_delivery_tracking",
+            "get_order_status",
+            "get_available_riders",
+            "request_rider_assignment",
+            "open_screen",
+            "list_services",
+            "get_support_contacts",
+        ),
         "Give clear tracking updates. Operations staff may ask you to review riders or assign one manually.",
     ),
     "growth": AgentSpec(
@@ -148,7 +187,17 @@ AGENTS: dict[str, AgentSpec] = {
         "Growth Agent",
         "Personalised suggestions, reorders, vouchers and promotions.",
         frozenset({"customer"}),
-        ("list_my_orders", "reorder", "get_my_preferences", "search_restaurants", "list_vouchers"),
+        (
+            "list_my_orders",
+            "reorder",
+            "get_my_preferences",
+            "search_restaurants",
+            "list_vouchers",
+            "get_order_totals",
+            "open_screen",
+            "list_services",
+            "get_support_contacts",
+        ),
         "Suggest favourites to reorder and new places matching the customer's tastes. Marketing staff can review "
         "voucher performance. Never promise discounts that a tool did not return.",
     ),
@@ -220,12 +269,13 @@ _KEYWORDS: list[tuple[str, str]] = [
     ),
     ("analytics", r"\b(analytics|forecast|revenue|sales|trend|performance|report)\b"),
     ("admin", r"\b(overview|exceptions?|stuck|platform health|backlog|flagged)\b"),
-    ("payment", r"\b(pay(ment)?|paid|charged|debited|card|transfer|refund status|double charge)\b"),
+    ("payment", r"\b(pay(ment)?|paid|charged|debited|card|transfer|refund status|double charge|my money)\b"),
     (
         "support",
-        r"\b(refund|missing|wrong|complain|complaint|late|cold|spilled|issue|problem|help|dispute)\b",
+        r"\b(refund|missing|wrong|complain|complaint|late|cold|spilled|issue|problem|dispute|wahala|"
+        r"human|agent|customer care|talk to (someone|a person))\b",
     ),
-    ("delivery", r"\b(where is|track|tracking|rider|eta|on the way|arrive)\b"),
+    ("delivery", r"\b(where is|where my|track|tracking|rider|eta|on the way|arrive|don reach|dey come)\b"),
     ("growth", r"\b(voucher|promo|discount|deal|offer|coupon)\b"),
 ]
 _FOLLOW_UP = re.compile(

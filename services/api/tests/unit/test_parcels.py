@@ -139,3 +139,12 @@ def test_browse_categories_match_case_insensitively():
     assert find_category("beauty", "skincare") in BEAUTY_CATEGORIES
     assert find_category("food", "skincare") is None
     assert FOOD_CATEGORIES[0].id == "promotions" == BEAUTY_CATEGORIES[0].id
+
+
+def test_every_listed_neighbourhood_is_inside_a_zone_of_its_city():
+    from gudmeal_api.domain.places import AREAS
+    from gudmeal_api.seed.lagos import PRICING
+
+    for area in AREAS:
+        zone = PRICING.zone_for(area.location)
+        assert zone is not None and zone.city == area.city, area.name

@@ -117,7 +117,7 @@ def build_graph(
         text = _last_human(state)
         decision: RouteDecision | None = None
         usage: dict[str, Any] = {}
-        if models is not None:
+        if models is not None and not getattr(models, "deterministic_routing", False):
             try:
                 runnable = models.for_structured(RouteDecision)
                 out = await runnable.ainvoke(

@@ -1,0 +1,236 @@
+"""Gudy: multi-service tools and the offline (no Gemini key) assistant, end to end against the real API."""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from zoneinfo import ZoneInfo
+
+import pytest
+
+from conftest import LEKKI_ADDRESS, bearer, last_tool_data, tool_call
+from gudmeal_agents.offline import detect_language, parse_budget, parse_deadline, parse_party
+
+LAGOS = ZoneInfo("Africa/Lagos")
+
+
+# ------------------------------------------------------------------------------------------- parsing
+@pytest.mark.parametrize(
+    ("text", "lang"),
+    [
+        ("Find me jollof under 5k please", "en"),
+        ("Abeg wetin una dey sell for Lekki?", "pcm"),
+        ("Biko, achoro m nri", "ig"),
+        ("Ẹ jọ̀wọ́, mo fẹ́ oúnjẹ", "yo"),
+        ("Sannu, ina son abinci", "ha"),
+    ],
+)
+def test_language_detection(text, lang):
+    assert detect_language(text) == lang
+
+
+def test_budget_party_and_deadline_parsing():
+    assert parse_budget("I have ₦10,000 for food") == 10_000
+    assert parse_budget("budget na 15k") == 15_000
+    assert parse_budget("N5000 for lunch") == 5_000
+    assert parse_budget("5,000 naira only") == 5_000
+    assert parse_budget("no money talk here") is None
+    assert parse_party("best meal for two people") == 2
+    assert parse_party("food for 3") == 3
+    assert parse_party("four people dey come") == 4
+    assert parse_party("just me") == 1
+    assert parse_deadline("deliver before 8pm") == "20:00"
+    assert parse_deadline("by 7:30 pm") == "19:30"
+    assert parse_deadline("before 8") == "20:00"
+    assert parse_deadline("by 11am") == "11:00"
+    assert parse_deadline("whenever") is None
+
+
+# ------------------------------------------------------------------------------------------- offline Gudy
+async def chat(client, message: str, who: str = "customer", thread: str | None = None) -> dict:
+    body = {"message": message, **({"thread_id": thread} if thread else {})}
+    r = await client.post("/v1/chat", json=body, headers=bearer(who))
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+async def test_offline_gudy_greets_in_the_customers_language_and_lists_services(offline_stack):
+    client = offline_stack["client"]
+    health = (await client.get("/health")).json()
+    assert health["ai_mode"] == "offline" and health["assistant"] == "Gudy" and not health["llm_configured"]
+
+    hi = await chat(client, "How far, abeg wetin you fit do?")
+    assert hi["status"] == "completed" and hi["reply"].startswith("How far Ada! Na me be Gudy")
+    igbo = await chat(client, "Ndewo")
+    assert igbo["reply"].startswith("Ndewo Ada! Abụ m Gudy.") and "English for now" in igbo["reply"]
+
+    services = await chat(client, "What services do you offer?")
+    assert "Beauty & Skin care" in services["reply"] and "Package Delivery" in services["reply"]
+    assert "interstate" in services["reply"].lower()
+    card = next(c for c in services["cards"] if c["type"] == "services")
+    assert [s["id"] for s in card["services"]] == ["food", "beauty", "parcel"]
+
+
+async def test_offline_gudy_totals_beauty_search_parcels_and_support(offline_stack):
+    client, api = offline_stack["client"], offline_stack["api"]
+    none = await chat(client, "How much have I spent on Gud Meal?")
+    assert "haven't placed any orders" in none["reply"]
+
+    # Pay for one order, then the totals come straight from the API (net of refunds).
+    await api.post("/v1/me/addresses", json=LEKKI_ADDRESS, headers=bearer("customer"))
+    quote = (
+        await api.post(
+            "/v1/quotes",
+            json={
+                "restaurant_id": "b-shea-harbour",
+                "lines": [{"item_id": "sh-spf50", "quantity": 1}],
+                "delivery_address": LEKKI_ADDRESS,
+            },
+            headers=bearer("customer"),
+        )
+    ).json()
+    order = (
+        await api.post(
+            "/v1/orders",
+            json={"quote_id": quote["id"]},
+            headers={**bearer("customer"), "Idempotency-Key": "test-order-key-1"},
+        )
+    ).json()
+    pay = (
+        await api.post(
+            f"/v1/orders/{order['id']}/checkout",
+            json={},
+            headers={**bearer("customer"), "Idempotency-Key": "test-checkout-key-1"},
+        )
+    ).json()
+    await api.post(f"/v1/dev/sandbox-checkout/{pay['reference']}/complete?outcome=success")
+    total = quote["breakdown"]["total_kobo"]
+    naira = f"₦{total // 100:,}" + (f".{total % 100:02d}" if total % 100 else "")
+
+    totals = await chat(client, "abeg how much i don spend?")
+    assert f"total na {naira}" in totals["reply"] and "Beauty & Skin care: 1 order(s)" in totals["reply"]
+    assert any(c["type"] == "order_totals" for c in totals["cards"])
+
+    beauty = await chat(client, "I need a good sunscreen")
+    assert "SPF 50" in beauty["reply"] and "₦11,000" in beauty["reply"]
+
+    parcel = await chat(client, "I want to send a package to my sister in Yaba")
+    nav = next(c for c in parcel["cards"] if c["type"] == "navigate")
+    assert nav["screen"] == "parcel" and "pickup and drop-off" in parcel["reply"]
+
+    support = await chat(client, "I want to talk to a human")
+    assert "Support tab" in support["reply"]
+    contacts = next(c for c in support["cards"] if c["type"] == "support_contacts")
+    assert contacts["note"]  # placeholders are flagged, not presented as live numbers
+
+    track = await chat(client, "Where is my order?")
+    assert order["short_code"] in track["reply"]
+
+    invocations = await offline_stack["store"].recent_invocations()
+    assert {i["tool"] for i in invocations} >= {
+        "get_order_totals",
+        "search_food_items",
+        "open_screen",
+        "get_support_contacts",
+    }
+    assert all(i["status"] == "ok" for i in invocations)
+
+
+async def test_offline_gudy_vision_flow_ends_on_an_approval_screen(offline_stack):
+    """The product vision works without an LLM: plan → draft → approval with the exact total → payment link."""
+    client, api = offline_stack["client"], offline_stack["api"]
+    await api.post("/v1/me/addresses", json=LEKKI_ADDRESS, headers=bearer("customer"))
+    local = datetime.now(UTC).astimezone(LAGOS)
+    when = " and have it delivered before 11:59pm" if local.hour < 22 else ""
+    body = await chat(
+        client, f"Gud Meal, I have ₦10,000. Find me the best meal for two people, order it{when}."
+    )
+    assert body["status"] == "approval_required", body
+    approval = body["approval"]
+    assert approval["tool"] == "confirm_order"
+    preview = approval["preview"]["order"]
+    order = (await api.get(f"/v1/orders/{preview['order_id']}", headers=bearer("customer"))).json()
+    assert (
+        order["status"] == "draft" and preview["total_kobo"] == order["breakdown"]["total_kobo"] <= 1_000_000
+    )
+    assert {c["type"] for c in body["cards"]} >= {"meal_plans", "order_draft"}
+
+    r = await client.post(
+        f"/v1/chat/{body['thread_id']}/approval",
+        json={"approved": True, "tool_call_id": approval["tool_call_id"]},
+        headers=bearer("customer"),
+    )
+    done = r.json()
+    assert done["status"] == "completed" and "secure payment link" in done["reply"]
+    assert any(c["type"] == "payment_link" for c in done["cards"])
+
+
+async def test_offline_gudy_plan_then_pick_and_decline(offline_stack):
+    client, api = offline_stack["client"], offline_stack["api"]
+    await api.post("/v1/me/addresses", json=LEKKI_ADDRESS, headers=bearer("customer"))
+    plans = await chat(client, "I have 15k, plan lunch for 3")
+    assert plans["status"] == "completed" and "Reply 'plan 1'" in plans["reply"]
+    assert "1. " in plans["reply"] and "Total ₦" in plans["reply"]
+    missing = await chat(client, "plan 9", thread=plans["thread_id"])
+    assert missing["status"] == "completed" and "not one of the plans" in missing["reply"]
+    pick = await chat(client, "plan 1", thread=plans["thread_id"])
+    assert pick["status"] == "approval_required" and pick["approval"]["tool"] == "confirm_order"
+    r = await client.post(
+        f"/v1/chat/{plans['thread_id']}/approval", json={"approved": False}, headers=bearer("customer")
+    )
+    assert "haven't done it" in r.json()["reply"]
+
+
+# ------------------------------------------------------------------------------------------- Gemini-style tools
+async def test_parcel_quote_and_booking_via_tools(stack):
+    """With the LLM: Gudy prices a parcel from free-text addresses, then books it only after approval."""
+    client, api, models = stack["client"], stack["api"], stack["models"]
+    await api.post("/v1/me/addresses", json=LEKKI_ADDRESS, headers=bearer("customer"))
+    models.steps = [
+        tool_call(
+            "get_parcel_quote",
+            {
+                "dropoff_address": "4 Herbert Macaulay Way, Yaba",
+                "recipient_name": "Ngozi",
+                "recipient_phone": "+2348055555555",
+                "sender_phone": "+2348011111111",
+                "size": "medium",
+                "category": "clothing",
+            },
+            "call_quote",
+        ),
+        lambda msgs: tool_call(
+            "book_parcel", {"quote_id": last_tool_data(msgs)["data"]["quote_id"]}, "call_book"
+        ),
+        lambda msgs: tool_call("open_screen", {"screen": "order"}, "call_open"),
+        lambda msgs: __import__("langchain_core.messages", fromlist=["AIMessage"]).AIMessage(
+            content="Booked!"
+        ),
+    ]
+    body = await chat(client, "Send this dress to Ngozi in Yaba")
+    assert body["status"] == "approval_required" and body["approval"]["tool"] == "book_parcel"
+    preview = body["approval"]["preview"]
+    assert preview["title"].startswith("Book a medium package delivery for ₦")
+    quote_card = next(c for c in body["cards"] if c["type"] == "parcel_quote")["quote"]
+    assert (
+        quote_card["to"].startswith("4 Herbert Macaulay Way, Yaba (Ngozi")
+        and quote_card["total"] == preview["parcel"]["total"]
+    )
+
+    done = (
+        await client.post(
+            f"/v1/chat/{body['thread_id']}/approval",
+            json={"approved": True, "tool_call_id": body["approval"]["tool_call_id"]},
+            headers=bearer("customer"),
+        )
+    ).json()
+    assert done["reply"] == "Booked!"
+    link = next(c for c in done["cards"] if c["type"] == "payment_link")
+    nav = next(c for c in done["cards"] if c["type"] == "navigate")
+    assert nav["params"]["order_id"] == link["order_id"]
+    order = (await api.get(f"/v1/orders/{link['order_id']}", headers=bearer("customer"))).json()
+    assert (
+        order["vertical"] == "parcel"
+        and order["channel"] == "ai_agent"
+        and order["status"] == "pending_payment"
+    )
+    assert order["parcel"]["dropoff"]["name"] == "Ngozi" and order["parcel"]["size"] == "medium"

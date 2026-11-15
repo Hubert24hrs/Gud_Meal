@@ -289,3 +289,18 @@ async def test_order_summary_totals(flow, client):
     other = (await client.get("/v1/me/order-summary", headers=auth("customer"))).json()
     assert other["orders_count"] == 0  # strictly per customer
     assert ADDRESS["area"] == "Lekki Phase 1"
+
+
+async def test_places_for_address_entry_without_a_map(client):
+    lagos = (await client.get("/v1/places/areas", params={"city": "lagos"})).json()
+    enugu = (await client.get("/v1/places/areas", params={"city": "enugu"})).json()
+    assert len(lagos) >= 30 and len(enugu) >= 10 and {a["city"] for a in enugu} == {"enugu"}
+    hit = (await client.get("/v1/places/resolve", params={"q": "3 Isaac John Street, Ikeja GRA"})).json()
+    assert hit["name"] == "Ikeja GRA" and hit["city"] == "lagos"
+    vi = (await client.get("/v1/places/resolve", params={"q": "VI"})).json()
+    assert vi["name"] == "Victoria Island"
+    assert (await client.get("/v1/places/resolve", params={"q": "Wuse 2 Abuja"})).status_code == 404
+    # Every area resolves inside a delivery zone of its own city, so parcels can be priced.
+    cfg = await client.get("/v1/config/public")
+    zones = cfg.json()["zones"]
+    assert zones and all(a["city"] in {"lagos", "enugu"} for a in lagos + enugu)

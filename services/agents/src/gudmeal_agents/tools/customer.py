@@ -1,4 +1,5 @@
-"""Customer-facing tools: discovery, budget meal planning, order drafting, checkout (with approval), tracking."""
+"""Customer-facing tools: discovery (food and beauty), budget meal planning, order drafting, checkout (with
+approval), tracking."""
 
 from __future__ import annotations
 
@@ -100,8 +101,22 @@ def order_summary(order: dict[str, Any]) -> dict[str, Any]:
 # ------------------------------------------------------------------------------------------------
 
 
+Service = Literal["food", "beauty"]
+
+
 class SearchRestaurantsArgs(ToolArgs):
-    query: str | None = Field(default=None, max_length=60, description="Dish, cuisine or restaurant name")
+    service: Service = Field(
+        default="food", description="'food' for restaurants, 'beauty' for beauty & skin care shops"
+    )
+    query: str | None = Field(
+        default=None, max_length=60, description="Dish, cuisine, product type or shop name"
+    )
+    category: str | None = Field(
+        default=None,
+        max_length=30,
+        description="Browse category id: food: promotions, local, international, snacks, grills, healthy, "
+        "drinks; beauty: promotions, skincare, bodycare, haircare, makeup, fragrance, men",
+    )
     cuisine: str | None = Field(default=None, max_length=40)
     open_now: bool = True
     limit: int = Field(default=5, ge=1, le=10)
@@ -109,8 +124,11 @@ class SearchRestaurantsArgs(ToolArgs):
 
 class SearchFoodArgs(ToolArgs):
     query: str = Field(
-        min_length=2, max_length=60, description="What the customer wants to eat, e.g. 'jollof'"
+        min_length=2,
+        max_length=60,
+        description="What the customer wants, e.g. 'jollof', 'suya', 'sunscreen', 'shea butter'",
     )
+    service: Service | None = Field(default=None, description="Limit to 'food' or 'beauty'; omit for both")
     limit: int = Field(default=8, ge=1, le=15)
 
 
@@ -191,6 +209,8 @@ async def search_restaurants(args: SearchRestaurantsArgs, ctx: ToolContext) -> T
     loc = (addr or {}).get("location") or {}
     cards = await ctx.api.get(
         "/v1/restaurants",
+        vertical=args.service,
+        category=args.category,
         q=args.query,
         cuisine=args.cuisine,
         open_now=args.open_now,
@@ -201,8 +221,10 @@ async def search_restaurants(args: SearchRestaurantsArgs, ctx: ToolContext) -> T
     results = [
         {
             "restaurant_id": c["id"],
+            "service": c.get("vertical", "food"),
             "name": c["name"],
             "cuisines": c["cuisines"],
+            "promotions": [f"{p['label']} (code {p['code']})" for p in c.get("promotions", [])],
             "rating": c["rating"],
             "is_open": c["is_open"],
             "area": c["area"],
@@ -218,12 +240,14 @@ async def search_restaurants(args: SearchRestaurantsArgs, ctx: ToolContext) -> T
 
 
 async def search_food_items(args: SearchFoodArgs, ctx: ToolContext) -> ToolOutput:
-    found = await ctx.api.get("/v1/search", q=args.query)
+    found = await ctx.api.get("/v1/search", q=args.query, vertical=args.service)
     items = [
         {
             "item_id": r["item"]["id"],
-            "name": r["item"]["name"],
+            "name": r["item"]["name"]
+            + (f" ({r['item']['unit_label']})" if r["item"].get("unit_label") else ""),
             "price": naira(r["item"]["price_kobo"]),
+            "service": r.get("vertical", "food"),
             "restaurant_id": r["restaurant_id"],
             "restaurant": r["restaurant_name"],
             "available": r["item"]["is_available"],
@@ -504,10 +528,18 @@ async def list_saved_addresses(args: NoArgs, ctx: ToolContext) -> ToolOutput:
 async def get_delivery_tracking(args: OptionalOrderArgs, ctx: ToolContext) -> ToolOutput:
     order_id = args.order_id or ctx.artifacts.get("last_order_id")
     if not order_id:
-        raise ToolError("invalid_arguments", "Which order should I track?")
+        latest = await ctx.api.get("/v1/orders", limit=1)
+        if not latest:
+            return ToolOutput({"message": "No orders yet"})
+        order_id = latest[0]["id"]
+    order = await ctx.api.get(f"/v1/orders/{order_id}")
     t = await ctx.api.get(f"/v1/orders/{order_id}/tracking")
     return ToolOutput(
         {
+            "order_id": order_id,
+            "short_code": order["short_code"],
+            "restaurant": order["restaurant_name"],
+            "status_label": order.get("progress", {}).get("label"),
             "status": t["status"],
             "rider": t.get("rider_name"),
             "eta_minutes": t.get("eta_minutes"),
@@ -522,7 +554,9 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "search_restaurants",
-            "Find restaurants (open now by default) near the customer's delivery address.",
+            "Find restaurants (service='food') or beauty & skin care shops (service='beauty'), open now by "
+            "default, near the customer's delivery address. Optional browse category such as 'local' or "
+            "'skincare'.",
             SearchRestaurantsArgs,
             search_restaurants,
             EVERYONE,
@@ -531,7 +565,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "search_food_items",
-            "Search dishes across restaurants by name or keyword.",
+            "Search dishes and beauty products by name or keyword across all partner restaurants and shops.",
             SearchFoodArgs,
             search_food_items,
             EVERYONE,
@@ -540,7 +574,8 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_restaurant_menu",
-            "Get a restaurant's live menu with item ids, prices and required choices.",
+            "Get a restaurant's menu or a beauty shop's product list, with item ids, prices and required "
+            "choices (e.g. protein or shade).",
             MenuArgs,
             get_restaurant_menu,
             EVERYONE,
