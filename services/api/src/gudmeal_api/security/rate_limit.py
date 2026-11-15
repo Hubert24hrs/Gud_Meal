@@ -47,6 +47,9 @@ LIMITS: dict[str, tuple[int, float]] = {
     "order_create": (10, 0.1),
     "checkout": (10, 0.1),
     "wallet_topup": (10, 0.1),
+    "plus": (10, 0.1),
+    "rewards": (20, 0.2),  # applying referral codes, redeeming points
+    "group_join": (10, 0.05),  # joining a group order by code (slows down code guessing)
     "payout": (10, 0.05),
     "track": (30, 0.5),  # public waybill tracking, per client address
     "payment_verify": (20, 0.3),

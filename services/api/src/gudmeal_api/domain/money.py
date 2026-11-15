@@ -50,6 +50,25 @@ def clamp(value: int, lower: int, upper: int) -> int:
     return max(lower, min(upper, value))
 
 
+def allocate(weights: dict[str, int], amount_kobo: int) -> dict[str, int]:
+    """Split `amount_kobo` in proportion to non-negative integer weights (largest remainder method).
+
+    The parts always add up exactly to the amount; ties go to the earlier key, so the result is deterministic.
+    """
+    if amount_kobo < 0 or any(w < 0 for w in weights.values()):
+        raise ValueError("allocate expects non-negative amounts and weights")
+    total = sum(weights.values())
+    if total <= 0:
+        raise ValueError("allocate needs at least one positive weight")
+    raw = {k: amount_kobo * w for k, w in weights.items()}
+    parts = {k: r // total for k, r in raw.items()}
+    left = amount_kobo - sum(parts.values())
+    keys = list(weights)
+    for k in sorted(keys, key=lambda k: (-(raw[k] % total), keys.index(k)))[:left]:
+        parts[k] += 1
+    return parts
+
+
 def format_naira(kobo: int) -> str:
     """Human formatting used in notifications and AI summaries: 1_000_000 -> '₦10,000'."""
     sign = "-" if kobo < 0 else ""

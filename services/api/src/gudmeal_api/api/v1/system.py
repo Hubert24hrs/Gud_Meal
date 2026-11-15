@@ -54,6 +54,12 @@ async def reconcile_payments(c: Ctr, _caller: InternalCaller) -> dict[str, int]:
     return await c.payments.reconcile_stale()
 
 
+@internal.post("/jobs/renew-plus")
+async def renew_plus(c: Ctr, _caller: InternalCaller) -> dict[str, int]:
+    """Daily (Cloud Scheduler): renew Gud Meal Plus from wallets; remind members who can't be charged."""
+    return await c.membership.renew_due()
+
+
 @internal.post("/jobs/sweep")
 async def sweep(c: Ctr, _caller: InternalCaller) -> dict[str, int]:
     """Repairs work whose triggering event may have been lost (idempotent)."""

@@ -49,6 +49,7 @@ from .services.infra import (
     TaskQueue,
     TaskRouter,
 )
+from .services.membership import MembershipService
 from .services.orders import OrderService
 from .services.parcels import ParcelService
 from .services.payments import PaymentService
@@ -87,6 +88,7 @@ class Container:
     wallet: WalletService
     cash: CashService
     waybills: WaybillService
+    membership: MembershipService
     orders: OrderService
     dispatch: DispatchService
     profiles: ProfileService
@@ -309,6 +311,7 @@ async def build_container(
             audit=audit,
             unpaid_order_ttl_seconds=settings.unpaid_order_ttl_seconds,
         ),
+        membership=MembershipService(repos, payments, db=db, ledger=ledger, notifier=notifier),
         orders=orders,
         dispatch=dispatch,
         profiles=ProfileService(repos),
@@ -378,6 +381,7 @@ def register_handlers(c: Container) -> None:
     h.on("refund.succeeded", c.orders.on_refund_succeeded)
     h.on("refund.succeeded", refund_in_wallet)
     h.on("wallet.topped_up", wallet_topped_up)
+    h.on("plus.paid", c.membership.on_paid)
     h.on("order.cancelled", c.payments.on_order_cancelled)
     h.on("order.cancelled", c.dispatch.on_order_called_off)
     h.on("order.refund_pending", c.dispatch.on_order_called_off)

@@ -7,6 +7,7 @@ from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel
 
+from ..domain.growth import GroupOrder, GrowthConfig, Membership, RewardsAccount
 from ..domain.logistics import WaybillNetwork, default_network
 from ..domain.models import (
     Application,
@@ -102,6 +103,10 @@ class Repositories:
         self.tickets = TypedCollection(store, "support_tickets", SupportTicket)
         self.applications = TypedCollection(store, "applications", Application)
         self.notifications = TypedCollection(store, "notifications", Notification)
+        # Growth (ADR-0016): Plus memberships, Gud points and referrals, group orders.
+        self.memberships = TypedCollection(store, "memberships", Membership, key="uid")
+        self.rewards = TypedCollection(store, "loyalty_accounts", RewardsAccount, key="uid")
+        self.group_orders = TypedCollection(store, "group_orders", GroupOrder)
 
     # --- menus ------------------------------------------------------------------------------
     async def get_menu_categories(self, restaurant_id: str) -> list[MenuCategory]:
@@ -161,6 +166,13 @@ class Repositories:
 
     async def save_pricing_config(self, cfg: PricingConfig) -> None:
         await self.store.set("platform_configuration/pricing", to_doc(cfg))
+
+    async def get_growth_config(self) -> GrowthConfig:
+        doc = await self.store.get("platform_configuration/growth")
+        return GrowthConfig.model_validate(doc) if doc else GrowthConfig()
+
+    async def save_growth_config(self, cfg: GrowthConfig) -> None:
+        await self.store.set("platform_configuration/growth", to_doc(cfg))
 
     async def get_waybill_network(self) -> WaybillNetwork:
         doc = await self.store.get("platform_configuration/logistics")

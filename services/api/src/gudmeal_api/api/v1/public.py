@@ -167,6 +167,14 @@ async def public_config(c: Ctr) -> dict[str, Any]:
             "max_order_kobo": c.settings.pay_on_delivery_max_kobo,
         },
         "cash_on_delivery": {"max_kobo": cfg.parcel.cod_max_kobo, "fee_bps": cfg.parcel.cod_fee_bps},
+        "plus": {
+            "enabled": cfg.plus.enabled,
+            "price_kobo": cfg.plus.price_kobo,
+            "period_days": cfg.plus.period_days,
+            "free_delivery_min_subtotal_kobo": cfg.plus.free_delivery_min_subtotal_kobo,
+            "service_fee_discount_bps": cfg.plus.service_fee_discount_bps,
+            "points_multiplier": cfg.plus.points_multiplier,
+        },
         "cities": [{"id": x.id, "name": x.name} for x in CITIES.values()],
         "support": {
             "whatsapp": c.settings.support_whatsapp,

@@ -92,11 +92,12 @@ INTERNAL_PROVIDERS = ("wallet", "cash")
 
 
 class PaymentRecord(Base):
-    """Money a customer pays: for an order (gateway, wallet or cash on delivery) or to top up their wallet."""
+    """Money a customer pays: for an order (gateway, wallet or cash on delivery), a share of a group order,
+    a Gud Meal Plus membership, or to top up their wallet."""
 
     __tablename__ = "payment_records"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    order_id: Mapped[str | None] = mapped_column(String(64), index=True)  # None for wallet top-ups
+    order_id: Mapped[str | None] = mapped_column(String(64), index=True)  # None: top-ups and Plus
     customer_id: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
     purpose: Mapped[str] = mapped_column(String(16), nullable=False, default="order", server_default="order")
     provider: Mapped[str] = mapped_column(String(24), nullable=False)
@@ -120,8 +121,12 @@ class PaymentRecord(Base):
             "status IN ('initialized','pending','succeeded','failed','abandoned','flagged')",
             name="ck_payment_status",
         ),
-        CheckConstraint("purpose IN ('order','wallet_topup')", name="ck_payment_purpose"),
-        CheckConstraint("purpose <> 'order' OR order_id IS NOT NULL", name="ck_payment_order_ref"),
+        CheckConstraint(
+            "purpose IN ('order','wallet_topup','plus','group_share')", name="ck_payment_purpose"
+        ),
+        CheckConstraint(
+            "purpose NOT IN ('order','group_share') OR order_id IS NOT NULL", name="ck_payment_order_ref"
+        ),
         Index("ix_payment_records_status_created", "status", "created_at"),
     )
 

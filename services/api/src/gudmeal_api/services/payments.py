@@ -13,6 +13,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
 from ..domain.models import Order
+from ..domain.pricing import vat_inclusive_split
 from ..errors import NotFound, PaymentProviderError, Unauthenticated, ValidationFailed
 from ..ledger import ledger as postings
 from ..ledger.audit import AuditLog
@@ -212,11 +213,131 @@ class PaymentService:
             metadata={"purpose": "wallet_topup", "customer_id": principal.uid},
         )
 
+    async def start_plus_checkout(
+        self, principal: Principal, amount_kobo: int, provider_name: str | None, idempotency_key: str
+    ) -> dict[str, Any]:
+        """Hosted checkout for Gud Meal Plus; the membership starts once the gateway payment is verified."""
+        return await self._hosted_checkout(
+            self.gateways(provider_name),
+            purpose="plus",
+            order_id=None,
+            customer_id=principal.uid,
+            amount_kobo=amount_kobo,
+            reference_stem="GM-PLUS",
+            idempotency_key=f"plus:{principal.uid}:{idempotency_key}",
+            principal=principal,
+            callback_url=f"{self.callback_url}?purpose=plus",
+            metadata={"purpose": "plus", "customer_id": principal.uid},
+        )
+
+    async def pay_plus_with_wallet(
+        self, uid: str, amount_kobo: int, vat_kobo: int, idempotency_key: str, *, renewal: bool = False
+    ) -> dict[str, Any]:
+        """Pay for Gud Meal Plus from the wallet (joining, or an automatic renewal)."""
+        reference = f"GM-PLUS-W{secrets.token_hex(4).upper()}"
+        return await self._wallet_debit(
+            uid=uid,
+            amount_kobo=amount_kobo,
+            purpose="plus",
+            order_id=None,
+            reference=reference,
+            idempotency_key=f"plus:{uid}:{idempotency_key}",
+            ledger_kind="plus_payment",
+            entries=postings.plus_paid(postings.wallet_account(uid), amount_kobo, vat_kobo),
+            description="Gud Meal Plus renewal" if renewal else "Gud Meal Plus",
+            event_type="plus.paid",
+            event_payload={"customer_id": uid, "renewal": renewal},
+            what="Gud Meal Plus",
+        )
+
+    async def _wallet_debit(
+        self,
+        *,
+        uid: str,
+        amount_kobo: int,
+        purpose: Literal["plus", "group_share"],
+        order_id: str | None,
+        reference: str,
+        idempotency_key: str,
+        ledger_kind: str,
+        entries: list[postings.Posting],
+        description: str,
+        event_type: str,
+        event_payload: dict[str, Any],
+        what: str,
+    ) -> dict[str, Any]:
+        """Charge a customer's wallet under its account lock: balance check, succeeded payment record, ledger
+        posting and outbox event in one database transaction (the same request twice charges once)."""
+        if not self.wallet_enabled:
+            raise ValidationFailed("The Gud Meal wallet is not available right now")
+        now = utcnow()
+        account = postings.wallet_account(uid)
+        async with self.db.transaction() as s:
+            prior = await s.scalar(
+                select(PaymentRecord).where(PaymentRecord.idempotency_key == idempotency_key)
+            )
+            if prior is not None:
+                return self._init_view(prior)
+            await self.ledger.lock_account(s, account)
+            balance = await self.ledger.balance(s, account)
+            if balance < amount_kobo:
+                raise ValidationFailed(
+                    f"Your Gud Meal wallet balance is too low for {what}",
+                    details={
+                        "balance_kobo": balance,
+                        "needed_kobo": amount_kobo,
+                        "short_by_kobo": amount_kobo - balance,
+                    },
+                )
+            rec = PaymentRecord(
+                id=new_id(),
+                order_id=order_id,
+                customer_id=uid,
+                purpose=purpose,
+                provider="wallet",
+                reference=reference,
+                amount_kobo=amount_kobo,
+                currency="NGN",
+                status="succeeded",
+                channel="wallet",
+                paid_at=now,
+                idempotency_key=idempotency_key,
+                created_at=now,
+                updated_at=now,
+            )
+            s.add(rec)
+            await s.flush()
+            await self.ledger.post(
+                s,
+                kind=ledger_kind,
+                idempotency_key=f"payment:{rec.id}:captured",
+                postings=entries,
+                created_by="payments:wallet",
+                reference=reference,
+                order_id=order_id,
+                description=description,
+            )
+            add_outbox_event(
+                s,
+                event_type,
+                {
+                    **event_payload,
+                    "payment_id": rec.id,
+                    "provider": "wallet",
+                    "reference": reference,
+                    "amount_kobo": amount_kobo,
+                    "paid_at": now.isoformat(),
+                },
+            )
+            view = self._init_view(rec)
+        await self.relay.relay_pending()
+        return view
+
     async def _hosted_checkout(
         self,
         names: list[str],
         *,
-        purpose: Literal["order", "wallet_topup"],
+        purpose: Literal["order", "wallet_topup", "plus", "group_share"],
         order_id: str | None,
         customer_id: str,
         amount_kobo: int,
@@ -594,6 +715,31 @@ class PaymentService:
                                 "payment_id": row.id,
                                 "reference": row.reference,
                                 "amount_kobo": row.amount_kobo,
+                            },
+                        )
+                    elif row.purpose == "plus":
+                        cfg = await self.repos.get_pricing_config()
+                        _, vat = vat_inclusive_split(row.amount_kobo, cfg.vat_bps)
+                        await self.ledger.post(
+                            s,
+                            kind="plus_payment",
+                            idempotency_key=f"payment:{row.id}:captured",
+                            postings=postings.plus_paid(f"cash:{row.provider}", row.amount_kobo, vat),
+                            created_by=f"payments:{source}",
+                            reference=row.reference,
+                            description="Gud Meal Plus",
+                        )
+                        add_outbox_event(
+                            s,
+                            "plus.paid",
+                            {
+                                "customer_id": row.customer_id,
+                                "payment_id": row.id,
+                                "provider": row.provider,
+                                "reference": row.reference,
+                                "amount_kobo": row.amount_kobo,
+                                "paid_at": (row.paid_at or now).isoformat(),
+                                "renewal": False,
                             },
                         )
                     else:

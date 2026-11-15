@@ -15,7 +15,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .api.v1 import admin, customer, discover, partner, public, rider, system, wallet, waybills
+from .api.v1 import admin, customer, discover, growth, partner, public, rider, system, wallet, waybills
 from .config import Settings, get_settings
 from .container import Container, build_container
 from .errors import DomainError
@@ -162,6 +162,8 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
         waybills.public,
         waybills.router,
         waybills.admin,
+        growth.router,
+        growth.admin,
         partner.router,
         rider.router,
         admin.router,
