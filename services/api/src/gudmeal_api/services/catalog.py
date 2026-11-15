@@ -399,8 +399,8 @@ class CatalogService:
                 "name": "Package Delivery",
                 "tagline": "Send packages across the city by bike, now or at a time you choose",
                 "available": city is None or city in parcel_cities,
-                "options": ["instant", "scheduled"],
-                "coming_soon": ["cash_on_delivery", "interstate"],
+                "options": ["instant", "scheduled", "cash_on_delivery"],
+                "coming_soon": ["interstate"],
                 "cities": parcel_cities,
             },
         ]

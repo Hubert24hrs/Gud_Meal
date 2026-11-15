@@ -124,6 +124,77 @@ void main() {
       expect(newIdempotencyKey(), isNot(newIdempotencyKey()));
       expect(newIdempotencyKey('rider').startsWith('rider-'), isTrue);
     });
+
+    test('discover feed: query and parsing', () async {
+      final adapter = FakeAdapter(200, {
+        'city': 'lagos',
+        'generated_at': '2026-11-15T10:00:00Z',
+        'sections': [
+          {
+            'id': 'most_loved',
+            'title': 'Most loved dishes',
+            'subtitle': 'What everyone near you is ordering',
+            'dishes': [
+              {
+                'item_id': 'jj-party-jollof',
+                'restaurant_id': 'r-jollof-junction',
+                'restaurant_name': 'Jollof Junction',
+                'area': 'Lekki Phase 1',
+                'city': 'lagos',
+                'name': 'Party Jollof Rice',
+                'description': 'Smoky firewood jollof.',
+                'price_kobo': 550000,
+                'image_url': null,
+                'art': 'rice',
+                'kind': 'main',
+                'tags': ['jollof', 'chicken'],
+                'dietary': [],
+                'allergens': ['celery'],
+                'spice_level': 1,
+                'serves': 1,
+                'prep_minutes': 18,
+                'likes': 980,
+                'rating': 4.7,
+                'rating_count': 1240,
+                'eyebrow': '#1 Most loved dish',
+                'has_options': true,
+                'is_available': true,
+                'is_open': false,
+                'is_accepting_orders': true,
+                'is_new_kitchen': false,
+                'distance_km': 0.4,
+                'eta_minutes': 24,
+                'delivery_fee_kobo': 60000,
+                'delivers_to_location': true,
+                'future_field': 'ignored',
+              },
+            ],
+          },
+          {'id': 'new_kitchens', 'title': 'New kitchen discoveries', 'subtitle': '', 'dishes': []},
+        ],
+      });
+      final dio = Dio(BaseOptions(baseUrl: 'http://api.test'))..httpClientAdapter = adapter;
+      final api = GudMealApi(baseUrl: 'http://api.test', token: () async => null, dio: dio);
+      final feed = await api.discover(city: 'lagos', near: const GeoPoint(lat: 6.44, lng: 3.47), limit: 5);
+
+      final q = adapter.requests.single;
+      expect(q.path, '/v1/discover/dishes');
+      expect(q.queryParameters, {'city': 'lagos', 'lat': 6.44, 'lng': 3.47, 'limit': 5});
+      expect(feed.city, 'lagos');
+      expect(feed.sections, hasLength(2));
+      expect(feed.nonEmpty.map((s) => s.id), ['most_loved']);
+      expect(feed.sections.first.shortTitle, 'Most loved');
+      final dish = feed.sections.first.dishes.single;
+      expect(dish.name, 'Party Jollof Rice');
+      expect(dish.priceKobo, 550000);
+      expect(dish.art, 'rice');
+      expect(dish.rating, 4.7);
+      expect(dish.likes, 980);
+      expect(dish.hasOptions, isTrue);
+      expect(dish.canOrderNow, isFalse, reason: 'the kitchen is closed');
+      expect(dish.highlights, ['jollof', 'chicken', 'contains celery']);
+      expect(dish.deliveryFeeKobo, 60000);
+    });
   });
 
   test('fake auth repository signs in and out', () async {

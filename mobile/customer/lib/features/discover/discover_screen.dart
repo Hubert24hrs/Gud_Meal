@@ -8,8 +8,16 @@ import 'package:gud_meal_core/gud_meal_core.dart';
 import '../../providers.dart';
 import '../../ui/components.dart';
 import '../../widgets.dart';
+import 'dish_orbit_carousel.dart';
 
-/// Discover: search everything (food and beauty) and see what's in demand near you.
+/// Dish-first feed for the Discover tab near the selected area: most loved, new kitchens, top rated.
+final discoverFeedProvider = FutureProvider<DiscoverFeed>((ref) {
+  final area = ref.watch(areaProvider);
+  return ref.watch(apiProvider).discover(city: area.city, near: area.location);
+});
+
+/// Discover: the dish carousel (most loved dishes, new kitchens, top-rated kitchens), search across
+/// food and beauty, and the stores most in demand near you.
 class DiscoverScreen extends ConsumerStatefulWidget {
   const DiscoverScreen({super.key});
 
@@ -20,6 +28,7 @@ class DiscoverScreen extends ConsumerStatefulWidget {
 class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   String _query = '';
   Timer? _debounce;
+  String? _section;
 
   @override
   void dispose() {
@@ -75,6 +84,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
         if (_query.length >= 2)
           SliverToBoxAdapter(child: _Results(query: _query))
         else ...[
+          SliverToBoxAdapter(child: _dishFeed(context)),
           const SliverToBoxAdapter(child: SectionTitle('Most in demand', info: 'Where everyone is ordering, available now')),
           SliverToBoxAdapter(
             child: Padding(
@@ -90,6 +100,86 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             SliverList.builder(itemCount: demand.length.clamp(0, 12), itemBuilder: (_, i) => _DemandRow(merchant: demand[i])),
         ],
         const SliverToBoxAdapter(child: SizedBox(height: 96)),
+      ]),
+    );
+  }
+
+  /// Section chips + the dish orbit carousel. If the feed can't load, the stores below still work.
+  Widget _dishFeed(BuildContext context) {
+    final theme = Theme.of(context);
+    final feed = ref.watch(discoverFeedProvider);
+    return feed.when(
+      loading: () => const _FeedPlaceholder(),
+      error: (e, _) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: ErrorRetry(error: e, onRetry: () => ref.invalidate(discoverFeedProvider)),
+      ),
+      data: (data) {
+        final sections = data.nonEmpty;
+        if (sections.isEmpty) return const SizedBox.shrink();
+        final selected = sections.firstWhere((s) => s.id == _section, orElse: () => sections.first);
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                for (final s in sections)
+                  FilterPill(
+                    label: s.shortTitle,
+                    icon: switch (s.id) {
+                      'most_loved' => Icons.local_fire_department_rounded,
+                      'new_kitchens' => Icons.storefront_rounded,
+                      _ => Icons.star_rounded,
+                    },
+                    selected: s.id == selected.id,
+                    onTap: () => setState(() => _section = s.id),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Text(selected.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          ),
+          if (selected.subtitle.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 2, 16, 0),
+              child: Text(selected.subtitle, style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+            ),
+          DishOrbitCarousel(
+            dishes: selected.dishes,
+            onOrder: (dish) => context.push('/restaurants/${dish.restaurantId}?item=${Uri.encodeQueryComponent(dish.itemId)}'),
+            onAskGudy: (dish) => context.push(
+              '/assistant?q=${Uri.encodeQueryComponent('Tell me about the ${dish.name} from ${dish.restaurantName}. What does it come with, and what would it cost delivered to me?')}',
+            ),
+          ),
+        ]);
+      },
+    );
+  }
+}
+
+/// Shown while the dish feed loads: a soft plate and title placeholders.
+class _FeedPlaceholder extends StatelessWidget {
+  const _FeedPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = Theme.of(context).colorScheme.onSurface.withValues(alpha: .06);
+    Widget bar(double w, double h) => Container(width: w, height: h, decoration: BoxDecoration(color: tone, borderRadius: BorderRadius.circular(8)));
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      child: Column(children: [
+        Container(width: 190, height: 190, decoration: BoxDecoration(color: tone, shape: BoxShape.circle)),
+        const SizedBox(height: 18),
+        bar(120, 12),
+        const SizedBox(height: 10),
+        bar(200, 28),
+        const SizedBox(height: 8),
+        bar(160, 34),
       ]),
     );
   }

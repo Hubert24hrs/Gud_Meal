@@ -5,7 +5,9 @@ import { Button, Card, EmptyState, ErrorState, Field, Input, Price, Select, Skel
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Bike, ShieldCheck, Store } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { checkoutProvider, continueAfterCheckout, PaymentMethodPicker, type PayMethod } from "@/components/payment-method";
 import { RequireAuth } from "@/components/require-auth";
 import { useApi } from "@/lib/api";
 import { toCartLines, useCart } from "@/lib/cart";
@@ -31,8 +33,10 @@ function Checkout() {
   const [instructions, setInstructions] = useState("");
   const [voucher, setVoucher] = useState("");
   const [appliedVoucher, setAppliedVoucher] = useState<string | null>(null);
+  const [method, setMethod] = useState<PayMethod>("card");
+  const router = useRouter();
   const orderKey = useRef(newIdempotencyKey("order"));
-  const checkoutKey = useRef(newIdempotencyKey("checkout"));
+  const checkoutKeys = useRef<Partial<Record<PayMethod, string>>>({});
 
   const addresses = useQuery({ queryKey: ["addresses"], queryFn: () => api.me.addresses() });
   useEffect(() => {
@@ -65,11 +69,13 @@ function Checkout() {
         await api.me.addAddress({ ...address, label: "Saved at checkout" }).catch(() => undefined);
       }
       const order = await api.orders.create(q.id, orderKey.current, "web", phone || undefined);
-      return api.orders.checkout(order.id, checkoutKey.current);
+      // One key per payment method: switching method after a refusal is a new request, a retry is not.
+      const key = (checkoutKeys.current[method] ??= newIdempotencyKey("checkout"));
+      return api.orders.checkout(order.id, key, checkoutProvider(method));
     },
     onSuccess: (res) => {
       clear();
-      window.location.assign(res.authorization_url);
+      continueAfterCheckout(res, router.push);
     },
   });
 
@@ -134,6 +140,12 @@ function Checkout() {
         )}
 
         <Card className="space-y-3 p-5">
+          <h2 className="font-semibold">Payment</h2>
+          <PaymentMethodPicker totalKobo={quote.data?.breakdown.total_kobo ?? null} value={method} onChange={setMethod}
+            cash={{ offered: true, reason: fulfillment === "pickup" ? "Only for delivery orders" : null }} />
+        </Card>
+
+        <Card className="space-y-3 p-5">
           <h2 className="font-semibold">Voucher</h2>
           <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); setAppliedVoucher(voucher.trim().toUpperCase() || null); }}>
             <label htmlFor="voucher" className="sr-only">Voucher code</label>
@@ -171,11 +183,15 @@ function Checkout() {
           {placeOrder.error && <ErrorState message={(placeOrder.error as Error).message} />}
           <Button block size="lg" disabled={!quote.data || placeOrder.isPending} loading={placeOrder.isPending}
             onClick={() => quote.data && placeOrder.mutate(quote.data)}>
-            Pay {quote.data ? formatNaira(quote.data.breakdown.total_kobo) : ""}
+            {method === "cash"
+              ? `Place order · pay ${quote.data ? formatNaira(quote.data.breakdown.total_kobo) : ""} on delivery`
+              : `Pay ${quote.data ? formatNaira(quote.data.breakdown.total_kobo) : ""}${method === "wallet" ? " from wallet" : ""}`}
           </Button>
           <p className="flex items-start gap-2 text-xs text-muted">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" aria-hidden="true" />
-            You&apos;ll pay on a secure payment page. Your order is sent to the kitchen once we verify the payment.
+            {method === "card" && "You'll pay on a secure payment page. Your order is sent to the kitchen once we verify the payment."}
+            {method === "wallet" && "Paid instantly from your Gud Meal wallet. If the order is cancelled, the money goes straight back."}
+            {method === "cash" && "Your order goes to the kitchen now. Pay the rider in cash when it arrives, then share your delivery code."}
           </p>
         </Card>
       </aside>

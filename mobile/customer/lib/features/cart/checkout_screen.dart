@@ -5,6 +5,7 @@ import 'package:gud_meal_core/gud_meal_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers.dart';
+import '../../ui/payment_picker.dart';
 import 'cart_controller.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
@@ -23,7 +24,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _error;
   bool _busy = false;
   final _orderKey = newIdempotencyKey('order');
-  final _checkoutKey = newIdempotencyKey('checkout');
+  // One key per method: switching method after a refusal is a new request, a retry is not.
+  final _checkoutKeys = <PayMethod, String>{};
+  PayMethod _method = PayMethod.card;
 
   @override
   void dispose() {
@@ -73,10 +76,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     try {
       final api = ref.read(apiProvider);
       final order = await api.createOrder(quote.id, _orderKey, contactPhone: _phone.text.trim().isEmpty ? null : _phone.text.trim());
-      final checkout = await api.checkout(order.id, _checkoutKey);
+      final key = _checkoutKeys.putIfAbsent(_method, () => newIdempotencyKey('checkout'));
+      final checkout = await api.checkout(order.id, key, provider: _method.provider);
       ref.read(cartProvider.notifier).clear();
+      ref.invalidate(walletProvider);
+      final url = checkout.authorizationUrl;
+      if (url == null) {
+        // Wallet and pay-on-delivery orders are placed already: go straight to tracking.
+        if (mounted) context.go('/orders/${order.id}');
+        return;
+      }
       // Provider-hosted payment page: card data never touches the app.
-      await launchUrl(Uri.parse(checkout.authorizationUrl), mode: LaunchMode.inAppBrowserView);
+      await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);
       if (mounted) context.go('/orders/${order.id}?ref=${checkout.reference}');
     } on ApiException catch (e) {
       setState(() => _error = e.message);
@@ -146,6 +157,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           _row('Total', b.totalKobo, bold: true),
           Text('Arrives around ${formatLagosTime(_quote!.estimatedDeliveryAt)} · price held until ${formatLagosTime(_quote!.expiresAt)}',
               style: theme.textTheme.bodySmall),
+          const SizedBox(height: 16),
+          Text('Pay with', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          PaymentMethodPicker(
+            totalKobo: b.totalKobo,
+            value: _method,
+            onChanged: (m) => setState(() => _method = m),
+            cashReason: _fulfillment == 'pickup' ? 'Only for delivery orders' : null,
+          ),
         ],
         if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: theme.colorScheme.error))),
       ]),
@@ -154,7 +173,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           padding: const EdgeInsets.all(16),
           child: FilledButton(
             onPressed: _busy ? null : (_quote == null ? _getQuote : _pay),
-            child: Text(_busy ? 'Please wait…' : _quote == null ? 'Review total' : 'Pay ${formatNaira(_quote!.breakdown.totalKobo)}'),
+            child: Text(_busy
+                ? 'Please wait…'
+                : _quote == null
+                    ? 'Review total'
+                    : switch (_method) {
+                        PayMethod.cash => 'Place order · pay ${formatNaira(_quote!.breakdown.totalKobo)} on delivery',
+                        PayMethod.wallet => 'Pay ${formatNaira(_quote!.breakdown.totalKobo)} from wallet',
+                        PayMethod.card => 'Pay ${formatNaira(_quote!.breakdown.totalKobo)}',
+                      }),
           ),
         ),
       ),

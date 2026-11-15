@@ -130,6 +130,7 @@ final orderProvider = FutureProvider.family<Order, String>((ref, id) => ref.watc
 final addressesProvider = FutureProvider<List<DeliveryAddress>>((ref) => ref.watch(apiProvider).addresses());
 final orderSummaryProvider = FutureProvider<OrderSummary>((ref) => ref.watch(apiProvider).orderSummary());
 final supportContactsProvider = FutureProvider<SupportContacts>((ref) => ref.watch(apiProvider).supportContacts());
+final walletProvider = FutureProvider<WalletOverview>((ref) => ref.watch(apiProvider).wallet());
 
 /// Favourite stores (hearts). Kept on the device for now.
 class FavouritesController extends Notifier<Set<String>> {

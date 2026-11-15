@@ -98,6 +98,17 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
               ]),
             if (o.estimatedDeliveryAt != null && step < 5)
               Padding(padding: const EdgeInsets.only(top: 12), child: Text('Estimated arrival: ${formatLagosTime(o.estimatedDeliveryAt)}')),
+            if (o.payment.provider == 'cash' && o.payment.status != 'paid' && !['cancelled', 'draft', 'pending_payment'].contains(o.status))
+              Card(
+                color: theme.colorScheme.secondaryContainer,
+                margin: const EdgeInsets.only(top: 12),
+                child: ListTile(
+                  leading: const Icon(Icons.payments_rounded),
+                  title: Text('Pay ${formatNaira(o.breakdown?.totalKobo)} in cash when it arrives',
+                      style: const TextStyle(fontWeight: FontWeight.w800)),
+                  subtitle: const Text('Have the exact amount ready if you can. Share your delivery code after you pay.'),
+                ),
+              ),
             if (o.riderName != null)
               ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.delivery_dining_rounded), title: Text(o.riderName!), subtitle: const Text('Your rider')),
             if (step >= 1 && step < 5) _DeliveryCode(orderId: o.id, recipient: parcel?.dropoff.name),
@@ -114,6 +125,15 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
                     _Stop(icon: Icons.trip_origin_rounded, title: 'Pickup', stop: parcel.pickup),
                     const SizedBox(height: 8),
                     _Stop(icon: Icons.location_on_rounded, title: 'Drop-off', stop: parcel.dropoff),
+                    if ((parcel.codAmountKobo ?? 0) > 0) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        o.cashCollectedAt != null
+                            ? 'Collected ${formatNaira(parcel.codAmountKobo)} from ${parcel.dropoff.name}: it is in your wallet as cash-on-delivery money.'
+                            : 'The rider collects ${formatNaira(parcel.codAmountKobo)} from ${parcel.dropoff.name} for you.',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ]),
                 ),
               ),
@@ -129,6 +149,18 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
               const Expanded(child: Text('Total', style: TextStyle(fontWeight: FontWeight.w800))),
               Text(formatNaira(o.breakdown?.totalKobo), style: const TextStyle(fontWeight: FontWeight.w800)),
             ]),
+            if (o.payment.provider == 'wallet' && o.payment.status != 'unpaid')
+              const Padding(padding: EdgeInsets.only(top: 4), child: Text('Paid from your Gud Meal wallet')),
+            if (o.payment.provider == 'cash' && o.payment.status == 'paid')
+              const Padding(padding: EdgeInsets.only(top: 4), child: Text('Paid in cash on delivery')),
+            if (o.refundTotalKobo > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'Refunded ${formatNaira(o.refundTotalKobo)}${['wallet', 'cash'].contains(o.payment.provider) ? ' to your wallet' : ''}',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
             if (['draft', 'pending_payment', 'submitted_to_restaurant'].contains(o.status) ||
                 (parcel != null && ['paid', 'ready_for_pickup'].contains(o.status)))
               Padding(

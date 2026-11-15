@@ -8,12 +8,44 @@ import '../../ui/components.dart';
 import '../../widgets.dart';
 import '../cart/cart_controller.dart';
 
-class RestaurantScreen extends ConsumerWidget {
-  const RestaurantScreen({super.key, required this.id});
+class RestaurantScreen extends ConsumerStatefulWidget {
+  /// [initialItemId] opens that dish straight away (e.g. "Order food" on a Discover dish).
+  const RestaurantScreen({super.key, required this.id, this.initialItemId});
   final String id;
+  final String? initialItemId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RestaurantScreen> createState() => _RestaurantScreenState();
+}
+
+class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
+  bool _openedInitialItem = false;
+
+  void _openItem(MenuItem item, RestaurantDetail d) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => ItemSheet(item: item, groups: d.optionGroups, restaurantId: d.restaurant.id, restaurantName: d.restaurant.name),
+    );
+  }
+
+  /// Opens [RestaurantScreen.initialItemId] once, after the menu has loaded, if it can be ordered now.
+  void _maybeOpenInitialItem(RestaurantDetail d) {
+    final wanted = widget.initialItemId;
+    if (wanted == null || _openedInitialItem) return;
+    _openedInitialItem = true;
+    final r = d.restaurant;
+    final item = [for (final s in d.sections) ...s.items].where((i) => i.id == wanted).firstOrNull;
+    if (item == null || !item.isAvailable || !r.isOpen || !r.isAcceptingOrders) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _openItem(item, d);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final id = widget.id;
     final detail = ref.watch(restaurantDetailProvider(id));
     final cart = ref.watch(cartProvider);
     return Scaffold(
@@ -30,6 +62,7 @@ class RestaurantScreen extends ConsumerWidget {
         data: (d) {
           final r = d.restaurant;
           final canOrder = r.isOpen && r.isAcceptingOrders;
+          _maybeOpenInitialItem(d);
           return CustomScrollView(slivers: [
             SliverAppBar(
               expandedHeight: 180,
@@ -69,12 +102,7 @@ class RestaurantScreen extends ConsumerWidget {
                     title: Text(item.unitLabel == null ? item.name : '${item.name} · ${item.unitLabel}', style: const TextStyle(fontWeight: FontWeight.w700)),
                     subtitle: Text([formatNaira(item.priceKobo), if (item.serves > 1) 'Serves ${item.serves}', if (!item.isAvailable) 'Sold out'].join(' · ')),
                     trailing: const Icon(Icons.add_circle_rounded),
-                    onTap: () => showModalBottomSheet<void>(
-                      context: context,
-                      isScrollControlled: true,
-                      showDragHandle: true,
-                      builder: (_) => ItemSheet(item: item, groups: d.optionGroups, restaurantId: r.id, restaurantName: r.name),
-                    ),
+                    onTap: () => _openItem(item, d),
                   );
                 },
               ),

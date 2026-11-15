@@ -57,6 +57,7 @@ describe("service bubbles", () => {
 describe("Gudy navigation and store labels", () => {
   it("maps open_screen cards to website routes", () => {
     expect(routeForScreen("parcel")).toBe("/send");
+    expect(routeForScreen("wallet")).toBe("/wallet");
     expect(routeForScreen("food", { category: "local" })).toBe("/food?category=local");
     expect(routeForScreen("merchant", { merchant_id: "b-shea" })).toBe("/restaurants/b-shea");
     expect(routeForScreen("order", { order_id: "o1" })).toBe("/orders/o1");

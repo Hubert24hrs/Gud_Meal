@@ -14,8 +14,10 @@ import {
 import { Button, Field, Input, Select } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
 import { CircleDot, MapPin, Package, Timer } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ParcelArt } from "@/components/illustrations";
+import { checkoutProvider, continueAfterCheckout, PaymentMethodPicker, type PayMethod } from "@/components/payment-method";
 import { publicApi, useApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { AREAS, CITY_NAMES, useLocation } from "@/lib/location";
@@ -48,8 +50,13 @@ export function SendForm() {
   const [quote, setQuote] = useState<ParcelQuote | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [codOn, setCodOn] = useState(false);
+  const [codNaira, setCodNaira] = useState("");
+  const [method, setMethod] = useState<PayMethod>("card");
+  const router = useRouter();
   const orderKey = useRef(newIdempotencyKey("parcel"));
-  const checkoutKey = useRef(newIdempotencyKey("checkout"));
+  const checkoutKeys = useRef<Partial<Record<PayMethod, string>>>({});
+  const codKobo = codOn ? Math.round(Number(codNaira.replace(/[^0-9.]/g, "")) * 100) : 0;
 
   useEffect(() => {
     setPickup((p) => ({ ...p, name: p.name || user?.displayName || "", phone: p.phone || user?.phoneNumber || "" }));
@@ -68,6 +75,7 @@ export function SendForm() {
     if (find(pickup.area)!.city !== find(dropoff.area)!.city) {
       return "Pickup and drop-off must be in the same city. Interstate waybill is coming soon.";
     }
+    if (codOn && !(codKobo >= 100)) return "Enter the amount the rider should collect from your buyer";
     return null;
   }
 
@@ -89,6 +97,7 @@ export function SendForm() {
       setQuote(await api.parcels.quote({
         pickup: stop(pickup), dropoff: stop(dropoff), size, category, description: what.trim(),
         scheduled_for: when ? new Date(when).toISOString() : null,
+        cod_amount_kobo: codOn ? codKobo : null,
       }));
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Couldn’t get a price. Please try again.");
@@ -103,8 +112,9 @@ export function SendForm() {
     setError(null);
     try {
       const order = await api.parcels.book(quote.id, orderKey.current);
-      const res = await api.orders.checkout(order.id, checkoutKey.current);
-      window.location.assign(res.authorization_url); // provider-hosted page; card data never touches Gud Meal
+      const key = (checkoutKeys.current[method] ??= newIdempotencyKey("checkout"));
+      const res = await api.orders.checkout(order.id, key, checkoutProvider(method));
+      continueAfterCheckout(res, router.push); // card: provider-hosted page; card data never touches Gud Meal
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Couldn’t book the delivery. Please try again.");
       setBusy(false);
@@ -198,32 +208,61 @@ export function SendForm() {
         <p className="text-xs text-muted">Scheduled pickups: 30 minutes to 7 days ahead, between 7am and 9pm.</p>
       </section>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        {[["Cash on delivery for vendors", "Riders collect payment from your buyer and we pay you out."], ["Interstate waybill", "Send between Lagos, Enugu and other states."]].map(([t, d]) => (
-          <div key={t} className="rounded-2xl border border-dashed border-border p-3 opacity-80">
-            <p className="font-bold">{t} <span className="ml-1 rounded bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold">Coming soon</span></p>
-            <p className="text-sm text-muted">{d}</p>
-          </div>
-        ))}
+      <section className="space-y-3 rounded-2xl border border-border p-4">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input type="checkbox" className="mt-1 size-5 accent-[var(--color-primary)]" checked={codOn}
+            onChange={(e) => { setCodOn(e.target.checked); changed(); }} />
+          <span>
+            <span className="block font-bold">Collect cash from my buyer (cash on delivery)</span>
+            <span className="block text-sm text-muted">
+              The rider collects the item price at drop-off. It shows in your wallet as cash-on-delivery money: move it to your
+              wallet instantly or withdraw it to your bank.
+            </span>
+          </span>
+        </label>
+        {codOn && (
+          <Field label="Amount to collect (₦)" htmlFor="cod" hint="Up to ₦100,000 per package. A small collection fee (1.5%, at least ₦100) is added to your booking.">
+            <Input id="cod" inputMode="decimal" placeholder="e.g. 25000" value={codNaira}
+              onChange={(e) => { setCodNaira(e.target.value); changed(); }} />
+          </Field>
+        )}
+      </section>
+
+      <div className="rounded-2xl border border-dashed border-border p-3 opacity-80">
+        <p className="font-bold">Interstate waybill <span className="ml-1 rounded bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold">Coming soon</span></p>
+        <p className="text-sm text-muted">Send between Lagos, Enugu and other states.</p>
       </div>
 
       {quote && b && (
         <div className="rounded-2xl border border-border bg-surface p-4" aria-live="polite">
           <Row label={`Delivery (${quote.distance_km.toFixed(1)} km, ${size})`} value={b.delivery_fee_kobo} />
           <Row label="Booking fee" value={b.service_fee_kobo} />
+          {(b.cod_fee_kobo ?? 0) > 0 && <Row label="Cash collection fee" value={b.cod_fee_kobo!} />}
           <Row label="VAT (7.5%)" value={b.vat_kobo} />
           <div className="my-2 border-t border-border" />
           <Row label="Total" value={b.total_kobo} bold />
+          {quote.details.cod_amount_kobo ? (
+            <p className="mt-2 rounded-lg bg-secondary-soft p-2 text-sm">
+              The rider collects <strong>{formatNaira(quote.details.cod_amount_kobo)}</strong> from {quote.details.dropoff.name} for you.
+            </p>
+          ) : null}
           <p className="mt-2 text-xs text-muted">
             {quote.scheduled_for ? "Scheduled pickup" : "Rider assigned after payment"} · delivered around {formatTime(quote.estimated_delivery_at)} · price held until {formatTime(quote.expires_at)}
           </p>
         </div>
       )}
 
+      {quote && (
+        <section className="space-y-2">
+          <h2 className="text-lg font-extrabold">Pay with</h2>
+          <PaymentMethodPicker totalKobo={quote.breakdown.total_kobo} value={method} onChange={setMethod} cash={{ offered: false }} />
+        </section>
+      )}
+
       <div className="fixed inset-x-0 bottom-[64px] z-20 border-t border-border bg-background/95 p-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         {error && <p role="alert" className="mb-2 text-sm font-semibold text-danger">{error}</p>}
         <Button size="lg" block loading={busy} onClick={quote ? book : getPrice}>
-          {quote ? `Book & pay ${formatNaira(quote.breakdown.total_kobo)}` : "See price"}
+          {quote ? `Book & pay ${formatNaira(quote.breakdown.total_kobo)}${method === "wallet" ? " from wallet" : ""}` : "See price"}
         </Button>
       </div>
     </div>

@@ -94,3 +94,7 @@ flowchart TD
   (plan → draft → approval → payment link), including follow-ups such as “plan 2”, “yes” or “no”. Replies are
   templated: full English and Pidgin; Igbo, Yoruba and Hausa get a localised greeting/acknowledgement and English
   details. All numbers are copied from tool results. `/health` reports `ai_mode: offline | llm`.
+- **Money (phase 2).** `get_wallet` (balance, recent activity, seller COD balance; read-only) and
+  `get_payment_options` (card / wallet / pay on delivery with the server's reasons). Gudy can open the Wallet
+  screen but has no tool that tops up, moves or withdraws money. Offline mode answers wallet, pay-on-delivery
+  and seller cash-on-delivery questions in English and Pidgin.

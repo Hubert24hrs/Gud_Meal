@@ -157,6 +157,7 @@ abstract class PriceBreakdown with _$PriceBreakdown {
     @Default(0) int smallOrderFeeKobo,
     @Default(0) int vatKobo,
     @Default(0) int discountKobo,
+    @Default(0) int codFeeKobo,
     required int totalKobo,
     String? voucherCode,
   }) = _PriceBreakdown;
@@ -208,20 +209,120 @@ abstract class Order with _$Order {
     @Default(false) bool reviewed,
     ParcelDetails? parcel,
     @Default(0) int refundTotalKobo,
+    @Default(OrderPayment()) OrderPayment payment,
+    DateTime? cashCollectedAt,
+    // Rider view: cash to take at the door ('cash' = pay on delivery) and the amount (0 when prepaid).
+    String? paymentMethod,
+    @Default(0) int collectCashKobo,
   }) = _Order;
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
+}
+
+/// How an order is paid: a gateway (paystack, flutterwave…), the wallet, or cash on delivery.
+@freezed
+abstract class OrderPayment with _$OrderPayment {
+  const factory OrderPayment({String? provider, String? reference, @Default('unpaid') String status, DateTime? paidAt}) =
+      _OrderPayment;
+  factory OrderPayment.fromJson(Map<String, dynamic> json) => _$OrderPaymentFromJson(json);
 }
 
 @freezed
 abstract class CheckoutResult with _$CheckoutResult {
   const factory CheckoutResult({
     required String orderId,
+    @Default('') String status,
     required String reference,
-    required String authorizationUrl,
+    /// Null for wallet and pay-on-delivery checkouts: the order is already placed.
+    String? authorizationUrl,
     required int amountKobo,
     required String provider,
+    String? failoverFrom,
   }) = _CheckoutResult;
   factory CheckoutResult.fromJson(Map<String, dynamic> json) => _$CheckoutResultFromJson(json);
+}
+
+@freezed
+abstract class PaymentMethodOption with _$PaymentMethodOption {
+  const factory PaymentMethodOption({
+    required String id,
+    required String label,
+    @Default(false) bool available,
+    String? reason,
+    int? balanceKobo,
+    int? shortByKobo,
+  }) = _PaymentMethodOption;
+  factory PaymentMethodOption.fromJson(Map<String, dynamic> json) => _$PaymentMethodOptionFromJson(json);
+}
+
+@freezed
+abstract class PaymentOptions with _$PaymentOptions {
+  const factory PaymentOptions({
+    required String orderId,
+    required int totalKobo,
+    @Default(<PaymentMethodOption>[]) List<PaymentMethodOption> methods,
+  }) = _PaymentOptions;
+  factory PaymentOptions.fromJson(Map<String, dynamic> json) => _$PaymentOptionsFromJson(json);
+}
+
+@freezed
+abstract class WalletTransaction with _$WalletTransaction {
+  const factory WalletTransaction({
+    required String id,
+    required String kind,
+    @Default('') String description,
+    String? reference,
+    String? orderId,
+    required DateTime createdAt,
+    @Default('in') String direction,
+    required int amountKobo,
+  }) = _WalletTransaction;
+  factory WalletTransaction.fromJson(Map<String, dynamic> json) => _$WalletTransactionFromJson(json);
+}
+
+@freezed
+abstract class WalletLimits with _$WalletLimits {
+  const factory WalletLimits({
+    @Default(50000) int minTopupKobo,
+    @Default(10000000) int maxTopupKobo,
+    @Default(30000000) int maxBalanceKobo,
+  }) = _WalletLimits;
+  factory WalletLimits.fromJson(Map<String, dynamic> json) => _$WalletLimitsFromJson(json);
+}
+
+/// Cash-on-delivery money collected for a seller (vendor COD on packages).
+@freezed
+abstract class SellerSummary with _$SellerSummary {
+  const factory SellerSummary({
+    @Default(0) int codBalanceKobo,
+    @Default(0) int pendingPayoutsKobo,
+    @Default(0) int availableKobo,
+    @Default(100000) int minPayoutKobo,
+  }) = _SellerSummary;
+  factory SellerSummary.fromJson(Map<String, dynamic> json) => _$SellerSummaryFromJson(json);
+}
+
+@freezed
+abstract class WalletOverview with _$WalletOverview {
+  const factory WalletOverview({
+    @Default(0) int balanceKobo,
+    @Default(true) bool enabled,
+    @Default(WalletLimits()) WalletLimits limits,
+    @Default(false) bool refundToWallet,
+    @Default(<WalletTransaction>[]) List<WalletTransaction> transactions,
+    SellerSummary? seller,
+  }) = _WalletOverview;
+  factory WalletOverview.fromJson(Map<String, dynamic> json) => _$WalletOverviewFromJson(json);
+}
+
+@freezed
+abstract class TopUpResult with _$TopUpResult {
+  const factory TopUpResult({
+    required String reference,
+    required String provider,
+    String? authorizationUrl,
+    required int amountKobo,
+  }) = _TopUpResult;
+  factory TopUpResult.fromJson(Map<String, dynamic> json) => _$TopUpResultFromJson(json);
 }
 
 @freezed
@@ -275,6 +376,8 @@ abstract class Earnings with _$Earnings {
     required int availableKobo,
     required int deliveriesCompleted,
     required int earnedLast7DaysKobo,
+    /// Cash collected at the door that the rider still has to hand in (netted off before withdrawals).
+    @Default(0) int cashHeldKobo,
   }) = _Earnings;
   factory Earnings.fromJson(Map<String, dynamic> json) => _$EarningsFromJson(json);
 }
@@ -363,6 +466,8 @@ abstract class ParcelDetails with _$ParcelDetails {
     @Default('other') String category,
     @Default('') String description,
     @Default('lagos') String city,
+    /// Cash the rider collects from the recipient for the sender (vendor cash on delivery).
+    int? codAmountKobo,
   }) = _ParcelDetails;
   factory ParcelDetails.fromJson(Map<String, dynamic> json) => _$ParcelDetailsFromJson(json);
 }

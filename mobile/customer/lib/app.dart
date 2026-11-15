@@ -17,6 +17,7 @@ import 'features/profile/profile_screen.dart';
 import 'features/restaurant/restaurant_screen.dart';
 import 'features/support/support_screen.dart';
 import 'features/vertical/vertical_screen.dart';
+import 'features/wallet/wallet_screen.dart';
 import 'providers.dart';
 import 'shell.dart';
 
@@ -35,7 +36,7 @@ class _AuthListenable extends ChangeNotifier {
 }
 
 /// Screens that need an account. Tabs (Orders, Profile) show a sign-in prompt instead of redirecting.
-const _protected = ['/checkout', '/assistant', '/send', '/orders/'];
+const _protected = ['/checkout', '/assistant', '/send', '/orders/', '/wallet'];
 
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -80,8 +81,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/food', builder: (_, s) => VerticalScreen(vertical: 'food', category: s.uri.queryParameters['category'])),
       GoRoute(path: '/beauty', builder: (_, s) => VerticalScreen(vertical: 'beauty', category: s.uri.queryParameters['category'])),
       GoRoute(path: '/send', builder: (_, _) => const ParcelScreen()),
-      GoRoute(path: '/restaurants/:id', builder: (_, s) => RestaurantScreen(id: s.pathParameters['id']!)),
+      GoRoute(
+        path: '/restaurants/:id',
+        builder: (_, s) => RestaurantScreen(id: s.pathParameters['id']!, initialItemId: s.uri.queryParameters['item']),
+      ),
       GoRoute(path: '/checkout', builder: (_, _) => const CheckoutScreen()),
+      GoRoute(path: '/wallet', builder: (_, _) => const WalletScreen()),
       GoRoute(path: '/assistant', builder: (_, s) => AssistantScreen(initial: s.uri.queryParameters['q'])),
     ],
   );

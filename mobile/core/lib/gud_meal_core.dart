@@ -4,6 +4,7 @@ library;
 export 'src/api_client.dart';
 export 'src/auth.dart';
 export 'src/config.dart';
+export 'src/discover.dart';
 export 'src/format.dart';
 export 'src/models.dart';
 export 'src/theme/gm_tokens.dart';

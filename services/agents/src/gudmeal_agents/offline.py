@@ -160,6 +160,32 @@ T: dict[str, dict[str, str]] = {
         "pcm": "The time and delivery fee na estimate; checkout go show the correct price.",
     },
     "button": {"en": "Tap the button below.", "pcm": "Tap the button wey dey below."},
+    "wallet": {
+        "en": "Your Gud Meal wallet balance is {balance}.",
+        "pcm": "Money wey dey your Gud Meal wallet na {balance}.",
+    },
+    "wallet_cod": {
+        "en": "Cash-on-delivery money collected for you: {amount}.",
+        "pcm": "Cash-on-delivery money wey we collect for you: {amount}.",
+    },
+    "wallet_topup": {
+        "en": "To top up, open your wallet (Profile → Gud Meal wallet). I can't move money myself.",
+        "pcm": "To top up, open your wallet (Profile → Gud Meal wallet). I no fit move money by myself.",
+    },
+    "pod": {
+        "en": "Yes: pay on delivery lets you pay the rider in cash for food and beauty orders once you've completed "
+        "your first order (limits apply). Choose 'Pay on delivery' at checkout and Gud Meal checks if your order "
+        "qualifies.",
+        "pcm": "Yes o: you fit pay the rider cash for food and beauty orders once you don complete your first order "
+        "(limit dey). Choose 'Pay on delivery' for checkout, Gud Meal go check if your order qualify.",
+    },
+    "cod": {
+        "en": "Selling online? When you send a package, tick 'Collect cash from my buyer'. The rider collects the price "
+        "at drop-off and it shows in your wallet: move it to your wallet instantly or withdraw it to your bank.",
+        "pcm": "You dey sell online? When you dey send package, tick 'Collect cash from my buyer'. Rider go collect the "
+        "money for drop-off, e go show for your wallet: move am enter wallet sharp sharp or withdraw am go your bank.",
+    },
+    "pay_options": {"en": "How you can pay order total {total}:", "pcm": "How you fit pay for {total}:"},
     "unknown": {
         "en": "I didn't quite get that. You can ask me for food, beauty products, package delivery, your order status "
         "or how much you've spent.",
@@ -204,7 +230,16 @@ _SUPPORT = re.compile(
 )
 _OPEN = re.compile(
     r"\b(open|go to|take me to|show me)\s+(the\s+|my\s+)?(food|beauty|packages?|parcel|orders?|support|profile|"
-    r"discover|home)\b"
+    r"discover|home|wallet)\b"
+)
+_WALLET = re.compile(r"\b(wallet|my balance|top ?up|fund my account)\b")
+_SELLER_COD = re.compile(
+    r"\b(collect (the )?(cash|money|payment) from (my )?(buyer|customer)s?|cash on delivery for (vendors?|sellers?)|"
+    r"(vendor|seller) cod|i (sell|dey sell) online)\b"
+)
+_PAY_ON_DELIVERY = re.compile(
+    r"\b(pay on delivery|pay(ing)? (with |in )?cash|cash on delivery|pay when (it|e|the food|my order) "
+    r"(arrives?|reach(es)?|comes?)|pay for door|payment on delivery|how (can|do) i pay|payment (methods?|options?))\b"
 )
 _GREET = re.compile(
     r"^(hi|hello|hey|good (morning|afternoon|evening)|how far|ndewo|kedu|bawo|e kaaro|ekaaro|sannu|ina kwana|"
@@ -307,6 +342,7 @@ _SCREEN_WORDS = {
     "profile": "profile",
     "discover": "discover",
     "home": "home",
+    "wallet": "wallet",
 }
 
 
@@ -444,6 +480,19 @@ class _OfflineAgent:
         screen = _OPEN.search(p)
         if screen and self._can("open_screen"):
             return _call("open_screen", {"screen": _SCREEN_WORDS[screen.group(3)]})
+        if _SELLER_COD.search(p):
+            if self._can("open_screen"):
+                return _call("open_screen", {"screen": "parcel"})
+            return AIMessage(content=say("cod", lang))
+        if _WALLET.search(p) and self._can("get_wallet"):
+            return _call("get_wallet", {})
+        if _PAY_ON_DELIVERY.search(p):
+            last_order = (
+                _latest(history, {"create_order_draft", "reorder", "confirm_order"})[1].get("data") or {}
+            )
+            if last_order.get("order_id") and self._can("get_payment_options"):
+                return _call("get_payment_options", {"order_id": last_order["order_id"]})
+            return AIMessage(content=ACK[lang] + say("pod", lang))
         if _TOTALS.search(p) and self._can("get_order_totals"):
             return _call("get_order_totals", {})
         if _SERVICES.search(p) and self._can("list_services"):
@@ -495,10 +544,13 @@ class _OfflineAgent:
             if _ORDER_NOW.search(p) or _PLAN_PICK.search(p) or _YES.match(p.strip()):
                 return _call("confirm_order", {"order_id": data["order_id"]})
 
-        return AIMessage(content=ACK[lang] + render(tool, data, lang))
+        return AIMessage(content=ACK[lang] + render(tool, data, lang, p))
 
 
-def render(tool: str, data: dict[str, Any], lang: Lang) -> str:
+_WALLET_TOPUP = re.compile(r"\b(top ?up|fund|add money|load)\b")
+
+
+def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
     """Turn a tool result into a short reply. Numbers are copied verbatim from the tool output."""
     if tool == "list_services":
         lines = [say("services", lang)]
@@ -604,8 +656,24 @@ def render(tool: str, data: dict[str, Any], lang: Lang) -> str:
         return out
     if tool == "open_screen":
         if data.get("shown_button") == "Send a package":
-            return say("parcel", lang)
+            return say("cod", lang) if _SELLER_COD.search(text) else say("parcel", lang)
         return say("button", lang)
+    if tool == "get_wallet":
+        lines = [say("wallet", lang, balance=data.get("balance"))]
+        for t in (data.get("recent") or [])[:3]:
+            lines.append(f"• {t['what']}: {t['amount']}")
+        if data.get("cash_on_delivery_balance"):
+            lines.append(say("wallet_cod", lang, amount=data["cash_on_delivery_balance"]))
+        if _WALLET_TOPUP.search(text):
+            lines.append(say("wallet_topup", lang))
+        return "\n".join(lines)
+    if tool == "get_payment_options":
+        lines = [say("pay_options", lang, total=data.get("order_total"))]
+        for m in data.get("methods") or []:
+            mark = "✓" if m.get("available") else "✗"
+            why = f" ({m['why_not']})" if m.get("why_not") else ""
+            lines.append(f"{mark} {m['method']}{why}")
+        return "\n".join(lines)
     if tool == "get_support_contacts":
         out = say(
             "support",

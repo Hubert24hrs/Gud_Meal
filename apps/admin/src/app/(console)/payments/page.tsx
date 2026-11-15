@@ -30,7 +30,9 @@ function Payments() {
         <DataTable rows={list.data ?? []} rowKey={(p) => p.id} empty="No payments" columns={[
           { key: "when", header: "Created", render: (p) => formatDateTime(p.created_at) },
           { key: "ref", header: "Reference", render: (p) => <span className="font-mono text-xs">{p.reference}</span> },
-          { key: "order", header: "Order", render: (p) => <Link className="text-primary" href={`/orders/${p.order_id}`}>{p.order_id.slice(0, 8)}</Link> },
+          { key: "order", header: "Order", render: (p) => (p.order_id
+            ? <Link className="text-primary" href={`/orders/${p.order_id}`}>{p.order_id.slice(0, 8)}</Link>
+            : <span className="text-muted">Wallet top-up</span>) },
           { key: "provider", header: "Provider", render: (p) => p.provider },
           { key: "amount", header: "Amount", render: (p) => formatNaira(p.amount_kobo) },
           { key: "refunded", header: "Refunded", render: (p) => (p.refunded_kobo ? formatNaira(p.refunded_kobo) : "—") },
