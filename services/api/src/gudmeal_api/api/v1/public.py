@@ -7,6 +7,7 @@ from typing import Annotated, Any, Literal
 from fastapi import APIRouter, Query
 from sqlalchemy import text
 
+from ...domain.cities import CITIES
 from ...domain.geo import GeoPoint
 from ...errors import ServiceUnavailable, ValidationFailed
 from ...services.catalog import RestaurantCard, RestaurantDetail
@@ -46,9 +47,23 @@ async def list_restaurants(
     open_now: bool = False,
     sort: Literal["recommended", "distance", "rating", "delivery_fee"] = "recommended",
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    vertical: Literal["food", "beauty", "all"] = "food",
+    city: Annotated[str | None, Query(max_length=30)] = None,
+    category: Annotated[str | None, Query(max_length=30)] = None,
+    pickup: bool = False,
 ) -> list[RestaurantCard]:
+    """Merchants for a service: restaurants (`vertical=food`, default) or beauty shops (`vertical=beauty`)."""
     return await c.catalog.list_restaurants(
-        location=_location(lat, lng), cuisine=cuisine, query=q, open_now=open_now, sort=sort, limit=limit
+        location=_location(lat, lng),
+        cuisine=cuisine,
+        query=q,
+        open_now=open_now,
+        sort=sort,
+        limit=limit,
+        vertical=None if vertical == "all" else vertical,
+        city=city,
+        category=category,
+        pickup_only=pickup,
     )
 
 
@@ -75,13 +90,36 @@ async def search(
     q: Annotated[str, Query(min_length=2, max_length=60)],
     lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
     lng: Annotated[float | None, Query(ge=-180, le=180)] = None,
+    vertical: Literal["food", "beauty"] | None = None,
+    city: Annotated[str | None, Query(max_length=30)] = None,
 ) -> dict[str, Any]:
-    return await c.catalog.search(q, location=_location(lat, lng))
+    return await c.catalog.search(q, location=_location(lat, lng), vertical=vertical, city=city)
 
 
 @router.get("/cuisines")
-async def cuisines(c: Ctr) -> list[dict[str, Any]]:
-    return await c.catalog.cuisines()
+async def cuisines(c: Ctr, vertical: Literal["food", "beauty"] | None = None) -> list[dict[str, Any]]:
+    return await c.catalog.cuisines(vertical)
+
+
+@router.get("/services")
+async def services(c: Ctr, city: Annotated[str | None, Query(max_length=30)] = None) -> list[dict[str, Any]]:
+    """Gud Meal's services (Food, Beauty & Skin care, Package Delivery) and their availability."""
+    return await c.catalog.services(city=city)
+
+
+@router.get("/services/{vertical}/categories")
+async def service_categories(
+    vertical: Literal["food", "beauty"], c: Ctr, city: Annotated[str | None, Query(max_length=30)] = None
+) -> list[dict[str, Any]]:
+    return await c.catalog.browse_categories(vertical, city=city)
+
+
+@router.get("/cities")
+async def cities() -> list[dict[str, Any]]:
+    return [
+        {"id": x.id, "name": x.name, "state": x.state, "center": x.center.model_dump()}
+        for x in CITIES.values()
+    ]
 
 
 @router.get("/config/public")
@@ -103,4 +141,12 @@ async def public_config(c: Ctr) -> dict[str, Any]:
         ],
         "features": {k: bool(v.get("enabled")) for k, v in flags.items()},
         "payment_providers": sorted(c.providers),
+        "cities": [{"id": x.id, "name": x.name} for x in CITIES.values()],
+        "support": {
+            "whatsapp": c.settings.support_whatsapp,
+            "phone": c.settings.support_phone,
+            "email": c.settings.support_email,
+            "hours": c.settings.support_hours,
+            "placeholders": c.settings.support_contacts_are_placeholders,
+        },
     }

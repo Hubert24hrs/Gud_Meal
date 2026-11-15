@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from ..domain.models import Order, Quote
-from ..domain.order_state import CUSTOMER_PROGRESS
+from ..domain.order_state import progress_label
 from ..security.rbac import Permission, Principal
 
 
 def _progress(order: Order) -> dict[str, Any]:
-    step, label = CUSTOMER_PROGRESS[order.status]
+    step, label = progress_label(order.status, order.vertical.value)
     return {"step": step, "total_steps": 5, "label": label}
 
 
@@ -35,9 +35,11 @@ def order_view(order: Order, principal: Principal) -> dict[str, Any]:
         data["audience"] = "restaurant"
         return data
     if order.rider_id == principal.uid:
+        parcel = order.parcel
         return {
             "id": order.id,
             "short_code": order.short_code,
+            "vertical": order.vertical.value,
             "status": order.status.value,
             "progress": data["progress"],
             "fulfillment": order.fulfillment.value,
@@ -51,6 +53,16 @@ def order_view(order: Order, principal: Principal) -> dict[str, Any]:
             "ready_at": data["ready_at"],
             "picked_up_at": data["picked_up_at"],
             "estimated_delivery_at": data["estimated_delivery_at"],
+            # Parcels: the rider needs both contacts and what they are carrying (no prices or declared value).
+            "parcel": None
+            if parcel is None
+            else {
+                "size": parcel.size.value,
+                "category": parcel.category,
+                "description": parcel.description,
+                "pickup": parcel.pickup.model_dump(mode="json"),
+                "dropoff": parcel.dropoff.model_dump(mode="json"),
+            },
             "audience": "rider",
         }
     raise PermissionError("no view")  # callers must check access first

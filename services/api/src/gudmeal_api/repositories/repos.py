@@ -17,6 +17,7 @@ from ..domain.models import (
     OptionGroup,
     Order,
     OrderEvent,
+    ParcelQuote,
     Quote,
     Restaurant,
     Review,
@@ -87,6 +88,7 @@ class Repositories:
         self.items = TypedCollection(store, "food_items", MenuItem)
         self.option_groups = TypedCollection(store, "food_customisations", OptionGroup)
         self.quotes = TypedCollection(store, "quotes", Quote)
+        self.parcel_quotes = TypedCollection(store, "parcel_quotes", ParcelQuote)
         self.orders = TypedCollection(store, "orders", Order)
         self.order_events = TypedCollection(store, "order_events", OrderEvent)
         self.riders = TypedCollection(store, "rider_profiles", RiderProfile, key="uid")

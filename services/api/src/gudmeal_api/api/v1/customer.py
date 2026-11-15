@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Header, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from ...domain.models import CartLine, DeliveryAddress, QuoteRequest
+from ...domain.models import CartLine, DeliveryAddress, ParcelQuote, ParcelQuoteRequest, QuoteRequest
 from ...errors import NotFound
 from ...services.engagement import (
     MealPlanInput,
@@ -29,6 +29,17 @@ class CreateOrderInput(BaseModel):
     quote_id: str
     contact_phone: str | None = Field(default=None, max_length=20)
     channel: Literal["app", "web", "ai_agent"] = "app"
+
+
+class CreateParcelInput(BaseModel):
+    quote_id: str
+    channel: Literal["app", "web", "ai_agent"] = "app"
+
+
+def parcel_quote_view(quote: ParcelQuote) -> dict[str, Any]:
+    data = quote.model_dump(mode="json")
+    data.pop("settlement", None)  # rider pay and margins are internal
+    return data
 
 
 class CheckoutInput(BaseModel):
@@ -151,6 +162,42 @@ async def create_order(
         fn=run,
         success_status=201,
     )
+
+
+@router.post("/parcels/quotes", status_code=201, dependencies=[Depends(limit("quote"))])
+async def create_parcel_quote(req: ParcelQuoteRequest, c: Ctr, principal: CurrentPrincipal) -> dict[str, Any]:
+    return parcel_quote_view(await c.parcels.create_quote(principal, req))
+
+
+@router.get("/parcels/quotes/{quote_id}")
+async def get_parcel_quote(quote_id: str, c: Ctr, principal: CurrentPrincipal) -> dict[str, Any]:
+    return parcel_quote_view(await c.parcels.get_quote(principal, quote_id))
+
+
+@router.post("/parcels", status_code=201, dependencies=[Depends(limit("order_create"))])
+async def create_parcel(
+    data: CreateParcelInput, c: Ctr, principal: CurrentPrincipal, idempotency_key: IdemKey = None
+) -> JSONResponse:
+    async def run() -> dict[str, Any]:
+        order = await c.orders.create_parcel_order(
+            principal, data.quote_id, parcels=c.parcels, channel=data.channel
+        )
+        return order_view(order, principal)
+
+    return await run_idempotent(
+        c,
+        scope=f"parcels.create:{principal.uid}",
+        key=idempotency_key,
+        payload=data.model_dump(),
+        fn=run,
+        success_status=201,
+    )
+
+
+@router.get("/me/order-summary")
+async def my_order_summary(c: Ctr, principal: CurrentPrincipal) -> dict[str, Any]:
+    """Totals across all of the customer's paid orders (used by the Orders tab and Gudy)."""
+    return await c.orders.summary_for_customer(principal.uid)
 
 
 @router.get("/orders")

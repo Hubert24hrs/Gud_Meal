@@ -31,8 +31,23 @@ class RestaurantStatus(StrEnum):
     SUSPENDED = "suspended"
 
 
+class Vertical(StrEnum):
+    """Gud Meal services. Food and beauty are sold by merchants; parcels are courier jobs."""
+
+    FOOD = "food"
+    BEAUTY = "beauty"
+    PARCEL = "parcel"
+
+
+MERCHANT_VERTICALS = (Vertical.FOOD, Vertical.BEAUTY)
+
+
 class Restaurant(Model):
+    """A merchant: a restaurant (vertical=food) or a beauty & skin care shop (vertical=beauty)."""
+
     id: str
+    vertical: Vertical = Vertical.FOOD
+    city: str = Field(default="lagos", pattern=r"^[a-z][a-z-]{1,30}$")
     name: str = Field(min_length=2, max_length=80)
     slug: str = Field(pattern=r"^[a-z0-9-]{2,80}$")
     description: str = Field(default="", max_length=500)
@@ -77,6 +92,7 @@ class ItemKind(StrEnum):
     DRINK = "drink"
     DESSERT = "dessert"
     EXTRA = "extra"
+    PRODUCT = "product"  # non-food merchandise (beauty & skin care)
 
 
 class OptionChoice(Model):
@@ -120,6 +136,7 @@ class MenuItem(Model):
     popularity: int = Field(default=0, ge=0)
     option_group_ids: list[str] = Field(default_factory=list, max_length=10)
     prep_minutes: int | None = Field(default=None, ge=1, le=180)
+    unit_label: str | None = Field(default=None, max_length=30)  # e.g. "250 ml", "50cl"
     search_keywords: list[str] = Field(default_factory=list)
     position: int = 0
 
@@ -172,6 +189,47 @@ class QuoteRequest(Model):
         return self
 
 
+class ParcelSize(StrEnum):
+    SMALL = "small"  # fits in a bike box: documents, phones, a pair of shoes (up to 5 kg)
+    MEDIUM = "medium"  # a shoebox to a small carton (up to 10 kg)
+    LARGE = "large"  # bulky but bike-portable (up to 20 kg)
+
+
+ParcelCategory = Literal["documents", "clothing", "electronics", "food", "cosmetics", "household", "other"]
+
+
+class ParcelStop(Model):
+    """Where a package is collected or dropped, and who to meet there."""
+
+    name: str = Field(min_length=2, max_length=80)
+    phone: str = Field(pattern=r"^\+?[0-9 ]{7,20}$")
+    line1: str = Field(min_length=3, max_length=200)
+    area: str | None = Field(default=None, max_length=80)
+    city: str = Field(default="Lagos", max_length=60)
+    location: GeoPoint
+    instructions: str | None = Field(default=None, max_length=300)
+
+
+class ParcelQuoteRequest(Model):
+    pickup: ParcelStop
+    dropoff: ParcelStop
+    size: ParcelSize = ParcelSize.SMALL
+    category: ParcelCategory = "other"
+    description: str = Field(default="", max_length=200)
+    declared_value_kobo: int | None = Field(default=None, ge=0, le=50_000_000)  # max ₦500,000
+    scheduled_for: datetime | None = None  # pickup time; None = as soon as possible
+
+
+class ParcelDetails(Model):
+    pickup: ParcelStop
+    dropoff: ParcelStop
+    size: ParcelSize
+    category: ParcelCategory
+    description: str = ""
+    declared_value_kobo: int | None = None
+    city: str = "lagos"
+
+
 class PricedLine(Model):
     item_id: str
     name: str
@@ -211,6 +269,7 @@ class SettlementTerms(Model):
 class Quote(Model):
     id: str
     customer_id: str
+    vertical: Vertical = Vertical.FOOD
     restaurant_id: str
     restaurant_name: str
     lines: list[PricedLine]
@@ -229,6 +288,22 @@ class Quote(Model):
     order_id: str | None = None  # set once an order has been created from the quote
 
 
+class ParcelQuote(Model):
+    id: str
+    customer_id: str
+    details: ParcelDetails
+    breakdown: PriceBreakdown
+    settlement: SettlementTerms
+    distance_km: float
+    eta_minutes: int
+    estimated_delivery_at: datetime
+    scheduled_for: datetime | None = None
+    pricing_version: int
+    created_at: datetime
+    expires_at: datetime
+    order_id: str | None = None
+
+
 class PaymentSummary(Model):
     provider: str | None = None
     reference: str | None = None
@@ -239,6 +314,7 @@ class PaymentSummary(Model):
 class Order(Model):
     id: str
     short_code: str
+    vertical: Vertical = Vertical.FOOD
     customer_id: str
     customer_name: str | None = None
     customer_phone: str | None = None
@@ -273,9 +349,14 @@ class Order(Model):
     settled_at: datetime | None = None
     reviewed: bool = False
     channel: Literal["app", "web", "ai_agent", "admin"] = "app"
+    parcel: ParcelDetails | None = None  # set for vertical == parcel
     created_at: datetime
     updated_at: datetime
     version: int = 0
+
+    @property
+    def is_parcel(self) -> bool:
+        return self.vertical == Vertical.PARCEL
 
 
 class OrderEvent(Model):

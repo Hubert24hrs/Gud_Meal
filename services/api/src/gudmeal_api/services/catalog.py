@@ -1,4 +1,4 @@
-"""Restaurant discovery, menus, search and partner menu management."""
+"""Merchant discovery (restaurants and beauty shops), menus, search and partner menu management."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from ..domain.catalog_groups import CATEGORIES_BY_VERTICAL, PROMOTIONS, category_matches, find_category
+from ..domain.cities import CITIES
 from ..domain.geo import GeoPoint, geohash_encode, haversine_km
 from ..domain.hours import OpeningHours, is_open, next_opening
 from ..domain.models import (
@@ -19,6 +21,8 @@ from ..domain.models import (
     OptionGroup,
     Restaurant,
     RestaurantStatus,
+    Vertical,
+    Voucher,
 )
 from ..domain.pricing import delivery_fee, estimate_minutes
 from ..errors import NotFound, ValidationFailed
@@ -46,8 +50,15 @@ def search_keywords(*texts: str) -> list[str]:
     return sorted(tokens)[:60]
 
 
+class PromoBadge(BaseModel):
+    code: str
+    label: str
+
+
 class RestaurantCard(BaseModel):
     id: str
+    vertical: str = "food"
+    city: str = "lagos"
     name: str
     slug: str
     description: str
@@ -70,6 +81,7 @@ class RestaurantCard(BaseModel):
     supports_delivery: bool
     supports_pickup: bool
     delivers_to_location: bool | None = None
+    promotions: list[PromoBadge] = Field(default_factory=list)
 
 
 class MenuSection(BaseModel):
@@ -130,10 +142,31 @@ class CatalogService:
         self.repos = repos
 
     # ---------------------------------------------------------------- discovery ----------------
-    async def _card(self, r: Restaurant, location: GeoPoint | None, now: datetime) -> RestaurantCard:
+    async def _active_promotions(self, now: datetime) -> dict[str, list[PromoBadge]]:
+        """Merchant-specific vouchers that a customer can use right now, keyed by merchant id."""
+        promos: dict[str, list[PromoBadge]] = {}
+        for v in await self.repos.vouchers.find():
+            if not _voucher_live(v, now) or not v.restaurant_id:
+                continue
+            promos.setdefault(v.restaurant_id, []).append(
+                PromoBadge(code=v.code, label=v.description or v.code)
+            )
+        return promos
+
+    async def _card(
+        self,
+        r: Restaurant,
+        location: GeoPoint | None,
+        now: datetime,
+        promotions: dict[str, list[PromoBadge]] | None = None,
+    ) -> RestaurantCard:
         open_now = is_open(r.opening_hours, now)
+        if promotions is None:
+            promotions = await self._active_promotions(now)
         card = RestaurantCard(
             id=r.id,
+            vertical=r.vertical.value,
+            city=r.city,
             name=r.name,
             slug=r.slug,
             description=r.description,
@@ -152,6 +185,7 @@ class CatalogService:
             min_order_kobo=r.min_order_kobo,
             supports_delivery=r.supports_delivery,
             supports_pickup=r.supports_pickup,
+            promotions=promotions.get(r.id, []),
         )
         if location is not None:
             cfg = await self.repos.get_pricing_config()
@@ -173,19 +207,46 @@ class CatalogService:
         open_now: bool = False,
         sort: Literal["recommended", "distance", "rating", "delivery_fee"] = "recommended",
         limit: int = 50,
+        vertical: str | None = Vertical.FOOD.value,
+        city: str | None = None,
+        category: str | None = None,
+        pickup_only: bool = False,
     ) -> list[RestaurantCard]:
+        """List merchants. `vertical=None` lists every service; `category` is a browse-category id."""
         now = datetime.now(UTC)
+        if vertical is not None and vertical not in {v.value for v in Vertical}:
+            raise ValidationFailed("Unknown service", details={"vertical": vertical})
+        if city is not None and city not in CITIES:
+            raise ValidationFailed("We don't operate in that city yet", details={"city": city})
+        browse = None
+        if category:
+            browse = find_category(vertical or Vertical.FOOD.value, category)
+            if browse is None:
+                raise ValidationFailed("Unknown category", details={"category": category})
         restaurants = await self.repos.restaurants.find(
             where=[("status", "==", RestaurantStatus.ACTIVE.value)]
         )
+        promotions = await self._active_promotions(now)
         cards: list[RestaurantCard] = []
         q = (query or "").lower().strip()
         for r in restaurants:
+            if vertical is not None and r.vertical.value != vertical:
+                continue
+            if city is not None and r.city != city:
+                continue
+            if browse is not None:
+                if browse.id == PROMOTIONS:
+                    if r.id not in promotions:
+                        continue
+                elif not category_matches(browse, r.cuisines):
+                    continue
+            if pickup_only and not r.supports_pickup:
+                continue
             if cuisine and cuisine.lower() not in {c.lower() for c in r.cuisines}:
                 continue
             if q and q not in r.name.lower() and not any(q in c.lower() for c in r.cuisines + r.tags):
                 continue
-            card = await self._card(r, location, now)
+            card = await self._card(r, location, now, promotions)
             if open_now and not card.is_open:
                 continue
             if location is not None and card.distance_km is not None and card.distance_km > 25:
@@ -244,12 +305,22 @@ class CatalogService:
         )
 
     async def search(
-        self, query: str, *, location: GeoPoint | None = None, limit: int = 20
+        self,
+        query: str,
+        *,
+        location: GeoPoint | None = None,
+        limit: int = 20,
+        vertical: str | None = None,
+        city: str | None = None,
     ) -> dict[str, Any]:
         tokens = [t for t in search_keywords(query) if len(t) >= 3][:10] or search_keywords(query)[:10]
         if not tokens:
             raise ValidationFailed("Search query is too short")
-        active = {r.id: r for r in await self.repos.restaurants.find(where=[("status", "==", "active")])}
+        active = {
+            r.id: r
+            for r in await self.repos.restaurants.find(where=[("status", "==", "active")])
+            if (vertical is None or r.vertical.value == vertical) and (city is None or r.city == city)
+        }
         items = await self.repos.items.find(
             where=[("search_keywords", "array_contains_any", tokens)], limit=200
         )
@@ -262,22 +333,83 @@ class CatalogService:
             name_bonus = 2 if query.lower() in item.name.lower() else 0
             scored.append((hits + name_bonus + min(item.popularity, 500) / 500, item))
         scored.sort(key=lambda s: -s[0])
-        restaurants = await self.list_restaurants(location=location, query=query, limit=10)
+        restaurants = await self.list_restaurants(
+            location=location, query=query, limit=10, vertical=vertical, city=city
+        )
         return {
             "items": [
                 {
                     "item": item,
                     "restaurant_id": item.restaurant_id,
                     "restaurant_name": active[item.restaurant_id].name,
+                    "vertical": active[item.restaurant_id].vertical.value,
                 }
                 for _, item in scored[:limit]
             ],
             "restaurants": restaurants,
         }
 
-    async def cuisines(self) -> list[dict[str, Any]]:
+    async def browse_categories(self, vertical: str, *, city: str | None = None) -> list[dict[str, Any]]:
+        """Categories for a service page, with how many merchants each one has (empty ones are hidden)."""
+        if vertical not in CATEGORIES_BY_VERTICAL:
+            raise ValidationFailed("This service has no categories", details={"vertical": vertical})
+        merchants = [
+            r
+            for r in await self.repos.restaurants.find(where=[("status", "==", "active")])
+            if r.vertical.value == vertical and (city is None or r.city == city)
+        ]
+        promotions = await self._active_promotions(datetime.now(UTC))
+        out: list[dict[str, Any]] = []
+        for cat in CATEGORIES_BY_VERTICAL[vertical]:
+            if cat.id == PROMOTIONS:
+                count = sum(1 for r in merchants if r.id in promotions)
+            else:
+                count = sum(1 for r in merchants if category_matches(cat, r.cuisines))
+            if count:
+                out.append({"id": cat.id, "name": cat.name, "emoji": cat.emoji, "merchants": count})
+        return out
+
+    async def services(self, *, city: str | None = None) -> list[dict[str, Any]]:
+        """What Gud Meal offers: the home-screen bubbles and the assistant's knowledge of services."""
+        merchants = [
+            r
+            for r in await self.repos.restaurants.find(where=[("status", "==", "active")])
+            if city is None or r.city == city
+        ]
+        counts = {v: sum(1 for r in merchants if r.vertical == v) for v in (Vertical.FOOD, Vertical.BEAUTY)}
+        cfg = await self.repos.get_pricing_config()
+        parcel_cities = sorted({z.city for z in cfg.zones if z.is_active})
+        return [
+            {
+                "id": "food",
+                "name": "Food",
+                "tagline": "Restaurants, local dishes, snacks and drinks",
+                "available": counts[Vertical.FOOD] > 0,
+                "merchants": counts[Vertical.FOOD],
+            },
+            {
+                "id": "beauty",
+                "name": "Beauty & Skin care",
+                "tagline": "Skincare, hair care, make-up and fragrance from partner shops",
+                "available": counts[Vertical.BEAUTY] > 0,
+                "merchants": counts[Vertical.BEAUTY],
+            },
+            {
+                "id": "parcel",
+                "name": "Package Delivery",
+                "tagline": "Send packages across the city by bike, now or at a time you choose",
+                "available": city is None or city in parcel_cities,
+                "options": ["instant", "scheduled"],
+                "coming_soon": ["cash_on_delivery", "interstate"],
+                "cities": parcel_cities,
+            },
+        ]
+
+    async def cuisines(self, vertical: str | None = None) -> list[dict[str, Any]]:
         counts: dict[str, int] = {}
         for r in await self.repos.restaurants.find(where=[("status", "==", "active")]):
+            if vertical is not None and r.vertical.value != vertical:
+                continue
             for c in r.cuisines:
                 counts[c] = counts.get(c, 0) + 1
         return [
@@ -413,3 +545,13 @@ class CatalogService:
 
 def restaurant_geohash(r: Restaurant) -> Restaurant:
     return r.model_copy(update={"geohash": geohash_encode(r.location.lat, r.location.lng, 9)})
+
+
+def _voucher_live(v: Voucher, now: datetime) -> bool:
+    if not v.is_active:
+        return False
+    if v.starts_at and now < v.starts_at:
+        return False
+    if v.ends_at and now >= v.ends_at:
+        return False
+    return v.usage_limit is None or v.used_count < v.usage_limit

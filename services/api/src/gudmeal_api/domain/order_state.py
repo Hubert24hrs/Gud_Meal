@@ -61,9 +61,12 @@ TRANSITIONS: dict[tuple[OrderStatus, OrderStatus], TransitionRule] = {
     (S.DRAFT, S.CANCELLED): _rule(A.CUSTOMER, A.SYSTEM, A.STAFF),
     (S.PENDING_PAYMENT, S.PAID): _rule(A.SYSTEM),  # only the payment verifier
     (S.PENDING_PAYMENT, S.CANCELLED): _rule(A.CUSTOMER, A.SYSTEM, A.STAFF),
-    # hand-off to the kitchen
+    # hand-off to the kitchen / shop
     (S.PAID, S.SUBMITTED_TO_RESTAURANT): _rule(A.SYSTEM),
-    (S.PAID, S.REFUND_PENDING): _rule(A.SYSTEM, A.STAFF),
+    # Package Delivery has no merchant: once paid (and at the scheduled time) the parcel is ready for a rider.
+    # OrderService only applies this to parcel orders.
+    (S.PAID, S.READY_FOR_PICKUP): _rule(A.SYSTEM),
+    (S.PAID, S.REFUND_PENDING): _rule(A.CUSTOMER, A.SYSTEM, A.STAFF),
     (S.SUBMITTED_TO_RESTAURANT, S.RESTAURANT_ACCEPTED): _rule(A.RESTAURANT, A.STAFF),
     (S.SUBMITTED_TO_RESTAURANT, S.REFUND_PENDING): _rule(
         A.RESTAURANT, A.CUSTOMER, A.SYSTEM, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)
@@ -80,7 +83,8 @@ TRANSITIONS: dict[tuple[OrderStatus, OrderStatus], TransitionRule] = {
     (S.PREPARING, S.REFUND_PENDING): _rule(A.RESTAURANT, A.STAFF, reason_for=(A.RESTAURANT, A.STAFF)),
     (S.READY_FOR_PICKUP, S.RIDER_ASSIGNED): _rule(A.SYSTEM, A.STAFF),
     (S.READY_FOR_PICKUP, S.COMPLETED): _rule(A.RESTAURANT, A.STAFF),  # pickup orders, code checked
-    (S.READY_FOR_PICKUP, S.REFUND_PENDING): _rule(A.STAFF),
+    # Customers may cancel a parcel before a rider is assigned (OrderService rejects this for food/shop orders).
+    (S.READY_FOR_PICKUP, S.REFUND_PENDING): _rule(A.CUSTOMER, A.STAFF),
     # delivery
     (S.RIDER_ASSIGNED, S.PICKED_UP): _rule(A.RIDER, A.STAFF),
     (S.RIDER_ASSIGNED, S.PREPARING): _rule(A.SYSTEM, A.STAFF),  # rider unassigned, food not ready
@@ -141,6 +145,31 @@ CUSTOMER_PROGRESS: dict[OrderStatus, tuple[int, str]] = {
     S.REFUNDED: (-1, "Refunded"),
     S.DISPUTED: (-1, "Under review"),
 }
+
+
+# Wording per service where the food labels above would be wrong.
+PROGRESS_LABELS: dict[str, dict[OrderStatus, str]] = {
+    "beauty": {
+        S.SUBMITTED_TO_RESTAURANT: "Sent to the shop",
+        S.RESTAURANT_ACCEPTED: "Shop accepted",
+        S.PREPARING: "Packing your order",
+        S.READY_FOR_PICKUP: "Packed and ready",
+        S.RIDER_ASSIGNED: "Rider on the way to the shop",
+    },
+    "parcel": {
+        S.PAID: "Booking confirmed",
+        S.READY_FOR_PICKUP: "Finding a rider",
+        S.RIDER_ASSIGNED: "Rider heading to pickup",
+        S.PICKED_UP: "Package picked up",
+        S.IN_TRANSIT: "On the way to the recipient",
+        S.DELIVERED: "Delivered",
+    },
+}
+
+
+def progress_label(status: OrderStatus, vertical: str = "food") -> tuple[int, str]:
+    step, label = CUSTOMER_PROGRESS[status]
+    return step, PROGRESS_LABELS.get(vertical, {}).get(status, label)
 
 
 def can_transition(src: OrderStatus, dst: OrderStatus, actor: ActorType) -> bool:

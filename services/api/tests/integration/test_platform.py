@@ -10,7 +10,9 @@ async def test_discovery_and_search(client):
     r = await client.get("/v1/restaurants", params=LEKKI)
     assert r.status_code == 200
     cards = r.json()
-    assert len(cards) == 8 and all(c["distance_km"] is not None for c in cards)
+    # 10 Lagos restaurants; beauty shops (vertical=beauty) and Enugu merchants are not in the food list near Lekki
+    assert len(cards) == 10 and all(c["distance_km"] is not None for c in cards)
+    assert {c["vertical"] for c in cards} == {"food"} and {c["city"] for c in cards} == {"lagos"}
     assert cards[0]["is_featured"]
     detail = (await client.get("/v1/restaurants/r-jollof-junction", params=LEKKI)).json()
     assert detail["sections"][0]["items"] and "r-jollof-junction-protein" in detail["option_groups"]
@@ -224,7 +226,7 @@ async def test_meal_plan_endpoint(client):
 async def test_admin_overview_and_analytics(flow, client):
     await flow.paid_order()
     overview = (await client.get("/v1/admin/overview", headers=auth("ops"))).json()
-    assert overview["orders_today"] >= 1 and overview["riders_online"] == 4
+    assert overview["orders_today"] >= 1 and overview["riders_online"] == 6  # 4 Lagos + 2 Enugu demo riders
     analytics = (await client.get("/v1/admin/analytics?days=7", headers=auth("admin"))).json()
     assert len(analytics["series"]) == 7
     partner = (

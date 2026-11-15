@@ -48,6 +48,7 @@ from .services.infra import (
     TaskRouter,
 )
 from .services.orders import OrderService
+from .services.parcels import ParcelService
 from .services.payments import PaymentService
 from .services.quotes import QuoteService
 
@@ -77,6 +78,7 @@ class Container:
     http: httpx.AsyncClient
     catalog: CatalogService
     quotes: QuoteService
+    parcels: ParcelService
     payments: PaymentService
     orders: OrderService
     dispatch: DispatchService
@@ -263,6 +265,7 @@ async def build_container(
         http=http,
         catalog=catalog,
         quotes=quotes,
+        parcels=ParcelService(repos),
         payments=payments,
         orders=orders,
         dispatch=dispatch,
@@ -324,5 +327,6 @@ def register_handlers(c: Container) -> None:
     r = c.task_router
     r.route(orders_mod.TASK_RESTAURANT_TIMEOUT, c.orders.restaurant_timeout)
     r.route(orders_mod.TASK_UNPAID_EXPIRY, c.orders.expire_unpaid)
+    r.route(orders_mod.TASK_PARCEL_RELEASE, c.orders.release_parcel)
     r.route(dispatch_mod.TASK_OFFER_TIMEOUT, c.dispatch.handle_offer_timeout)
     r.route(dispatch_mod.TASK_DISPATCH_RETRY, c.dispatch.retry)

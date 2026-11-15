@@ -74,6 +74,14 @@ class Settings(BaseSettings):
     # --- notifications -------------------------------------------------------------------------
     notifier: Literal["log", "fcm"] = "log"
 
+    # --- customer support contacts (shown in the apps' Support tab) -------------------------------
+    # Placeholders until the owner provides real ones; `support_contacts_are_placeholders` lets apps flag them.
+    support_whatsapp: str = "+234 000 000 0000"
+    support_phone: str = "+234 000 000 0000"
+    support_email: str = "support@example.com"
+    support_hours: str = "Every day, 8am to 10pm"
+    support_contacts_are_placeholders: bool = True
+
     # --- business rules -----------------------------------------------------------------------
     quote_ttl_seconds: int = 600
     unpaid_order_ttl_seconds: int = 1800

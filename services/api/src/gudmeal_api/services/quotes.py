@@ -131,6 +131,7 @@ class QuoteService:
         quote = Quote(
             id=uuid.uuid4().hex,
             customer_id=principal.uid,
+            vertical=restaurant.vertical,
             restaurant_id=restaurant.id,
             restaurant_name=restaurant.name,
             lines=priced,

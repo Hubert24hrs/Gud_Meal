@@ -626,7 +626,7 @@ class PaymentService:
                 description=f"Order {order.short_code} completed",
                 metadata={"restaurant_id": order.restaurant_id, "rider_id": order.rider_id},
             )
-            if created:
+            if created and not order.is_parcel:  # courier jobs earn no commission
                 s.add(
                     CommissionRecord(
                         order_id=order.id,

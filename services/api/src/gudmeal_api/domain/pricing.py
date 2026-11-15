@@ -21,6 +21,7 @@ from .models import (
     Fulfillment,
     MenuItem,
     OptionGroup,
+    ParcelSize,
     PriceBreakdown,
     PricedLine,
     Restaurant,
@@ -45,9 +46,32 @@ class RiderPayConfig(BaseModel):
     min_kobo: int = Field(default=50_000, ge=0)  # ₦500
 
 
+class ParcelFeeConfig(BaseModel):
+    """Package Delivery (courier) pricing. Customer fee = base for the size + per road km, rounded to ₦50."""
+
+    base_by_size_kobo: dict[ParcelSize, int] = Field(
+        default_factory=lambda: {
+            ParcelSize.SMALL: 100_000,  # ₦1,000
+            ParcelSize.MEDIUM: 150_000,  # ₦1,500
+            ParcelSize.LARGE: 250_000,  # ₦2,500
+        }
+    )
+    per_km_kobo: int = Field(default=15_000, ge=0)  # ₦150 per road km
+    min_kobo: int = Field(default=100_000, ge=0)  # ₦1,000
+    max_kobo: int = Field(default=1_500_000, ge=0)  # ₦15,000
+    round_to_kobo: int = Field(default=5_000, ge=1)  # ₦50
+    service_fee_kobo: int = Field(default=10_000, ge=0)  # ₦100 booking fee
+    rider_bonus_by_size_kobo: dict[ParcelSize, int] = Field(
+        default_factory=lambda: {ParcelSize.SMALL: 0, ParcelSize.MEDIUM: 20_000, ParcelSize.LARGE: 50_000}
+    )
+    max_distance_km: float = Field(default=40.0, gt=0)  # straight-line, within one city
+    pickup_eta_minutes: int = Field(default=25, ge=0)  # typical time for a rider to reach the sender
+
+
 class ZoneConfig(BaseModel):
     id: str
     name: str
+    city: str = "lagos"
     center: GeoPoint
     radius_km: float = Field(gt=0)
     is_active: bool = True
@@ -65,6 +89,7 @@ class PricingConfig(BaseModel):
     default_commission_bps: int = Field(default=1_500, ge=0, le=5_000)
     delivery: DeliveryFeeConfig = Field(default_factory=DeliveryFeeConfig)
     rider_pay: RiderPayConfig = Field(default_factory=RiderPayConfig)
+    parcel: ParcelFeeConfig = Field(default_factory=ParcelFeeConfig)
     avg_speed_kmh: Decimal = Decimal("18")
     dispatch_buffer_minutes: int = 8
     zones: list[ZoneConfig] = Field(default_factory=list)
@@ -298,3 +323,53 @@ def compute_price(
         restaurant_earning_kobo=restaurant_earning,
     )
     return PricingResult(breakdown=breakdown, settlement=settlement)
+
+
+# ---------------------------------------------------------------------------------------------
+# Package Delivery
+# ---------------------------------------------------------------------------------------------
+
+
+def parcel_fee(distance_km: float, size: ParcelSize, cfg: PricingConfig, surge_bps: int = 10_000) -> int:
+    p = cfg.parcel
+    fee = p.base_by_size_kobo[size] + multiply_decimal(p.per_km_kobo, road_km(distance_km, cfg))
+    fee = clamp(fee, p.min_kobo, p.max_kobo)
+    return round_to(apply_bps(fee, surge_bps), p.round_to_kobo)
+
+
+def parcel_rider_pay(distance_km: float, size: ParcelSize, cfg: PricingConfig) -> int:
+    return rider_pay(distance_km, cfg) + cfg.parcel.rider_bonus_by_size_kobo.get(size, 0)
+
+
+def compute_parcel_price(
+    *, distance_km: float, size: ParcelSize, cfg: PricingConfig, surge_bps: int = 10_000
+) -> PricingResult:
+    """Price a courier job. There is no merchant: the whole fee is platform revenue less rider pay."""
+    if distance_km > cfg.parcel.max_distance_km:
+        raise ValidationFailed(
+            "Pickup and drop-off are too far apart for bike delivery",
+            details={"distance_km": round(distance_km, 2), "max_km": cfg.parcel.max_distance_km},
+        )
+    fee = parcel_fee(distance_km, size, cfg, surge_bps)
+    s_fee = cfg.parcel.service_fee_kobo
+    vat = apply_bps(fee + s_fee, cfg.vat_bps)
+    breakdown = PriceBreakdown(
+        subtotal_kobo=0,
+        delivery_fee_kobo=fee,
+        service_fee_kobo=s_fee,
+        vat_kobo=vat,
+        total_kobo=fee + s_fee + vat,
+    )
+    settlement = SettlementTerms(
+        commission_bps=0,
+        commission_kobo=0,
+        rider_pay_kobo=parcel_rider_pay(distance_km, size, cfg),
+        restaurant_earning_kobo=0,
+    )
+    return PricingResult(breakdown=breakdown, settlement=settlement)
+
+
+def parcel_minutes(distance_km: float, cfg: PricingConfig) -> int:
+    """Minutes from booking to drop-off for an on-demand parcel (rider reaches sender, then rides)."""
+    travel = road_km(distance_km, cfg) / cfg.avg_speed_kmh * 60
+    return int(cfg.parcel.pickup_eta_minutes + int(travel.to_integral_value()) + 1)

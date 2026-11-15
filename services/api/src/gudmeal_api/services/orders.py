@@ -10,7 +10,14 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from ..domain.models import Fulfillment, Order, OrderEvent, PaymentSummary
+from ..domain.models import (
+    DeliveryAddress,
+    Fulfillment,
+    Order,
+    OrderEvent,
+    PaymentSummary,
+    Vertical,
+)
 from ..domain.money import format_naira
 from ..domain.order_state import ACTIVE_FULFILMENT, ActorType, OrderStatus, assert_transition
 from ..errors import (
@@ -33,6 +40,25 @@ _SHORT_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"
 
 TASK_RESTAURANT_TIMEOUT = "/internal/tasks/restaurant-accept-timeout"
 TASK_UNPAID_EXPIRY = "/internal/tasks/unpaid-order-expiry"
+TASK_PARCEL_RELEASE = "/internal/tasks/parcel-release"
+PARCEL_DISPATCH_LEAD = timedelta(minutes=30)  # start finding a rider this long before a scheduled pickup
+PARCEL_MERCHANT_ID = "gm-send"  # pseudo-merchant id for courier jobs (no partner owns it)
+
+# Per-service wording; falls back to CUSTOMER_NOTIFY.
+NOTIFY_BY_VERTICAL: dict[Vertical, dict[OrderStatus, tuple[str, str]]] = {
+    Vertical.BEAUTY: {
+        S.RESTAURANT_ACCEPTED: ("Order accepted", "{restaurant} is packing your order"),
+        S.DELIVERED: ("Delivered", "Your order from {restaurant} has arrived"),
+    },
+    Vertical.PARCEL: {
+        S.READY_FOR_PICKUP: ("Finding a rider", "We're assigning a rider to collect your package"),
+        S.RIDER_ASSIGNED: ("Rider assigned", "{rider} is heading to collect your package"),
+        S.PICKED_UP: ("Package picked up", "{rider} has your package and is on the way"),
+        S.DELIVERED: ("Delivered", "Your package has been delivered"),
+        S.REFUND_PENDING: ("Refund started", "We're refunding your package booking"),
+        S.CANCELLED: ("Booking cancelled", "Your package booking was cancelled"),
+    },
+}
 
 CUSTOMER_NOTIFY: dict[OrderStatus, tuple[str, str]] = {
     S.RESTAURANT_ACCEPTED: ("Order accepted", "{restaurant} is preparing your order"),
@@ -172,7 +198,9 @@ class OrderService:
             "actor_type": event.actor_type.value,
         }
         await self.emitter.emit(f"order.{order.status.value}", payload)
-        template = CUSTOMER_NOTIFY.get(order.status)
+        template = NOTIFY_BY_VERTICAL.get(order.vertical, {}).get(order.status) or CUSTOMER_NOTIFY.get(
+            order.status
+        )
         if template:
             title, body = template
             await self.notifier.notify_user(
@@ -309,6 +337,7 @@ class OrderService:
             customer_id=principal.uid,
             customer_name=principal.name,
             customer_phone=contact_phone or principal.phone,
+            vertical=restaurant.vertical,
             restaurant_id=restaurant.id,
             restaurant_name=restaurant.name,
             restaurant_location=restaurant.location,
@@ -393,7 +422,10 @@ class OrderService:
                 reason=reason,
                 patch={"cancelled_at": utcnow(), "cancellation_reason": reason},
             )
-        if order.status == S.SUBMITTED_TO_RESTAURANT:
+        # Full automatic refund while nobody has started work: the merchant hasn't accepted yet, or (parcels)
+        # no rider has been assigned.
+        refundable = {S.PAID, S.READY_FOR_PICKUP} if order.is_parcel else {S.PAID, S.SUBMITTED_TO_RESTAURANT}
+        if order.status in refundable:
             return await self.transition(
                 order_id,
                 S.REFUND_PENDING,
@@ -402,7 +434,7 @@ class OrderService:
                 reason=reason,
                 patch={"cancelled_at": utcnow(), "cancellation_reason": reason},
                 metadata=refund_meta(order.breakdown.total_kobo, "platform", "before_completion", auto=True),
-                check=lambda o: _expect(o, {S.SUBMITTED_TO_RESTAURANT}),
+                check=lambda o: _expect(o, refundable),
             )
         raise InvalidTransition("This order can no longer be cancelled in the app; please contact support")
 
@@ -472,6 +504,9 @@ class OrderService:
                 },
             )
             await self._record_voucher_use(order)
+        if order.status == S.PAID and order.is_parcel:
+            await self._schedule_parcel_release(order)
+            return
         if order.status == S.PAID:
             await self.transition(
                 order_id, S.SUBMITTED_TO_RESTAURANT, actor_type=A.SYSTEM, actor_id="payments"
@@ -551,6 +586,174 @@ class OrderService:
         )
 
     # ============================================================================ restaurant flows
+    # ============================================================================ package delivery
+    async def create_parcel_order(
+        self,
+        principal: Principal,
+        quote_id: str,
+        *,
+        parcels: Any,
+        channel: Literal["app", "web", "ai_agent", "admin"] = "app",
+    ) -> Order:
+        """Create a courier order from a parcel quote (idempotent per quote, re-priced like food orders)."""
+        quote = await parcels.get_quote(principal, quote_id)
+        if quote.order_id:
+            return await self.get(quote.order_id)
+        now = utcnow()
+        if quote.expires_at < now:
+            raise QuoteExpired("Your price quote expired; please get a new price")
+        from ..domain.models import ParcelQuoteRequest
+
+        d = quote.details
+        result, *_ = await parcels.price(
+            ParcelQuoteRequest(
+                pickup=d.pickup,
+                dropoff=d.dropoff,
+                size=d.size,
+                category=d.category,
+                description=d.description,
+                declared_value_kobo=d.declared_value_kobo,
+                scheduled_for=quote.scheduled_for,
+            ),
+            now=now,
+        )
+        if result.breakdown.total_kobo != quote.breakdown.total_kobo:
+            raise PriceChanged(
+                "Delivery prices changed since your quote; please review the new price",
+                details={
+                    "quoted_total_kobo": quote.breakdown.total_kobo,
+                    "new_total_kobo": result.breakdown.total_kobo,
+                },
+            )
+        order_id = uuid.uuid4().hex
+        pickup, dropoff = d.pickup, d.dropoff
+        order = Order(
+            id=order_id,
+            short_code=short_code(),
+            vertical=Vertical.PARCEL,
+            customer_id=principal.uid,
+            customer_name=principal.name,
+            customer_phone=principal.phone or pickup.phone,
+            restaurant_id=PARCEL_MERCHANT_ID,
+            restaurant_name=f"Package from {pickup.name}",
+            restaurant_location=pickup.location,
+            restaurant_address=", ".join(x for x in (pickup.line1, pickup.area, pickup.city) if x),
+            status=S.DRAFT,
+            fulfillment=Fulfillment.DELIVERY,
+            lines=[],
+            breakdown=quote.breakdown,
+            settlement=quote.settlement,
+            delivery_address=DeliveryAddress(
+                label=f"Recipient: {dropoff.name}"[:40],
+                line1=dropoff.line1,
+                area=dropoff.area,
+                city=dropoff.city,
+                state=dropoff.city,
+                location=dropoff.location,
+                instructions=dropoff.instructions,
+                contact_phone=dropoff.phone,
+            ),
+            distance_km=quote.distance_km,
+            scheduled_for=quote.scheduled_for,
+            quote_id=quote.id,
+            estimated_delivery_at=quote.estimated_delivery_at,
+            channel=channel,
+            parcel=d,
+            created_at=now,
+            updated_at=now,
+        )
+        event = OrderEvent(
+            id=uuid.uuid4().hex,
+            order_id=order_id,
+            from_status=None,
+            to_status=S.DRAFT,
+            actor_type=A.CUSTOMER,
+            actor_id=principal.uid,
+            at=now,
+            metadata={"channel": channel, "vertical": "parcel"},
+        )
+
+        async def fn(tx: Transaction) -> str:
+            qdata = await tx.get(f"parcel_quotes/{quote.id}")
+            if qdata and qdata.get("order_id"):
+                return str(qdata["order_id"])
+            tx.update(f"parcel_quotes/{quote.id}", {"order_id": order_id})
+            tx.create(f"orders/{order_id}", to_doc(order))
+            tx.create(f"order_events/{event.id}", to_doc(event))
+            return order_id
+
+        created_id = await self.repos.store.run_transaction(fn)
+        if created_id != order_id:
+            return await self.get(created_id)
+        await self.tasks.enqueue(TASK_UNPAID_EXPIRY, {"order_id": order_id}, delay_seconds=self.unpaid_ttl)
+        return order
+
+    async def _schedule_parcel_release(self, order: Order) -> None:
+        """Paid parcel: look for a rider now, or shortly before the scheduled pickup time."""
+        if order.scheduled_for is not None:
+            start_at = order.scheduled_for - PARCEL_DISPATCH_LEAD
+            delay = int((start_at - utcnow()).total_seconds())
+            if delay > 60:
+                await self.tasks.enqueue(TASK_PARCEL_RELEASE, {"order_id": order.id}, delay_seconds=delay)
+                return
+        await self.release_parcel({"order_id": order.id})
+
+    async def release_parcel(self, payload: dict[str, Any]) -> None:
+        """Task handler: a paid parcel becomes ready for pickup, which starts rider dispatch."""
+        order = await self.repos.orders.get(str(payload["order_id"]))
+        if order is None or not order.is_parcel or order.status != S.PAID:
+            return  # cancelled/refunded meanwhile, or already released (task retries are harmless)
+
+        def only_paid_parcels(o: Order) -> None:
+            if not o.is_parcel:
+                raise InvalidTransition("Only package deliveries skip the merchant")
+            _expect(o, {S.PAID})
+
+        await self.transition(
+            order.id,
+            S.READY_FOR_PICKUP,
+            actor_type=A.SYSTEM,
+            actor_id="parcels",
+            patch={"ready_at": utcnow()},
+            check=only_paid_parcels,
+        )
+
+    # ============================================================================ customer summary
+    async def summary_for_customer(self, uid: str) -> dict[str, Any]:
+        """Totals across everything a customer has paid for (amounts net of refunds, integer kobo)."""
+        orders = await self.repos.orders.find(where=[("customer_id", "==", uid)], limit=5000)
+        paid = [o for o in orders if o.payment.status in ("paid", "refunded", "partially_refunded")]
+        by_vertical: dict[str, dict[str, int]] = {v.value: {"orders": 0, "spent_kobo": 0} for v in Vertical}
+        favourite: dict[str, tuple[str, int]] = {}
+        now = utcnow()
+        month_spent = 0
+        for o in paid:
+            net = max(0, o.breakdown.total_kobo - o.refund_total_kobo)
+            bucket = by_vertical[o.vertical.value]
+            bucket["orders"] += 1
+            bucket["spent_kobo"] += net
+            if o.created_at.year == now.year and o.created_at.month == now.month:
+                month_spent += net
+            if not o.is_parcel:
+                name, count = favourite.get(o.restaurant_id, (o.restaurant_name, 0))
+                favourite[o.restaurant_id] = (name, count + 1)
+        fav = max(favourite.items(), key=lambda kv: kv[1][1], default=None)
+        in_progress = sum(1 for o in orders if o.status in ACTIVE_FULFILMENT)
+        return {
+            "orders_count": len(paid),
+            "completed_count": sum(1 for o in paid if o.status == S.COMPLETED),
+            "in_progress_count": in_progress,
+            "total_spent_kobo": sum(b["spent_kobo"] for b in by_vertical.values()),
+            "this_month_spent_kobo": month_spent,
+            "refunded_kobo": sum(o.refund_total_kobo for o in paid),
+            "by_vertical": by_vertical,
+            "favourite_merchant": None
+            if fav is None
+            else {"id": fav[0], "name": fav[1][0], "orders": fav[1][1]},
+            "first_order_at": min((o.created_at for o in paid), default=None),
+            "last_order_at": max((o.created_at for o in paid), default=None),
+        }
+
     def _restaurant_actor(self, principal: Principal, order: Order) -> tuple[ActorType, str]:
         if principal.can_on_restaurant(order.restaurant_id, "orders"):
             return A.RESTAURANT, principal.uid

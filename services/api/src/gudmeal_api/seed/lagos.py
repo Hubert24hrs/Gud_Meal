@@ -1,5 +1,7 @@
 """Demo catalog for local development: fictional Lagos restaurants, menus, riders and vouchers.
 
+The multi-service additions (Enugu, beauty & skin care shops, more Lagos food) live in `expansion.py`.
+
 All businesses and people here are invented. Prices are realistic for Lagos in 2026 (kobo).
 Used only with DATA_BACKEND=memory or explicitly via `python -m gudmeal_api.seed` against an emulator.
 """
@@ -26,6 +28,7 @@ from ..domain.money import naira
 from ..domain.pricing import PricingConfig, ZoneConfig
 from ..repositories import Repositories
 from ..services.catalog import search_keywords
+from .expansion import ENUGU_ZONE, enugu_riders, seed_expansion
 
 DEMO_OWNER_UID = "demo-owner-1"
 DEMO_CUSTOMER_UID = "demo-customer-1"
@@ -43,6 +46,7 @@ PRICING = PricingConfig(
         ZoneConfig(
             id="lagos-mainland", name="Lagos Mainland", center=GeoPoint(lat=6.5450, lng=3.3550), radius_km=16
         ),
+        ENUGU_ZONE,
     ]
 )
 
@@ -939,13 +943,18 @@ async def seed(repos: Repositories) -> dict[str, int]:
         ("scheduled_orders", True, "Schedule orders up to 7 days ahead"),
     ]:
         await repos.set_feature_flag(key, enabled, desc, "seed")
+    extra = await seed_expansion(repos, now)
+    counts["restaurants"] += extra["merchants"]
+    counts["items"] += extra["items"]
+    counts["riders"] += extra["riders"]
+    counts["vouchers"] += extra["vouchers"]
     return counts
 
 
 async def refresh_demo_riders(repos: Repositories) -> None:
     """Keep seeded demo riders' locations fresh in local dev (simulates rider app pings)."""
     now = datetime.now(UTC)
-    for rider in demo_riders(now):
+    for rider in [*demo_riders(now), *enugu_riders(now)]:
         existing = await repos.riders.get(rider.uid)
         if existing and existing.is_online and existing.last_location:
             await repos.riders.update(rider.uid, {"last_location_at": now})
