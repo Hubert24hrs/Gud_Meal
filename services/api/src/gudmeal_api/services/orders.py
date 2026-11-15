@@ -402,6 +402,8 @@ class OrderService:
         order = await self.get(order_id)
         if order.customer_id != principal.uid:
             raise NotFound("Order not found")
+        if order.is_leg:
+            raise InvalidTransition("This is part of a waybill and is paid with the waybill")
         if order.status not in (S.DRAFT, S.PENDING_PAYMENT):
             raise InvalidTransition(f"Order is already {order.status.value}")
         if provider == "cash":
@@ -1143,6 +1145,8 @@ def _flow_guard(order: Order, to: OrderStatus, actor: ActorType) -> None:
         raise InvalidTransition("Only waybill rider jobs skip payment")
     if to == S.DELIVERED and actor == A.SYSTEM and not order.is_waybill:
         raise InvalidTransition("Only waybills are marked delivered by the system")
+    if to == S.SUBMITTED_TO_RESTAURANT and order.vertical in (Vertical.PARCEL, Vertical.WAYBILL):
+        raise InvalidTransition("Packages are not sent to a merchant")
 
 
 def _rider_check(order: Order, uid: str) -> None:

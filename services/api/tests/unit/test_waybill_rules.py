@@ -226,6 +226,11 @@ def test_waybill_state_rules_and_flow_guard():
     )
     with pytest.raises(InvalidTransition, match="marked delivered by the system"):
         move(food.model_copy(update={"status": S.IN_TRANSIT}), S.DELIVERED)
+    # Pay on delivery's "send to the merchant unpaid" step never applies to packages.
+    for vertical in (Vertical.WAYBILL, Vertical.PARCEL):
+        unpaid = _order(status=S.PENDING_PAYMENT, vertical=vertical, provider="cash", pay="pending")
+        with pytest.raises(InvalidTransition, match="not sent to a merchant"):
+            move(unpaid, S.SUBMITTED_TO_RESTAURANT)
 
     # Rider jobs hold no money: they can be called off, never "refunded".
     leg = _order(

@@ -374,6 +374,33 @@ async def test_dropoff_waybill_cannot_be_cancelled_once_at_the_hub(client, conta
 
 
 # ---------------------------------------------------------------------------------- permissions & config
+async def test_waybills_are_paid_at_booking_and_rider_jobs_are_not_payable(client, container):
+    container.cash.min_completed_orders = 0  # pay on delivery would otherwise be open to this customer
+    q = await quote(client)  # door to door, under the pay-on-delivery limit
+    r = await client.post(
+        "/v1/waybills", json={"quote_id": q["id"], "channel": "web"}, headers={**auth("customer"), **idem()}
+    )
+    waybill = r.json()
+    options = await client.get(f"/v1/orders/{waybill['id']}/payment-options", headers=auth("customer"))
+    cash = next(m for m in options.json()["methods"] if m["id"] == "cash")
+    assert cash == {**cash, "available": False, "reason": "Package deliveries are paid when you book"}
+    r = await client.post(
+        f"/v1/orders/{waybill['id']}/checkout",
+        json={"provider": "cash"},
+        headers={**auth("customer"), **idem()},
+    )
+    assert r.status_code == 422 and "paid when you book" in r.json()["error"]["message"]
+
+    paid = await book_and_pay(client, q)
+    leg_id = paid["waybill"]["first_mile_order_id"]
+    for provider in (None, "wallet", "cash"):
+        body = {"provider": provider} if provider else {}
+        r = await client.post(
+            f"/v1/orders/{leg_id}/checkout", json=body, headers={**auth("customer"), **idem()}
+        )
+        assert r.status_code == 409 and "part of a waybill" in r.json()["error"]["message"], r.text
+
+
 async def test_hub_permissions_and_network_configuration(client, container):
     assert (await client.get("/v1/admin/hubs/lagos-lekki/board", headers=auth("customer"))).status_code == 403
     assert (await client.get("/v1/admin/hubs/lagos-lekki/board", headers=auth("ops"))).status_code == 200
