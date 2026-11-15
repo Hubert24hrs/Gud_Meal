@@ -84,7 +84,9 @@ def test_parcel_state_rules():
 
 
 def test_progress_wording_per_service():
-    assert progress_label(S.READY_FOR_PICKUP, "parcel") == (3, "Finding a rider")
+    assert progress_label(S.READY_FOR_PICKUP, "parcel") == (1, "Finding a rider")
+    assert progress_label(S.RIDER_ASSIGNED, "parcel") == (2, "Rider heading to pickup")
+    assert progress_label(S.IN_TRANSIT, "parcel") == (3, "On the way to the recipient")
     assert progress_label(S.PREPARING, "beauty") == (2, "Packing your order")
     assert progress_label(S.PREPARING, "food") == (2, "Preparing your food")
     assert progress_label(S.COMPLETED, "parcel") == (5, "Completed")  # falls back to the shared label

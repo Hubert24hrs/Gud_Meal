@@ -167,8 +167,16 @@ PROGRESS_LABELS: dict[str, dict[OrderStatus, str]] = {
 }
 
 
+# Step numbers per service where the food timeline doesn't fit. Parcels: 0 booked · 1 rider found · 2 heading to
+# pickup · 3 on the way · 4 delivered (the current step is the one in progress).
+PROGRESS_STEPS: dict[str, dict[OrderStatus, int]] = {
+    "parcel": {S.PAID: 1, S.READY_FOR_PICKUP: 1, S.RIDER_ASSIGNED: 2, S.PICKED_UP: 3, S.IN_TRANSIT: 3},
+}
+
+
 def progress_label(status: OrderStatus, vertical: str = "food") -> tuple[int, str]:
     step, label = CUSTOMER_PROGRESS[status]
+    step = PROGRESS_STEPS.get(vertical, {}).get(status, step)
     return step, PROGRESS_LABELS.get(vertical, {}).get(status, label)
 
 
