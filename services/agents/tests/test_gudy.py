@@ -269,3 +269,53 @@ async def test_offline_gudy_reads_the_wallet_and_explains_cash_payments(offline_
     from gudmeal_agents.tools.registry import FORBIDDEN_ARG_NAMES
 
     assert {"amount", "amount_kobo"} <= set(FORBIDDEN_ARG_NAMES)
+
+
+async def test_offline_gudy_quotes_waybill_routes_and_tracks_a_waybill(offline_stack):
+    client, api = offline_stack["client"], offline_stack["api"]
+    routes = await chat(client, "Can you send a package to Abuja?")
+    assert "Abuja: from ₦" in routes["reply"] and "collect at Partner terminal, Utako" in routes["reply"]
+    card = next(c for c in routes["cards"] if c["type"] == "waybill_options")
+    assert card["screen"] == "waybill" and [d["to"] for d in card["destinations"]] == ["Abuja"]
+    all_routes = await chat(client, "I want to send something interstate")
+    assert "Enugu" in all_routes["reply"] and "Port Harcourt" in all_routes["reply"]
+
+    none = await chat(client, "where is my waybill?")
+    assert "don't have any waybills" in none["reply"]
+
+    sender = {**LEKKI_ADDRESS, "name": "Ada", "phone": "+2348011111111"}
+    sender.pop("label")
+    q = await api.post(
+        "/v1/waybills/quotes",
+        json={
+            "origin_city": "lagos",
+            "destination_city": "abuja",
+            "first_mile": "pickup",
+            "last_mile": "collect",
+            "sender": sender,
+            "recipient": {"name": "Musa Bello", "phone": "+2348077777777"},
+            "size": "small",
+            "weight_kg": 1,
+        },
+        headers=bearer("customer"),
+    )
+    assert q.status_code == 201, q.text
+    order = await api.post(
+        "/v1/waybills",
+        json={"quote_id": q.json()["id"]},
+        headers={**bearer("customer"), "Idempotency-Key": "test-waybill-1"},
+    )
+    pay = await api.post(
+        f"/v1/orders/{order.json()['id']}/checkout",
+        json={},
+        headers={**bearer("customer"), "Idempotency-Key": "test-waybill-pay-1"},
+    )
+    await api.post(f"/v1/dev/sandbox-checkout/{pay.json()['reference']}/complete?outcome=success")
+    code = order.json()["waybill"]["tracking_code"]
+
+    tracked = await chat(client, f"track {code.lower()}")
+    assert f"Waybill {code} (Lagos to Abuja): Rider pickup booked." in tracked["reply"]
+    latest = await chat(client, "where is my waybill?")
+    assert code in latest["reply"]
+    totals = await chat(client, "How much have I spent on Gud Meal?")
+    assert "Interstate waybill: 1 order(s)" in totals["reply"]

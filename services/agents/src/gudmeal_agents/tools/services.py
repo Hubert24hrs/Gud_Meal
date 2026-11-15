@@ -15,7 +15,22 @@ from ..api_client import ApiError
 from .customer import EVERYONE, LAGOS, delivery_address, lagos_time, naira
 from .registry import ToolArgs, ToolContext, ToolError, ToolOutput, ToolRegistry, ToolSpec
 
-SERVICE_NAMES = {"food": "Food", "beauty": "Beauty & Skin care", "parcel": "Package Delivery"}
+SERVICE_NAMES = {
+    "food": "Food",
+    "beauty": "Beauty & Skin care",
+    "parcel": "Package Delivery",
+    "waybill": "Interstate waybill",
+}
+CITY_ALIASES = {
+    "lagos": "lagos",
+    "enugu": "enugu",
+    "abuja": "abuja",
+    "port harcourt": "port-harcourt",
+    "portharcourt": "port-harcourt",
+    "port-harcourt": "port-harcourt",
+    "ph": "port-harcourt",
+}
+TRACKING_CODE = re.compile(r"^GMW[2-9A-HJ-NP-Z]{8}$")
 
 Screen = Literal[
     "home",
@@ -29,6 +44,7 @@ Screen = Literal[
     "merchant",
     "order",
     "wallet",
+    "waybill",
 ]
 SCREEN_LABELS: dict[str, str] = {
     "home": "Go to Home",
@@ -42,6 +58,7 @@ SCREEN_LABELS: dict[str, str] = {
     "merchant": "Open the store",
     "order": "Track this order",
     "wallet": "Open my wallet",
+    "waybill": "Send to another city",
 }
 
 
@@ -152,6 +169,120 @@ async def open_screen(args: OpenScreenArgs, ctx: ToolContext) -> ToolOutput:
     }
     card = {"type": "navigate", "screen": args.screen, "params": params, "label": SCREEN_LABELS[args.screen]}
     return ToolOutput({"shown_button": card["label"]}, card=card)
+
+
+class WaybillOptionsArgs(ToolArgs):
+    destination: str | None = Field(default=None, max_length=40, description="Destination city, e.g. 'Abuja'")
+    origin: str | None = Field(
+        default=None,
+        max_length=40,
+        description="Sending city; defaults to the city of the customer's address",
+    )
+
+
+class TrackWaybillArgs(ToolArgs):
+    tracking_code: str | None = Field(
+        default=None,
+        max_length=20,
+        description="Waybill tracking number (GMW + 8 characters); latest if empty",
+    )
+
+
+def _city_id(text: str | None) -> str | None:
+    if not text:
+        return None
+    key = re.sub(r"\s+", " ", text.strip().lower()).removesuffix(" city")
+    return CITY_ALIASES.get(key, key.replace(" ", "-"))
+
+
+async def get_waybill_options(args: WaybillOptionsArgs, ctx: ToolContext) -> ToolOutput:
+    """Routes, from-prices and transit days from the customer's city (read-only; booking happens in the app)."""
+    addr = ctx.artifacts.get("delivery_address") or {}
+    origin = _city_id(args.origin) or _city_id(addr.get("city")) or "lagos"
+    wanted = _city_id(args.destination)
+    if wanted and wanted == origin:
+        return ToolOutput(
+            {
+                "same_city": True,
+                "message": "Both places are in the same city: use Package Delivery (bike courier).",
+            },
+            card={"type": "navigate", "screen": "parcel", "params": {}, "label": SCREEN_LABELS["parcel"]},
+        )
+    try:
+        data = await ctx.api.get("/v1/waybill/destinations", origin=origin)
+    except ApiError as exc:
+        raise ToolError(exc.code, exc.message) from exc
+    routes = data["destinations"]
+    if wanted:
+        routes = [d for d in routes if d["city"] == wanted]
+        if not routes:
+            names = ", ".join(d["name"] for d in data["destinations"])
+            return ToolOutput(
+                {
+                    "available": False,
+                    "from": data["origin"]["name"],
+                    "message": f"No waybill route to {args.destination} yet. Routes from {data['origin']['name']}: {names}.",
+                }
+            )
+    rows = [
+        {
+            "to": d["name"],
+            "price_from": naira(d["from_kobo"]),
+            "transit": f"{d['transit_days'][0]} day(s)"
+            if d["transit_days"][0] == d["transit_days"][1]
+            else f"{d['transit_days'][0]}-{d['transit_days'][1]} days",
+            "door_delivery": d["door_delivery"],
+            "collection_points": [h["name"] for h in d["collection_hubs"]],
+        }
+        for d in routes
+    ]
+    out = {
+        "from": data["origin"]["name"],
+        "home_pickup": data["origin"]["home_pickup"],
+        "destinations": rows,
+        "note": "Prices are 'from' prices (small package dropped at the hub and collected). The app shows the exact "
+        "total before payment; book in Send a package, Interstate.",
+    }
+    return ToolOutput(
+        out, card={"type": "waybill_options", "from": out["from"], "destinations": rows, "screen": "waybill"}
+    )
+
+
+async def track_waybill(args: TrackWaybillArgs, ctx: ToolContext) -> ToolOutput:
+    code = (args.tracking_code or "").strip().upper().replace("-", "").replace(" ", "")
+    if code and not TRACKING_CODE.match(code):
+        raise ToolError(
+            "invalid_arguments", "Tracking numbers look like GMW followed by 8 letters and digits"
+        )
+    if not code:
+        orders = await ctx.api.get("/v1/orders", limit=20)
+        latest = next(
+            (
+                o
+                for o in orders
+                if o.get("vertical") == "waybill" and (o.get("waybill") or {}).get("tracking_code")
+            ),
+            None,
+        )
+        if latest is None:
+            return ToolOutput({"message": "No waybills yet"})
+        code = latest["waybill"]["tracking_code"]
+    try:
+        t = await ctx.api.get(f"/v1/track/{code}")
+    except ApiError as exc:
+        raise ToolError(exc.code, exc.message) from exc
+    out: dict[str, Any] = {
+        "tracking_code": code,
+        "route": f"{t['origin']} to {t['destination']}",
+        "status": t["label"],
+        "expected": t["eta_text"],
+        "delivered": t["delivered"],
+        "history": [m["label"] for m in t["milestones"]],
+    }
+    if t.get("collection_point") and not t["delivered"]:
+        cp = t["collection_point"]
+        out["collection_point"] = f"{cp['name']}, {cp['address']} ({cp['hours']})"
+    return ToolOutput(out, card={"type": "waybill_tracking", **out})
 
 
 class OptionalOrderArgs(ToolArgs):
@@ -393,6 +524,25 @@ def register(reg: ToolRegistry) -> None:
             open_screen,
             EVERYONE,
             rate_per_minute=30,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_waybill_options",
+            "Interstate waybill routes from the customer's city: destinations, from-prices, transit days, door "
+            "delivery or collection points. Read-only; customers book in the app.",
+            WaybillOptionsArgs,
+            get_waybill_options,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "track_waybill",
+            "Where an interstate waybill is (by tracking number, or the customer's latest waybill).",
+            TrackWaybillArgs,
+            track_waybill,
+            EVERYONE,
         )
     )
     add(

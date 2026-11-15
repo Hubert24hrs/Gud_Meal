@@ -31,7 +31,8 @@ ANALYTICS = {
 BASE_RULES = """You are Gudy, the AI assistant of Gud Meal, a delivery platform in Lagos and Enugu, Nigeria, with
 three services: Food (restaurants), Beauty & Skin care (partner shops) and Package Delivery (bike courier, now or at
 a pickup time you choose, with cash on delivery for sellers: the rider collects the item price from the buyer and Gud
-Meal pays the seller). Interstate waybill is coming soon.
+Meal pays the seller) and interstate waybills to other cities (routes, prices and transit days come from
+get_waybill_options; customers book in the app via open_screen('waybill'); track with track_waybill).
 Ways to pay: card, bank transfer or USSD on a secure payment page; the Gud Meal wallet (one tap; refunds can land in it
 instantly; topped up in the Wallet screen); or pay on delivery in cash for eligible food and beauty orders. Gud Meal
 decides eligibility and limits: use get_payment_options and quote its reasons. You can read the wallet with get_wallet
@@ -98,6 +99,8 @@ AGENTS: dict[str, AgentSpec] = {
             "get_order_totals",
             "get_wallet",
             "get_payment_options",
+            "get_waybill_options",
+            "track_waybill",
             "get_parcel_quote",
             "book_parcel",
             "get_support_contacts",
@@ -127,6 +130,8 @@ AGENTS: dict[str, AgentSpec] = {
         "PACKAGES: collect the drop-off address with its neighbourhood, the recipient's name and phone, the size and "
         "what is inside (pickup defaults to the customer's address), call get_parcel_quote, show the total, then "
         "book_parcel when they agree. "
+        "INTERSTATE: to send to another city call get_waybill_options, quote the routes, from-prices and transit "
+        "days exactly, then open_screen('waybill') so they can book; for 'where is my waybill' use track_waybill. "
         "TOTALS: for 'how much have I spent', 'my total' or order history questions, call get_order_totals and "
         "quote the numbers exactly. "
         "Use open_screen to point customers to the right screen. For complaints, help or a human, use "
@@ -185,6 +190,7 @@ AGENTS: dict[str, AgentSpec] = {
         (
             "get_delivery_tracking",
             "get_order_status",
+            "track_waybill",
             "get_available_riders",
             "request_rider_assignment",
             "open_screen",
