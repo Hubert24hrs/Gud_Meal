@@ -50,6 +50,18 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
   handling in the apps, offline caching in the apps
 - ⬜ Accessibility audit (screen readers, contrast in dark mode) and device testing on low-end Android
 
+## Maps
+
+- [x] Google Places (New), Geocoding and Routes called only by the API with a server key; keyless fallback is
+  labelled as estimates ([ADR-0014](adr/0014-google-maps-platform.md))
+- [x] Delivery fees on measured road distance, stored on the quote (orders re-price the same)
+- [x] Rider location privacy enforced by the API (offline refused, idle ~1 km, precise only on a delivery)
+- [x] Cost controls: field masks, session tokens, caches, daily cap, traffic-aware switch, live ETA refresh
+- [ ] Server key in Secret Manager, APIs enabled, quotas and a billing budget with alerts (owner)
+- [ ] Restricted Android/iOS/browser keys if map tiles are wanted; test on a device with release signing
+- [ ] Smoke test with a real key in dev (billable, needs approval) and compare quoted fees with real trips
+- [ ] Legal review of the Google Maps Platform terms (caching, attribution)
+
 ## Operations & compliance
 - ✅ Dockerfiles, CI, manual deploy workflow, bootstrap & deploy scripts, rollback procedure documented
 - 👤 Create GCP projects, billing, budgets; run bootstrap; add secrets; first deploy

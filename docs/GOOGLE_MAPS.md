@@ -22,11 +22,24 @@ table and straight-line estimates. Screens and Gudy label those results as estim
 | "Use my location" and checking a kitchen's address | Geocoding API | `/v1/places/reverse`, partner location | server key |
 | Delivery fee, arrival time, live arrival time | Routes API: Compute Routes | quotes, rider tracking | server key |
 | Comparing kitchens (Gudy, nearby) | Routes API: Compute Route Matrix | `/v1/delivery/estimates` | server key |
-| Map on Android / iOS (customer, rider) | Maps SDK for Android / iOS | the apps | restricted app keys |
-| Map on websites (customer, partner, Command Centre) | Maps JavaScript API | the browser | restricted browser key |
+| Map tiles in the customer app (Android / iOS) | Maps SDK for Android / iOS | the app | restricted app keys (optional) |
+| Map tiles on websites and the app's web build | Maps JavaScript API | the browser | restricted browser key (optional) |
 
 Without app or browser keys, screens draw a schematic map (pins, route line, rider) from the same API data.
 Navigation for riders opens the Google Maps app with a link and needs no key.
+
+## Where it shows up
+
+| Where | What |
+|---|---|
+| Customer app | Checkout "Pin your exact address" and Profile → Saved addresses → **Find on map**: search, "use my current location" (asked once, not tracked), saved addresses, a coverage check and a pin preview |
+| Customer app | Food / Beauty → map icon: nearby restaurants or shops on a map, closest first, with estimated times |
+| Customer app | Order screen: kitchen, door and rider with the route while a rider is on the delivery, arrival time marked "live traffic" or "estimate" |
+| Rider app | Navigate to pickup or drop-off opens Google Maps turn-by-turn. Positions are sent only while online, and precise only on a delivery |
+| Website | Checkout address search with "use my current location", pin preview, coverage and "delivery priced on a X km road trip"; order page live map |
+| Partner dashboard | Settings → **Kitchen location**: move the pin by address search, address check, edit the street line |
+| Command Centre | Riders → **Live riders** for Lagos or Enugu: live position only on a delivery, about 1 km areas otherwise, plus today's Google request count |
+| Gudy | "Restaurants near me", "what can reach me in 30 minutes", "which of these is faster" |
 
 ## 1. Enable the APIs (owner, in the Google Cloud console or gcloud)
 
@@ -36,7 +49,7 @@ Use the same GCP project as the rest of Gud Meal. Billing must be enabled.
 gcloud services enable places.googleapis.com geocoding-backend.googleapis.com routes.googleapis.com --project <PROJECT_ID>
 ```
 
-When the map views go live, also enable:
+For map tiles in the apps and websites (optional; schematic maps work without them), also enable:
 
 ```bash
 gcloud services enable maps-android-backend.googleapis.com maps-ios-backend.googleapis.com maps-backend.googleapis.com --project <PROJECT_ID>
@@ -47,9 +60,11 @@ gcloud services enable maps-android-backend.googleapis.com maps-ios-backend.goog
 | Key | API restrictions | Application restriction | Where it lives |
 |---|---|---|---|
 | **Server** | Places API (New), Geocoding API, Routes API | None on Cloud Run (no fixed outbound IP). If you add Cloud NAT with a static IP, restrict to that IP | Secret Manager `google-maps-server-key` → env `GOOGLE_MAPS_API_KEY` on gudmeal-api only |
-| **Android** | Maps SDK for Android | Package names `ng.gudmeal.gud_meal_customer` / `ng.gudmeal.gud_meal_rider` + SHA-1 of the release and debug signing certificates | `android/local.properties` (`MAPS_API_KEY=…`, git-ignored) or CI secret |
-| **iOS** | Maps SDK for iOS | Bundle IDs of the two apps | `ios/Flutter/Secrets.xcconfig` (git-ignored) or CI secret |
-| **Browser** | Maps JavaScript API | Website referrers: `https://gudmeal.ng/*`, `https://*.gudmeal.ng/*`, `http://localhost:*/*` (dev key only) | `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` at build time |
+| **Android** (customer app) | Maps SDK for Android | Package `ng.gudmeal.gud_meal_customer` + SHA-1 of the release and debug signing certificates | `mobile/customer/android/local.properties` (`MAPS_API_KEY=…`, git-ignored) or env `MAPS_API_KEY` in CI |
+| **iOS** (customer app) | Maps SDK for iOS | The customer app's bundle ID | `mobile/customer/ios/Flutter/Secrets.xcconfig` (copy `Secrets.xcconfig.example`; git-ignored) or CI secret |
+| **Browser** | Maps JavaScript API | Website referrers: `https://gudmeal.ng/*`, `https://*.gudmeal.ng/*`, `http://localhost:*/*` (dev key only) | Websites: `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` at build time. App web build: `--dart-define=MAPS_BROWSER_KEY=…` |
+
+The rider app needs no Maps key: navigation opens the Google Maps app.
 
 
 Rules:
@@ -70,6 +85,23 @@ gcloud run services update gudmeal-api --update-secrets=GOOGLE_MAPS_API_KEY=goog
 
 For local testing with a real key, put `GOOGLE_MAPS_API_KEY=…` in `services/api/.env`. That file is
 git-ignored. Every call is billable, so ask the owner first.
+
+### Turning on map tiles (optional)
+
+Everything works without these: maps are schematic previews of the same data. To show Google tiles:
+
+- **Customer app on Android/iOS:**
+  1. Add the Android key to `mobile/customer/android/local.properties` as `MAPS_API_KEY=…`.
+  2. Add the iOS key to `mobile/customer/ios/Flutter/Secrets.xcconfig`.
+  3. Build with `--dart-define=MAPS_ENABLED=true`.
+
+  The manifest and AppDelegate read the key from the build config; no key is in the source.
+- **Customer app web build:** `flutter build web --dart-define=MAPS_ENABLED=true --dart-define=MAPS_BROWSER_KEY=…`.
+  The Maps script loads only when a key is given. If it fails, the schematic map stays.
+- **Websites** (customer site, partner dashboard, Command Centre): set `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY`
+  when building.
+
+Address search, distances, fees and arrival times never need these keys: they always go through the API.
 
 ## 3. Settings (gudmeal-api)
 

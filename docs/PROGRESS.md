@@ -8,7 +8,11 @@ Delivery** (instant and scheduled), **Lagos and Enugu**, and **Gudy**, the AI as
 mode). **Phase 2 is done too**: the **Gud Meal wallet** (top-up, one-tap pay, instant refunds), **pay on delivery**
 with rider cash tracking and hand-ins, **cash on delivery for sellers** with payouts, and **Flutterwave failover**
 ([ADR-0013](adr/0013-wallet-and-cash.md); the wallet still needs a legal review). Phases 3–5 (interstate waybill,
-Plus/referrals/group orders, WhatsApp) are not started. **Nothing is deployed**, and the product is **not production-ready**: cloud resources, real payment
+Plus/referrals/group orders, WhatsApp) are not started. **Google Maps Platform** is integrated
+([ADR-0014](adr/0014-google-maps-platform.md), setup and costs in [GOOGLE_MAPS.md](GOOGLE_MAPS.md)):
+address search with exact pins, road-distance delivery fees, private live rider tracking, nearby maps, kitchen
+pins, an operations map and Gudy "near me" answers. It runs on clearly labelled estimates until the owner adds
+a key. **Nothing is deployed**, and the product is **not production-ready**: cloud resources, real payment
 test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) are still required.
 
 ## What has been built
@@ -20,6 +24,7 @@ test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_RE
 | `services/agents` | **Gudy**: LangGraph graph (guard → router → specialist ⇄ tools), 8 agents, 38 typed tools (services, totals, navigation buttons, support contacts, parcel quote and booking, read-only wallet and payment options added), replies in English, Pidgin, Igbo, Yoruba or Hausa, rule-based **offline mode** without a Gemini key, `interrupt()` approvals, Postgres/SQLite/memory checkpointers, thread ownership, tool audit, token/cost accounting, Gemini via env-pinned model |
 | Web | Customer site, **redesigned Glovo-style in Gud Meal orange** (animated draggable service bubbles, /food, /beauty, /send, /discover, /support, Profile-style account, mobile bottom bar, floating Gudy, wallet page, card/wallet/pay-on-delivery choice at checkout, cash-on-delivery for packages) plus SEO pages, JSON-LD, sitemap, checkout, payment callback, tracking, Gudy chat with approvals + voice; Partner dashboard (live board with alerts, menu editor, insights, settlements, hours), Command Centre (overview, order intervention, verification, refunds, payments, finance, **cash & wallets** (rider cash hand-ins, seller withdrawals, pay-on-delivery block), support, AI monitoring, pricing config, flags, audit) |
 | Mobile | `gud_meal_core` (Freezed models, Dio clients, auth port, theme from tokens), customer app **redesigned Glovo-style** (home with animated, finger-draggable bubbles drawn as original illustrations; Food and Beauty pages; Package Delivery with cash on delivery; Discover; Orders with spending; Support; Profile; **wallet**; card/wallet/pay-on-delivery choice; draggable Gudy robot and chat), rider app (online/GPS, offers with countdown, pickup/transit/OTP delivery, **cash collection confirmation**, package jobs with sender/recipient call buttons, navigation, earnings with cash held, SOS) |
+| Maps | Google Places (New), Geocoding and Routes **only inside the API** (server key; keyless fallback to the neighbourhood table and labelled estimates): `/v1/places/*`, `/v1/delivery/estimates`; delivery fee, rider pay and ETA on the measured road distance (stored on the quote so the order prices the same); rider privacy (no pings while offline, ~1 km areas when idle, precise only on a delivery, cleared at the end); partner kitchen pins checked against the address and audited; operations live-rider map; cost controls (field masks, session tokens, caches, daily cap, traffic-aware switch, 3-minute live ETA refresh). Apps: address picker, nearby map, live delivery map (schematic without a key, Google tiles with restricted keys), rider turn-by-turn links; website checkout search and order map; partner Kitchen location; Command Centre Live riders; Gudy `find_nearby_restaurants` and `compare_delivery_times` |
 | Firebase | Deny-by-default Firestore & Storage rules, composite indexes, quote TTL, emulator config, rules tests |
 | Delivery | Dockerfiles, CI workflow, manual deploy workflow, Cloud Build config, GCP bootstrap & deploy scripts |
 
@@ -68,6 +73,21 @@ test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_RE
   - The visual pass of the new screens in the browser pane was limited because the pane was hidden during this
     session; the screens are covered by widget/component tests and the production builds.
 
+- **Google Maps integration on the running local stack** (no Google key: everything on labelled estimates;
+  Auth emulator + API + customer web build + partner dashboard + Command Centre):
+  - *Customer app*: nearby map for Lekki Phase 1 (10 restaurants, closest first, estimated times; the
+    customer's pin drawn on top). Signed in by phone on the emulator, then Profile → Saved addresses → Find on
+    map: "Lekki" found the neighbourhood, the pin preview said "Gud Meal delivers here", and the address was
+    saved with the street typed in.
+  - *Partner dashboard*: Kitchen location card with zone and radius. A 13.1 km move was refused with "needs Gud
+    Meal to verify"; a nearby move saved with an edited street line.
+  - *Command Centre*: Live riders with a Lagos/Enugu switch, 6 online riders shown as area-only.
+  - Fixed while testing: the address list reopening after a pick, the street line being replaced by a
+    neighbourhood name, the customer's pin hidden under a restaurant pin, the picker under the tab bar, and idle
+    riders using the customer's marker.
+  - Not checked in the browser: the website pages (an earlier dev server process still held port 3000; covered
+    by component tests and type checks) and any real Google response (no key, no paid usage).
+
 ## What has been tested — results
 
 | Suite | Result |
@@ -78,6 +98,7 @@ test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_RE
 | Agents (routing, permissions, approvals, isolation, injection, redaction, failure recovery, cost, Gemini schema, Gudy offline mode in 5 languages, parcel booking via tools, wallet and cash questions) | **40 passed**, 1 skipped (live Gemini needs a key) |
 | TypeScript (api-client 6, web 14) + 3 Next.js production builds with type-check | **20 passed**, builds OK |
 | Flutter core / customer / rider | **11 / 17 / 7 passed** (bubble drag-and-spring-back, Food page, Gudy button, Orders spending, parcel form, cash on delivery for packages, payment choice, wallet, rider package job, rider cash confirmation), analyzer clean |
+| Google Maps branch (`feature/google-maps`, merged with main incl. phase 3) | API **556 passed**, 3 skipped (21 maps: request shapes, keyless fallback, caching, daily cap, measured pricing, outage fallback, rider privacy, live ETA throttle, kitchen pins, live map); agents **48 passed** (7 location); Flutter core/customer/rider **17 / 36 / 10** (5 / 6 / 2 maps); web **21** and api-client **9** (4 + 3 maps); ruff, analyzers and all type checks clean |
 | Firestore & Storage rules tests (Firebase emulators) | **passed in CI** ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43651031712)); not runnable locally without Java |
 | Firestore DocumentStore contract tests against the emulator | **8 passed in CI** (memory + Firestore backends) |
 | Docker images build + API container smoke test | **passed in CI**; not runnable locally without Docker |
@@ -158,7 +179,10 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 4. Install Java 21 locally if you want to run emulator rules tests (`winget install EclipseAdoptium.Temurin.21.JDK`).
 5. Legal: NDPA review, privacy policy/terms, fund-holding (collect-then-settle) review with Paystack and counsel.
 6. Apple/Google developer accounts and signing keys for store releases.
-7. Google Maps API key (address search, map pins in Lagos and Enugu, live rider map).
+7. Google Maps Platform: enable Places API (New), Geocoding and Routes, create a **server key** in Secret
+   Manager, set quotas and a budget, and approve billing (see [GOOGLE_MAPS.md](GOOGLE_MAPS.md); within the free
+   monthly allowances at launch volumes). Optional restricted app and browser keys for map tiles. Legal review
+   of Google's caching terms.
 8. WhatsApp Business (Meta) account and number for WhatsApp support and ordering (phase 5).
 9. Real support contacts (WhatsApp, phone, email) and real partner restaurants and beauty shops for both cities.
 10. Legal/CBN review of the Gud Meal wallet (closed-loop stored value, limits, KYC, who holds the funds) and
