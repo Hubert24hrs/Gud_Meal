@@ -106,7 +106,13 @@ class Settings(BaseSettings):
     code_pepper: SecretStr = SecretStr("local-dev-pepper-change-me")
 
     # --- maps ---------------------------------------------------------------------------------
+    # Server key for Places (New), Geocoding and Routes. Never shipped to apps or browsers; without it the
+    # API uses its neighbourhood table and straight-line estimates (clearly labelled as estimates).
     google_maps_api_key: SecretStr | None = None
+    maps_travel_mode: Literal["DRIVE", "TWO_WHEELER"] = "DRIVE"
+    maps_routes_enabled: bool = True
+    maps_timeout_seconds: float = 4.0
+    maps_daily_request_cap: int = 20_000  # per instance; GCP quotas + budget alerts are the hard limit
 
     @property
     def is_cloud(self) -> bool:

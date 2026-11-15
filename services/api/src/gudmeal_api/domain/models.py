@@ -282,7 +282,9 @@ class Quote(Model):
     settlement: SettlementTerms
     fulfillment: Fulfillment
     delivery_address: DeliveryAddress | None = None
-    distance_km: float | None = None
+    distance_km: float | None = None  # straight line, kitchen to door (delivery radius checks)
+    road_distance_km: float | None = None  # what the delivery fee was priced on
+    route_source: Literal["google", "estimate"] | None = None  # measured by Google Routes, or estimated
     eta_minutes: int
     estimated_delivery_at: datetime
     scheduled_for: datetime | None = None
@@ -300,6 +302,8 @@ class ParcelQuote(Model):
     breakdown: PriceBreakdown
     settlement: SettlementTerms
     distance_km: float
+    road_distance_km: float | None = None
+    route_source: Literal["google", "estimate"] | None = None
     eta_minutes: int
     estimated_delivery_at: datetime
     scheduled_for: datetime | None = None

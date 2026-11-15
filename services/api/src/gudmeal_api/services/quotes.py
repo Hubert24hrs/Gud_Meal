@@ -25,6 +25,7 @@ from ..errors import (
     ValidationFailed,
     VoucherInvalid,
 )
+from ..maps import MapsService, RouteEstimate
 from ..repositories import Repositories
 from ..security.rbac import Principal
 
@@ -32,10 +33,24 @@ MAX_SCHEDULE_AHEAD = timedelta(days=7)
 MIN_SCHEDULE_LEAD = timedelta(minutes=30)
 
 
+def quoted_route(quote: Quote) -> RouteEstimate | None:
+    """The road route a quote was priced on, so re-validation prices the same kilometres."""
+    if quote.distance_km is None:
+        return None
+    return RouteEstimate(
+        distance_km=quote.road_distance_km if quote.road_distance_km is not None else 0.0,
+        duration_minutes=0,
+        source=quote.route_source or "estimate",  # quotes from before Maps were estimates
+    )
+
+
 class QuoteService:
-    def __init__(self, repos: Repositories, *, ttl_seconds: int = 600) -> None:
+    def __init__(
+        self, repos: Repositories, *, ttl_seconds: int = 600, maps: MapsService | None = None
+    ) -> None:
         self.repos = repos
         self.ttl = timedelta(seconds=ttl_seconds)
+        self.maps = maps or MapsService(None)
 
     async def _voucher(self, code: str | None, customer_id: str) -> Voucher | None:
         if not code:
@@ -70,9 +85,18 @@ class QuoteService:
         return target
 
     async def price_request(
-        self, req: QuoteRequest, *, customer_id: str, now: datetime | None = None
-    ) -> tuple[Restaurant, PricingResult, list, float | None, int, datetime]:
-        """Validate and price a request against live catalog data (used for quotes and re-validation)."""
+        self,
+        req: QuoteRequest,
+        *,
+        customer_id: str,
+        now: datetime | None = None,
+        route: RouteEstimate | None = None,
+    ) -> tuple[Restaurant, PricingResult, list, float | None, int, datetime, RouteEstimate | None]:
+        """Validate and price a request against live catalog data (used for quotes and re-validation).
+
+        Delivery is priced on the road route: measured by Google Routes when Maps is configured, otherwise
+        the straight line x road factor estimate. Pass `route` to re-price a quote on the same kilometres.
+        """
         now = now or datetime.now(UTC)
         restaurant = await self.repos.restaurants.get(req.restaurant_id)
         if restaurant is None:
@@ -106,6 +130,11 @@ class QuoteService:
             if cfg.zones and zone is None:
                 raise OutOfDeliveryArea("We don't deliver to this area yet")
             surge = zone.surge_bps if zone else 10_000
+            if route is None:
+                route = await self.maps.route(restaurant.location, req.delivery_address.location, cfg)
+        else:
+            route = None
+        measured = route is not None and route.source == "google"
 
         voucher = await self._voucher(req.voucher_code, customer_id)
         result = compute_price(
@@ -117,14 +146,20 @@ class QuoteService:
             surge_bps=surge,
             voucher=voucher,
             now=now,
+            measured_road_km=route.distance_km if measured and route else None,
         )
         prep = max([restaurant.avg_prep_minutes] + [items[i].prep_minutes or 0 for i in item_ids])
-        eta = estimate_minutes(prep, distance, cfg) if req.fulfillment == Fulfillment.DELIVERY else prep
-        return restaurant, result, priced, distance, eta, target
+        travel = route.duration_minutes if measured and route and route.duration_minutes else None
+        eta = (
+            estimate_minutes(prep, distance, cfg, travel_minutes=travel)
+            if req.fulfillment == Fulfillment.DELIVERY
+            else prep
+        )
+        return restaurant, result, priced, distance, eta, target, route
 
     async def create_quote(self, principal: Principal, req: QuoteRequest) -> Quote:
         now = datetime.now(UTC)
-        restaurant, result, priced, distance, eta, target = await self.price_request(
+        restaurant, result, priced, distance, eta, target, route = await self.price_request(
             req, customer_id=principal.uid, now=now
         )
         cfg = await self.repos.get_pricing_config()
@@ -140,6 +175,8 @@ class QuoteService:
             fulfillment=req.fulfillment,
             delivery_address=req.delivery_address,
             distance_km=round(distance, 3) if distance is not None else None,
+            road_distance_km=route.distance_km if route else None,
+            route_source=route.source if route else None,
             eta_minutes=eta,
             estimated_delivery_at=target + timedelta(minutes=eta),
             scheduled_for=req.scheduled_for,

@@ -178,7 +178,10 @@ def menu_fingerprint(lines: list[PricedLine]) -> str:
 # ---------------------------------------------------------------------------------------------
 
 
-def road_km(distance_km: float, cfg: PricingConfig) -> Decimal:
+def road_km(distance_km: float, cfg: PricingConfig, measured_km: float | None = None) -> Decimal:
+    """Kilometres to price: the measured road route (Google Routes) when known, else straight line x road factor."""
+    if measured_km is not None:
+        return Decimal(str(round(measured_km, 3))).quantize(Decimal("0.001"))
     return (Decimal(str(round(distance_km, 3))) * cfg.delivery.road_factor).quantize(Decimal("0.001"))
 
 
@@ -187,16 +190,20 @@ def round_to(amount_kobo: int, step_kobo: int) -> int:
     return ((amount_kobo + step_kobo // 2) // step_kobo) * step_kobo
 
 
-def delivery_fee(distance_km: float, cfg: PricingConfig, surge_bps: int = 10_000) -> int:
+def delivery_fee(
+    distance_km: float, cfg: PricingConfig, surge_bps: int = 10_000, *, measured_km: float | None = None
+) -> int:
     d = cfg.delivery
-    fee = d.base_kobo + multiply_decimal(d.per_km_kobo, road_km(distance_km, cfg))
+    fee = d.base_kobo + multiply_decimal(d.per_km_kobo, road_km(distance_km, cfg, measured_km))
     fee = clamp(fee, d.min_kobo, d.max_kobo)
     return round_to(apply_bps(fee, surge_bps), d.round_to_kobo)
 
 
-def rider_pay(distance_km: float, cfg: PricingConfig) -> int:
+def rider_pay(distance_km: float, cfg: PricingConfig, *, measured_km: float | None = None) -> int:
     r = cfg.rider_pay
-    return max(r.min_kobo, r.base_kobo + multiply_decimal(r.per_km_kobo, road_km(distance_km, cfg)))
+    return max(
+        r.min_kobo, r.base_kobo + multiply_decimal(r.per_km_kobo, road_km(distance_km, cfg, measured_km))
+    )
 
 
 def service_fee(subtotal_kobo: int, cfg: PricingConfig) -> int:
@@ -237,9 +244,14 @@ def voucher_discount(
     return max(0, min(amount, base))
 
 
-def estimate_minutes(prep_minutes: int, distance_km: float | None, cfg: PricingConfig) -> int:
+def estimate_minutes(
+    prep_minutes: int, distance_km: float | None, cfg: PricingConfig, *, travel_minutes: int | None = None
+) -> int:
+    """Minutes to the door: prep + dispatch buffer + travel (measured by Routes when given, else estimated)."""
     if distance_km is None:
         return prep_minutes
+    if travel_minutes is not None:
+        return int(prep_minutes + cfg.dispatch_buffer_minutes + travel_minutes)
     travel = road_km(distance_km, cfg) / cfg.avg_speed_kmh * 60
     return int(prep_minutes + cfg.dispatch_buffer_minutes + int(travel.to_integral_value()) + 1)
 
@@ -264,7 +276,9 @@ def compute_price(
     surge_bps: int = 10_000,
     voucher: Voucher | None = None,
     now: datetime,
+    measured_road_km: float | None = None,
 ) -> PricingResult:
+    """`measured_road_km` (Google Routes) replaces the straight-line x road-factor estimate when known."""
     subtotal = sum(ln.line_total_kobo for ln in lines)
     if subtotal <= 0:
         raise ValidationFailed("Order is empty")
@@ -277,7 +291,9 @@ def compute_price(
     if is_delivery and distance_km is None:
         raise ValidationFailed("Distance is required for delivery pricing")
 
-    d_fee = delivery_fee(distance_km or 0.0, cfg, surge_bps) if is_delivery else 0
+    d_fee = (
+        delivery_fee(distance_km or 0.0, cfg, surge_bps, measured_km=measured_road_km) if is_delivery else 0
+    )
     s_fee = service_fee(subtotal, cfg)
     small_fee = cfg.small_order_fee_kobo if is_delivery and subtotal < cfg.small_order_threshold_kobo else 0
 
@@ -322,7 +338,7 @@ def compute_price(
     settlement = SettlementTerms(
         commission_bps=commission_bps,
         commission_kobo=commission,
-        rider_pay_kobo=rider_pay(distance_km or 0.0, cfg) if is_delivery else 0,
+        rider_pay_kobo=rider_pay(distance_km or 0.0, cfg, measured_km=measured_road_km) if is_delivery else 0,
         restaurant_funded_discount_kobo=restaurant_funded,
         platform_funded_discount_kobo=platform_funded,
         restaurant_earning_kobo=restaurant_earning,
@@ -335,15 +351,26 @@ def compute_price(
 # ---------------------------------------------------------------------------------------------
 
 
-def parcel_fee(distance_km: float, size: ParcelSize, cfg: PricingConfig, surge_bps: int = 10_000) -> int:
+def parcel_fee(
+    distance_km: float,
+    size: ParcelSize,
+    cfg: PricingConfig,
+    surge_bps: int = 10_000,
+    *,
+    measured_km: float | None = None,
+) -> int:
     p = cfg.parcel
-    fee = p.base_by_size_kobo[size] + multiply_decimal(p.per_km_kobo, road_km(distance_km, cfg))
+    fee = p.base_by_size_kobo[size] + multiply_decimal(p.per_km_kobo, road_km(distance_km, cfg, measured_km))
     fee = clamp(fee, p.min_kobo, p.max_kobo)
     return round_to(apply_bps(fee, surge_bps), p.round_to_kobo)
 
 
-def parcel_rider_pay(distance_km: float, size: ParcelSize, cfg: PricingConfig) -> int:
-    return rider_pay(distance_km, cfg) + cfg.parcel.rider_bonus_by_size_kobo.get(size, 0)
+def parcel_rider_pay(
+    distance_km: float, size: ParcelSize, cfg: PricingConfig, *, measured_km: float | None = None
+) -> int:
+    return rider_pay(distance_km, cfg, measured_km=measured_km) + cfg.parcel.rider_bonus_by_size_kobo.get(
+        size, 0
+    )
 
 
 def cod_fee(cod_amount_kobo: int | None, cfg: PricingConfig) -> int:
@@ -367,6 +394,7 @@ def compute_parcel_price(
     cfg: PricingConfig,
     surge_bps: int = 10_000,
     cod_amount_kobo: int | None = None,
+    measured_road_km: float | None = None,
 ) -> PricingResult:
     """Price a courier job. There is no merchant: the whole fee is platform revenue less rider pay."""
     if distance_km > cfg.parcel.max_distance_km:
@@ -374,7 +402,7 @@ def compute_parcel_price(
             "Pickup and drop-off are too far apart for bike delivery",
             details={"distance_km": round(distance_km, 2), "max_km": cfg.parcel.max_distance_km},
         )
-    fee = parcel_fee(distance_km, size, cfg, surge_bps)
+    fee = parcel_fee(distance_km, size, cfg, surge_bps, measured_km=measured_road_km)
     s_fee = cfg.parcel.service_fee_kobo
     c_fee = cod_fee(cod_amount_kobo, cfg)
     vat = apply_bps(fee + s_fee + c_fee, cfg.vat_bps)
@@ -389,13 +417,15 @@ def compute_parcel_price(
     settlement = SettlementTerms(
         commission_bps=0,
         commission_kobo=0,
-        rider_pay_kobo=parcel_rider_pay(distance_km, size, cfg),
+        rider_pay_kobo=parcel_rider_pay(distance_km, size, cfg, measured_km=measured_road_km),
         restaurant_earning_kobo=0,
     )
     return PricingResult(breakdown=breakdown, settlement=settlement)
 
 
-def parcel_minutes(distance_km: float, cfg: PricingConfig) -> int:
+def parcel_minutes(distance_km: float, cfg: PricingConfig, *, travel_minutes: int | None = None) -> int:
     """Minutes from booking to drop-off for an on-demand parcel (rider reaches sender, then rides)."""
+    if travel_minutes is not None:
+        return int(cfg.parcel.pickup_eta_minutes + travel_minutes)
     travel = road_km(distance_km, cfg) / cfg.avg_speed_kmh * 60
     return int(cfg.parcel.pickup_eta_minutes + int(travel.to_integral_value()) + 1)

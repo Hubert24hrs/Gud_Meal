@@ -16,6 +16,7 @@ from .ledger.db import Database
 from .ledger.idempotency import IdempotencyService
 from .ledger.ledger import LedgerService
 from .ledger.outbox import OutboxRelay
+from .maps import MapsService
 from .payments.base import PaymentProvider
 from .payments.flutterwave import FlutterwaveProvider
 from .payments.paystack import PaystackProvider
@@ -94,6 +95,7 @@ class Container:
     meal_plans: MealPlanService
     analytics: AnalyticsService
     admin: AdminService
+    maps: MapsService
     sandbox: LocalSandboxProvider | None = None
     extras: dict[str, Any] = field(default_factory=dict)
 
@@ -201,6 +203,7 @@ async def build_container(
         tasks = InProcessTaskQueue(task_router)
 
     http = http or httpx.AsyncClient(timeout=settings.payment_http_timeout_seconds)
+    maps = MapsService.from_settings(settings, http)
     providers, sandbox = _payment_providers(settings, http)
     providers.update(extra_providers or {})
     default_provider = settings.payment_default_provider
@@ -215,7 +218,7 @@ async def build_container(
 
     # --- services ----------------------------------------------------------------------------------
     catalog = CatalogService(repos)
-    quotes = QuoteService(repos, ttl_seconds=settings.quote_ttl_seconds)
+    quotes = QuoteService(repos, ttl_seconds=settings.quote_ttl_seconds, maps=maps)
     payments = PaymentService(
         db=db,
         ledger=ledger,
@@ -271,6 +274,7 @@ async def build_container(
         emitter=emitter,
         offer_timeout_seconds=settings.dispatch_offer_timeout_seconds,
         rider_cash_limit_kobo=settings.rider_cash_limit_kobo,
+        maps=maps,
     )
     analytics = AnalyticsService(repos)
     container = Container(
@@ -295,7 +299,7 @@ async def build_container(
         http=http,
         catalog=catalog,
         quotes=quotes,
-        parcels=ParcelService(repos),
+        parcels=ParcelService(repos, maps=maps),
         payments=payments,
         wallet=wallet,
         cash=cash,
@@ -310,6 +314,7 @@ async def build_container(
         admin=AdminService(
             repos=repos, db=db, ledger=ledger, audit=audit, identity=identity, analytics=analytics
         ),
+        maps=maps,
         sandbox=sandbox,
     )
     register_handlers(container)

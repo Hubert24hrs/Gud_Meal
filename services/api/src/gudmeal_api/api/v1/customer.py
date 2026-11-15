@@ -226,16 +226,24 @@ async def order_codes(order_id: str, c: Ctr, principal: CurrentPrincipal) -> dic
 
 @router.get("/orders/{order_id}/tracking")
 async def order_tracking(order_id: str, c: Ctr, principal: CurrentPrincipal) -> dict[str, Any]:
+    """Live delivery map data. The rider's position is only shared while they are on this delivery."""
     order = await c.orders.get_for(principal, order_id)
     tracking = await c.repos.get_tracking(order_id) or {}
+    live = order.status.value in ("rider_assigned", "picked_up", "in_transit") and tracking.get(
+        "active", True
+    )
     return {
         "order_id": order.id,
         "status": order.status.value,
         "rider_name": order.rider_name,
-        "rider_location": tracking.get("rider_location"),
-        "eta_minutes": tracking.get("eta_minutes"),
+        "rider_location": tracking.get("rider_location") if live else None,
+        "eta_minutes": tracking.get("eta_minutes") if live else None,
+        "eta_source": tracking.get("eta_source") if live else None,  # "google" (measured) or "estimate"
+        "route_polyline": tracking.get("route_polyline") if live else None,  # current leg, Google format
         "updated_at": tracking.get("updated_at"),
         "estimated_delivery_at": order.estimated_delivery_at,
+        "pickup_location": order.restaurant_location,
+        "dropoff_location": order.delivery_address.location if order.delivery_address else None,
     }
 
 

@@ -15,6 +15,7 @@ from ..domain.geo import haversine_km
 from ..domain.models import ParcelDetails, ParcelQuote, ParcelQuoteRequest
 from ..domain.pricing import PricingConfig, PricingResult, compute_parcel_price, parcel_minutes
 from ..errors import NotFound, OutOfDeliveryArea, ValidationFailed
+from ..maps import MapsService, RouteEstimate
 from ..repositories import Repositories
 from ..security.rbac import Principal
 
@@ -25,9 +26,12 @@ PICKUP_HOURS = (7, 21)  # scheduled pickups between 07:00 and 21:00 Lagos time
 
 
 class ParcelService:
-    def __init__(self, repos: Repositories, *, ttl_seconds: int = 900) -> None:
+    def __init__(
+        self, repos: Repositories, *, ttl_seconds: int = 900, maps: MapsService | None = None
+    ) -> None:
         self.repos = repos
         self.ttl = timedelta(seconds=ttl_seconds)
+        self.maps = maps or MapsService(None)
 
     @staticmethod
     def _city(cfg: PricingConfig, req: ParcelQuoteRequest) -> tuple[str, int]:
@@ -56,9 +60,13 @@ class ParcelService:
         return sched
 
     async def price(
-        self, req: ParcelQuoteRequest, *, now: datetime | None = None
-    ) -> tuple[PricingResult, ParcelDetails, float, datetime | None, PricingConfig]:
-        """Validate and price a parcel request against the live pricing config."""
+        self, req: ParcelQuoteRequest, *, now: datetime | None = None, route: RouteEstimate | None = None
+    ) -> tuple[PricingResult, ParcelDetails, float, datetime | None, PricingConfig, RouteEstimate]:
+        """Validate and price a parcel request against the live pricing config.
+
+        Priced on the road route (Google Routes when configured, else the estimate); pass `route` to re-price
+        a quote on the same kilometres.
+        """
         now = now or datetime.now(UTC)
         cfg = await self.repos.get_pricing_config()
         city, surge = self._city(cfg, req)
@@ -66,12 +74,15 @@ class ParcelService:
         distance = haversine_km(req.pickup.location, req.dropoff.location)
         if distance < 0.2:
             raise ValidationFailed("Pickup and drop-off are the same place")
+        if route is None:
+            route = await self.maps.route(req.pickup.location, req.dropoff.location, cfg)
         result = compute_parcel_price(
             distance_km=distance,
             size=req.size,
             cfg=cfg,
             surge_bps=surge,
             cod_amount_kobo=req.cod_amount_kobo or None,
+            measured_road_km=route.distance_km if route.source == "google" else None,
         )
         details = ParcelDetails(
             pickup=req.pickup,
@@ -83,12 +94,13 @@ class ParcelService:
             city=city,
             cod_amount_kobo=req.cod_amount_kobo or None,
         )
-        return result, details, distance, sched, cfg
+        return result, details, distance, sched, cfg, route
 
     async def create_quote(self, principal: Principal, req: ParcelQuoteRequest) -> ParcelQuote:
         now = datetime.now(UTC)
-        result, details, distance, sched, cfg = await self.price(req, now=now)
-        eta = parcel_minutes(distance, cfg)
+        result, details, distance, sched, cfg, route = await self.price(req, now=now)
+        measured = route.source == "google"
+        eta = parcel_minutes(distance, cfg, travel_minutes=route.duration_minutes if measured else None)
         quote = ParcelQuote(
             id=uuid.uuid4().hex,
             customer_id=principal.uid,
@@ -96,6 +108,8 @@ class ParcelService:
             breakdown=result.breakdown,
             settlement=result.settlement,
             distance_km=round(distance, 3),
+            road_distance_km=route.distance_km,
+            route_source=route.source,
             eta_minutes=eta,
             estimated_delivery_at=(sched or now) + timedelta(minutes=eta),
             scheduled_for=sched,

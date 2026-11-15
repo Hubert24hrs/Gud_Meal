@@ -85,7 +85,8 @@ AGENTS: dict[str, AgentSpec] = {
         "customer",
         "Customer Agent (Gudy: food, beauty and package delivery concierge)",
         "Greetings, what Gud Meal offers, food and beauty discovery, budget meal planning, placing and reordering "
-        "orders, package delivery quotes and bookings, order totals and spending, opening parts of the app.",
+        "orders, package delivery quotes and bookings, order totals and spending, restaurants near the customer "
+        "and delivery-time comparisons, opening parts of the app.",
         frozenset({"customer"}),
         (
             "list_services",
@@ -108,6 +109,8 @@ AGENTS: dict[str, AgentSpec] = {
             "update_my_preferences",
             "list_saved_addresses",
             "get_delivery_tracking",
+            "find_nearby_restaurants",
+            "compare_delivery_times",
         ),
         "Engage the customer like a friendly Nigerian concierge and get things done. "
         "FOOD: for requests with a budget, party size or deadline, call plan_meal_within_budget (budget is the TOTAL "
@@ -122,6 +125,10 @@ AGENTS: dict[str, AgentSpec] = {
         "book_parcel when they agree. "
         "TOTALS: for 'how much have I spent', 'my total' or order history questions, call get_order_totals and "
         "quote the numbers exactly. "
+        "NEARBY: for 'near me', closest, fastest or 'what can reach me in 30 minutes' questions call "
+        "find_nearby_restaurants (cuisine, max_minutes, min_rating, max_price_level for budget, sort_by); to compare "
+        "named places call compare_delivery_times. Quote minutes, kilometres and fees exactly as returned, say they "
+        "are estimates and that checkout confirms the price, and never guess a distance or time yourself. "
         "Use open_screen to point customers to the right screen. For complaints, help or a human, use "
         "get_support_contacts or tell them about the Support tab.",
     ),
@@ -192,6 +199,7 @@ AGENTS: dict[str, AgentSpec] = {
             "reorder",
             "get_my_preferences",
             "search_restaurants",
+            "find_nearby_restaurants",
             "list_vouchers",
             "get_order_totals",
             "open_screen",
@@ -266,6 +274,11 @@ _KEYWORDS: list[tuple[str, str]] = [
     (
         "restaurant",
         r"\b(accept|reject|kitchen|incoming|sold ?out|prep(aration)? time|my menu|mark .* (available|unavailable))\b",
+    ),
+    (
+        "customer",
+        r"\b(near ?by|near me|near here|close to me|closest|nearest|around me|around here|in my area)\b|"
+        r"\b(fastest|quickest)\b.*\b(restaurants?|kitchens?|places?|spots?|shops?|food|deliver\w*)\b",
     ),
     ("analytics", r"\b(analytics|forecast|revenue|sales|trend|performance|report)\b"),
     ("admin", r"\b(overview|exceptions?|stuck|platform health|backlog|flagged)\b"),

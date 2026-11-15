@@ -28,10 +28,11 @@ from ..errors import (
     QuoteExpired,
     ValidationFailed,
 )
+from ..maps import RouteEstimate
 from ..repositories import Repositories, Transaction, to_doc
 from ..security.rbac import Permission, Principal, require, require_restaurant
 from .infra import Emitter, Notifier, TaskQueue
-from .quotes import QuoteService
+from .quotes import QuoteService, quoted_route
 
 logger = logging.getLogger(__name__)
 S = OrderStatus
@@ -318,8 +319,10 @@ class OrderService:
             scheduled_for=quote.scheduled_for,
             voucher_code=quote.breakdown.voucher_code,
         )
-        restaurant, result, _, _, _, _ = await self.quotes.price_request(
-            req, customer_id=principal.uid, now=now
+        # Reuse the quote's road distance: re-measuring could shift a fee with traffic, not with any change
+        # the customer made.
+        restaurant, result, *_ = await self.quotes.price_request(
+            req, customer_id=principal.uid, now=now, route=quoted_route(quote)
         )
         if result.breakdown.total_kobo != quote.breakdown.total_kobo:
             raise PriceChanged(
@@ -670,6 +673,11 @@ class OrderService:
                 cod_amount_kobo=d.cod_amount_kobo,
             ),
             now=now,
+            route=RouteEstimate(
+                distance_km=quote.road_distance_km or 0.0,
+                duration_minutes=0,
+                source=quote.route_source or "estimate",
+            ),
         )
         if result.breakdown.total_kobo != quote.breakdown.total_kobo:
             raise PriceChanged(

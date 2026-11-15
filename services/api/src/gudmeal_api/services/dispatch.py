@@ -8,7 +8,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from ..domain.dispatch import DispatchConfig, rank_riders
-from ..domain.geo import GeoPoint, geohash_encode, haversine_km
+from ..domain.geo import GeoPoint, geohash_decode, geohash_encode, haversine_km
 from ..domain.models import (
     AssignmentStatus,
     DeliveryAssignment,
@@ -20,6 +20,7 @@ from ..domain.models import (
 from ..domain.order_state import ActorType, OrderStatus
 from ..errors import InvalidTransition, NotFound, PermissionDenied, ValidationFailed
 from ..logging_setup import log_event
+from ..maps import MapsService
 from ..repositories import Repositories, Transaction, to_doc
 from ..security.rbac import Permission, Principal, require, require_rider
 from .infra import Emitter, Notifier, TaskQueue
@@ -30,7 +31,12 @@ S = OrderStatus
 TASK_OFFER_TIMEOUT = "/internal/tasks/dispatch-offer-timeout"
 TASK_DISPATCH_RETRY = "/internal/tasks/dispatch-retry"
 DISPATCHABLE = {S.RESTAURANT_ACCEPTED, S.PREPARING, S.READY_FOR_PICKUP}
+ACTIVE_DELIVERY = {S.RIDER_ASSIGNED, S.PICKED_UP, S.IN_TRANSIT}
 MAX_ATTEMPTS = 8
+#: Idle online riders are kept at this geohash precision (6 ≈ 1.2 km x 0.6 km cell), never more precisely.
+COARSE_GEOHASH = 6
+#: How often a live delivery's road ETA is re-measured (Routes calls cost money; pings arrive every few seconds).
+ROUTE_REFRESH = timedelta(seconds=90)
 
 
 def utcnow() -> datetime:
@@ -49,6 +55,7 @@ class DispatchService:
         offer_timeout_seconds: int = 45,
         config: DispatchConfig | None = None,
         rider_cash_limit_kobo: int = 5_000_000,
+        maps: MapsService | None = None,
     ) -> None:
         self.repos = repos
         self.orders = orders
@@ -58,6 +65,7 @@ class DispatchService:
         self.offer_timeout = offer_timeout_seconds
         self.cfg = config or DispatchConfig()
         self.cash_limit = rider_cash_limit_kobo
+        self.maps = maps or MapsService(None)
 
     # ============================================================================ rider self-service
     async def rider_profile(self, principal: Principal) -> RiderProfile:
@@ -77,38 +85,89 @@ class DispatchService:
     async def update_location(
         self, principal: Principal, point: GeoPoint, accuracy_m: float | None = None
     ) -> None:
+        """Rider location pings, with privacy rules:
+
+        * offline riders are not tracked at all (pings are rejected);
+        * online without a delivery, only a coarse cell (~600 m) is kept, enough to offer nearby jobs;
+        * the precise position is stored and shown to the customer only during an active delivery.
+        """
         profile = await self.rider_profile(principal)
+        if not profile.is_online:
+            raise InvalidTransition("Go online to share your location")
         now = utcnow()
+        active: list[Order] = []
+        for order_id in profile.active_order_ids[:3]:
+            order = await self.repos.orders.get(order_id)
+            if order and order.status in ACTIVE_DELIVERY and order.rider_id == principal.uid:
+                active.append(order)
+        if active:
+            stored, precision = point, 7
+        else:
+            cell_lat, cell_lng, _, _ = geohash_decode(geohash_encode(point.lat, point.lng, COARSE_GEOHASH))
+            stored, precision = GeoPoint(lat=round(cell_lat, 5), lng=round(cell_lng, 5)), COARSE_GEOHASH
         await self.repos.riders.update(
             principal.uid,
             {
-                "last_location": to_doc(point),
+                "last_location": to_doc(stored),
                 "last_location_at": now,
-                "geohash": geohash_encode(point.lat, point.lng, 7),
+                "geohash": geohash_encode(stored.lat, stored.lng, precision),
             },
         )
-        for order_id in profile.active_order_ids[:3]:
-            order = await self.repos.orders.get(order_id)
-            if (
-                order
-                and order.status in (S.RIDER_ASSIGNED, S.PICKED_UP, S.IN_TRANSIT)
-                and order.rider_id == principal.uid
-            ):
-                eta = None
-                if order.delivery_address and order.status != S.RIDER_ASSIGNED:
-                    km = haversine_km(point, order.delivery_address.location) * 1.35
-                    eta = max(1, round(km / 18 * 60))
-                await self.repos.set_tracking(
-                    order_id,
-                    {
-                        "rider_location": to_doc(point),
-                        "updated_at": now,
-                        "status": order.status.value,
-                        "eta_minutes": eta,
-                        "accuracy_m": accuracy_m,
-                        "customer_id": order.customer_id,
-                    },
+        for order in active:
+            await self._track(order, point, accuracy_m, now)
+
+    async def _track(self, order: Order, point: GeoPoint, accuracy_m: float | None, now: datetime) -> None:
+        """Live tracking for the customer. Road ETAs are re-measured at most every `ROUTE_REFRESH` (cost)."""
+        prev = await self.repos.get_tracking(order.id) or {}
+        target = (
+            order.restaurant_location
+            if order.status == S.RIDER_ASSIGNED
+            else (order.delivery_address.location if order.delivery_address else None)
+        )
+        eta: int | None = None
+        source: str | None = None
+        polyline: str | None = None
+        route_at = prev.get("route_at")
+        if isinstance(route_at, str):
+            route_at = datetime.fromisoformat(route_at)
+        fresh = (
+            route_at is not None
+            and prev.get("leg") == order.status.value
+            and now - route_at < ROUTE_REFRESH
+            and prev.get("eta_minutes") is not None
+        )
+        if target is not None and fresh:
+            elapsed = int((now - route_at).total_seconds() // 60)
+            eta, source, polyline = (
+                max(1, int(prev["eta_minutes"]) - elapsed),
+                prev.get("eta_source"),
+                prev.get("route_polyline"),
+            )
+        elif target is not None:
+            cfg = await self.repos.get_pricing_config()
+            leg = await self.maps.route(point, target, cfg)
+            eta, source, polyline, route_at = leg.duration_minutes, leg.source, leg.polyline, now
+            if order.status == S.RIDER_ASSIGNED and order.delivery_address and order.restaurant_location:
+                onward = await self.maps.route(
+                    order.restaurant_location, order.delivery_address.location, cfg
                 )
+                eta += onward.duration_minutes  # to the kitchen, then on to the door
+        await self.repos.set_tracking(
+            order.id,
+            {
+                "rider_location": to_doc(point),
+                "updated_at": now,
+                "status": order.status.value,
+                "leg": order.status.value,
+                "eta_minutes": eta,
+                "eta_source": source,
+                "route_polyline": polyline,
+                "route_at": route_at,
+                "accuracy_m": accuracy_m,
+                "customer_id": order.customer_id,
+                "active": True,
+            },
+        )
 
     async def pending_offers(self, principal: Principal) -> list[DeliveryAssignment]:
         require_rider(principal)
@@ -377,6 +436,24 @@ class DispatchService:
             tx.update(f"rider_profiles/{rider_id}", changes)
 
         await self.repos.store.run_transaction(fn)
+        # The delivery session is over: stop showing where the rider is.
+        prev = await self.repos.get_tracking(order_id)
+        if prev:
+            await self.repos.set_tracking(
+                order_id,
+                {
+                    **{
+                        k: v
+                        for k, v in prev.items()
+                        if k not in ("order_id", "rider_location", "route_polyline")
+                    },
+                    "rider_location": None,
+                    "route_polyline": None,
+                    "eta_minutes": None,
+                    "active": False,
+                    "updated_at": utcnow(),
+                },
+            )
 
     async def on_order_called_off(self, payload: dict[str, Any]) -> None:
         """Cancelled or refunded before delivery: free the rider and tell them not to pick up."""

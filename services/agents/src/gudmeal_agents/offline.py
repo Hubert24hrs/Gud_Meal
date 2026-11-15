@@ -147,6 +147,18 @@ T: dict[str, dict[str, str]] = {
         "en": "I've opened support ticket {id}. A Gud Meal specialist will reply in the app.",
         "pcm": "I don open support ticket {id}. Person from Gud Meal go reply you for the app.",
     },
+    "nearby": {
+        "en": "Places that deliver to {near} ({order}):",
+        "pcm": "See places wey fit deliver reach {near} ({order}):",
+    },
+    "nearby_none": {
+        "en": "I couldn't find a place that delivers to {near} with that. Try allowing more time or another cuisine.",
+        "pcm": "I no see place wey fit deliver reach {near} with that one. Try give am more time or another food.",
+    },
+    "nearby_note": {
+        "en": "Times and delivery fees are estimates; checkout shows the exact price.",
+        "pcm": "The time and delivery fee na estimate; checkout go show the correct price.",
+    },
     "button": {"en": "Tap the button below.", "pcm": "Tap the button wey dey below."},
     "unknown": {
         "en": "I didn't quite get that. You can ask me for food, beauty products, package delivery, your order status "
@@ -199,6 +211,58 @@ _GREET = re.compile(
     r"hiya|howdy)\b"
 )
 _HELP = re.compile(r"^(help|what can you do|who are you|menu)\b")
+_NEAR = re.compile(
+    r"\b(near ?by|near me|near here|close to me|close by|closest|nearest|around me|around here|in my area|"
+    r"for my area|dey near|wey near)\b"
+)
+_FAST = re.compile(r"\b(fastest|quickest|soonest|shortest wait)\b")
+_PLACE = re.compile(
+    r"\b(restaurants?|kitchens?|places?|spots?|shops?|stores?|bukka|buka|joints?|vendors?|food|chop|deliver\w*)\b"
+)
+_MINE = re.compile(r"\b(my order|my rider|my food|my package|where is my|where my)\b")
+_WITHIN = re.compile(r"\b(?:in|under|within|less than|below)\s+(\d{2,3})\s*(?:min|mins|minutes)\b")
+_STARS = re.compile(r"\b([1-5](?:\.\d)?)\s*\+?\s*stars?\b")
+_CHEAP = re.compile(r"\b(cheap|cheaper|budget|affordable|not expensive|low ?cost)\b")
+_SORTS = (
+    ("fastest", re.compile(r"\b(fastest|quickest|soonest|shortest wait)\b")),
+    ("best_rated", re.compile(r"\b(best|top|highest|highly)[ -]rated\b|\bbest\b")),
+    ("cheapest_delivery", re.compile(r"\b(cheapest|free|lowest|low) delivery\b")),
+)
+_SORT_LABEL = {
+    "fastest": "quickest first",
+    "closest": "closest first",
+    "best_rated": "best rated first",
+    "cheapest_delivery": "cheapest delivery first",
+}
+
+
+def nearby_args(text: str) -> dict[str, Any] | None:
+    """find_nearby_restaurants arguments for a 'near me' / 'fastest' question, or None if it isn't one."""
+    p = plain(text)
+    if (
+        _MINE.search(p)
+        or _PARCEL.search(p)
+        or not (_NEAR.search(p) or (_FAST.search(p) and _PLACE.search(p)))
+    ):
+        return None
+    if parse_budget(text):  # an amount means a meal plan within that budget
+        return None
+    args: dict[str, Any] = {"service": "beauty" if _BEAUTY.search(p) else "food"}
+    args["sort_by"] = next((sort for sort, rx in _SORTS if rx.search(p)), "closest")
+    within = _WITHIN.search(p)
+    if within:
+        args["max_minutes"] = max(10, min(180, int(within.group(1))))
+    stars = _STARS.search(p)
+    if stars:
+        args["min_rating"] = float(stars.group(1))
+    if _CHEAP.search(p):
+        args["max_price_level"] = 2
+    food = _keyword(text, _FOOD)
+    if food and food not in _GENERIC_FOOD and args["service"] == "food":
+        args["query"] = food
+    return args
+
+
 _BEAUTY = re.compile(
     r"\b(serum|sunscreen|spf|moisturi[sz]er|cream|lotion|shea|black soap|soap|lipstick|foundation|powder|perfume|"
     r"fragrance|body mist|edge control|conditioner|shampoo|beard|toner|skincare|skin care|make ?up|cosmetics|"
@@ -290,6 +354,11 @@ def _keyword(text: str, rx: re.Pattern[str]) -> str | None:
     return m.group(0) if m else None
 
 
+_GENERIC_FOOD = frozenset(
+    {"food", "meal", "lunch", "dinner", "breakfast", "chop", "hungry", "nri", "ounje", "abinci"}
+)
+
+
 # ------------------------------------------------------------------------------------------------ model
 class OfflineModels:
     """ModelFactory implementation (see llm.py)."""
@@ -369,6 +438,9 @@ class _OfflineAgent:
             intro = GREETING[lang].format(name=f" {name}" if name else "")
             note = ENGLISH_NOTE if lang in ("ig", "yo", "ha") else ""
             return AIMessage(content=f"{intro} {say('intro', lang)}{note}")
+        nearby = nearby_args(text)
+        if nearby and self._can("find_nearby_restaurants"):
+            return _call("find_nearby_restaurants", nearby)
         screen = _OPEN.search(p)
         if screen and self._can("open_screen"):
             return _call("open_screen", {"screen": _SCREEN_WORDS[screen.group(3)]})
@@ -396,23 +468,7 @@ class _OfflineAgent:
         if beauty and self._can("search_food_items"):
             return _call("search_food_items", {"query": beauty, "service": "beauty"})
         food = _keyword(text, _FOOD)
-        if (
-            food
-            and food
-            not in (
-                "food",
-                "meal",
-                "lunch",
-                "dinner",
-                "breakfast",
-                "chop",
-                "hungry",
-                "nri",
-                "ounje",
-                "abinci",
-            )
-            and self._can("search_food_items")
-        ):
+        if food and food not in _GENERIC_FOOD and self._can("search_food_items"):
             return _call("search_food_items", {"query": food, "service": "food"})
         if food and self._can("open_screen"):
             return _call("open_screen", {"screen": "food"})
@@ -511,6 +567,31 @@ def render(tool: str, data: dict[str, Any], lang: Lang) -> str:
             lines.append(f"• {it['name']}: {it['price']} at {it['restaurant']}")
         lines.append(say("found_next", lang))
         return "\n".join(lines)
+    if tool == "find_nearby_restaurants":
+        near = data.get("near") or "your address"
+        rows = data.get("restaurants") or []
+        if not rows:
+            return say("nearby_none", lang, near=near)
+        lines = [
+            say("nearby", lang, near=near, order=_SORT_LABEL.get(data.get("sorted_by", ""), "closest first"))
+        ]
+        for r in rows:
+            bits = [
+                f"about {r['eta_minutes']} min" if r.get("eta_minutes") is not None else None,
+                f"{r['road_distance_km']} km away" if r.get("road_distance_km") is not None else None,
+                f"delivery {r['delivery_fee']}" if r.get("delivery_fee") else None,
+                f"rated {r['rating']}",
+            ]
+            lines.append(f"• {r['name']} ({r['area']}): " + ", ".join(b for b in bits if b))
+        lines.append(say("nearby_note", lang))
+        return "\n".join(lines)
+    if tool == "compare_delivery_times":
+        rows = data.get("comparison") or []
+        lines = [f"{r['name']}: about {r['eta_minutes']} min, {r['road_distance_km']} km away" for r in rows]
+        if data.get("fastest"):
+            lines.insert(0, f"Fastest to {data.get('near') or 'you'}: {data['fastest']}.")
+        lines.append(say("nearby_note", lang))
+        return "\n".join(lines)
     if tool in ("get_order_status", "get_delivery_tracking"):
         if data.get("message") == "No orders yet" or not data:
             return say("no_orders", lang)
@@ -578,4 +659,12 @@ def _first_name(system: SystemMessage | None) -> str:
     return "" if name.lower() in ("customer", "none") else name.split()[0]
 
 
-__all__ = ["OfflineModels", "detect_language", "parse_budget", "parse_deadline", "parse_party", "render"]
+__all__ = [
+    "OfflineModels",
+    "detect_language",
+    "nearby_args",
+    "parse_budget",
+    "parse_deadline",
+    "parse_party",
+    "render",
+]

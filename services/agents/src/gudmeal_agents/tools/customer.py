@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic import Field
 
+from ..api_client import ApiError
 from .registry import ToolArgs, ToolContext, ToolError, ToolOutput, ToolRegistry, ToolSpec
 
 LAGOS = ZoneInfo("Africa/Lagos")
@@ -199,9 +200,188 @@ class PreferencesArgs(ToolArgs):
     favourite_cuisines: list[str] | None = Field(default=None, max_length=15)
 
 
+class NearbyArgs(ToolArgs):
+    service: Service = Field(default="food", description="'food' or 'beauty'")
+    cuisine: str | None = Field(default=None, max_length=40, description="e.g. 'Nigerian', 'Pizza', 'Grills'")
+    query: str | None = Field(
+        default=None,
+        max_length=60,
+        description="Keyword matched against names, cuisines and tags, e.g. 'suya'",
+    )
+    max_minutes: int | None = Field(
+        default=None, ge=10, le=180, description="Only places that can arrive this fast"
+    )
+    min_rating: float | None = Field(default=None, ge=0, le=5, description="Minimum rating out of 5")
+    max_price_level: int | None = Field(default=None, ge=1, le=4, description="1 budget ... 4 premium")
+    sort_by: Literal["fastest", "closest", "best_rated", "cheapest_delivery"] = "fastest"
+    open_now: bool = True
+    limit: int = Field(default=5, ge=1, le=8)
+
+
+class CompareDeliveryArgs(ToolArgs):
+    restaurants: list[str] = Field(
+        min_length=2,
+        max_length=6,
+        description="Restaurant or shop names (or ids) the customer wants compared",
+    )
+
+
 # ------------------------------------------------------------------------------------------------
 # Handlers
 # ------------------------------------------------------------------------------------------------
+
+
+_CATALOG_SORT = {
+    "fastest": "distance",
+    "closest": "distance",
+    "best_rated": "rating",
+    "cheapest_delivery": "delivery_fee",
+}
+_SLUG = re.compile(r"[a-z0-9][a-z0-9-]{2,59}")
+
+
+def _estimate_label(source: str | None) -> str:
+    return "measured road route (Google Maps)" if source == "google" else "estimate from distance"
+
+
+async def find_nearby_restaurants(args: NearbyArgs, ctx: ToolContext) -> ToolOutput:
+    """Location-aware recommendations: delivers to the customer, then time/rating/price filters and a sort."""
+    addr = await delivery_address(ctx)
+    loc = addr.get("location") or {}
+    if loc.get("lat") is None:
+        raise ToolError(
+            "no_location", "Ask the customer for their delivery address or to share their location."
+        )
+    cards = await ctx.api.get(
+        "/v1/restaurants",
+        vertical=args.service,
+        cuisine=args.cuisine,
+        q=args.query,
+        open_now=args.open_now,
+        lat=loc["lat"],
+        lng=loc["lng"],
+        sort=_CATALOG_SORT[args.sort_by],
+        limit=30,
+    )
+    candidates = [
+        c
+        for c in cards
+        if c.get("delivers_to_location")
+        and (args.min_rating is None or c["rating"] >= args.min_rating)
+        and (args.max_price_level is None or c.get("price_level", 2) <= args.max_price_level)
+    ][:10]
+    estimates: dict[str, dict[str, Any]] = {}
+    if candidates:
+        data = await ctx.api.get(
+            "/v1/delivery/estimates",
+            restaurant_ids=",".join(c["id"] for c in candidates),
+            lat=loc["lat"],
+            lng=loc["lng"],
+        )
+        estimates = {e["restaurant_id"]: e for e in data["estimates"]}
+    rows: list[dict[str, Any]] = []
+    for c in candidates:
+        e = estimates.get(c["id"], {})
+        eta = e.get("eta_minutes", c.get("eta_minutes"))
+        if args.max_minutes is not None and (eta is None or eta > args.max_minutes):
+            continue
+        fee = e.get("delivery_fee_kobo", c.get("delivery_fee_kobo"))
+        rows.append(
+            {
+                "restaurant_id": c["id"],
+                "name": c["name"],
+                "area": c["area"],
+                "cuisines": c["cuisines"],
+                "rating": c["rating"],
+                "price_level": c.get("price_level"),
+                "is_open": c["is_open"],
+                "road_distance_km": e.get("road_distance_km"),
+                "eta_minutes": eta,
+                "delivery_fee": naira(fee) if fee is not None else None,
+                "_fee_kobo": fee if fee is not None else 10**9,
+                "times_are": _estimate_label(e.get("source")),
+            }
+        )
+    order = {
+        "fastest": lambda r: (r["eta_minutes"] or 999, -r["rating"]),
+        "closest": lambda r: (r["road_distance_km"] or 999, r["eta_minutes"] or 999),
+        "best_rated": lambda r: (-r["rating"], r["eta_minutes"] or 999),
+        "cheapest_delivery": lambda r: (r["_fee_kobo"], r["eta_minutes"] or 999),
+    }[args.sort_by]
+    rows.sort(key=order)
+    picked = [{k: v for k, v in r.items() if k != "_fee_kobo"} for r in rows[: args.limit]]
+    return ToolOutput(
+        {
+            "restaurants": picked,
+            "near": addr.get("area") or addr.get("line1"),
+            "sorted_by": args.sort_by,
+            "note": "Times and delivery fees are for comparison; checkout confirms the exact price.",
+        },
+        card={"type": "restaurants", "items": picked},
+    )
+
+
+async def compare_delivery_times(args: CompareDeliveryArgs, ctx: ToolContext) -> ToolOutput:
+    """Which of these kitchens gets food to the customer fastest (and at what delivery fee)."""
+    addr = await delivery_address(ctx)
+    loc = addr.get("location") or {}
+    if loc.get("lat") is None:
+        raise ToolError(
+            "no_location", "Ask the customer for their delivery address or to share their location."
+        )
+    ids: list[str] = []
+    unknown: list[str] = []
+    for name in args.restaurants:
+        text = name.strip()[:60]
+        found = await ctx.api.get(
+            "/v1/restaurants", vertical="all", q=text, lat=loc["lat"], lng=loc["lng"], limit=1
+        )
+        if found:
+            ids.append(found[0]["id"])
+            continue
+        if _SLUG.fullmatch(text):  # the model may pass an id from an earlier result
+            try:
+                ids.append((await ctx.api.get(f"/v1/restaurants/{text}"))["restaurant"]["id"])
+                continue
+            except ApiError as exc:
+                if exc.status != 404:
+                    raise
+        unknown.append(name)
+    if not ids:
+        raise ToolError(
+            "not_found", "None of those places are on Gud Meal near this address. Ask for the names again."
+        )
+    data = await ctx.api.get(
+        "/v1/delivery/estimates", restaurant_ids=",".join(dict.fromkeys(ids)), lat=loc["lat"], lng=loc["lng"]
+    )
+    rows = sorted(
+        (
+            {
+                "restaurant_id": e["restaurant_id"],
+                "name": e["name"],
+                "area": e["area"],
+                "eta_minutes": e["eta_minutes"],
+                "road_distance_km": e["road_distance_km"],
+                "delivery_fee": naira(e["delivery_fee_kobo"]) if e["delivery_fee_kobo"] is not None else None,
+                "delivers_here": e["delivers"],
+                "open_now": e["is_open"],
+                "times_are": _estimate_label(e["source"]),
+            }
+            for e in data["estimates"]
+        ),
+        key=lambda r: (not r["delivers_here"], r["eta_minutes"]),
+    )
+    fastest = next((r["name"] for r in rows if r["delivers_here"]), None)
+    return ToolOutput(
+        {
+            "comparison": rows,
+            "fastest": fastest,
+            "not_found_nearby": unknown,
+            "near": addr.get("area") or addr.get("line1"),
+            "note": "Times and delivery fees are for comparison; checkout confirms the exact price.",
+        },
+        card={"type": "restaurants", "items": rows},
+    )
 
 
 async def search_restaurants(args: SearchRestaurantsArgs, ctx: ToolContext) -> ToolOutput:
@@ -693,6 +873,26 @@ def register(reg: ToolRegistry) -> None:
             "Live delivery tracking (rider, ETA) for an order.",
             OptionalOrderArgs,
             get_delivery_tracking,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "find_nearby_restaurants",
+            "Recommend restaurants or shops that deliver to the customer's address, using road travel times: filter "
+            "by cuisine, how fast it must arrive (max_minutes), rating and price level; sort by fastest, closest, "
+            "best_rated or cheapest_delivery. Use for 'near me', 'fastest', 'closest' and similar questions.",
+            NearbyArgs,
+            find_nearby_restaurants,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "compare_delivery_times",
+            "Compare how fast (and at what delivery fee) named restaurants or shops can deliver to the customer.",
+            CompareDeliveryArgs,
+            compare_delivery_times,
             EVERYONE,
         )
     )

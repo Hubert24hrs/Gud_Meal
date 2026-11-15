@@ -51,6 +51,7 @@ LIMITS: dict[str, tuple[int, float]] = {
     "payment_verify": (20, 0.3),
     "code_attempt": (5, 0.02),
     "rider_location": (30, 1.0),
+    "places": (40, 0.5),  # address search: each call can cost a Google request
     "meal_plan": (10, 0.2),
     "support": (10, 0.05),
     "application": (5, 0.01),
