@@ -94,7 +94,9 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                   child: Chip(
                     avatar: const Icon(Icons.inventory_2_rounded, size: 18),
                     label: Text(
-                      'Package · ${parcel.size} · ${parcel.category}',
+                      o.legKind == null
+                          ? 'Package · ${parcel.size} · ${parcel.category}'
+                          : 'Interstate · ${o.legKind == 'first_mile' ? 'to the hub' : 'from the hub'} · ${parcel.size}',
                     ),
                   ),
                 ),
@@ -227,7 +229,17 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                     ),
                   ),
                 ),
-              if (o.status == 'picked_up' || o.status == 'in_transit')
+              if (o.hubHandover && (o.status == 'picked_up' || o.status == 'in_transit'))
+                const Card(
+                  key: ValueKey('hub-handover'),
+                  margin: EdgeInsets.only(top: 16),
+                  child: ListTile(
+                    leading: Icon(Icons.warehouse_rounded),
+                    title: Text('Hand the package to the hub staff', style: TextStyle(fontWeight: FontWeight.w800)),
+                    subtitle: Text('They scan it in the hub console; this job then closes and you are paid.'),
+                  ),
+                ),
+              if (!o.hubHandover && (o.status == 'picked_up' || o.status == 'in_transit'))
                 DeliveryCodeForm(
                   controller: _code,
                   busy: _busy,

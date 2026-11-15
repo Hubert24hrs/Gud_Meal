@@ -120,7 +120,7 @@ class _SpendCard extends StatelessWidget {
   const _SpendCard({required this.summary});
   final OrderSummary summary;
 
-  static const _names = {'food': 'Food', 'beauty': 'Beauty & Skin care', 'parcel': 'Package Delivery'};
+  static const _names = {'food': 'Food', 'beauty': 'Beauty & Skin care', 'parcel': 'Package Delivery', 'waybill': 'Interstate'};
 
   @override
   Widget build(BuildContext context) {
@@ -159,8 +159,17 @@ class _OrderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final o = order;
-    final icon = switch (o.vertical) { 'parcel' => Icons.local_shipping_rounded, 'beauty' => Icons.spa_rounded, _ => Icons.restaurant_rounded };
-    final title = o.vertical == 'parcel' && o.parcel != null ? 'Package to ${o.parcel!.dropoff.name}' : o.restaurantName;
+    final icon = switch (o.vertical) {
+      'parcel' => Icons.local_shipping_rounded,
+      'waybill' => Icons.alt_route_rounded,
+      'beauty' => Icons.spa_rounded,
+      _ => Icons.restaurant_rounded,
+    };
+    final title = o.vertical == 'waybill' && o.waybill != null
+        ? 'Waybill to ${o.waybill!.recipient.name}'
+        : o.vertical == 'parcel' && o.parcel != null
+            ? 'Package to ${o.parcel!.dropoff.name}'
+            : o.restaurantName;
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
       child: ListTile(
@@ -176,7 +185,7 @@ class _OrderRow extends StatelessWidget {
         trailing: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(formatNaira(o.breakdown?.totalKobo), style: const TextStyle(fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          StatusChip(o.status, label: o.vertical == 'parcel' ? o.progress?.label : null),
+          StatusChip(o.status, label: ['parcel', 'waybill'].contains(o.vertical) ? o.progress?.label : null),
         ]),
       ),
     );

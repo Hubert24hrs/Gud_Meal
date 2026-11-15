@@ -41,6 +41,7 @@ DeliveryOffer offer(DateTime expiresAt) => DeliveryOffer(
 void main() {
   parcelTests();
   cashTests();
+  hubLegTests();
   testWidgets('offer shows countdown, payout and disables actions once expired', (tester) async {
     final now = DateTime.utc(2026, 11, 14, 20, 0, 0);
     await tester.pumpWidget(ProviderScope(
@@ -155,6 +156,48 @@ class _CashApi extends GudMealApi {
     delivered.add((code, cashCollected));
     return cashOrder.copyWith(status: 'delivered');
   }
+}
+
+class _HubLegApi extends GudMealApi {
+  _HubLegApi() : super(baseUrl: 'http://fake', token: () async => 'tok');
+
+  @override
+  Future<List<Order>> activeDeliveries() async => [
+        const Order(
+          id: 'w1-fm',
+          shortCode: 'LEG123',
+          vertical: 'parcel',
+          status: 'picked_up',
+          restaurantName: 'Waybill GMW7K3P9Q2X (to the hub)',
+          restaurantLocation: GeoPoint(lat: 6.44, lng: 3.46),
+          riderPayKobo: 90000,
+          legKind: 'first_mile',
+          hubHandover: true,
+          deliveryAddress: DeliveryAddress(line1: 'Admiralty Way', area: 'Lekki Phase 1', location: GeoPoint(lat: 6.4478, lng: 3.4723)),
+          parcel: ParcelDetails(
+            pickup: ParcelStop(name: 'Ada', phone: '+2348011111111', line1: '5 Bisola Durosinmi-Etti Drive', location: GeoPoint(lat: 6.44, lng: 3.46)),
+            dropoff: ParcelStop(name: 'Gud Meal Hub, Lekki', phone: '+234 000 000 0012', line1: 'Admiralty Way', location: GeoPoint(lat: 6.4478, lng: 3.4723)),
+            size: 'small',
+            category: 'clothing',
+          ),
+        ),
+      ];
+}
+
+void hubLegTests() {
+  testWidgets('interstate jobs to a hub end with the hub staff, not a delivery code', (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(FakeAuthRepository(const GmUser(uid: 'demo-rider-1'))),
+        apiProvider.overrideWithValue(_HubLegApi()),
+      ],
+      child: const MaterialApp(home: DeliveryScreen(orderId: 'w1-fm')),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Interstate · to the hub · small'), findsOneWidget);
+    expect(find.byKey(const ValueKey('hub-handover')), findsOneWidget);
+    expect(find.byType(DeliveryCodeForm), findsNothing);
+  });
 }
 
 void cashTests() {

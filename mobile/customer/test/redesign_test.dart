@@ -7,6 +7,7 @@ import 'package:gud_meal_customer/features/assistant/assistant_screen.dart';
 import 'package:gud_meal_customer/features/home/home_screen.dart';
 import 'package:gud_meal_customer/features/orders/orders_screen.dart';
 import 'package:gud_meal_customer/features/parcel/parcel_screen.dart';
+import 'package:gud_meal_customer/features/parcel/waybill_screen.dart';
 import 'package:gud_meal_customer/features/vertical/vertical_screen.dart';
 import 'package:gud_meal_customer/features/wallet/wallet_screen.dart';
 import 'package:gud_meal_customer/providers.dart';
@@ -57,6 +58,61 @@ class FakeApi extends GudMealApi {
 
   @override
   Future<WalletOverview> wallet() async => const WalletOverview(balanceKobo: 500000);
+
+  final waybillRequests = <(String, String, String, String, WaybillParty)>[];
+
+  @override
+  Future<List<WaybillOrigin>> waybillOrigins() async => const [
+        WaybillOrigin(id: 'lagos', name: 'Lagos', homePickup: true, dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'Gud Meal Hub, Lekki', city: 'lagos')]),
+        WaybillOrigin(id: 'enugu', name: 'Enugu', homePickup: true),
+      ];
+
+  @override
+  Future<WaybillDestinations> waybillDestinations(String origin) async => const WaybillDestinations(
+        dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'Gud Meal Hub, Lekki', city: 'lagos')],
+        destinations: [
+          WaybillDestination(city: 'enugu', name: 'Enugu', doorDelivery: true, fromKobo: 505300),
+          WaybillDestination(
+            city: 'abuja',
+            name: 'Abuja',
+            fromKobo: 559000,
+            collectionHubs: [WaybillHub(id: 'abuja-utako', name: 'Partner terminal, Utako', city: 'abuja')],
+          ),
+        ],
+      );
+
+  @override
+  Future<WaybillQuote> waybillQuote({
+    required String originCity,
+    required String destinationCity,
+    required String firstMile,
+    required String lastMile,
+    String? originHubId,
+    String? destinationHubId,
+    required WaybillParty sender,
+    required WaybillParty recipient,
+    required String size,
+    required double weightKg,
+    required String category,
+    String description = '',
+    int? codAmountKobo,
+  }) async {
+    waybillRequests.add((originCity, destinationCity, firstMile, lastMile, recipient));
+    return WaybillQuote(
+      id: 'wq1',
+      details: WaybillDetails(
+        originCityName: 'Lagos',
+        destinationCityName: 'Abuja',
+        sender: sender,
+        recipient: recipient,
+        weightKg: weightKg,
+        carrierName: 'Sample Carrier North',
+      ),
+      breakdown: const PriceBreakdown(subtotalKobo: 0, linehaulFeeKobo: 500000, serviceFeeKobo: 20000, vatKobo: 39000, totalKobo: 559000),
+      etaText: 'Tue 17 Nov – Wed 18 Nov',
+      expiresAt: DateTime.utc(2026, 11, 16, 12, 45),
+    );
+  }
 }
 
 const _wallet = WalletOverview(
@@ -245,7 +301,7 @@ void main() {
     await type('Recipient phone', '+2348055555555');
     final cod = find.byKey(const ValueKey('cod-switch'));
     // Scroll past the switch so it sits clear of the fixed bottom button.
-    await tester.scrollUntilVisible(find.text('Interstate waybill'), 200, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('interstate-link')), 200, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
     await tester.tap(cod);
     await tester.pumpAndSettle();
@@ -304,5 +360,36 @@ void main() {
     await tester.scrollUntilVisible(find.text('Cash-on-delivery money'), 200, scrollable: list);
     expect(find.text('₦25,000'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('No wallet activity yet. Top up to pay for your next order in one tap.'), 200, scrollable: list);
+  });
+
+  testWidgets('interstate waybill: hub drop-off to Abuja for collection shows the price and expected dates', (tester) async {
+    final api = FakeApi();
+    await pumpRouted(tester, const WaybillScreen(), overrides: [apiProvider.overrideWithValue(api)]);
+    await tester.tap(find.byKey(const ValueKey('waybill-primary')));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose where the package is going'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('wb-to-lagos')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Abuja: from').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('I’ll drop it at a hub'));
+    await tester.pumpAndSettle();
+    expect(find.text('Not available in this city yet'), findsOneWidget); // no door delivery in Abuja yet
+    await tester.enterText(find.widgetWithText(TextField, 'Sender phone'), '+2348011111111');
+    final list = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(find.widgetWithText(TextField, 'Recipient phone'), 200, scrollable: list);
+    await tester.enterText(find.widgetWithText(TextField, 'Recipient name'), 'Musa Bello');
+    await tester.enterText(find.widgetWithText(TextField, 'Recipient phone'), '+2348077777777');
+    await tester.tap(find.byKey(const ValueKey('waybill-primary')));
+    await tester.pumpAndSettle();
+
+    final (origin, destination, first, last, recipient) = api.waybillRequests.single;
+    expect((origin, destination, first, last), ('lagos', 'abuja', 'dropoff', 'collect'));
+    expect(recipient.location, isNull); // collection: no recipient address needed
+    await tester.scrollUntilVisible(find.text('Expected Tue 17 Nov – Wed 18 Nov'), 200, scrollable: list);
+    expect(find.text('₦5,590'), findsOneWidget);
+    expect(find.text('Book & pay ₦5,590'), findsOneWidget);
+    expect(find.text('Pay on delivery'), findsNothing);
   });
 }

@@ -69,6 +69,9 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
           final steps = switch (o.vertical) {
             'parcel' => const ['Booked', 'Rider found', 'Heading to pickup', 'On the way', 'Delivered'],
             'beauty' => const ['Placed', 'Accepted', 'Packing', 'On the way', 'Delivered'],
+            'waybill' => (o.progress?.steps.isNotEmpty ?? false)
+                ? o.progress!.steps
+                : const ['Booked', 'At the hub', 'On the way', 'Arrived', 'Delivered'],
             _ => _steps,
           };
           return ListView(padding: const EdgeInsets.all(16), children: [
@@ -111,7 +114,14 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
               ),
             if (o.riderName != null)
               ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.delivery_dining_rounded), title: Text(o.riderName!), subtitle: const Text('Your rider')),
-            if (step >= 1 && step < 5) _DeliveryCode(orderId: o.id, recipient: parcel?.dropoff.name),
+            if (o.waybill != null && o.waybill!.trackingCode != null && !['draft', 'pending_payment'].contains(o.status))
+              _WaybillHistory(details: o.waybill!),
+            if (o.waybill != null ? ['paid', 'in_transit'].contains(o.status) : step >= 1 && step < 5)
+              _DeliveryCode(
+                orderId: o.id,
+                recipient: parcel?.dropoff.name ?? o.waybill?.recipient.name,
+                collectAt: o.waybill?.lastMile == 'collect' ? o.waybill!.destinationHubName : null,
+              ),
             if (parcel != null) ...[
               const SizedBox(height: 8),
               Card(
@@ -162,7 +172,8 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
                 ),
               ),
             if (['draft', 'pending_payment', 'submitted_to_restaurant'].contains(o.status) ||
-                (parcel != null && ['paid', 'ready_for_pickup'].contains(o.status)))
+                (parcel != null && ['paid', 'ready_for_pickup'].contains(o.status)) ||
+                (o.waybill != null && o.status == 'paid' && [null, 'awaiting_dropoff', 'pickup_scheduled'].contains(o.waybill!.stage)))
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: OutlinedButton(
@@ -201,27 +212,86 @@ class _Stop extends StatelessWidget {
 }
 
 class _DeliveryCode extends ConsumerWidget {
-  const _DeliveryCode({required this.orderId, this.recipient});
+  const _DeliveryCode({required this.orderId, this.recipient, this.collectAt});
   final String orderId;
 
   /// For packages: who receives it (they must give the rider this code).
   final String? recipient;
 
+  /// Waybills collected at a hub: the recipient shows the collection code there.
+  final String? collectAt;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final api = ref.read(apiProvider);
     return FutureBuilder<String?>(
-      future: ref.read(apiProvider).deliveryCode(orderId),
+      future: collectAt == null ? api.deliveryCode(orderId) : api.pickupCode(orderId),
       builder: (context, snap) => snap.data == null
           ? const SizedBox.shrink()
           : Card(
               child: ListTile(
                 leading: const Icon(Icons.key_rounded),
-                title: Text('Delivery code: ${snap.data}', style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 2)),
+                title: Text('${collectAt == null ? 'Delivery' : 'Collection'} code: ${snap.data}',
+                    style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 2)),
                 subtitle: Text(recipient == null
                     ? 'Share it only when you have your order.'
-                    : 'Send this code to $recipient. The rider needs it to complete the delivery.'),
+                    : collectAt != null
+                        ? 'Send this code to $recipient. They show it at $collectAt to collect the package.'
+                        : 'Send this code to $recipient. The rider needs it to complete the delivery.'),
               ),
             ),
+    );
+  }
+}
+
+final waybillTrackingProvider =
+    FutureProvider.family<WaybillTracking, String>((ref, code) => ref.watch(apiProvider).trackWaybill(code));
+
+/// Waybill tracking number, expected dates and scan history (labels come from the public tracking endpoint).
+class _WaybillHistory extends ConsumerWidget {
+  const _WaybillHistory({required this.details});
+  final WaybillDetails details;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final tracking = ref.watch(waybillTrackingProvider(details.trackingCode!));
+    return Card(
+      margin: const EdgeInsets.only(top: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const Icon(Icons.local_shipping_rounded),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text('${details.originCityName} → ${details.destinationCityName}',
+                  style: const TextStyle(fontWeight: FontWeight.w800)),
+            ),
+            SelectableText(details.trackingCode!, style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
+          ]),
+          if (tracking.value case final t?) ...[
+            if (!t.delivered) Padding(padding: const EdgeInsets.only(top: 6), child: Text('Expected ${t.etaText}')),
+            const SizedBox(height: 8),
+            for (final m in t.milestones.reversed)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Icon(Icons.circle, size: 10, color: m == t.milestones.last ? theme.colorScheme.primary : theme.colorScheme.outline),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text('${m.label} · ${formatLagosDateTime(m.at)}${m.place == null ? '' : ' · ${m.place}'}'),
+                  ),
+                ]),
+              ),
+          ],
+          if (details.lastMile == 'collect')
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text('Collection: ${details.destinationHubName}, ${details.destinationHubAddress}', style: theme.textTheme.bodySmall),
+            ),
+        ]),
+      ),
     );
   }
 }
