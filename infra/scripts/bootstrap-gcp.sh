@@ -117,7 +117,7 @@ Next steps (after the first deploy, when the API URL is known):
   gcloud pubsub subscriptions create gudmeal-events-push --topic gudmeal-domain-events \\
     --push-endpoint "\$API_URL/internal/events" --push-auth-service-account gudmeal-tasks@$PROJECT.iam.gserviceaccount.com \\
     --push-auth-token-audience "\$API_URL" --dead-letter-topic gudmeal-domain-events-dlq --max-delivery-attempts 10
-  for job in "relay-outbox|* * * * *" "reconcile-payments|*/10 * * * *" "sweep|*/5 * * * *"; do
+  for job in "relay-outbox|* * * * *" "reconcile-payments|*/10 * * * *" "sweep|*/5 * * * *" "renew-plus|0 7 * * *"; do
     gcloud scheduler jobs create http "gudmeal-\${job%%|*}" --location $REGION --schedule "\${job##*|}" \\
       --uri "\$API_URL/internal/jobs/\${job%%|*}" --http-method POST \\
       --oidc-service-account-email gudmeal-tasks@$PROJECT.iam.gserviceaccount.com --oidc-token-audience "\$API_URL"
