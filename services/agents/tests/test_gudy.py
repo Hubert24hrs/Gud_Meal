@@ -314,8 +314,22 @@ async def test_offline_gudy_quotes_waybill_routes_and_tracks_a_waybill(offline_s
     code = order.json()["waybill"]["tracking_code"]
 
     tracked = await chat(client, f"track {code.lower()}")
-    assert f"Waybill {code} (Lagos to Abuja): Rider pickup booked." in tracked["reply"]
+    assert f"Waybill {code} (Lagos to Abuja): Rider pickup booked. Expected " in tracked["reply"]
+    assert "Collect it at Partner terminal, Utako" in tracked["reply"]
     latest = await chat(client, "where is my waybill?")
     assert code in latest["reply"]
     totals = await chat(client, "How much have I spent on Gud Meal?")
     assert "Interstate waybill: 1 order(s)" in totals["reply"]
+
+
+def test_offline_waybill_reply_drops_the_eta_once_delivered():
+    from gudmeal_agents.offline import render
+
+    data = {
+        "tracking_code": "GMW23456789",
+        "route": "Lagos to Abuja",
+        "status": "Delivered",
+        "expected": "Tue 17 Nov",
+        "delivered": True,
+    }
+    assert render("track_waybill", data, "en") == "Waybill GMW23456789 (Lagos to Abuja): Delivered."

@@ -186,6 +186,11 @@ T: dict[str, dict[str, str]] = {
         "en": "Waybill {code} ({route}): {status}. Expected {eta}.",
         "pcm": "Waybill {code} ({route}): {status}. E go reach {eta}.",
     },
+    "waybill_done": {
+        "en": "Waybill {code} ({route}): {status}.",
+        "pcm": "Waybill {code} ({route}): {status}.",
+    },
+    "waybill_collect": {"en": "Collect it at {place}.", "pcm": "Make dem collect am for {place}."},
     "waybill_none": {"en": "You don't have any waybills yet.", "pcm": "You never send any waybill yet."},
     "unknown": {
         "en": "I didn't quite get that. You can ask me for food, beauty products, package delivery, your order status "
@@ -636,7 +641,7 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
         if data.get("message") == "No waybills yet":
             return say("waybill_none", lang)
         out = say(
-            "waybill_track",
+            "waybill_done" if data.get("delivered") else "waybill_track",
             lang,
             code=data.get("tracking_code"),
             route=data.get("route"),
@@ -644,7 +649,7 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
             eta=data.get("expected"),
         )
         if data.get("collection_point"):
-            out += f" {data['collection_point']}"
+            out += " " + say("waybill_collect", lang, place=data["collection_point"])
         return out
     if tool == "get_payment_options":
         lines = [say("pay_options", lang, total=data.get("order_total"))]
