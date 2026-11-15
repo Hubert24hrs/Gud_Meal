@@ -19,6 +19,8 @@
 | Rider ↔ rider | `order.rider_id == uid`; riders see only the drop-off details needed for the active delivery |
 | Staff | permission-based; every privileged mutation writes an `audit_events` row |
 | AI threads | thread ownership table checked on every call; memory never shared across users |
+| Group orders | only members can read a group (others get 404); members change only their own items; the host alone locks, checks out, cancels or removes people; joining by code is rate-limited per user and groups expire |
+| Personal vouchers | a reward voucher carries `customer_id`; anyone else's quote reports an unknown code |
 | Waybill tracking | public `GET /v1/track/{code}` returns progress, places and dates only (no names, phones or addresses), rate-limited per client address; hub scans need `hubs:operate` and are accepted only at the package's booked hub for each step |
 
 ## Platform controls

@@ -108,3 +108,12 @@ flowchart TD
   approval-gated tool was needed. Offline mode recognises tracking numbers, “send to Abuja”-style
   questions and “where is my waybill”. Gudy now has 40 tools; as before, every price it states is copied
   from a tool result.
+- **Plus, points and group orders (phase 4).** Three read-only tools for the customer, support and growth
+  agents:
+  - `get_plus_membership`: price, benefits, membership and savings
+  - `get_rewards`: points, redeem steps, personal vouchers, referral code
+  - `get_group_orders`: my groups, status, join code, my share
+
+  `open_screen` gains `plus`, `rewards` and `group`. Gudy never joins Plus, redeems points, applies codes
+  or pays shares; the customer does that on the screen Gudy opens. Offline mode answers these questions in
+  English and Pidgin. Gudy now has 43 tools.

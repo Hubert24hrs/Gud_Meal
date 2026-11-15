@@ -66,4 +66,5 @@ Delivery phases (each tested, documented and pushed before the next):
 3. **Logistics** — interstate waybill (Lagos ↔ Enugu ↔ other states) via partner logistics and hubs.
    *(done 2026-11-15 with a sample network of hubs and carriers; real partners pending, see ADR-0015)*
 4. **Growth** — Gud Meal Plus membership, referral and loyalty rewards, group orders with split bill.
+   *(done 2026-11-15 with product-default prices and rewards to be confirmed; see ADR-0016)*
 5. **WhatsApp** — Gudy on WhatsApp Business (ordering and support), once the Meta account is ready.

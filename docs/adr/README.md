@@ -16,3 +16,4 @@
 | [0012](0012-multi-service-platform.md) | One order pipeline for Food, Beauty & Skin care and Package Delivery | Accepted |
 | [0013](0013-wallet-and-cash.md) | Gud Meal wallet, pay on delivery, vendor cash-on-delivery, gateway failover | Accepted (legal review pending) |
 | [0015](0015-interstate-waybill.md) | Interstate waybill: hubs, rider legs, partner line haul, public tracking | Accepted (sample network) |
+| [0016](0016-plus-rewards-group-orders.md) | Gud Meal Plus, Gud points and referrals, group orders with split bill | Accepted (defaults to confirm) |

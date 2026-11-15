@@ -85,3 +85,32 @@ Waybill fields in other responses:
   with hub staff, not with a code).
 - `GET /v1/admin/cash` adds `carriers` and `totals.carrier_balances_kobo`.
 - Customer order lists never include rider jobs. Rider jobs cannot be checked out, cancelled or disputed.
+
+## Plus, rewards and group orders (phase 4, [ADR-0016](adr/0016-plus-rewards-group-orders.md))
+
+| Method & path | Who | Purpose |
+|---|---|---|
+| `GET /v1/plus` | customer | The plan (price, benefits) and my membership (until when, auto-renew, savings, `can_renew`) |
+| `POST /v1/plus/subscribe` (Idempotency-Key) `{"provider", "auto_renew"}` | customer | Join or renew. `provider: "wallet"` is instant; otherwise it returns a hosted checkout. Paying again works only in the last 7 days of a period |
+| `PUT /v1/plus/auto-renew` `{"auto_renew"}` | customer | Renew from the wallet each period, or cancel at the end of it |
+| `GET /v1/rewards` · `GET /v1/rewards/vouchers` | customer | Gud points, redeem steps, personal vouchers, referral code, history |
+| `POST /v1/rewards/redeem` (Idempotency-Key) `{"points"}` | customer | Turn points into a personal voucher (in steps, e.g. 500 points = ₦500) |
+| `POST /v1/rewards/referral` `{"code"}` | customer | Apply a friend's code (new customers, once): a welcome voucher at once |
+| `GET /v1/group-orders` · `POST /v1/group-orders` | customer | My group orders · start one at a Food or Beauty store (delivery address, `split_mode` `each` or `host`) |
+| `POST /v1/group-orders/join` `{"code"}` | customer (rate-limited) | Join with the 6-character code |
+| `GET /v1/group-orders/{id}` | members | Members, everyone's items (live prices), shares, my share, what is still unpaid, pay-by time |
+| `PUT /v1/group-orders/{id}/lines` · `…/ready` · `…/settings` | members (settings: host) | Replace my items · I'm done · who pays |
+| `POST /v1/group-orders/{id}/lock` · `…/unlock` · `…/cancel` · `DELETE …/members/{uid}` | host (leave: the member) | Manage the cart; cancelling after ordering refunds every paid share |
+| `POST /v1/group-orders/{id}/checkout` (Idempotency-Key) | host | One quote and one order for everyone (host's address, voucher, Plus); shares from `split_bill` |
+| `POST /v1/group-orders/{id}/pay` (Idempotency-Key) `{"provider", "cover_rest"}` | members | Pay my share by card or wallet, or (host) pay everything still unpaid |
+| `GET /v1/admin/growth` | analytics (finance, operations, marketing, admin) | Plus members and revenue, points outstanding, referrals, reward vouchers |
+| `GET` · `PUT /v1/admin/config/growth` | `config:read` / `config:write` | Points, referral and group-order settings (versioned, audited); the Plus plan is part of `/v1/admin/config/pricing` |
+| `POST /internal/jobs/renew-plus` | Cloud Scheduler | Daily wallet renewals and low-balance reminders |
+
+Related fields in other responses:
+
+- Quotes and orders carry `breakdown.plus_savings_kobo`.
+- Orders placed from a group carry `group_order_id`.
+- `GET /v1/config/public` adds `plus`.
+- Split-bill orders refuse `POST /v1/orders/{id}/checkout` and pay on delivery: each member pays through
+  `/group-orders/{id}/pay`.

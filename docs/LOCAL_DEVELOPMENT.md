@@ -44,8 +44,9 @@ FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 uv run --directory services/api pytho
 ```
 
 The password comes from `DEMO_USER_PASSWORD` (the script has an emulator-only default). Accounts:
-`customer@gudmeal.test`, `owner@gudmeal.test` (Jollof Junction), `kitchen@gudmeal.test`,
-`rider@gudmeal.test` (demo-rider-1), `support@`, `finance@`, `admin@gudmeal.test` (super admin).
+`customer@gudmeal.test`, `friend@gudmeal.test` (a second customer, for group orders and referrals),
+`owner@gudmeal.test` (Jollof Junction), `kitchen@gudmeal.test`, `rider@gudmeal.test` (demo-rider-1),
+`support@`, `finance@`, `hub@` (interstate hubs), `admin@gudmeal.test` (super admin).
 
 ## 3. Payments locally
 

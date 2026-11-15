@@ -91,6 +91,13 @@ The exhaustive table — including which actor may perform each transition and i
     pickup.
 - **Packages and waybills** never go to `submitted_to_restaurant`, so they never take the pay-on-delivery
   step.
+- **Group orders** (`group_order_id` set, [ADR-0016](../adr/0016-plus-rewards-group-orders.md)):
+  - The host places one ordinary order.
+  - In split-bill mode it waits in `pending_payment` until every member's share is paid, then moves to
+    `paid` (payment provider `group`) and on to the store as usual.
+  - If the unpaid-order expiry or the host cancels it first, it goes `pending_payment → cancelled` and
+    every paid share is refunded.
+  - Split-bill orders refuse direct checkout and pay on delivery.
 - **rider transitions** require `order.rider_id == actor.uid`.
 - **restaurant transitions** require the actor to hold a restaurant role for `order.restaurant_id`.
 - Every transition is a compare-and-set on the current status (Firestore transaction) and appends an
