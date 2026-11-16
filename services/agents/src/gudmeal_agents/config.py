@@ -26,6 +26,14 @@ class Settings(BaseSettings):
     # gudmeal-api (tools call it on behalf of the user)
     api_base_url: str = "http://localhost:8000"
     api_timeout_seconds: float = 15.0
+    # How this service proves itself to the API (App Check is for client apps): a service-account OIDC token
+    # in the cloud, the shared internal secret locally, or nothing when App Check is not enforced.
+    internal_auth_mode: Literal["none", "shared_secret", "oidc"] = "none"
+    internal_shared_secret: SecretStr | None = None
+    api_oidc_audience: str | None = None  # defaults to api_base_url
+
+    # Chat channels (ADR-0017): customer-only tokens minted by the API for WhatsApp conversations.
+    channel_token_secret: SecretStr = SecretStr("local-dev-channel-secret-change-me")
 
     # Firebase (ID token verification)
     firebase_project_id: str = "demo-gudmeal"
@@ -71,6 +79,10 @@ class Settings(BaseSettings):
             problems.append("DATABASE_URL must point to PostgreSQL")
         if not self.check_token_revocation:
             problems.append("CHECK_TOKEN_REVOCATION must be true")
+        if self.channel_token_secret.get_secret_value() == "local-dev-channel-secret-change-me":
+            problems.append("CHANNEL_TOKEN_SECRET must be set from Secret Manager (same value as the API)")
+        if self.internal_auth_mode != "oidc":
+            problems.append("INTERNAL_AUTH_MODE must be 'oidc' (service-account identity for API calls)")
         if problems:
             raise RuntimeError("Unsafe configuration: " + "; ".join(problems))
 

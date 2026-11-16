@@ -76,6 +76,12 @@ class AgentSpec:
             context.append(f"Meal plans shown in this chat: {', '.join(sorted(artifacts['plans']))}")
         if artifacts.get("last_order_id"):
             context.append(f"Most recent order in this chat: {artifacts['last_order_id']}")
+        if artifacts.get("channel") == "whatsapp":
+            context.append(
+                "Channel: WhatsApp. Keep replies short (a few lines), in plain text without tables or headings. "
+                "The customer approves orders with Yes/No buttons and pays on the secure page behind a Pay button; "
+                "screen buttons arrive as web links."
+            )
         local = now.astimezone(LAGOS)
         restaurants = ", ".join(f"{rid} ({role})" for rid, role in caller.restaurant_roles.items()) or "none"
         return (
