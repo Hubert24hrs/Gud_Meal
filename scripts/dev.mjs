@@ -27,6 +27,8 @@ const targets = {
       DATA_BACKEND: "memory", SEED_DEMO_DATA: "true", DATABASE_URL: "sqlite+aiosqlite:///./gudmeal_local_v3.db",
       PUBLIC_BASE_URL: "http://localhost:8000", PAYMENT_CALLBACK_URL: "http://localhost:3000/checkout/callback",
       INTERNAL_SHARED_SECRET: "local-dev-only", CHECK_TOKEN_REVOCATION: "false",
+      // Gudy on WhatsApp with the sandbox sender: try it at http://localhost:8000/v1/dev/whatsapp
+      WHATSAPP_ENABLED: "true", WHATSAPP_PROVIDER: "sandbox", AGENTS_BASE_URL: "http://localhost:8100",
     },
   },
   agents: {
