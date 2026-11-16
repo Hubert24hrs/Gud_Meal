@@ -37,7 +37,9 @@
   nothing else. All other writes go through the API (Admin SDK).
 - **Storage rules**: size and content-type limits; restaurant documents readable only by the owner and staff.
 - **App Check**: enforced on Firestore/Storage; the API verifies App Check tokens (`X-Firebase-AppCheck`)
-  when `APP_CHECK_ENFORCED=true`. Gud Meal's own agents service proves itself instead with a Google-signed OIDC
+  when `APP_CHECK_ENFORCED=true`. The websites send tokens from reCAPTCHA Enterprise once
+  `APP_CHECK_SITE_KEY` is set; the mobile apps do not send them yet, which blocks production for them.
+  Gud Meal's own agents service proves itself instead with a Google-signed OIDC
   token (`X-Service-Authorization`, audience and service account checked; the shared internal secret locally),
   and still needs the user's own token on every call.
 - **Secrets**: Secret Manager only; `.env` files are git-ignored; the repo is public.

@@ -30,6 +30,10 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 - ✅ WhatsApp channel: signed webhooks, number linking by one-time code, customer-only channel tokens, an
   App Check exemption limited to the agents service account (which cannot call `/internal/*`)
 - 👤 Enable App Check enforcement in production (`APP_CHECK_ENFORCED=true`) after registering apps
+- 🟡 Websites send App Check tokens (reCAPTCHA Enterprise) once `APP_CHECK_SITE_KEY` is set; verify with a real
+  key
+- ⬜ Mobile apps: add Firebase App Check (Play Integrity, App Attest). Without it they cannot use the production
+  API
 - ⬜ External penetration test / OWASP ASVS L2 review; dependency scanning (Dependabot) and SAST in CI
 - ⬜ Distributed rate limiting (current limiter is per instance)
 
@@ -68,6 +72,8 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 
 ## Operations & compliance
 - ✅ Dockerfiles, CI, manual deploy workflow, bootstrap & deploy scripts, rollback procedure documented
+- 🟡 The three websites deploy to Cloud Run with the API and Gudy (images built and smoke-tested in CI; not yet
+  deployed)
 - 👤 Create GCP projects, billing, budgets; run bootstrap; add secrets; first deploy
 - ⬜ Monitoring dashboards & alerts (5xx rate, webhook failures, stuck orders, outbox backlog, AI cost/day)
 - ⬜ Backup restore drill; incident runbooks; on-call rota

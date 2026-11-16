@@ -17,6 +17,7 @@ list before production rollout. Figures are USD per month.
 | Service | Dev | Staging | Production | Notes |
 |---|---|---|---|---|
 | Cloud Run (api + agents) | 0–5 | 5–15 | 40–90 | prod keeps 1 warm API instance; agents scale to zero |
+| Cloud Run (3 websites) | 0–2 | 1–5 | 10–30 | scale to zero; prod keeps 1 customer-site instance warm |
 | Cloud SQL PostgreSQL 16 | 0–50* | 50–60 | 200–260 | prod HA `db-custom-2-7680` + backups/PITR; *dev can stay on SQLite |
 | Firestore | 0–5 | 0–5 | 10–40 | reads dominated by order/tracking listeners |
 | Pub/Sub, Cloud Tasks, Scheduler | 0 | 0–2 | 2–8 | |
@@ -24,7 +25,7 @@ list before production rollout. Figures are USD per month.
 | Secret Manager, Logging, Monitoring | 0–2 | 2–5 | 10–30 | keep log levels at INFO, exclude health checks |
 | Gemini API (assistant) | 0–10 | 5–20 | ~150 | 60k turns × (5k in + 400 out) tokens at the configured rates |
 | Google Maps Platform | 0 | 0–10 | 0–200 | not called server-side yet; autocomplete/geocoding/routes when enabled |
-| **Total (infra)** | **~0–75** | **~65–125** | **~420–790** | |
+| **Total (infra)** | **~0–80** | **~65–130** | **~430–820** | |
 
 ## Not included (variable business costs)
 

@@ -39,7 +39,7 @@ test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_RE
 | Mobile | `gud_meal_core` (Freezed models, Dio clients, auth port, theme from tokens), customer app **redesigned Glovo-style** (home with animated, finger-draggable bubbles drawn as original illustrations; Food and Beauty pages; Package Delivery with cash on delivery; Discover; Orders with spending; Support; Profile; **wallet**; card/wallet/pay-on-delivery choice; **interstate waybill** booking, tracking history and collection code; **Gud Meal Plus**, **Rewards** and **group orders** with split bill; **Order on WhatsApp** in Profile; draggable Gudy robot and chat), rider app (online/GPS, offers with countdown, pickup/transit/OTP delivery, **cash collection confirmation**, package jobs with sender/recipient call buttons, waybill pickup and door-delivery jobs with a hub hand-over card, navigation, earnings with cash held, SOS) |
 | Maps | Google Places (New), Geocoding and Routes **only inside the API** (server key; keyless fallback to the neighbourhood table and labelled estimates): `/v1/places/*`, `/v1/delivery/estimates`; delivery fee, rider pay and ETA on the measured road distance (stored on the quote so the order prices the same); rider privacy (no pings while offline, ~1 km areas when idle, precise only on a delivery, cleared at the end); partner kitchen pins checked against the address and audited; operations live-rider map; cost controls (field masks, session tokens, caches, daily cap, traffic-aware switch, 3-minute live ETA refresh). Apps: address picker, nearby map, live delivery map (schematic without a key, Google tiles with restricted keys), rider turn-by-turn links; website checkout search and order map; partner Kitchen location; Command Centre Live riders; Gudy `find_nearby_restaurants` and `compare_delivery_times` |
 | Firebase | Deny-by-default Firestore & Storage rules, composite indexes, quote TTL, emulator config, rules tests |
-| Delivery | Dockerfiles, CI workflow, manual deploy workflow, Cloud Build config, GCP bootstrap & deploy scripts (service identities, channel-token and WhatsApp secrets, Firestore TTL for WhatsApp records) |
+| Delivery | Dockerfiles, CI workflow, manual deploy workflow, Cloud Build config, GCP bootstrap & deploy scripts (service identities, channel-token and WhatsApp secrets, Firestore TTL for WhatsApp records). The three websites deploy as Cloud Run services too: one image per app (Next.js standalone output, non-root, smoke-tested in CI), browser settings from GitHub Environment variables, and Cloud Run's deterministic URLs, so CORS, the payment return page and the OIDC audience are right on the first deploy |
 
 ## What works (verified)
 
@@ -240,7 +240,9 @@ is tested with a simulated outage. Seller payouts, rider hand-ins and carrier pa
 
 Implemented: token verification, RBAC, data isolation, deny-by-default rules, webhook signatures, idempotency,
 append-only ledger/audit, rate limits, AI guardrails, WhatsApp webhook signatures, customer-only channel
-tokens, service-account identity between the agents service and the API. Outstanding: App Check enforcement, penetration test,
+tokens, service-account identity between the agents service and the API, App Check tokens from the websites
+(reCAPTCHA Enterprise, once a site key is set). Outstanding: App Check in the mobile apps (blocks production),
+App Check enforcement, penetration test,
 dependency scanning, distributed rate limiting, NDPA documentation.
 
 ## Outstanding issues
@@ -297,10 +299,20 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 23. A split-bill refund that needs finance approval appears as one request per payer, and finance should
     decide them together. Group orders use the host's address, voucher and Plus benefits. Members follow
     the order inside the group, not in their own order list.
+24. **App Check blocks production for the mobile apps.** The production API enforces App Check, and the
+    customer and rider apps do not send App Check tokens yet (they need `firebase_app_check` with Play
+    Integrity and App Attest). The websites send tokens, but only once a reCAPTCHA Enterprise site key is set,
+    and that has not been tried with a real key yet.
+25. The website images are built and smoke-tested in CI only: this machine has no Docker. The standalone
+    server was checked locally for the Command Centre (page, static files, security headers).
 
 ## Required user actions
 
-1. Create `gud-meal-dev|staging|prod` GCP projects, add Firebase, enable billing and budgets.
+1. Create `gud-meal-dev|staging|prod` GCP projects, add Firebase, enable billing and budgets. In each
+   Firebase project, register one Web app for the three websites, create a reCAPTCHA Enterprise key for App
+   Check, and add the website domains to Authentication's authorized domains. Then fill in the GitHub
+   Environment variables (`FIREBASE_API_KEY`, `FIREBASE_APP_ID`, `APP_CHECK_SITE_KEY`; see
+   [DEPLOYMENT.md](DEPLOYMENT.md) sections 3 and 5).
 2. Provide Paystack **test** keys (and Flutterwave if wanted) for sandbox verification.
 3. Provide a Gemini API key (turns Gudy's offline mode into the full multilingual assistant); choose and pin a
    stable Flash model.
@@ -335,8 +347,8 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 
 ## Estimated monthly infrastructure cost
 
-About **$420–790/month for production** at launch scale (300 orders/day, 2,000 AI turns/day), $65–125 staging,
-$0–75 dev — excluding payment fees and SMS. Details and assumptions: [COST_ESTIMATE.md](COST_ESTIMATE.md).
+About **$430–820/month for production** at launch scale (300 orders/day, 2,000 AI turns/day), $65–130 staging,
+$0–80 dev, including the three websites — excluding payment fees and SMS. Details and assumptions: [COST_ESTIMATE.md](COST_ESTIMATE.md).
 
 ## Recommended next steps
 

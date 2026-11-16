@@ -78,10 +78,12 @@ Rules:
 ### Server key in Secret Manager and Cloud Run
 
 ```bash
-printf '%s' 'PASTE_KEY_HERE' | gcloud secrets create google-maps-server-key --data-file=- --project <PROJECT_ID>
-gcloud secrets add-iam-policy-binding google-maps-server-key --member=serviceAccount:<API_RUNTIME_SA> --role=roles/secretmanager.secretAccessor --project <PROJECT_ID>
-gcloud run services update gudmeal-api --update-secrets=GOOGLE_MAPS_API_KEY=google-maps-server-key:latest --region <REGION> --project <PROJECT_ID>
+printf '%s' 'PASTE_KEY_HERE' | gcloud secrets versions add google-maps-server-key --data-file=- --project <PROJECT_ID>
 ```
+
+The bootstrap script creates the empty `google-maps-server-key` secret, and `gudmeal-api` can already read
+secrets. The next deploy binds it as `GOOGLE_MAPS_API_KEY` (`infra/scripts/deploy.sh` checks that the secret has
+a value). Don't add it with `gcloud run services update`: every deploy replaces the secret bindings.
 
 For local testing with a real key, put `GOOGLE_MAPS_API_KEY=…` in `services/api/.env`. That file is
 git-ignored. Every call is billable, so ask the owner first.
