@@ -6,7 +6,9 @@ every call, so the agent can never do more than the signed-in user could do in t
 
 from __future__ import annotations
 
+import asyncio
 import contextvars
+import time
 from typing import Any
 
 import httpx
@@ -24,12 +26,47 @@ class ApiError(Exception):
         return {"error": {"code": self.code, "message": self.message, "details": self.details}}
 
 
+class ServiceAuth:
+    """Proves to gudmeal-api that a call comes from this service. App Check is for client apps; Gudy's tool
+    calls carry the user's token *and* this service credential (ADR-0017)."""
+
+    def __init__(self, mode: str, *, secret: str | None = None, audience: str | None = None) -> None:
+        self.mode = mode
+        self.secret = secret
+        self.audience = audience
+        self._token: str | None = None
+        self._expires = 0.0
+        self._lock = asyncio.Lock()
+
+    async def headers(self) -> dict[str, str]:
+        if self.mode == "shared_secret" and self.secret:
+            return {"X-Internal-Token": self.secret}
+        if self.mode != "oidc" or not self.audience:
+            return {}
+        async with self._lock:
+            if self._token is None or time.time() > self._expires - 300:
+                from google.auth.transport.requests import Request
+                from google.oauth2 import id_token
+
+                # Cloud Run's metadata server signs an ID token for this service account (valid one hour).
+                self._token = await asyncio.to_thread(id_token.fetch_id_token, Request(), self.audience)
+                self._expires = time.time() + 3300
+        return {"X-Service-Authorization": f"Bearer {self._token}"}
+
+
 class GudMealApi:
     def __init__(
-        self, http: httpx.AsyncClient, base_url: str, token: str, *, request_id: str | None = None
+        self,
+        http: httpx.AsyncClient,
+        base_url: str,
+        token: str,
+        *,
+        request_id: str | None = None,
+        service_auth: ServiceAuth | None = None,
     ) -> None:
         self._http = http
         self._base = base_url.rstrip("/")
+        self._service_auth = service_auth
         self._headers = {"Authorization": f"Bearer {token}", "X-Agent-Request": "gudmeal-agents"}
         if request_id:
             self._headers["X-Request-ID"] = request_id
@@ -44,6 +81,8 @@ class GudMealApi:
         idempotency_key: str | None = None,
     ) -> Any:
         headers = dict(self._headers)
+        if self._service_auth is not None:
+            headers.update(await self._service_auth.headers())
         if idempotency_key:
             headers["Idempotency-Key"] = idempotency_key
         try:

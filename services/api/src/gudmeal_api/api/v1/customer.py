@@ -28,12 +28,12 @@ IdemKey = Annotated[str | None, Header(alias="Idempotency-Key")]
 class CreateOrderInput(BaseModel):
     quote_id: str
     contact_phone: str | None = Field(default=None, max_length=20)
-    channel: Literal["app", "web", "ai_agent"] = "app"
+    channel: Literal["app", "web", "ai_agent", "whatsapp"] = "app"
 
 
 class CreateParcelInput(BaseModel):
     quote_id: str
-    channel: Literal["app", "web", "ai_agent"] = "app"
+    channel: Literal["app", "web", "ai_agent", "whatsapp"] = "app"
 
 
 def parcel_quote_view(quote: ParcelQuote) -> dict[str, Any]:

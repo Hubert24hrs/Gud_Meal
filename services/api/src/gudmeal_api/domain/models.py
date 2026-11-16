@@ -476,7 +476,7 @@ class Order(Model):
     cash_collected_at: datetime | None = None  # rider took cash at the door (pay on delivery and/or COD)
     settled_at: datetime | None = None
     reviewed: bool = False
-    channel: Literal["app", "web", "ai_agent", "admin"] = "app"
+    channel: Literal["app", "web", "ai_agent", "whatsapp", "admin"] = "app"
     parcel: ParcelDetails | None = None  # set for vertical == parcel
     waybill: WaybillDetails | None = None  # set for vertical == waybill
     # Internal rider job that moves a waybill between an address and a hub (no payment of its own).
@@ -672,7 +672,7 @@ class SupportTicket(Model):
     missing_item_ids: list[str] = Field(default_factory=list)
     status: Literal["open", "in_progress", "escalated", "resolved", "closed"] = "open"
     priority: Literal["low", "normal", "high", "urgent"] = "normal"
-    channel: Literal["app", "web", "ai_agent", "phone"] = "app"
+    channel: Literal["app", "web", "ai_agent", "whatsapp", "phone"] = "app"
     assigned_to: str | None = None
     resolution: str | None = None
     refund_id: str | None = None

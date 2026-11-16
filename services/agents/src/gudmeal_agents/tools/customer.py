@@ -32,6 +32,11 @@ def lagos_time(iso: str | None) -> str | None:
     return local.strftime("%I:%M %p").lstrip("0")
 
 
+def chat_channel(ctx: ToolContext) -> str:
+    """Orders and tickets record where the customer was talking to Gudy: WhatsApp, or the app/website."""
+    return "whatsapp" if ctx.artifacts.get("channel") == "whatsapp" else "ai_agent"
+
+
 async def delivery_address(ctx: ToolContext) -> dict[str, Any]:
     """The address used for planning/quotes: request context first, then the first saved address."""
     if ctx.artifacts.get("delivery_address"):
@@ -562,7 +567,7 @@ async def create_order_draft(args: DraftArgs, ctx: ToolContext) -> ToolOutput:
     quote = await ctx.api.post("/v1/quotes", body)
     order = await ctx.api.post(
         "/v1/orders",
-        {"quote_id": quote["id"], "channel": "ai_agent"},
+        {"quote_id": quote["id"], "channel": chat_channel(ctx)},
         idempotency_key=ctx.idempotency_key("order"),
     )
     summary = order_summary(order)
@@ -574,14 +579,27 @@ async def create_order_draft(args: DraftArgs, ctx: ToolContext) -> ToolOutput:
     )
 
 
+def deliver_to(order: dict[str, Any]) -> str | None:
+    """Where a delivery goes, in words. It is shown on the approval (WhatsApp has no order screen) but is kept
+    out of the order summaries the model reads."""
+    a = order.get("delivery_address")
+    if order.get("fulfillment") != "delivery" or not a:
+        return None
+    parts = (str(a.get(k) or "").strip() for k in ("line1", "area", "city"))
+    return ", ".join(dict.fromkeys(p for p in parts if p)) or None
+
+
 async def preview_confirm(args: OrderIdArgs, ctx: ToolContext) -> dict[str, Any]:
     order = await ctx.api.get(f"/v1/orders/{args.order_id}")
     s = order_summary(order)
+    where = deliver_to(order)
     return {
         "title": f"Place order {s['short_code']} from {s['restaurant']}?",
         "order": s,
-        "message": f"You'll pay {s['total']} securely on the payment page. Card details are never shared with "
-        "the assistant.",
+        "deliver_to": where,
+        "message": (f"Delivering to {where}. " if where else "")
+        + f"You'll pay {s['total']} securely on the payment page. Card details are never shared with the "
+        "assistant.",
     }
 
 
@@ -646,7 +664,7 @@ async def reorder(args: OrderIdArgs, ctx: ToolContext) -> ToolOutput:
     quote = await ctx.api.post(f"/v1/orders/{args.order_id}/reorder", {"delivery_address": addr})
     order = await ctx.api.post(
         "/v1/orders",
-        {"quote_id": quote["id"], "channel": "ai_agent"},
+        {"quote_id": quote["id"], "channel": chat_channel(ctx)},
         idempotency_key=ctx.idempotency_key("reorder"),
     )
     s = order_summary(order)

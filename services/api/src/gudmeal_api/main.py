@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 
 from .api.v1 import (
     admin,
+    channels,
     customer,
     discover,
     growth,
@@ -177,6 +178,7 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
         waybills.admin,
         growth.router,
         growth.admin,
+        channels.router,
         partner.router,
         rider.router,
         admin.router,

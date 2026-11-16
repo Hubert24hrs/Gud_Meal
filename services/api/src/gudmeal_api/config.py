@@ -77,6 +77,9 @@ class Settings(BaseSettings):
     internal_shared_secret: SecretStr | None = None
     internal_oidc_audience: str | None = None
     internal_oidc_service_accounts: list[str] = Field(default_factory=list)
+    # Gud Meal's own services (the agents service) that may call user endpoints without App Check. They still
+    # need the user's token, and this list does not open /internal/* (that is INTERNAL_OIDC_SERVICE_ACCOUNTS).
+    trusted_service_accounts: list[str] = Field(default_factory=list)
 
     # --- async infrastructure ----------------------------------------------------------------
     event_bus: Literal["inprocess", "pubsub"] = "inprocess"
@@ -118,6 +121,20 @@ class Settings(BaseSettings):
     maps_timeout_seconds: float = 4.0
     maps_daily_request_cap: int = 20_000  # per instance; GCP quotas + budget alerts are the hard limit
 
+    # --- Gudy on WhatsApp (ADR-0017): off until the Meta account, number and keys exist -----------
+    whatsapp_enabled: bool = False
+    whatsapp_provider: Literal["sandbox", "cloud"] = "sandbox"
+    whatsapp_access_token: SecretStr | None = None  # permanent system-user token (Secret Manager)
+    whatsapp_app_secret: SecretStr | None = None  # signs Meta's webhooks (X-Hub-Signature-256)
+    whatsapp_verify_token: SecretStr | None = None  # chosen by us, entered in the Meta webhook settings
+    whatsapp_phone_number_id: str | None = None
+    whatsapp_business_number: str = "+234 000 000 0000"
+    whatsapp_graph_version: str = "v21.0"
+    # Delegated customer-only tokens for chat channels; shared with the agents service.
+    channel_token_secret: SecretStr = SecretStr("local-dev-channel-secret-change-me")
+    agents_base_url: str = "http://localhost:8100"
+    public_web_url: str = "http://localhost:3000"
+
     @property
     def is_cloud(self) -> bool:
         return self.environment in ("development", "staging", "production")
@@ -145,6 +162,23 @@ class Settings(BaseSettings):
             problems.append("SEED_DEMO_DATA must be false")
         if self.environment == "production" and not self.app_check_enforced:
             problems.append("APP_CHECK_ENFORCED must be true in production")
+        if self.app_check_enforced and not self.trusted_service_accounts:
+            problems.append(
+                "TRUSTED_SERVICE_ACCOUNTS must list the agents service account (Gudy's tool calls)"
+            )
+        if self.channel_token_secret.get_secret_value() == "local-dev-channel-secret-change-me":
+            problems.append("CHANNEL_TOKEN_SECRET must be set from Secret Manager")
+        if self.whatsapp_enabled and not (
+            self.whatsapp_provider == "cloud"
+            and self.whatsapp_access_token
+            and self.whatsapp_app_secret
+            and self.whatsapp_verify_token
+            and self.whatsapp_phone_number_id
+        ):
+            problems.append(
+                "WHATSAPP_ENABLED needs WHATSAPP_PROVIDER=cloud and the WhatsApp access token, app secret, "
+                "verify token and phone number id"
+            )
         if problems:
             raise RuntimeError("Unsafe configuration: " + "; ".join(problems))
 

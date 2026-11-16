@@ -13,7 +13,7 @@ import httpx
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 
-from .api_client import GudMealApi, current_api
+from .api_client import GudMealApi, ServiceAuth, current_api
 from .config import Settings
 from .graph import current_caller
 from .guardrails import CARD_WARNING, check_input
@@ -51,11 +51,19 @@ class AgentService:
         self.http = http
         self.model_name = model_name
         self._rate: dict[str, deque[float]] = defaultdict(deque)
+        secret = (
+            settings.internal_shared_secret.get_secret_value() if settings.internal_shared_secret else None
+        )
+        self.service_auth = ServiceAuth(
+            settings.internal_auth_mode,
+            secret=secret,
+            audience=settings.api_oidc_audience or settings.api_base_url,
+        )
 
     # ------------------------------------------------------------------------------------------
     @contextmanager
     def _bind(self, caller: Caller) -> Iterator[None]:
-        api = GudMealApi(self.http, self.settings.api_base_url, caller.token)
+        api = GudMealApi(self.http, self.settings.api_base_url, caller.token, service_auth=self.service_auth)
         t1, t2 = current_caller.set(caller), current_api.set(api)
         try:
             yield
@@ -115,8 +123,10 @@ class AgentService:
             "steps": 0,
             "blocked": False,
         }
+        artifacts: dict[str, Any] = {"channel": channel}
         if delivery_address:
-            payload["artifacts"] = {"delivery_address": delivery_address}
+            artifacts["delivery_address"] = delivery_address
+        payload["artifacts"] = artifacts
         return await self._run(caller, thread_id, payload, warnings=guard.warnings)
 
     async def resume(

@@ -1,4 +1,4 @@
-# Gud Meal — status report (2026-11-15)
+# Gud Meal — status report (2026-11-16)
 
 **Bottom line:** the core marketplace, payments/ledger, dispatch, AI agents, three web apps and two Flutter
 apps are implemented and tested locally. On 2026-11-15 the owner chose a multi-service direction (see
@@ -18,25 +18,28 @@ data** until real partners sign. **Phase 4 is done**:
 - **group orders with split bill**
 
 See [ADR-0016](adr/0016-plus-rewards-group-orders.md). Prices and rewards are product defaults for the
-owner to confirm. Phase 5 (Gudy on WhatsApp) is not started. **Google Maps Platform** is integrated
-([ADR-0014](adr/0014-google-maps-platform.md), setup and costs in [GOOGLE_MAPS.md](GOOGLE_MAPS.md)):
-address search with exact pins, road-distance delivery fees, private live rider tracking, nearby maps, kitchen
-pins, an operations map and Gudy "near me" answers. It runs on clearly labelled estimates until the owner adds
-a key. **Nothing is deployed**, and the product is **not production-ready**: cloud resources, real payment
+owner to confirm. **Phase 5 is built and tested against a local WhatsApp sandbox**: customers link their
+WhatsApp number with a one-time code, then chat with Gudy to order, approve with Yes/No buttons, pay on the
+secure payment page, share a location and track orders ([ADR-0017](adr/0017-gudy-on-whatsapp.md)).
+Switching it on needs the owner's Meta WhatsApp Business account, number and keys, and approval of Meta's
+messaging charges. **Google Maps Platform** is integrated ([ADR-0014](adr/0014-google-maps-platform.md), setup and costs in
+[GOOGLE_MAPS.md](GOOGLE_MAPS.md)): address search with exact pins, road-distance delivery fees, private live
+rider tracking, nearby maps, kitchen pins, an operations map and Gudy "near me" answers. It runs on clearly
+labelled estimates until the owner adds a key. **Nothing is deployed**, and the product is **not production-ready**: cloud resources, real payment
 test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) are still required.
 
 ## What has been built
 
 | Area | Contents |
 |---|---|
-| Architecture | System/data/security/AI docs, 16 ADRs (ADR-0012: one order pipeline for food, beauty and parcels; ADR-0013: wallet, pay on delivery, vendor COD, failover; ADR-0014: Google Maps Platform behind the API; ADR-0015: interstate waybill; ADR-0016: Plus, rewards and group orders), roadmap with the owner's product decisions |
-| `services/api` | Catalog & search, deterministic pricing (fees, VAT, vouchers, ₦50 fee rounding), quotes, orders with a 17-state machine, Paystack/Flutterwave/sandbox payments, signed webhooks, refunds with finance approval, double-entry append-only ledger, settlements, rider payouts, dispatch scoring with offer timeouts and manual dispatch, OTP delivery & pickup codes, reviews, support tickets, onboarding approvals that set Firebase custom claims, admin analytics/forecast, audit log, outbox, Alembic migration; **multi-service**: merchant verticals (food, beauty) and cities (Lagos, Enugu), browse categories and promotions, Package Delivery (parcel quotes and orders, scheduled pickups released by a task, cancel-until-rider refunds, no-merchant settlement), customer order totals, Lagos/Enugu neighbourhood lookup, support contacts; **money (phase 2)**: closed-loop wallet (top-ups, one-tap pay under an account row lock, instant refunds), pay on delivery (eligibility, cash confirmed at the door, rider cash receivables, hand-ins, dispatch cash limit, support block), vendor COD on packages (fee in pricing, seller balance, payouts, move to wallet), gateway failover with a circuit breaker, automatic refund of duplicate payments, money guard on order status, migration 0002; **logistics (phase 3)**: interstate waybill (network of cities, hubs, carriers and lanes in configuration; deterministic line-haul pricing and expected dates; quotes and bookings; first- and last-mile rider jobs dispatched like packages; hub receive/depart/arrive/hand-over with compare-and-set milestones; public tracking numbers without personal data; carrier balances and payouts in the ledger; full refund until the package is with a rider or at a hub); **growth (phase 4)**: Gud Meal Plus (member pricing in the engine, card or wallet payments, a daily wallet auto-renewal job, cancel by turning auto-renew off), Gud points (earned on completion, reversed on refunds, redeemed for personal vouchers), referral codes with welcome and thank-you vouchers (monthly cap), group orders (shared cart, join codes, one order, split bill paid per member, the host can pay the rest, expiry refunds, refunds split between payers), migration 0003; 163 HTTP paths (with the 7 maps endpoints) |
-| `services/agents` | **Gudy**: LangGraph graph (guard → router → specialist ⇄ tools), 8 agents, 45 typed tools (services, totals, navigation buttons, support contacts, parcel quote and booking, read-only wallet and payment options, waybill routes and tracking, Plus, rewards and group orders added), replies in English, Pidgin, Igbo, Yoruba or Hausa, rule-based **offline mode** without a Gemini key, `interrupt()` approvals, Postgres/SQLite/memory checkpointers, thread ownership, tool audit, token/cost accounting, Gemini via env-pinned model |
-| Web | Customer site, **redesigned Glovo-style in Gud Meal orange** (animated draggable service bubbles, /food, /beauty, /send, /discover, /support, Profile-style account, mobile bottom bar, floating Gudy, wallet page, card/wallet/pay-on-delivery choice at checkout, cash-on-delivery for packages, **interstate waybill** booking with expected dates, a public `/track` page and a printable label, **Gud Meal Plus**, **Rewards** (points, vouchers, invite friends) and **group orders** (Order with friends, join by code, split bill)) plus SEO pages, JSON-LD, sitemap, checkout, payment callback, tracking, Gudy chat with approvals + voice; Partner dashboard (live board with alerts, menu editor, insights, settlements, hours), Command Centre (overview, order intervention, verification, refunds, payments, finance, **cash & wallets** (rider cash hand-ins, seller withdrawals, pay-on-delivery block, carrier payouts), **hubs** (scan in, depart with a trip reference, arrive, hand over against the collection code), **growth** (Plus members and revenue, points, referrals, settings), support, AI monitoring, pricing config, flags, audit) |
-| Mobile | `gud_meal_core` (Freezed models, Dio clients, auth port, theme from tokens), customer app **redesigned Glovo-style** (home with animated, finger-draggable bubbles drawn as original illustrations; Food and Beauty pages; Package Delivery with cash on delivery; Discover; Orders with spending; Support; Profile; **wallet**; card/wallet/pay-on-delivery choice; **interstate waybill** booking, tracking history and collection code; **Gud Meal Plus**, **Rewards** and **group orders** with split bill; draggable Gudy robot and chat), rider app (online/GPS, offers with countdown, pickup/transit/OTP delivery, **cash collection confirmation**, package jobs with sender/recipient call buttons, waybill pickup and door-delivery jobs with a hub hand-over card, navigation, earnings with cash held, SOS) |
+| Architecture | System/data/security/AI docs, 17 ADRs (ADR-0012: one order pipeline for food, beauty and parcels; ADR-0013: wallet, pay on delivery, vendor COD, failover; ADR-0014: Google Maps Platform behind the API; ADR-0015: interstate waybill; ADR-0016: Plus, rewards and group orders; ADR-0017: Gudy on WhatsApp), roadmap with the owner's product decisions |
+| `services/api` | Catalog & search, deterministic pricing (fees, VAT, vouchers, ₦50 fee rounding), quotes, orders with a 17-state machine, Paystack/Flutterwave/sandbox payments, signed webhooks, refunds with finance approval, double-entry append-only ledger, settlements, rider payouts, dispatch scoring with offer timeouts and manual dispatch, OTP delivery & pickup codes, reviews, support tickets, onboarding approvals that set Firebase custom claims, admin analytics/forecast, audit log, outbox, Alembic migration; **multi-service**: merchant verticals (food, beauty) and cities (Lagos, Enugu), browse categories and promotions, Package Delivery (parcel quotes and orders, scheduled pickups released by a task, cancel-until-rider refunds, no-merchant settlement), customer order totals, Lagos/Enugu neighbourhood lookup, support contacts; **money (phase 2)**: closed-loop wallet (top-ups, one-tap pay under an account row lock, instant refunds), pay on delivery (eligibility, cash confirmed at the door, rider cash receivables, hand-ins, dispatch cash limit, support block), vendor COD on packages (fee in pricing, seller balance, payouts, move to wallet), gateway failover with a circuit breaker, automatic refund of duplicate payments, money guard on order status, migration 0002; **logistics (phase 3)**: interstate waybill (network of cities, hubs, carriers and lanes in configuration; deterministic line-haul pricing and expected dates; quotes and bookings; first- and last-mile rider jobs dispatched like packages; hub receive/depart/arrive/hand-over with compare-and-set milestones; public tracking numbers without personal data; carrier balances and payouts in the ledger; full refund until the package is with a rider or at a hub); **growth (phase 4)**: Gud Meal Plus (member pricing in the engine, card or wallet payments, a daily wallet auto-renewal job, cancel by turning auto-renew off), Gud points (earned on completion, reversed on refunds, redeemed for personal vouchers), referral codes with welcome and thank-you vouchers (monthly cap), group orders (shared cart, join codes, one order, split bill paid per member, the host can pay the rest, expiry refunds, refunds split between payers), migration 0003; **WhatsApp (phase 5)**: Meta webhook (verification challenge, `X-Hub-Signature-256` signatures), de-duplication by message id and one Cloud Task per message, linking a number by one-time code, customer-only channel tokens for Gudy, Yes/No approval buttons and payment links, shared locations used as the delivery address, `STOP` and disconnect in the app, masked numbers in audit, a sandbox sender and a WhatsApp simulator, an App Check exemption for Gud Meal's agents service (which still cannot reach internal endpoints); 166 HTTP paths (with the 7 maps endpoints) |
+| `services/agents` | **Gudy**: LangGraph graph (guard → router → specialist ⇄ tools), 8 agents, 45 typed tools (services, totals, navigation buttons, support contacts, parcel quote and booking, read-only wallet and payment options, waybill routes and tracking, Plus, rewards and group orders added), replies in English, Pidgin, Igbo, Yoruba or Hausa, rule-based **offline mode** without a Gemini key, `interrupt()` approvals, Postgres/SQLite/memory checkpointers, thread ownership, tool audit, token/cost accounting, Gemini via env-pinned model; **WhatsApp (phase 5)**: accepts the API's channel tokens (customer role only), short plain replies on WhatsApp, a service credential on its API calls, orders and tickets tagged `whatsapp`, approvals that say where the order goes |
+| Web | Customer site, **redesigned Glovo-style in Gud Meal orange** (animated draggable service bubbles, /food, /beauty, /send, /discover, /support, Profile-style account, mobile bottom bar, floating Gudy, wallet page, card/wallet/pay-on-delivery choice at checkout, cash-on-delivery for packages, **interstate waybill** booking with expected dates, a public `/track` page and a printable label, **Gud Meal Plus**, **Rewards** (points, vouchers, invite friends) and **group orders** (Order with friends, join by code, split bill), **Connect WhatsApp** on the account page) plus SEO pages, JSON-LD, sitemap, checkout, payment callback, tracking, Gudy chat with approvals + voice; Partner dashboard (live board with alerts, menu editor, insights, settlements, hours), Command Centre (overview, order intervention, verification, refunds, payments, finance, **cash & wallets** (rider cash hand-ins, seller withdrawals, pay-on-delivery block, carrier payouts), **hubs** (scan in, depart with a trip reference, arrive, hand over against the collection code), **growth** (Plus members and revenue, points, referrals, settings), support, AI monitoring, pricing config, flags, audit) |
+| Mobile | `gud_meal_core` (Freezed models, Dio clients, auth port, theme from tokens), customer app **redesigned Glovo-style** (home with animated, finger-draggable bubbles drawn as original illustrations; Food and Beauty pages; Package Delivery with cash on delivery; Discover; Orders with spending; Support; Profile; **wallet**; card/wallet/pay-on-delivery choice; **interstate waybill** booking, tracking history and collection code; **Gud Meal Plus**, **Rewards** and **group orders** with split bill; **Order on WhatsApp** in Profile; draggable Gudy robot and chat), rider app (online/GPS, offers with countdown, pickup/transit/OTP delivery, **cash collection confirmation**, package jobs with sender/recipient call buttons, waybill pickup and door-delivery jobs with a hub hand-over card, navigation, earnings with cash held, SOS) |
 | Maps | Google Places (New), Geocoding and Routes **only inside the API** (server key; keyless fallback to the neighbourhood table and labelled estimates): `/v1/places/*`, `/v1/delivery/estimates`; delivery fee, rider pay and ETA on the measured road distance (stored on the quote so the order prices the same); rider privacy (no pings while offline, ~1 km areas when idle, precise only on a delivery, cleared at the end); partner kitchen pins checked against the address and audited; operations live-rider map; cost controls (field masks, session tokens, caches, daily cap, traffic-aware switch, 3-minute live ETA refresh). Apps: address picker, nearby map, live delivery map (schematic without a key, Google tiles with restricted keys), rider turn-by-turn links; website checkout search and order map; partner Kitchen location; Command Centre Live riders; Gudy `find_nearby_restaurants` and `compare_delivery_times` |
 | Firebase | Deny-by-default Firestore & Storage rules, composite indexes, quote TTL, emulator config, rules tests |
-| Delivery | Dockerfiles, CI workflow, manual deploy workflow, Cloud Build config, GCP bootstrap & deploy scripts |
+| Delivery | Dockerfiles, CI workflow, manual deploy workflow, Cloud Build config, GCP bootstrap & deploy scripts (service identities, channel-token and WhatsApp secrets, Firestore TTL for WhatsApp records) |
 
 ## What works (verified)
 
@@ -141,6 +144,35 @@ test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_RE
   - *Not checked in a browser.* The browser pane was hidden, so the new screens were not checked visually: Plus,
     Rewards, group orders and the Growth page. Component and widget tests and the production builds cover them.
 
+- **Phase 5 (Gudy on WhatsApp) on the running local stack.** The setup was the Auth emulator, the API with the
+  WhatsApp sandbox and the agents service in offline mode (no Gemini key). Messages went through the WhatsApp
+  simulator, which signs them the way Meta does, so they took the real path: signature check, de-duplication,
+  task, linking, Gudy, reply.
+  - *Linking.* An unknown number got sign-up instructions only. Ada created a code in the app, sent
+    `LINK 725514` and was connected. The app then showed her number masked (`+234 801 ••• 1111`).
+  - *Ordering.*
+    - "What do you offer?" listed the three services.
+    - Ada shared a location (Lekki Phase 1) and asked "I have ₦10,000, find me food for 2 people". Gudy
+      offered an Island Small Chops platter for ₦9,881.25.
+    - "plan 1" brought Yes/No buttons under "Place order VQT3CV from Island Small Chops? Delivering to Lekki
+      Phase 1, Lagos. You'll pay ₦9,881.25 securely on the payment page."
+    - Typing "yes" returned a "Pay now" link to the payment page.
+    - The order was saved with channel `whatsapp`.
+  - *Paying and tracking.* After the sandbox payment, "where is my order?" answered "Sent to restaurant" with
+    the expected time.
+  - *Other.* A Pidgin question about the referral code got a Pidgin answer. `STOP` disconnected the number,
+    and the audit log recorded the link and the unlink with masked numbers.
+  - *Bugs found and fixed during this check:*
+    - A WhatsApp customer had no way to give a delivery address, so shared locations are now used.
+    - Food requests that followed a growth question stayed with the growth agent.
+    - The approval did not say where the order would go.
+    - WhatsApp orders could not be told apart from app chats with Gudy.
+    - The deploy script did not pass the channel-token secret or the agents' service identity, so staging
+      would not have started. Its `^@^` delimiter also split the service-account emails.
+  - *Not checked.* Meta's real Cloud API was not called (there is no account yet). The browser pane was
+    hidden, so the Connect WhatsApp screens on the website and in the app were not checked visually.
+    Component and widget tests and the production builds cover them.
+
 - **Google Maps integration on the running local stack** (no Google key: everything on labelled estimates;
   Auth emulator + API + customer web build + partner dashboard + Command Centre):
   - *Customer app*: nearby map for Lekki Phase 1 (10 restaurants, closest first, estimated times; the
@@ -160,17 +192,17 @@ test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_RE
 
 | Suite | Result |
 |---|---|
-| API unit + HTTP integration (SQLite) | **589 passed**, 3 skipped (PostgreSQL-only); 53 new for phase 4: Plus pricing (free delivery threshold, service fee discount, savings equal the price difference, vouchers, totals always add up), VAT-inclusive split, fair allocation and bill shares (20 random cases), points and codes, Plus postings; joining by wallet and card, member prices, early renewal, wallet auto-renewal with one reminder, cancelling, lapses; points on completion, double for Plus, redeeming, refunds taking points back, referrals and the monthly cap; group orders end to end, expiry refunds, the host paying the rest and late payments refunded, refunds split between payers, host-pays mode and the rules; 31 for phase 3: line-haul pricing and weight limits, departures around the cut-off and Sundays, expected dates, stage labels, waybill postings always balance (15 random cases), state rules and flow guard, catalogue, quote validation, door to door with two rider jobs, hubs, COD and ledger, drop-off and hub collection paid from the wallet, cancellations, hub permissions and network configuration, no pay on delivery or rider-job checkout; 47 for phase 2: postings always balance, COD fee, state rules and money guard, wallet top-up/pay/instant refund, card refunds to the wallet, duplicate payment refund, pay on delivery end to end with rider cash and hand-ins (bank and earnings offset), cancellations without refunds, eligibility rules, dispatch cash limit, vendor COD with payouts and move to wallet, gateway failover and circuit breaker |
-| API integration on PostgreSQL 16 (embedded) incl. append-only and unbalanced-transaction triggers, and a race test proving two simultaneous wallet payments cannot overspend (it fails when the account lock is removed) | **108 passed** |
+| API unit + HTTP integration (SQLite) | **610 passed**, 3 skipped (PostgreSQL-only); 21 new for phase 5: webhook signatures and parsing, masked numbers, shared locations, approval buttons and payment links, channel tokens (expiry, tampering, customer role only), linking by code (single use, expiry, rate limit, one number per account), unknown numbers, Gudy conversations with approvals, rate limits, `STOP`, the simulator, and the agents service skipping App Check without opening internal endpoints; 53 for phase 4: Plus pricing (free delivery threshold, service fee discount, savings equal the price difference, vouchers, totals always add up), VAT-inclusive split, fair allocation and bill shares (20 random cases), points and codes, Plus postings; joining by wallet and card, member prices, early renewal, wallet auto-renewal with one reminder, cancelling, lapses; points on completion, double for Plus, redeeming, refunds taking points back, referrals and the monthly cap; group orders end to end, expiry refunds, the host paying the rest and late payments refunded, refunds split between payers, host-pays mode and the rules; 31 for phase 3: line-haul pricing and weight limits, departures around the cut-off and Sundays, expected dates, stage labels, waybill postings always balance (15 random cases), state rules and flow guard, catalogue, quote validation, door to door with two rider jobs, hubs, COD and ledger, drop-off and hub collection paid from the wallet, cancellations, hub permissions and network configuration, no pay on delivery or rider-job checkout; 47 for phase 2: postings always balance, COD fee, state rules and money guard, wallet top-up/pay/instant refund, card refunds to the wallet, duplicate payment refund, pay on delivery end to end with rider cash and hand-ins (bank and earnings offset), cancellations without refunds, eligibility rules, dispatch cash limit, vendor COD with payouts and move to wallet, gateway failover and circuit breaker |
+| API integration on PostgreSQL 16 incl. append-only and unbalanced-transaction triggers, and a race test proving two simultaneous wallet payments cannot overspend (it fails when the account lock is removed) | **116 passed** in CI with the WhatsApp tests (108 on embedded PostgreSQL locally at phase 4) |
 | Alembic upgrade / `alembic check` / downgrade / upgrade (with migrations 0002 and 0003) on PostgreSQL 16 | passed |
-| Agents (routing, permissions, approvals, isolation, injection, redaction, failure recovery, cost, Gemini schema, Gudy offline mode in 5 languages, parcel booking via tools, wallet and cash questions, waybill routes and tracking, Plus, points and group orders) | **43 passed**, 1 skipped (live Gemini needs a key) |
-| TypeScript (api-client 7, web 22) + 3 Next.js production builds with type-check | **29 passed**, builds OK |
-| Flutter core / customer / rider | **12 / 34 / 8 passed** (Plus join, rewards and redeeming, group bill and paying a share, starting a group, bubble drag-and-spring-back, Food page, Gudy button, Orders spending, parcel form, cash on delivery for packages, payment choice, wallet, Discover, interstate waybill booking, rider package job, rider cash confirmation, rider hub hand-over), analyzer clean |
-| Google Maps ([ADR-0014](adr/0014-google-maps-platform.md)), on the code merged with phases 3 and 4 | API **610 passed**, 3 skipped (21 maps: request shapes, keyless fallback, caching, daily cap, measured pricing, outage fallback, rider privacy, live ETA throttle, kitchen pins, live map); agents **50 passed** (7 location); Flutter core / customer / rider **17 / 40 / 10** (5 / 6 / 2 maps); web **26** and api-client **10** (4 + 3 maps); ruff, analyzers and all type checks clean |
-| Firestore & Storage rules tests (Firebase emulators) | **passed in CI** ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43651031712)); not runnable locally without Java |
+| Agents (routing, permissions, approvals, isolation, injection, redaction, failure recovery, cost, Gemini schema, Gudy offline mode in 5 languages, parcel booking via tools, wallet and cash questions, waybill routes and tracking, Plus, points and group orders, WhatsApp channel tokens and service credentials, WhatsApp orders tagged and approvals that name the address, food requests routed back to the customer agent) | **49 passed**, 1 skipped (live Gemini needs a key) |
+| TypeScript (api-client 7, web 23) + 3 Next.js production builds with type-check | **30 passed**, builds OK |
+| Flutter core / customer / rider | **12 / 35 / 8 passed** (Connect WhatsApp, Plus join, rewards and redeeming, group bill and paying a share, starting a group, bubble drag-and-spring-back, Food page, Gudy button, Orders spending, parcel form, cash on delivery for packages, payment choice, wallet, Discover, interstate waybill booking, rider package job, rider cash confirmation, rider hub hand-over), analyzer clean |
+| Google Maps ([ADR-0014](adr/0014-google-maps-platform.md)), on the code merged with phases 3–5 | API **631 passed**, 3 skipped (21 maps: request shapes, keyless fallback, caching, daily cap, measured pricing, outage fallback, rider privacy, live ETA throttle, kitchen pins, live map); agents **56 passed** (7 location); Flutter core / customer / rider **17 / 41 / 10** (5 / 6 / 2 maps); web **27** and api-client **10** (4 + 3 maps); ruff, analyzers and all type checks clean; Next.js production builds of the three sites passed locally before phase 5 was merged |
+| Firestore & Storage rules tests (Firebase emulators) | **passed in CI** ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43931811599)); not runnable locally without Java |
 | Firestore DocumentStore contract tests against the emulator | **8 passed in CI** (memory + Firestore backends) |
 | Docker images build + API container smoke test | **passed in CI**; not runnable locally without Docker |
-| Full CI (6 jobs) on GitHub Actions | **all green** on the first push ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43651031712)) |
+| Full CI (6 jobs) on GitHub Actions | **all green** on the phase 5 push ([run](https://github.com/Hubert24hrs/Gud_Meal/actions/runs/43931811599)) |
 
 ## What has been deployed
 
@@ -207,7 +239,8 @@ is tested with a simulated outage. Seller payouts, rider hand-ins and carrier pa
 ## Security status
 
 Implemented: token verification, RBAC, data isolation, deny-by-default rules, webhook signatures, idempotency,
-append-only ledger/audit, rate limits, AI guardrails. Outstanding: App Check enforcement, penetration test,
+append-only ledger/audit, rate limits, AI guardrails, WhatsApp webhook signatures, customer-only channel
+tokens, service-account identity between the agents service and the API. Outstanding: App Check enforcement, penetration test,
 dependency scanning, distributed rate limiting, NDPA documentation.
 
 ## Outstanding issues
@@ -222,10 +255,17 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 7. Gudy without a Gemini key runs in offline mode: a fixed set of intents, full replies in English and Pidgin
    only (Igbo, Yoruba and Hausa get a greeting, then English). Natural conversation in all five languages needs
    the key.
-8. Addresses without a map pin use neighbourhood centres (about 1 km accuracy) until Google Maps is configured;
-   parcel prices are distance estimates from those centres.
-9. WhatsApp ordering with Gudy is designed into the roadmap but **not built** (phase 5; it needs the Meta
-   account).
+8. Until the Google Maps server key is added, address search only finds neighbourhoods (their centres, about 1 km
+   accuracy) and every distance, fee and time is a labelled straight-line estimate. "Use my current location"
+   already keeps the device's exact position. The package-delivery form still uses neighbourhood pickers (the
+   address picker is in checkout and saved addresses).
+9. Gudy on WhatsApp is built but **switched off**: it needs the Meta WhatsApp Business account, number and
+   keys, and the owner's approval of Meta's messaging charges. Limits for now:
+   - Gud Meal only replies to messages. Proactive updates (order status, Plus reminders) need
+     Meta-approved templates.
+   - Voice notes, photos and WhatsApp Flows are not supported.
+   - A shared location is matched to the nearer of Lagos and Enugu; the API still checks the delivery
+     zone.
 10. Support WhatsApp/phone/email are placeholders (flagged in the apps) until real contacts are provided.
 11. Store artwork is generated (gradient + illustration) until partners upload photos; field names still say
     `restaurant_*` for all merchants (rename deferred, see ADR-0012).
@@ -271,7 +311,12 @@ dependency scanning, distributed rate limiting, NDPA documentation.
    Manager, set quotas and a budget, and approve billing (see [GOOGLE_MAPS.md](GOOGLE_MAPS.md); within the free
    monthly allowances at launch volumes). Optional restricted app and browser keys for map tiles. Legal review
    of Google's caching terms.
-8. WhatsApp Business (Meta) account and number for WhatsApp support and ordering (phase 5).
+8. Gudy on WhatsApp ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a). **Deferred by the owner on 2026-11-16, to do
+   later, after the first deployment** (the webhook needs a deployed API):
+   - Meta Business verification and a WhatsApp Business number with an approved display name
+   - a permanent system-user token, the app secret and a verify token
+   - approval of Meta's messaging charges, and Meta-approved templates for order updates
+   - a privacy notice that covers WhatsApp
 9. Real support contacts (WhatsApp, phone, email) and real partner restaurants and beauty shops for both cities.
 10. Legal/CBN review of the Gud Meal wallet (closed-loop stored value, limits, KYC, who holds the funds) and
     confirmation of the money limits: wallet top-up/balance, pay on delivery ₦25,000, rider cash ₦50,000, COD
@@ -298,7 +343,8 @@ $0–75 dev — excluding payment fees and SMS. Details and assumptions: [COST_E
 1. Bootstrap `gud-meal-dev`, deploy via the manual workflow, and run the Paystack test-mode flow end-to-end.
 2. Add a Gemini key, pin the model, run `pytest -m live_gemini` and build an evaluation set for Gudy in all five
    languages (Pidgin, Igbo, Yoruba and Hausa reviewed by native speakers).
-3. Multi-service phase 5: Gudy on WhatsApp, after the Meta account is ready. Also replace the sample waybill
+3. Switch on Gudy on WhatsApp once the Meta account is ready ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a; deferred
+   by the owner on 2026-11-16), then add Meta-approved templates for order updates. Also replace the sample waybill
    network with real carriers and hubs, and confirm the growth defaults.
 4. Switch customer tracking to Firestore listeners and add Google Maps (address search, pins, live map).
 5. Partner photo uploads (Storage rules already allow it), partner staff management, shop wording for beauty

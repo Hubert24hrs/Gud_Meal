@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 from .config import Settings, get_settings
 from .graph import build_graph
-from .identity import AuthError, Caller, FirebaseVerifier, Verifier
+from .identity import AuthError, Caller, ChannelTokenVerifier, FirebaseVerifier, Verifier
 from .llm import GeminiFactory, ModelFactory
 from .offline import OfflineModels
 from .service import AgentService, NoPendingApprovalError, RateLimitedError
@@ -69,7 +69,7 @@ class ChatAddress(BaseModel):
 class ChatInput(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
     thread_id: str | None = Field(default=None, max_length=64)
-    channel: Literal["app", "web", "partner", "admin"] = "app"
+    channel: Literal["app", "web", "partner", "admin", "whatsapp"] = "app"
     delivery_address: ChatAddress | None = None
 
 
@@ -132,8 +132,9 @@ def create_app(
             checkpointer=saver,
         )
         app.state.store = agent_store
-        app.state.verifier = verifier or FirebaseVerifier(
-            settings.firebase_project_id, settings.check_token_revocation
+        app.state.verifier = ChannelTokenVerifier(
+            settings.channel_token_secret.get_secret_value(),
+            verifier or FirebaseVerifier(settings.firebase_project_id, settings.check_token_revocation),
         )
         app.state.service = AgentService(
             settings=settings,

@@ -76,6 +76,12 @@ class AgentSpec:
             context.append(f"Meal plans shown in this chat: {', '.join(sorted(artifacts['plans']))}")
         if artifacts.get("last_order_id"):
             context.append(f"Most recent order in this chat: {artifacts['last_order_id']}")
+        if artifacts.get("channel") == "whatsapp":
+            context.append(
+                "Channel: WhatsApp. Keep replies short (a few lines), in plain text without tables or headings. "
+                "The customer approves orders with Yes/No buttons and pays on the secure page behind a Pay button; "
+                "screen buttons arrive as web links."
+            )
         local = now.astimezone(LAGOS)
         restaurants = ", ".join(f"{rid} ({role})" for rid, role in caller.restaurant_roles.items()) or "none"
         return (
@@ -325,6 +331,13 @@ _KEYWORDS: list[tuple[str, str]] = [
         r"\b(voucher|promo|discount|deal|offer|coupon|points|rewards?|referr?al|refer|invite|gud ?meal plus|"
         r"plus member(ship)?|membership|subscription|free delivery|group orders?|split (the |our )?bill|"
         r"order with (my )?friends)\b",
+    ),
+    # Food, budgets and ordering belong to the customer agent, even straight after another agent answered
+    # (e.g. "What do you offer?" went to growth): otherwise that agent would keep a request it has no tools for.
+    (
+        "customer",
+        r"(₦|\bnaira\b|\bbudget\b|\bfood\b|\bmeals?\b|\bhungry\b|\bchop\b|\bjollof\b|\brice\b|"
+        r"\border\b|\bdeliver|\bplan \d\b)",
     ),
 ]
 _FOLLOW_UP = re.compile(

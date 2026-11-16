@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
+import { WhatsAppConnect } from "@/components/whatsapp-connect";
 import { useApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
@@ -79,6 +80,7 @@ function Account() {
           <Link href="/help" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">FAQ, privacy and terms</span><span aria-hidden="true">›</span></Link>
           <button type="button" onClick={() => signOut()} className="w-full p-4 text-left font-medium text-danger hover:bg-surface-muted">Sign out</button>
         </nav>
+        <WhatsAppConnect />
       <Card className="space-y-4 p-5">
         <h2 className="font-semibold">Food preferences</h2>
         {profile.isLoading ? <Skeleton className="h-28" /> : (

@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import base64
+import hashlib
+import hmac
+import json
+import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -78,6 +83,49 @@ class FirebaseVerifier:
         except Exception as exc:
             raise AuthError("Invalid or expired ID token") from exc
         return caller_from_claims(claims, token)
+
+
+CHANNEL_PREFIX = "gmc1"
+
+
+def verify_channel_token(secret: str, token: str, now: float | None = None) -> dict[str, Any]:
+    """Same rules as gudmeal-api's security.channel_tokens.verify (ADR-0017); raises ValueError."""
+    parts = token.split(".")
+    if len(parts) != 3 or parts[0] != CHANNEL_PREFIX:
+        raise ValueError("Not a channel token")
+    signed = f"{parts[0]}.{parts[1]}"
+    expected = base64.urlsafe_b64encode(hmac.new(secret.encode(), signed.encode(), hashlib.sha256).digest())
+    if not hmac.compare_digest(expected.rstrip(b"=").decode(), parts[2]):
+        raise ValueError("Bad signature")
+    try:
+        claims = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)))
+    except ValueError as exc:
+        raise ValueError("Bad payload") from exc
+    t = now if now is not None else time.time()
+    if not isinstance(claims, dict) or not claims.get("uid") or claims.get("ch") != "whatsapp":
+        raise ValueError("Bad claims")
+    if int(claims.get("exp", 0)) <= t or int(claims.get("iat", 0)) > t + 60:
+        raise ValueError("Expired")
+    return claims
+
+
+class ChannelTokenVerifier:
+    """Accepts the API's WhatsApp channel tokens (customer only); other tokens go to the Firebase verifier."""
+
+    def __init__(self, secret: str, fallback: Verifier) -> None:
+        self._secret = secret
+        self._fallback = fallback
+
+    async def verify(self, token: str) -> Caller:
+        if not token.startswith(f"{CHANNEL_PREFIX}."):
+            return await self._fallback.verify(token)
+        try:
+            claims = verify_channel_token(self._secret, token)
+        except ValueError as exc:
+            raise AuthError("Invalid or expired channel token") from exc
+        return Caller(
+            uid=str(claims["uid"]), roles=frozenset({"customer"}), name=claims.get("name"), token=token
+        )
 
 
 class StaticVerifier:

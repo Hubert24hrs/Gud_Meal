@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from pydantic import Field
 
-from .customer import EVERYONE, naira, order_summary
+from .customer import EVERYONE, chat_channel, naira, order_summary
 from .registry import ToolArgs, ToolContext, ToolError, ToolOutput, ToolRegistry, ToolSpec
 
 RESTAURANT_ROLES = frozenset({"restaurant_owner", "restaurant_manager", "restaurant_staff"})
@@ -145,7 +145,7 @@ class NoArgs(ToolArgs):
 
 # ---------------------------------------------------------------- support & payment -------------
 async def create_support_ticket(args: TicketArgs, ctx: ToolContext) -> ToolOutput:
-    t = await ctx.api.post("/v1/support/tickets", {**args.model_dump(), "channel": "ai_agent"})
+    t = await ctx.api.post("/v1/support/tickets", {**args.model_dump(), "channel": chat_channel(ctx)})
     return ToolOutput(
         {
             "ticket_id": t["id"],
@@ -176,7 +176,7 @@ async def request_refund_review(args: RefundReviewArgs, ctx: ToolContext) -> Too
             "category": category,
             "description": f"Refund request: {args.reason}",
             "missing_item_ids": args.missing_item_ids,
-            "channel": "ai_agent",
+            "channel": chat_channel(ctx),
         },
     )
     return ToolOutput(

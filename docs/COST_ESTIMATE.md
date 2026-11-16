@@ -32,6 +32,9 @@ list before production rollout. Figures are USD per month.
   (verify on paystack.com). Fees are booked to `expense:provider_fees` when settlement reports are reconciled.
 - **SMS for phone sign-in** — Firebase/Identity Platform bills phone verification per SMS by destination
   country; Nigeria rates must be checked. Encourage silent verification / longer sessions to limit SMS.
+- **WhatsApp Business messaging** (only if Gudy on WhatsApp is switched on). Meta bills by message category
+  and country; check Meta's current rates for Nigeria before switching it on. Gud Meal only replies to
+  customers for now; order-update templates would add charges.
 - Apple Developer ($99/yr) and Google Play ($25 one-off) accounts.
 
 ## Cost controls already in the design

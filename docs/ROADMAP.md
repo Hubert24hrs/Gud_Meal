@@ -67,4 +67,6 @@ Delivery phases (each tested, documented and pushed before the next):
    *(done 2026-11-15 with a sample network of hubs and carriers; real partners pending, see ADR-0015)*
 4. **Growth** — Gud Meal Plus membership, referral and loyalty rewards, group orders with split bill.
    *(done 2026-11-15 with product-default prices and rewards to be confirmed; see ADR-0016)*
-5. **WhatsApp** — Gudy on WhatsApp Business (ordering and support), once the Meta account is ready.
+5. **WhatsApp** — Gudy on WhatsApp Business (ordering and support).
+   *(built 2026-11-16 and tested with a local WhatsApp sandbox; switching it on needs the Meta account and
+   the owner's approval of the messaging charges, see ADR-0017)*

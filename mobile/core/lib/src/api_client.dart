@@ -321,6 +321,14 @@ class GudMealApi {
       () => _dio.post('/v1/waybills', data: {'quote_id': quoteId, 'channel': 'app'}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
       (d) => Order.fromJson(_map(d)));
 
+  // ------------------------------------------------------------------- WhatsApp (Gudy)
+  Future<WhatsAppStatus> whatsAppStatus() =>
+      _call(() => _dio.get('/v1/me/whatsapp'), (d) => WhatsAppStatus.fromJson(_map(d)));
+  Future<WhatsAppLinkCode> whatsAppLinkCode() =>
+      _call(() => _dio.post('/v1/me/whatsapp/link-code'), (d) => WhatsAppLinkCode.fromJson(_map(d)));
+  Future<WhatsAppStatus> disconnectWhatsApp() =>
+      _call(() => _dio.delete('/v1/me/whatsapp'), (d) => WhatsAppStatus.fromJson(_map(d)));
+
   // ------------------------------------------------------------------- Gud Meal Plus
   Future<PlusOverview> plus() => _call(() => _dio.get('/v1/plus'), (d) => PlusOverview.fromJson(_map(d)));
 

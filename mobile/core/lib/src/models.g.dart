@@ -1238,6 +1238,44 @@ Map<String, dynamic> _$GroupOrderToJson(_GroupOrder instance) =>
       'cancel_reason': ?instance.cancelReason,
     };
 
+_WhatsAppStatus _$WhatsAppStatusFromJson(Map<String, dynamic> json) =>
+    _WhatsAppStatus(
+      enabled: json['enabled'] as bool? ?? false,
+      linked: json['linked'] as bool? ?? false,
+      number: json['number'] as String?,
+      linkedAt: json['linked_at'] == null
+          ? null
+          : DateTime.parse(json['linked_at'] as String),
+      businessNumber: json['business_number'] as String? ?? '',
+      chatLink: json['chat_link'] as String?,
+    );
+
+Map<String, dynamic> _$WhatsAppStatusToJson(_WhatsAppStatus instance) =>
+    <String, dynamic>{
+      'enabled': instance.enabled,
+      'linked': instance.linked,
+      'number': ?instance.number,
+      'linked_at': ?instance.linkedAt?.toIso8601String(),
+      'business_number': instance.businessNumber,
+      'chat_link': ?instance.chatLink,
+    };
+
+_WhatsAppLinkCode _$WhatsAppLinkCodeFromJson(Map<String, dynamic> json) =>
+    _WhatsAppLinkCode(
+      code: json['code'] as String,
+      expiresAt: DateTime.parse(json['expires_at'] as String),
+      businessNumber: json['business_number'] as String? ?? '',
+      waLink: json['wa_link'] as String,
+    );
+
+Map<String, dynamic> _$WhatsAppLinkCodeToJson(_WhatsAppLinkCode instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'expires_at': instance.expiresAt.toIso8601String(),
+      'business_number': instance.businessNumber,
+      'wa_link': instance.waLink,
+    };
+
 _TopUpResult _$TopUpResultFromJson(Map<String, dynamic> json) => _TopUpResult(
   reference: json['reference'] as String,
   provider: json['provider'] as String,

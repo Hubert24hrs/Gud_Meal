@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 import 'package:gud_meal_customer/features/group/group_screens.dart';
 import 'package:gud_meal_customer/features/plus/plus_screen.dart';
+import 'package:gud_meal_customer/features/profile/whatsapp_sheet.dart';
 import 'package:gud_meal_customer/features/rewards/rewards_screen.dart';
 import 'package:gud_meal_customer/providers.dart';
 
@@ -54,6 +55,30 @@ class GrowthApi extends GudMealApi {
   final shares = <(String?, bool)>[];
   final created = <(String, String, String?)>[];
   GroupOrder groupState = _group();
+  bool waLinked = false;
+
+  @override
+  Future<WhatsAppStatus> whatsAppStatus() async => WhatsAppStatus(
+        enabled: true,
+        linked: waLinked,
+        number: waLinked ? '+234 801 ••• 1111' : null,
+        businessNumber: '+234 800 000 0000',
+        chatLink: waLinked ? 'https://wa.me/2348000000000' : null,
+      );
+
+  @override
+  Future<WhatsAppLinkCode> whatsAppLinkCode() async => WhatsAppLinkCode(
+        code: '123456',
+        expiresAt: DateTime.utc(2026, 11, 16, 12, 10),
+        businessNumber: '+234 800 000 0000',
+        waLink: 'https://wa.me/2348000000000?text=LINK%20123456',
+      );
+
+  @override
+  Future<WhatsAppStatus> disconnectWhatsApp() async {
+    waLinked = false;
+    return whatsAppStatus();
+  }
 
   @override
   Future<WalletOverview> wallet() async => const WalletOverview(balanceKobo: 500000);
@@ -188,5 +213,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(api.created, [('delivery', 'host', '5 Bisola Durosinmi-Etti Drive')]);
     expect(find.text('GROUP g1'), findsOneWidget);
+  });
+
+  testWidgets('Connect WhatsApp: a code to send, then connected, then disconnect', (tester) async {
+    final api = GrowthApi();
+    await pump(tester, const Scaffold(body: WhatsAppSheet()), api);
+    await tester.tap(find.byKey(const ValueKey('whatsapp-connect')));
+    await tester.pumpAndSettle();
+    expect(find.text('123456'), findsOneWidget);
+    expect(find.text('Open WhatsApp'), findsOneWidget);
+    api.waLinked = true; // the customer sent "LINK 123456" from WhatsApp
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('+234 801 ••• 1111'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('whatsapp-disconnect')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('whatsapp-connect')), findsOneWidget);
   });
 }

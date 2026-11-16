@@ -370,7 +370,7 @@ class TicketInput(BaseModel):
     category: TicketCategory
     description: str = Field(min_length=5, max_length=2000)
     missing_item_ids: list[str] = Field(default_factory=list, max_length=20)
-    channel: Literal["app", "web", "ai_agent"] = "app"
+    channel: Literal["app", "web", "ai_agent", "whatsapp"] = "app"
 
 
 class TicketResolution(BaseModel):

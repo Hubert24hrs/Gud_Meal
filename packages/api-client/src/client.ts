@@ -202,6 +202,11 @@ export function createApi(opts: ClientOptions) {
         post<T.GroupPayResult>(`/v1/group-orders/${id}/pay`, body, key),
       cancel: (id: string) => post<T.GroupOrder>(`/v1/group-orders/${id}/cancel`),
     },
+    whatsapp: {
+      status: () => get<T.WhatsAppStatus>("/v1/me/whatsapp"),
+      linkCode: () => post<T.WhatsAppLinkCode>("/v1/me/whatsapp/link-code"),
+      disconnect: () => del<T.WhatsAppStatus>("/v1/me/whatsapp"),
+    },
     mealPlans: (body: { budget_kobo: number; party_size: number; location: T.GeoPoint; deliver_by?: string | null }) =>
       post<T.MealPlanResult>("/v1/meal-plans", body),
     support: {

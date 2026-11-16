@@ -305,7 +305,7 @@ class OrderService:
         principal: Principal,
         quote_id: str,
         *,
-        channel: Literal["app", "web", "ai_agent", "admin"] = "app",
+        channel: Literal["app", "web", "ai_agent", "whatsapp", "admin"] = "app",
         contact_phone: str | None = None,
         group_order_id: str | None = None,
     ) -> Order:
@@ -698,7 +698,7 @@ class OrderService:
         quote_id: str,
         *,
         parcels: Any,
-        channel: Literal["app", "web", "ai_agent", "admin"] = "app",
+        channel: Literal["app", "web", "ai_agent", "whatsapp", "admin"] = "app",
     ) -> Order:
         """Create a courier order from a parcel quote (idempotent per quote, re-priced like food orders)."""
         quote = await parcels.get_quote(principal, quote_id)

@@ -121,3 +121,32 @@ describe("Gud Meal Plus, rewards and group orders", () => {
     expect([routeForScreen("plus"), routeForScreen("rewards"), routeForScreen("group")]).toEqual(["/plus", "/rewards", "/group"]);
   });
 });
+
+describe("Connect WhatsApp", () => {
+  afterEach(cleanup);
+  const status = { enabled: true, linked: false, number: null, linked_at: null, business_number: "+234 800 000 0000", chat_link: null };
+
+  it("offers to connect, then shows the code to send, then the connected number", async () => {
+    const { WhatsAppConnectView } = await import("./whatsapp-connect");
+    const onConnect = vi.fn();
+    render(<WhatsAppConnectView status={status} onConnect={onConnect} onDisconnect={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Connect WhatsApp" }));
+    expect(onConnect).toHaveBeenCalled();
+    cleanup();
+    render(<WhatsAppConnectView status={status} onConnect={vi.fn()} onDisconnect={vi.fn()}
+      code={{ code: "123456", expires_at: "2026-11-16T12:10:00Z", business_number: "+234 800 000 0000", wa_link: "https://wa.me/2348000000000?text=LINK%20123456" }} />);
+    expect(screen.getByLabelText("Your WhatsApp code").textContent).toBe("123456");
+    expect(screen.getByRole("link").getAttribute("href")).toBe("https://wa.me/2348000000000?text=LINK%20123456");
+    cleanup();
+    const onDisconnect = vi.fn();
+    render(<WhatsAppConnectView status={{ ...status, linked: true, number: "+234 801 ••• 1111", chat_link: "https://wa.me/2348000000000" }}
+      onConnect={vi.fn()} onDisconnect={onDisconnect} />);
+    expect(screen.getByText("+234 801 ••• 1111")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Disconnect" }));
+    expect(onDisconnect).toHaveBeenCalled();
+    cleanup();
+    render(<WhatsAppConnectView status={{ ...status, enabled: false }} onConnect={vi.fn()} onDisconnect={vi.fn()} />);
+    expect(screen.getByText(/coming soon/)).toBeTruthy();
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+});

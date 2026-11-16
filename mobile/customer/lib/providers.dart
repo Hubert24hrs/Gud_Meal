@@ -138,6 +138,7 @@ final rewardsProvider = FutureProvider<RewardsOverview>((ref) => ref.watch(apiPr
 final myVouchersProvider = FutureProvider<List<RewardVoucher>>((ref) => ref.watch(apiProvider).myVouchers());
 final myGroupsProvider = FutureProvider<List<GroupOrder>>((ref) => ref.watch(apiProvider).myGroups());
 final groupProvider = FutureProvider.family<GroupOrder, String>((ref, id) => ref.watch(apiProvider).group(id));
+final whatsAppStatusProvider = FutureProvider<WhatsAppStatus>((ref) => ref.watch(apiProvider).whatsAppStatus());
 
 /// Favourite stores (hearts). Kept on the device for now.
 class FavouritesController extends Notifier<Set<String>> {

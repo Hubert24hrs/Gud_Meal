@@ -73,6 +73,10 @@ say "Firestore (Native mode)"
 exists gcloud firestore databases describe --database="(default)" ||
   gcloud firestore databases create --location="$REGION" --type=firestore-native
 echo "Deploy rules & indexes with: (cd firebase && firebase deploy --only firestore,storage --project $PROJECT)"
+# WhatsApp de-duplication records and link codes delete themselves once `expire_at` has passed (ADR-0017).
+for group in whatsapp_messages whatsapp_link_codes; do
+  gcloud firestore fields ttls update expire_at --collection-group="$group" --enable-ttl --async >/dev/null
+done
 
 say "Pub/Sub, Cloud Tasks"
 exists gcloud pubsub topics describe gudmeal-domain-events || gcloud pubsub topics create gudmeal-domain-events
@@ -82,7 +86,8 @@ exists gcloud tasks queues describe gudmeal-default --location "$REGION" ||
 
 say "Secret Manager placeholders (add values yourself: gcloud secrets versions add NAME --data-file=-)"
 for s in api-database-url agents-database-url agents-checkpoint-url paystack-secret-key flutterwave-secret-key \
-         flutterwave-secret-hash api-code-pepper gemini-api-key gemini-model google-maps-api-key; do
+         flutterwave-secret-hash api-code-pepper gemini-api-key gemini-model google-maps-api-key \
+         channel-token-secret whatsapp-access-token whatsapp-app-secret whatsapp-verify-token; do
   exists gcloud secrets describe "$s" || gcloud secrets create "$s" --replication-policy automatic
 done
 

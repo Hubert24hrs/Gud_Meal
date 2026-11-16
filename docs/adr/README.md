@@ -18,3 +18,4 @@
 | [0014](0014-google-maps-platform.md) | Google Maps Platform behind the API: places, routes, private live tracking | Accepted (key and billing approval pending) |
 | [0015](0015-interstate-waybill.md) | Interstate waybill: hubs, rider legs, partner line haul, public tracking | Accepted (sample network) |
 | [0016](0016-plus-rewards-group-orders.md) | Gud Meal Plus, Gud points and referrals, group orders with split bill | Accepted (defaults to confirm) |
+| [0017](0017-gudy-on-whatsapp.md) | Gudy on WhatsApp: number linking, customer-only channel tokens, signed webhooks | Accepted (Meta account pending) |
