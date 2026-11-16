@@ -30,6 +30,7 @@ from ..domain.whatsapp import (
     mask,
     parse_webhook,
     render_result,
+    shared_location_address,
     signature_ok,
     text_message,
 )
@@ -128,10 +129,14 @@ class AgentsClient:
             raise AgentsError(r.status_code, str(detail)[:200])
         return dict(r.json())
 
-    async def chat(self, token: str, message: str, thread_id: str | None) -> dict[str, Any]:
+    async def chat(
+        self, token: str, message: str, thread_id: str | None, delivery_address: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         body: dict[str, Any] = {"message": message, "channel": "whatsapp"}
         if thread_id:
             body["thread_id"] = thread_id
+        if delivery_address:
+            body["delivery_address"] = delivery_address
         return await self._post("/v1/chat", token, body)
 
     async def approve(
@@ -143,7 +148,9 @@ class AgentsClient:
 
 
 class Agents(Protocol):
-    async def chat(self, token: str, message: str, thread_id: str | None) -> dict[str, Any]: ...
+    async def chat(
+        self, token: str, message: str, thread_id: str | None, delivery_address: dict[str, Any] | None = None
+    ) -> dict[str, Any]: ...
 
     async def approve(
         self, token: str, thread_id: str, approved: bool, tool_call_id: str | None
@@ -239,7 +246,8 @@ class WhatsAppService:
         if payload.get("kind") == "unsupported":
             return await self._say(
                 wa_id,
-                "I can read text messages for now. Type what you need, for example: jollof rice for 2 under ₦10,000.",
+                "I can read text messages and shared locations for now. Type what you need, for example: jollof "
+                "rice for 2 under ₦10,000.",
             )
         if len(text) > MAX_INBOUND_CHARS:
             return await self._say(wa_id, "That message is a bit long for me. Please send a shorter one.")
@@ -256,6 +264,8 @@ class WhatsAppService:
                 f"{self.web_url}/account), then send me the code it shows.\nNew to Gud Meal? Sign up at "
                 f"{self.web_url}.\n{self._support_line()}",
             )
+        if payload.get("kind") == "location":
+            return await self._remember_location(wa_id, payload)
         if STOP_COMMAND.match(text):
             return await self._disconnect(wa_id, link)
         if HELP_COMMAND.match(text):
@@ -268,8 +278,26 @@ class WhatsAppService:
             "• food or beauty products, e.g. 'jollof rice for 2 under ₦10,000'\n"
             "• 'send a package to Yaba' or 'send to Abuja'\n"
             "• 'where is my order', 'my points', 'Gud Meal Plus'\n"
+            "Share your location (📎 → Location) and I'll find stores that deliver to you; otherwise I use the "
+            "first address saved in your app.\n"
             "You approve every order with a Yes button and pay on the secure payment page.\n"
             "Send STOP to disconnect WhatsApp."
+        )
+
+    async def _remember_location(self, wa_id: str, payload: dict[str, Any]) -> None:
+        """Deliveries in this chat go to the location the customer shared (until they share another)."""
+        place = str(payload.get("text") or "").strip()
+        location = {
+            "lat": float(payload["latitude"]),
+            "lng": float(payload["longitude"]),
+            "name": place or None,
+            "at": utcnow(),
+        }
+        await self.repos.store.update(f"whatsapp_links/{wa_id}", {"location": location})
+        await self._say(
+            wa_id,
+            f"Got it, I'll deliver to {place or 'the location you shared'} in this chat. What would you like? For "
+            "example: jollof rice for 2 under ₦10,000.",
         )
 
     async def _converse(self, wa_id: str, link: dict[str, Any], payload: dict[str, Any], text: str) -> None:
@@ -295,11 +323,12 @@ class WhatsAppService:
                 )
             else:
                 fresh = not thread or last is None or now - last > THREAD_IDLE
+                address = shared_location_address(link["location"]) if link.get("location") else None
                 try:
-                    result = await self.agents.chat(token, text, None if fresh else thread)
+                    result = await self.agents.chat(token, text, None if fresh else thread, address)
                 except AgentsError as exc:
                     if exc.status == 404 and not fresh:  # the old conversation is gone: start a new one
-                        result = await self.agents.chat(token, text, None)
+                        result = await self.agents.chat(token, text, None, address)
                     elif exc.status == 409 and pending:  # an order is waiting for Yes or No
                         await self.sender.send(
                             wa_id,
@@ -403,7 +432,7 @@ class WhatsAppService:
             wa_id,
             f"You're connected{', ' + _first(name) if name else ''}! I'm Gudy. Ask me for food or beauty products, a "
             "package delivery, your order status, your points or Gud Meal Plus, for example: 'jollof rice for 2 "
-            "under ₦10,000'. You approve every order with a Yes button. Send HELP for tips or STOP to disconnect.",
+            "under ₦10,000'. Share your location (📎 → Location) so I can find stores that deliver to you. You approve every order with a Yes button. Send HELP for tips or STOP to disconnect.",
         )
 
     async def _disconnect(self, wa_id: str, link: dict[str, Any]) -> None:

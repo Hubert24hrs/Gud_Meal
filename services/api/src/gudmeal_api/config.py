@@ -77,6 +77,9 @@ class Settings(BaseSettings):
     internal_shared_secret: SecretStr | None = None
     internal_oidc_audience: str | None = None
     internal_oidc_service_accounts: list[str] = Field(default_factory=list)
+    # Gud Meal's own services (the agents service) that may call user endpoints without App Check. They still
+    # need the user's token, and this list does not open /internal/* (that is INTERNAL_OIDC_SERVICE_ACCOUNTS).
+    trusted_service_accounts: list[str] = Field(default_factory=list)
 
     # --- async infrastructure ----------------------------------------------------------------
     event_bus: Literal["inprocess", "pubsub"] = "inprocess"
@@ -149,6 +152,10 @@ class Settings(BaseSettings):
             problems.append("SEED_DEMO_DATA must be false")
         if self.environment == "production" and not self.app_check_enforced:
             problems.append("APP_CHECK_ENFORCED must be true in production")
+        if self.app_check_enforced and not self.trusted_service_accounts:
+            problems.append(
+                "TRUSTED_SERVICE_ACCOUNTS must list the agents service account (Gudy's tool calls)"
+            )
         if self.channel_token_secret.get_secret_value() == "local-dev-channel-secret-change-me":
             problems.append("CHANNEL_TOKEN_SECRET must be set from Secret Manager")
         if self.whatsapp_enabled and not (

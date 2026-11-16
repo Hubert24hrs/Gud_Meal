@@ -16,6 +16,7 @@ from gudmeal_api.domain.whatsapp import (
     mask,
     parse_webhook,
     render_result,
+    shared_location_address,
     signature,
     signature_ok,
     text_message,
@@ -207,3 +208,53 @@ class TestRendering:
         ids = [b["reply"]["id"] for b in approve["interactive"]["action"]["buttons"]]
         assert ids == ["approve:call-9", "decline:call-9"]
         assert render_result({"reply": "", "cards": []}, "https://x") == []
+
+
+def test_shared_locations():
+    body = {
+        "entry": [
+            {
+                "changes": [
+                    {
+                        "field": "messages",
+                        "value": {
+                            "messages": [
+                                {
+                                    "from": "2348011111111",
+                                    "id": "wamid.l",
+                                    "type": "location",
+                                    "location": {
+                                        "latitude": 6.4478,
+                                        "longitude": 3.4723,
+                                        "name": "Lekki Phase 1",
+                                        "address": "Admiralty Way",
+                                    },
+                                },
+                                {
+                                    "from": "2348011111111",
+                                    "id": "wamid.bad",
+                                    "type": "location",
+                                    "location": {"latitude": "x"},
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        ]
+    }
+    good, bad = parse_webhook(body)
+    assert (good.kind, good.latitude, good.longitude, good.text) == (
+        "location",
+        6.4478,
+        3.4723,
+        "Lekki Phase 1",
+    )
+    assert good.task_payload()["latitude"] == 6.4478
+    assert bad.kind == "unsupported" and bad.latitude is None
+    lagos = shared_location_address({"lat": 6.4478, "lng": 3.4723, "name": "Lekki Phase 1"})
+    assert lagos["city"] == "Lagos" and lagos["line1"] == "Lekki Phase 1"
+    enugu = shared_location_address({"lat": 6.4473, "lng": 7.5214, "name": None})
+    assert (
+        enugu["city"] == "Enugu" and enugu["line1"] == "Location shared on WhatsApp" and enugu["area"] is None
+    )

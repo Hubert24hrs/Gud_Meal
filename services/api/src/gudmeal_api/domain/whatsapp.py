@@ -59,10 +59,12 @@ class Inbound:
     message_id: str
     wa_id: str  # the sender's number in international format without "+", verified by WhatsApp
     name: str | None
-    kind: Literal["text", "button", "unsupported"]
+    kind: Literal["text", "button", "location", "unsupported"]
     text: str = ""
     button_id: str | None = None
     timestamp: int = 0
+    latitude: float | None = None  # a shared location (the place's name or address is in `text`)
+    longitude: float | None = None
 
     def task_payload(self) -> dict[str, Any]:
         return {
@@ -73,6 +75,8 @@ class Inbound:
             "text": self.text,
             "button_id": self.button_id,
             "timestamp": self.timestamp,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
         }
 
 
@@ -91,9 +95,21 @@ def parse_webhook(body: dict[str, Any]) -> list[Inbound]:
                 wa_id, message_id = str(m.get("from") or ""), str(m.get("id") or "")
                 if not wa_id.isdigit() or not message_id:
                     continue
-                kind: Literal["text", "button", "unsupported"] = "unsupported"
+                kind: Literal["text", "button", "location", "unsupported"] = "unsupported"
                 text, button_id = "", None
-                if m.get("type") == "text":
+                lat = lng = None
+                if m.get("type") == "location":
+                    loc = m.get("location") or {}
+                    try:
+                        lat, lng = float(loc["latitude"]), float(loc["longitude"])
+                    except (KeyError, TypeError, ValueError):
+                        lat = lng = None
+                    if lat is not None and lng is not None and -90 <= lat <= 90 and -180 <= lng <= 180:
+                        kind = "location"
+                        text = str(loc.get("name") or loc.get("address") or "")[:200]
+                    else:
+                        lat = lng = None
+                elif m.get("type") == "text":
                     kind, text = "text", str((m.get("text") or {}).get("body") or "")
                 elif m.get("type") == "interactive":
                     i = m.get("interactive") or {}
@@ -114,8 +130,30 @@ def parse_webhook(body: dict[str, Any]) -> list[Inbound]:
                     ts = int(m.get("timestamp") or 0)
                 except (TypeError, ValueError):
                     ts = 0
-                found.append(Inbound(message_id, wa_id, names.get(wa_id), kind, text, button_id, ts))
+                found.append(
+                    Inbound(message_id, wa_id, names.get(wa_id), kind, text, button_id, ts, lat, lng)
+                )
     return found
+
+
+CITY_CENTRES = {"Lagos": (6.5244, 3.3792), "Enugu": (6.4584, 7.5464)}
+
+
+def shared_location_address(location: dict[str, Any]) -> dict[str, Any]:
+    """A location the customer shared on WhatsApp, as the delivery address Gudy plans and quotes with.
+    The API still checks that the point is inside a delivery zone."""
+    lat, lng = float(location["lat"]), float(location["lng"])
+    city = min(CITY_CENTRES, key=lambda c: (CITY_CENTRES[c][0] - lat) ** 2 + (CITY_CENTRES[c][1] - lng) ** 2)
+    label = str(location.get("name") or "").strip()
+    line1 = label if len(label) >= 3 else "Location shared on WhatsApp"
+    return {
+        "label": "WhatsApp location",
+        "line1": line1[:200],
+        "area": label[:80] or None,
+        "city": city,
+        "state": city,
+        "location": {"lat": lat, "lng": lng},
+    }
 
 
 def mask(wa_id: str) -> str:
@@ -234,6 +272,7 @@ __all__ = [
     "mask",
     "parse_webhook",
     "render_result",
+    "shared_location_address",
     "signature",
     "signature_ok",
     "text_message",

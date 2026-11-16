@@ -33,8 +33,13 @@ class FakeAgents:
             raise result
         return {"thread_id": thread or f"t-{len(self.calls)}", "cards": [], "approval": None, **result}
 
-    async def chat(self, token: str, message: str, thread_id: str | None) -> dict[str, Any]:
-        self.calls.append(("chat", token, {"message": message, "thread_id": thread_id}))
+    async def chat(
+        self, token: str, message: str, thread_id: str | None, delivery_address: dict | None = None
+    ) -> dict[str, Any]:
+        call = {"message": message, "thread_id": thread_id}
+        if delivery_address:
+            call["delivery_address"] = delivery_address
+        self.calls.append(("chat", token, call))
         return self._next(thread_id)
 
     async def approve(
@@ -143,7 +148,7 @@ async def test_webhook_verification_signatures_and_deduplication(client, contain
     assert "Profile → Connect WhatsApp" in texts(replies)[0]
 
     media = await say(client, container, ADA_PHONE, kind="image")
-    assert "I can read text messages for now" in texts(media)[0]
+    assert "I can read text messages and shared locations for now" in texts(media)[0]
 
 
 async def test_linking_by_code_and_disconnecting(client, container):
@@ -371,3 +376,56 @@ async def test_cloud_api_sender_and_the_local_simulator(client, container):
     convo = (await client.get(f"/v1/dev/whatsapp/{ADA_PHONE}/messages")).json()
     assert convo[0] == {"direction": "in", "type": "text", "text": {"body": "hello"}}
     assert "connect your Gud Meal account" in convo[1]["text"]["body"]
+
+
+async def test_shared_locations_become_the_delivery_address(client, container):
+    agents = enable(container)
+    await link(client, container)
+    r = await post(
+        client,
+        {
+            "object": "whatsapp_business_account",
+            "entry": [
+                {
+                    "changes": [
+                        {
+                            "field": "messages",
+                            "value": {
+                                "messages": [
+                                    {
+                                        "from": ADA_PHONE,
+                                        "id": "wamid.loc1",
+                                        "type": "location",
+                                        "location": {
+                                            "latitude": 6.4473,
+                                            "longitude": 7.5214,
+                                            "name": "Independence Layout",
+                                        },
+                                    }
+                                ]
+                            },
+                        }
+                    ]
+                }
+            ],
+        },
+    )
+    assert r.json() == {"queued": 1}
+    await container.tasks.run_all(TASKS)
+    assert (
+        "Got it, I'll deliver to Independence Layout"
+        in texts(container.whatsapp.sender.outbox[ADA_PHONE][-1:])[0]
+    )
+    assert agents.calls == []  # remembering a place needs no Gudy call
+    await say(client, container, ADA_PHONE, text="rice for 2 under 8000")
+    address = agents.calls[-1][2]["delivery_address"]
+    assert address["city"] == "Enugu" and address["location"] == {"lat": 6.4473, "lng": 7.5214}
+    assert address["line1"] == "Independence Layout"
+    r = await client.post(
+        f"/v1/dev/whatsapp/{ADA_PHONE}/send",
+        json={"latitude": 6.4478, "longitude": 3.4723, "place": "Lekki Phase 1"},
+    )
+    assert r.json() == {"queued": 1}
+    await container.tasks.run_all(TASKS)
+    await say(client, container, ADA_PHONE, text="and some drinks")
+    assert agents.calls[-1][2]["delivery_address"]["city"] == "Lagos"

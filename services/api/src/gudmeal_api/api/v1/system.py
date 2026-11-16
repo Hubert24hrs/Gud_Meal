@@ -140,6 +140,9 @@ class SimulatedMessage(BaseModel):
     button_id: str | None = Field(default=None, max_length=256)
     button_title: str | None = Field(default=None, max_length=40)
     name: str | None = Field(default=None, max_length=60)
+    latitude: float | None = Field(default=None, ge=-90, le=90)  # a shared location
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+    place: str | None = Field(default=None, max_length=120)
 
 
 def _sandbox(c: Any) -> SandboxSender:
@@ -155,7 +158,13 @@ async def whatsapp_simulate(wa_id: str, data: SimulatedMessage, c: Ctr) -> JSONR
     if not wa_id.isdigit() or not 10 <= len(wa_id) <= 15:
         raise NotFound("Use an international number without +, e.g. 2348012345678")
     message: dict[str, Any] = {"from": wa_id, "id": f"wamid.sim.{uuid.uuid4().hex}", "timestamp": "0"}
-    if data.button_id:
+    if data.latitude is not None and data.longitude is not None:
+        message |= {
+            "type": "location",
+            "location": {"latitude": data.latitude, "longitude": data.longitude, "name": data.place or ""},
+        }
+        shown = f"📍 {data.place or 'Shared location'}"
+    elif data.button_id:
         message |= {
             "type": "interactive",
             "interactive": {
@@ -213,7 +222,7 @@ border:1px solid #ccc}form button{padding:10px 16px;border:0;border-radius:20px;
 small{opacity:.8}</style></head><body><header><b>Gudy on WhatsApp</b> · local simulator<br><small>Your number
 <input id="wa" value="2348011111111"> name <input id="nm" value="Ada"> — get a code in the app (Profile → Connect
 WhatsApp) and send <code>LINK 123456</code>.</small></header><main id="log"></main>
-<form id="f"><input id="t" placeholder="Type a message" autocomplete="off"><button>Send</button></form>
+<form id="f"><select id="loc" title="Share a location"><option value="">📍</option><option value="6.4478,3.4723,Lekki Phase 1">Lekki Phase 1</option><option value="6.5095,3.3711,Yaba">Yaba</option><option value="6.4473,7.5214,Independence Layout">Independence Layout, Enugu</option></select><input id="t" placeholder="Type a message" autocomplete="off"><button>Send</button></form>
 <script>
 const log=document.getElementById('log'),wa=()=>document.getElementById('wa').value.trim();
 async function send(body){await fetch('/v1/dev/whatsapp/'+wa()+'/send',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -225,6 +234,7 @@ h=esc(i.body.text);if(i.type==='button')h+='<br>'+i.action.buttons.map(b=>'<span
 '" data-t="'+esc(b.reply.title)+'">'+esc(b.reply.title)+'</span>').join('');if(i.type==='cta_url')h+='<br><a class="b" target="_blank" href="'+
 esc(i.action.parameters.url)+'">'+esc(i.action.parameters.display_text)+'</a>'}
 return '<div class="m '+(m.direction==='in'?'in':'out')+'">'+h+'</div>'}).join('');window.scrollTo(0,document.body.scrollHeight)}
+document.getElementById('loc').addEventListener('change',e=>{const v=e.target.value;if(!v)return;const [la,ln,pl]=v.split(',');send({latitude:+la,longitude:+ln,place:pl});e.target.value=''});
 log.addEventListener('click',e=>{const b=e.target.closest('span.b');if(b)send({button_id:b.dataset.id,button_title:b.dataset.t})});
 document.getElementById('f').addEventListener('submit',e=>{e.preventDefault();const t=document.getElementById('t');
 if(t.value.trim())send({text:t.value.trim()});t.value=''});setInterval(load,1500);load();

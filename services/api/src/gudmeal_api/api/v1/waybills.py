@@ -24,7 +24,7 @@ IdemKey = Annotated[str | None, Header(alias="Idempotency-Key")]
 
 class CreateWaybillInput(BaseModel):
     quote_id: str
-    channel: Literal["app", "web", "ai_agent"] = "app"
+    channel: Literal["app", "web", "ai_agent", "whatsapp"] = "app"
 
 
 # ---------------------------------------------------------------- public

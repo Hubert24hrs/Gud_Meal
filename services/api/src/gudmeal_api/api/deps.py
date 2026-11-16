@@ -98,8 +98,8 @@ async def run_idempotent(
     return JSONResponse(body, status_code=success_status)
 
 
-async def _verify_service_oidc(token: str, c: Container) -> str:
-    """Google-signed OIDC token of an allowed service account (Cloud Tasks, Pub/Sub, Scheduler, our services)."""
+async def _verify_service_oidc(token: str, c: Container, allowed: list[str]) -> str:
+    """Google-signed OIDC token of one of the `allowed` service accounts."""
     s = c.settings
     from google.auth.transport import requests as google_requests
     from google.oauth2 import id_token
@@ -111,7 +111,7 @@ async def _verify_service_oidc(token: str, c: Container) -> str:
     except ValueError as exc:
         raise Unauthenticated("Invalid OIDC token") from exc
     email = claims.get("email")
-    if not claims.get("email_verified") or email not in s.internal_oidc_service_accounts:
+    if not claims.get("email_verified") or email not in allowed:
         raise PermissionDenied("Caller is not an allowed service account")
     return str(email)
 
@@ -127,7 +127,7 @@ async def trusted_service(request: Request, c: Container) -> bool:
     if not header.lower().startswith("bearer "):
         return False
     try:
-        await _verify_service_oidc(header[7:].strip(), c)
+        await _verify_service_oidc(header[7:].strip(), c, s.trusted_service_accounts)
     except (Unauthenticated, PermissionDenied):
         return False
     return True
@@ -148,7 +148,7 @@ async def verify_internal(
         return "shared-secret"
     if not authorization or not authorization.lower().startswith("bearer "):
         raise Unauthenticated("Missing OIDC token")
-    return await _verify_service_oidc(authorization[7:].strip(), c)
+    return await _verify_service_oidc(authorization[7:].strip(), c, s.internal_oidc_service_accounts)
 
 
 InternalCaller = Annotated[str, Depends(verify_internal)]
