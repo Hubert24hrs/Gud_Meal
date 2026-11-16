@@ -55,7 +55,7 @@ Details: [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
 | Suite | Command | Result (last run) |
 |---|---|---|
 | API (unit + HTTP integration) | `cd services/api && uv run pytest` | 610 passed |
-| API on PostgreSQL | `TEST_DATABASE_URL=postgresql+asyncpg://… uv run pytest tests/integration` | 108 passed |
+| API on PostgreSQL | `TEST_DATABASE_URL=postgresql+asyncpg://… uv run pytest tests/integration` | 116 passed (CI) |
 | Agents | `cd services/agents && uv run pytest` | 49 passed (1 live-Gemini test skipped without a key) |
 | Web | `npx vitest run --root packages/api-client` · `--root apps/web` · `npm run build` | 30 passed, 3 builds |
 | Flutter | `flutter test` in `mobile/core`, `mobile/customer`, `mobile/rider` | 55 passed |
