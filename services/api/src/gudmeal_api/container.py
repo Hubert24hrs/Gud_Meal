@@ -22,6 +22,7 @@ from .payments.paystack import PaystackProvider
 from .payments.sandbox import LocalSandboxProvider
 from .repositories import DocumentStore, MemoryDocumentStore, Repositories
 from .security.auth import AppCheckVerifier, TokenVerifier
+from .security.channel_tokens import ChannelTokenVerifier
 from .security.rate_limit import RateLimiter
 from .services import dispatch as dispatch_mod
 from .services import orders as orders_mod
@@ -58,6 +59,13 @@ from .services.quotes import QuoteService
 from .services.rewards import RewardsService
 from .services.wallet import WalletService
 from .services.waybills import WaybillService
+from .services.whatsapp import (
+    TASK_WHATSAPP_MESSAGE,
+    AgentsClient,
+    CloudApiSender,
+    SandboxSender,
+    WhatsAppService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +101,7 @@ class Container:
     membership: MembershipService
     rewards: RewardsService
     groups: GroupOrderService
+    whatsapp: WhatsAppService
     orders: OrderService
     dispatch: DispatchService
     profiles: ProfileService
@@ -281,6 +290,19 @@ async def build_container(
         rider_cash_limit_kobo=settings.rider_cash_limit_kobo,
     )
     analytics = AnalyticsService(repos)
+    rate_limiter = RateLimiter()
+    wa_sender: CloudApiSender | SandboxSender = SandboxSender()
+    if (
+        settings.whatsapp_provider == "cloud"
+        and settings.whatsapp_access_token
+        and settings.whatsapp_phone_number_id
+    ):
+        wa_sender = CloudApiSender(
+            http,
+            token=settings.whatsapp_access_token.get_secret_value(),
+            phone_number_id=settings.whatsapp_phone_number_id,
+            version=settings.whatsapp_graph_version,
+        )
     container = Container(
         settings=settings,
         repos=repos,
@@ -296,9 +318,9 @@ async def build_container(
         tasks=tasks,
         notifier=notifier,
         identity=identity,
-        verifier=verifier,
+        verifier=ChannelTokenVerifier(settings.channel_token_secret.get_secret_value(), verifier),
         app_check=app_check,
-        rate_limiter=RateLimiter(),
+        rate_limiter=rate_limiter,
         providers=providers,
         http=http,
         catalog=catalog,
@@ -317,6 +339,15 @@ async def build_container(
         ),
         membership=MembershipService(repos, payments, db=db, ledger=ledger, notifier=notifier),
         rewards=RewardsService(repos, notifier=notifier, audit=audit),
+        whatsapp=WhatsAppService(
+            repos,
+            settings=settings,
+            sender=wa_sender,
+            agents=AgentsClient(http, settings.agents_base_url),
+            tasks=tasks,
+            rate_limiter=rate_limiter,
+            audit=audit,
+        ),
         groups=GroupOrderService(
             repos,
             quotes,
@@ -424,3 +455,4 @@ def register_handlers(c: Container) -> None:
     r.route(orders_mod.TASK_PARCEL_RELEASE, c.orders.release_parcel)
     r.route(dispatch_mod.TASK_OFFER_TIMEOUT, c.dispatch.handle_offer_timeout)
     r.route(dispatch_mod.TASK_DISPATCH_RETRY, c.dispatch.retry)
+    r.route(TASK_WHATSAPP_MESSAGE, c.whatsapp.handle)

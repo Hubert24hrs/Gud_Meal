@@ -32,9 +32,12 @@ async def get_principal(
     x_firebase_appcheck: Annotated[str | None, Header()] = None,
 ) -> Principal:
     if c.app_check is not None:
-        if not x_firebase_appcheck:
+        if x_firebase_appcheck:
+            await c.app_check.verify(x_firebase_appcheck)
+        elif not await trusted_service(request, c):
+            # App Check proves a genuine client app; Gud Meal's own services (Gudy's tool calls, the WhatsApp
+            # channel) prove themselves with a service credential instead. The user's token is still required.
             raise Unauthenticated("App Check token required")
-        await c.app_check.verify(x_firebase_appcheck)
     if not authorization or not authorization.lower().startswith("bearer "):
         raise Unauthenticated("Sign in required")
     principal = await c.verifier.verify(authorization[7:].strip())
@@ -95,6 +98,41 @@ async def run_idempotent(
     return JSONResponse(body, status_code=success_status)
 
 
+async def _verify_service_oidc(token: str, c: Container) -> str:
+    """Google-signed OIDC token of an allowed service account (Cloud Tasks, Pub/Sub, Scheduler, our services)."""
+    s = c.settings
+    from google.auth.transport import requests as google_requests
+    from google.oauth2 import id_token
+
+    try:
+        claims = await asyncio.to_thread(
+            id_token.verify_oauth2_token, token, google_requests.Request(), s.internal_oidc_audience
+        )
+    except ValueError as exc:
+        raise Unauthenticated("Invalid OIDC token") from exc
+    email = claims.get("email")
+    if not claims.get("email_verified") or email not in s.internal_oidc_service_accounts:
+        raise PermissionDenied("Caller is not an allowed service account")
+    return str(email)
+
+
+async def trusted_service(request: Request, c: Container) -> bool:
+    """A call made by one of Gud Meal's own services (shared secret locally, service-account OIDC in the cloud)."""
+    s = c.settings
+    if s.internal_auth_mode == "shared_secret":
+        expected = s.internal_shared_secret.get_secret_value() if s.internal_shared_secret else None
+        given = request.headers.get("x-internal-token")
+        return bool(expected and given and hmac.compare_digest(expected, given))
+    header = request.headers.get("x-service-authorization") or ""
+    if not header.lower().startswith("bearer "):
+        return False
+    try:
+        await _verify_service_oidc(header[7:].strip(), c)
+    except (Unauthenticated, PermissionDenied):
+        return False
+    return True
+
+
 async def verify_internal(
     request: Request,
     c: Ctr,
@@ -110,22 +148,7 @@ async def verify_internal(
         return "shared-secret"
     if not authorization or not authorization.lower().startswith("bearer "):
         raise Unauthenticated("Missing OIDC token")
-    from google.auth.transport import requests as google_requests
-    from google.oauth2 import id_token
-
-    try:
-        claims = await asyncio.to_thread(
-            id_token.verify_oauth2_token,
-            authorization[7:].strip(),
-            google_requests.Request(),
-            s.internal_oidc_audience,
-        )
-    except ValueError as exc:
-        raise Unauthenticated("Invalid OIDC token") from exc
-    email = claims.get("email")
-    if not claims.get("email_verified") or email not in s.internal_oidc_service_accounts:
-        raise PermissionDenied("Caller is not an allowed service account")
-    return str(email)
+    return await _verify_service_oidc(authorization[7:].strip(), c)
 
 
 InternalCaller = Annotated[str, Depends(verify_internal)]

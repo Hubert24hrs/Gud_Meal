@@ -108,6 +108,20 @@ class Settings(BaseSettings):
     # --- maps ---------------------------------------------------------------------------------
     google_maps_api_key: SecretStr | None = None
 
+    # --- Gudy on WhatsApp (ADR-0017): off until the Meta account, number and keys exist -----------
+    whatsapp_enabled: bool = False
+    whatsapp_provider: Literal["sandbox", "cloud"] = "sandbox"
+    whatsapp_access_token: SecretStr | None = None  # permanent system-user token (Secret Manager)
+    whatsapp_app_secret: SecretStr | None = None  # signs Meta's webhooks (X-Hub-Signature-256)
+    whatsapp_verify_token: SecretStr | None = None  # chosen by us, entered in the Meta webhook settings
+    whatsapp_phone_number_id: str | None = None
+    whatsapp_business_number: str = "+234 000 000 0000"
+    whatsapp_graph_version: str = "v21.0"
+    # Delegated customer-only tokens for chat channels; shared with the agents service.
+    channel_token_secret: SecretStr = SecretStr("local-dev-channel-secret-change-me")
+    agents_base_url: str = "http://localhost:8100"
+    public_web_url: str = "http://localhost:3000"
+
     @property
     def is_cloud(self) -> bool:
         return self.environment in ("development", "staging", "production")
@@ -135,6 +149,19 @@ class Settings(BaseSettings):
             problems.append("SEED_DEMO_DATA must be false")
         if self.environment == "production" and not self.app_check_enforced:
             problems.append("APP_CHECK_ENFORCED must be true in production")
+        if self.channel_token_secret.get_secret_value() == "local-dev-channel-secret-change-me":
+            problems.append("CHANNEL_TOKEN_SECRET must be set from Secret Manager")
+        if self.whatsapp_enabled and not (
+            self.whatsapp_provider == "cloud"
+            and self.whatsapp_access_token
+            and self.whatsapp_app_secret
+            and self.whatsapp_verify_token
+            and self.whatsapp_phone_number_id
+        ):
+            problems.append(
+                "WHATSAPP_ENABLED needs WHATSAPP_PROVIDER=cloud and the WhatsApp access token, app secret, "
+                "verify token and phone number id"
+            )
         if problems:
             raise RuntimeError("Unsafe configuration: " + "; ".join(problems))
 
