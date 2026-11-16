@@ -95,6 +95,9 @@ export function createApi(opts: ClientOptions) {
           restaurants: T.RestaurantCard[];
         }>("/v1/search", { q, ...loc, ...(vertical ? { vertical } : {}) }, false),
       cuisines: () => get<{ name: string; restaurants: number }[]>("/v1/cuisines", undefined, false),
+      /** Hero dishes for the Discover carousel; with lat/lng each dish carries its delivery fee and ETA. */
+      discover: (q: { city?: string; lat?: number; lng?: number; limit?: number } = {}) =>
+        get<T.DiscoverFeed>("/v1/discover/dishes", q, false),
       publicConfig: () => get<Record<string, unknown>>("/v1/config/public", undefined, false),
     },
     /** Address search and distances. Google runs behind the API (no key in browsers); without it, estimates. */

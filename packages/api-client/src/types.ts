@@ -33,6 +33,26 @@ export interface RestaurantCard {
   location?: GeoPoint | null;
 }
 
+/** One hero dish on the Discover carousel (GET /v1/discover/dishes). Prices and fees come from the API as set. */
+export interface DiscoverDish {
+  item_id: string; restaurant_id: string; restaurant_name: string; area: string; city: string; name: string;
+  description: string; price_kobo: Kobo; image_url: string | null;
+  /** Illustrated-plate family: rice, soup_swallow, broth, skewers, grill, pizza, wrap, bites, bowl or plate. */
+  art: string; kind: string; tags: string[]; dietary: string[]; allergens: string[]; spice_level: number; serves: number;
+  prep_minutes: number | null;
+  /** How many times the dish has been ordered. */
+  likes: number;
+  /** The kitchen's rating out of 5. */
+  rating: number; rating_count: number;
+  /** Short line above the title, e.g. "#1 Most loved dish" or "New kitchen · Lekki". */
+  eyebrow: string; has_options: boolean; is_available: boolean; is_open: boolean; is_accepting_orders: boolean;
+  is_new_kitchen: boolean; distance_km?: number | null; eta_minutes?: number | null; delivery_fee_kobo?: Kobo | null;
+  delivers_to_location?: boolean | null;
+}
+export type DiscoverSectionId = "most_loved" | "new_kitchens" | "top_rated";
+export interface DiscoverSection { id: DiscoverSectionId; title: string; subtitle: string; dishes: DiscoverDish[] }
+export interface DiscoverFeed { city: string | null; generated_at: string; sections: DiscoverSection[] }
+
 export interface OptionChoice { id: string; name: string; price_delta_kobo: Kobo; is_available: boolean }
 export interface OptionGroup {
   id: string; restaurant_id: string; name: string; min_select: number; max_select: number; choices: OptionChoice[];

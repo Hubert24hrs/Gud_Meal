@@ -7,10 +7,15 @@ import { useState } from "react";
 import { ItemDialog } from "@/components/item-dialog";
 import { useCart } from "@/lib/cart";
 
-export function Menu({ detail }: { detail: RestaurantDetail }) {
-  const [selected, setSelected] = useState<MenuItem | null>(null);
-  const { cart, count, subtotalKobo } = useCart();
+/** `openItemId`: open that dish's options straight away (from the Discover carousel), if it can be ordered now. */
+export function Menu({ detail, openItemId }: { detail: RestaurantDetail; openItemId?: string }) {
   const canOrder = detail.restaurant.is_open && detail.restaurant.is_accepting_orders;
+  const [selected, setSelected] = useState<MenuItem | null>(() => {
+    if (!openItemId || !canOrder) return null;
+    const item = detail.sections.flatMap((s) => s.items).find((i) => i.id === openItemId);
+    return item?.is_available ? item : null;
+  });
+  const { cart, count, subtotalKobo } = useCart();
   const inThisCart = cart.restaurant_id === detail.restaurant.id;
 
   return (

@@ -10,7 +10,11 @@ import { Menu } from "./menu";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  /** `item`: open this dish straight away (links from the Discover carousel). */
+  searchParams: Promise<{ item?: string | string[] }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -24,8 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function RestaurantPage({ params }: Props) {
+export default async function RestaurantPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const { item } = await searchParams;
   const { data, error } = await safe(serverApi.catalog.restaurant(id));
   if (!data) {
     if (error?.toLowerCase().includes("not found")) notFound();
@@ -69,7 +74,7 @@ export default async function RestaurantPage({ params }: Props) {
             <GroupOrderButton restaurantId={r.id} canOrder={r.is_open && r.is_accepting_orders} />
           </div>
         </div>
-        <Menu detail={data} />
+        <Menu detail={data} openItemId={typeof item === "string" ? item : undefined} />
       </div>
     </div>
   );

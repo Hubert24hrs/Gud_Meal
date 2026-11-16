@@ -47,6 +47,14 @@ describe("createApi", () => {
     expect(seen[0]!.headers.get("authorization")).toBeNull();
   });
 
+  it("reads the Discover dish feed publicly, near the chosen area", async () => {
+    const seen: Request[] = [];
+    const api = createApi({ baseUrl: "http://api.test", getToken: async () => "tok", fetchImpl: mockFetch(200, { city: "lagos", sections: [] }, seen) });
+    await api.catalog.discover({ city: "lagos", lat: 6.4281, lng: 3.4219, limit: 8 });
+    expect(seen[0]!.url).toBe("http://api.test/v1/discover/dishes?city=lagos&lat=6.4281&lng=3.4219&limit=8");
+    expect(seen[0]!.headers.get("authorization")).toBeNull();
+  });
+
   it("maps API errors", async () => {
     const api = createApi({ baseUrl: "http://api.test", fetchImpl: mockFetch(409, { error: { code: "price_changed", message: "Prices changed" } }) });
     await expect(api.orders.get("x")).rejects.toMatchObject({ status: 409, code: "price_changed", message: "Prices changed" });

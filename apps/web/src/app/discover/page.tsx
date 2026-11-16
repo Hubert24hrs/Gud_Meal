@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Bike, Search, Sparkles, ThumbsUp, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { useDeferredValue, useState } from "react";
+import { DishFeed } from "@/components/dish-feed";
 import { deliveryLabel, EmptyBlock, MerchantArt, PromoTag, ratingPercent, SectionTitle } from "@/components/storefront";
 import { publicApi } from "@/lib/api";
 import { useLocation } from "@/lib/location";
@@ -86,6 +87,7 @@ export default function DiscoverPage() {
           )
         ) : (
           <>
+            <DishFeed />
             <SectionTitle info="Where everyone is ordering, available now">Most in demand</SectionTitle>
             <p className="-mt-2 mb-4 text-muted">Where everyone’s ordering, available now</p>
             {food.isLoading ? <Skeleton className="h-40" /> : (
