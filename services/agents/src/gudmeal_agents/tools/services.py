@@ -12,7 +12,7 @@ from typing import Any, Literal
 from pydantic import Field
 
 from ..api_client import ApiError
-from .customer import EVERYONE, LAGOS, delivery_address, lagos_time, naira
+from .customer import EVERYONE, LAGOS, chat_channel, delivery_address, lagos_time, naira
 from .registry import ToolArgs, ToolContext, ToolError, ToolOutput, ToolRegistry, ToolSpec
 
 SERVICE_NAMES = {
@@ -466,14 +466,15 @@ async def preview_book_parcel(args: QuoteIdArgs, ctx: ToolContext) -> dict[str, 
     return {
         "title": f"Book a {q['size']} package delivery for {q['total']}?",
         "parcel": q,
-        "message": f"You'll pay {q['total']} securely on the payment page. A rider is assigned after payment.",
+        "message": f"From {q['from']} to {q['to']}. You'll pay {q['total']} securely on the payment page. A rider "
+        "is assigned after payment.",
     }
 
 
 async def book_parcel(args: QuoteIdArgs, ctx: ToolContext) -> ToolOutput:
     order = await ctx.api.post(
         "/v1/parcels",
-        {"quote_id": args.quote_id, "channel": "ai_agent"},
+        {"quote_id": args.quote_id, "channel": chat_channel(ctx)},
         idempotency_key=ctx.idempotency_key("parcel"),
     )
     res = await ctx.api.post(

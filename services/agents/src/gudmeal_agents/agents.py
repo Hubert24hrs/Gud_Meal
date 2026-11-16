@@ -319,6 +319,13 @@ _KEYWORDS: list[tuple[str, str]] = [
         r"plus member(ship)?|membership|subscription|free delivery|group orders?|split (the |our )?bill|"
         r"order with (my )?friends)\b",
     ),
+    # Food, budgets and ordering belong to the customer agent, even straight after another agent answered
+    # (e.g. "What do you offer?" went to growth): otherwise that agent would keep a request it has no tools for.
+    (
+        "customer",
+        r"(₦|\bnaira\b|\bbudget\b|\bfood\b|\bmeals?\b|\bhungry\b|\bchop\b|\bjollof\b|\brice\b|"
+        r"\border\b|\bdeliver|\bplan \d\b)",
+    ),
 ]
 _FOLLOW_UP = re.compile(
     r"^(yes|yeah|yep|ok(ay)?|sure|go ahead|do it|proceed|confirm|the (first|second|third) one|"
