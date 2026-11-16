@@ -198,7 +198,49 @@ T: dict[str, dict[str, str]] = {
         "en": "Waybill {code} ({route}): {status}. Expected {eta}.",
         "pcm": "Waybill {code} ({route}): {status}. E go reach {eta}.",
     },
+    "waybill_done": {
+        "en": "Waybill {code} ({route}): {status}.",
+        "pcm": "Waybill {code} ({route}): {status}.",
+    },
+    "waybill_collect": {"en": "Collect it at {place}.", "pcm": "Make dem collect am for {place}."},
     "waybill_none": {"en": "You don't have any waybills yet.", "pcm": "You never send any waybill yet."},
+    "plus_member": {
+        "en": "You're a Gud Meal Plus member until {until}. Auto-renew from your wallet is {renew}. You've saved "
+        "{saved} so far.",
+        "pcm": "You be Gud Meal Plus member till {until}. Auto-renew from your wallet dey {renew}. You don save "
+        "{saved} so far.",
+    },
+    "plus_join": {
+        "en": "Gud Meal Plus costs {price}:",
+        "pcm": "Gud Meal Plus na {price}:",
+    },
+    "plus_tap": {"en": "Tap the button to join.", "pcm": "Tap the button make you join."},
+    "rewards_points": {
+        "en": "You have {points} Gud points (worth {worth}). You earn {rate}.",
+        "pcm": "You get {points} Gud points (e worth {worth}). You dey earn {rate}.",
+    },
+    "rewards_ready": {
+        "en": "You can turn {points} points into vouchers now on the Rewards screen ({rule}).",
+        "pcm": "You fit change {points} points to voucher now for Rewards screen ({rule}).",
+    },
+    "rewards_next": {
+        "en": "{left} more points to your next {worth} voucher.",
+        "pcm": "{left} more points remain for your next {worth} voucher.",
+    },
+    "rewards_referral": {
+        "en": "Your referral code is {code}: friends get {friend} off their first order and you get {you} when "
+        "it's done.",
+        "pcm": "Your referral code na {code}: your padi go get {friend} off for their first order, you go get "
+        "{you} when e finish.",
+    },
+    "rewards_vouchers": {"en": "Your vouchers:", "pcm": "Your vouchers:"},
+    "group_none": {
+        "en": "You're not in any group orders right now. Open a Food or Beauty store and tap 'Order with "
+        "friends', then share the code.",
+        "pcm": "You no dey any group order now. Open one Food or Beauty store, tap 'Order with friends', then "
+        "share the code.",
+    },
+    "group_list": {"en": "Your group orders:", "pcm": "Your group orders:"},
     "unknown": {
         "en": "I didn't quite get that. You can ask me for food, beauty products, package delivery, your order status "
         "or how much you've spent.",
@@ -243,9 +285,18 @@ _SUPPORT = re.compile(
 )
 _OPEN = re.compile(
     r"\b(open|go to|take me to|show me)\s+(the\s+|my\s+)?(food|beauty|packages?|parcel|orders?|support|profile|"
-    r"discover|home|wallet)\b"
+    r"discover|home|wallet|rewards|plus)\b"
 )
 _WALLET = re.compile(r"\b(wallet|my balance|top ?up|fund my account)\b")
+_PLUS = re.compile(r"\b(gud ?meal plus|plus member(ship)?|membership|subscription|subscribe|free delivery)\b")
+_REWARDS = re.compile(
+    r"\b(gud points|my points|points|rewards?|referr?al( code)?|refer|invite (a |my )?friends?|my vouchers?|"
+    r"my coupons?)\b"
+)
+_GROUP = re.compile(
+    r"\b(group orders?|order (with|for) (my )?(friends|colleagues|team|office)|split (the |our )?bill|"
+    r"order together)\b"
+)
 _TRACKING_CODE = re.compile(r"\bgmw[2-9a-hj-np-z]{8}\b")
 _WAYBILL = re.compile(
     r"\b(waybill|interstate|another state|other states?|another city|outside (lagos|enugu))\b"
@@ -362,6 +413,8 @@ _SCREEN_WORDS = {
     "discover": "discover",
     "home": "home",
     "wallet": "wallet",
+    "rewards": "rewards",
+    "plus": "plus",
 }
 
 
@@ -517,6 +570,12 @@ class _OfflineAgent:
             if self._can("open_screen"):
                 return _call("open_screen", {"screen": "parcel"})
             return AIMessage(content=say("cod", lang))
+        if _GROUP.search(p) and self._can("get_group_orders"):
+            return _call("get_group_orders", {})
+        if _PLUS.search(p) and self._can("get_plus_membership"):
+            return _call("get_plus_membership", {})
+        if _REWARDS.search(p) and self._can("get_rewards"):
+            return _call("get_rewards", {})
         if _WALLET.search(p) and self._can("get_wallet"):
             return _call("get_wallet", {})
         if _PAY_ON_DELIVERY.search(p):
@@ -691,6 +750,67 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
         if data.get("shown_button") == "Send a package":
             return say("cod", lang) if _SELLER_COD.search(text) else say("parcel", lang)
         return say("button", lang)
+    if tool == "get_plus_membership":
+        if data.get("member"):
+            return say(
+                "plus_member",
+                lang,
+                until=data.get("member_until"),
+                renew="on" if data.get("auto_renew_from_wallet") else "off",
+                saved=data.get("saved_so_far"),
+            )
+        lines = [say("plus_join", lang, price=data.get("price"))]
+        lines += [f"• {b}" for b in data.get("benefits") or []]
+        lines.append(say("plus_tap", lang))
+        return "\n".join(lines)
+    if tool == "get_rewards":
+        lines = [
+            say(
+                "rewards_points",
+                lang,
+                points=data.get("points"),
+                worth=data.get("points_worth"),
+                rate=data.get("earn_rate"),
+            )
+        ]
+        if data.get("redeemable_points"):
+            lines.append(
+                say("rewards_ready", lang, points=data["redeemable_points"], rule=data.get("redeem_rule"))
+            )
+        else:
+            lines.append(
+                say(
+                    "rewards_next",
+                    lang,
+                    left=data.get("points_to_next_reward"),
+                    worth=data.get("next_reward_worth"),
+                )
+            )
+        lines.append(
+            say(
+                "rewards_referral",
+                lang,
+                code=data.get("referral_code"),
+                friend=data.get("friend_gets"),
+                you=data.get("you_get"),
+            )
+        )
+        if data.get("vouchers"):
+            lines.append(say("rewards_vouchers", lang))
+            lines += [
+                f"• {v['code']}: {v['worth']} off orders from {v['min_order']}" for v in data["vouchers"]
+            ]
+        return "\n".join(lines)
+    if tool == "get_group_orders":
+        rows = data.get("group_orders") or []
+        if not rows:
+            return say("group_none", lang)
+        lines = [say("group_list", lang)]
+        for g in rows:
+            extra = f", code {g['join_code']}" if g.get("join_code") else ""
+            share = f", your share {g['your_share']}" if g.get("your_share") else ""
+            lines.append(f"• {g['store']}: {g['status']}{extra}{share}")
+        return "\n".join(lines)
     if tool == "get_wallet":
         lines = [say("wallet", lang, balance=data.get("balance"))]
         for t in (data.get("recent") or [])[:3]:
@@ -717,7 +837,7 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
         if data.get("message") == "No waybills yet":
             return say("waybill_none", lang)
         out = say(
-            "waybill_track",
+            "waybill_done" if data.get("delivered") else "waybill_track",
             lang,
             code=data.get("tracking_code"),
             route=data.get("route"),
@@ -725,7 +845,7 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
             eta=data.get("expected"),
         )
         if data.get("collection_point"):
-            out += f" {data['collection_point']}"
+            out += " " + say("waybill_collect", lang, place=data["collection_point"])
         return out
     if tool == "get_payment_options":
         lines = [say("pay_options", lang, total=data.get("order_total"))]

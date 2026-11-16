@@ -39,6 +39,9 @@ String? routeForScreen(String screen, Map<String, dynamic> params) => switch (sc
       'profile' => '/profile',
       'wallet' => '/wallet',
       'waybill' => '/send?mode=interstate',
+      'plus' => '/plus',
+      'rewards' => '/rewards',
+      'group' => '/group',
       'merchant' => params['merchant_id'] != null ? '/restaurants/${params['merchant_id']}' : null,
       'order' => params['order_id'] != null ? '/orders/${params['order_id']}' : '/orders',
       _ => null,
@@ -345,6 +348,51 @@ class _CardView extends StatelessWidget {
             title: Text('${card['status']}', style: const TextStyle(fontWeight: FontWeight.w800)),
             subtitle: Text(['${card['tracking_code']} · ${card['route']}', if (card['delivered'] != true) 'Expected ${card['expected']}', if (history.isNotEmpty) history.join(' → ')].join('\n')),
           ),
+        );
+      case 'plus':
+        final benefits = (card['benefits'] as List? ?? const []).cast<String>();
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: ListTile(
+            leading: const Icon(Icons.workspace_premium_rounded),
+            title: Text(card['member'] == true ? 'Plus member until ${card['member_until']}' : 'Gud Meal Plus · ${card['price']}',
+                style: const TextStyle(fontWeight: FontWeight.w800)),
+            subtitle: Text(card['member'] == true ? 'Saved ${card['saved']} so far' : benefits.join('\n')),
+            onTap: () => onOpen('/plus'),
+          ),
+        );
+      case 'rewards':
+        final vouchers = (card['vouchers'] as List? ?? const []).cast<Map>();
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: ListTile(
+            leading: const Icon(Icons.card_giftcard_rounded),
+            title: Text('${card['points']} Gud points', style: const TextStyle(fontWeight: FontWeight.w800)),
+            subtitle: Text([
+              'Referral code ${card['referral_code']}',
+              for (final v in vouchers) '${v['worth']} off · ${v['code']}',
+            ].join('\n')),
+            onTap: () => onOpen('/rewards'),
+          ),
+        );
+      case 'group_orders':
+        final groups = (card['groups'] as List? ?? const []).cast<Map>();
+        return Card(
+          margin: const EdgeInsets.only(top: 8),
+          child: Column(children: [
+            for (final g in groups)
+              ListTile(
+                leading: const Icon(Icons.groups_rounded),
+                title: Text('${g['store']}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: Text([
+                  '${g['status']}',
+                  if (g['join_code'] != null) 'code ${g['join_code']}',
+                  if (g['your_share'] != null) 'your share ${g['your_share']}',
+                ].join(' · ')),
+                onTap: () => onOpen('/group/${g['group_order_id']}'),
+              ),
+            TextButton(onPressed: () => onOpen('/group'), child: const Text('Open group orders')),
+          ]),
         );
       case 'payment_options':
         final methods = (card['methods'] as List? ?? const []).cast<Map>();

@@ -25,6 +25,7 @@ PASSWORD = os.environ.get("DEMO_USER_PASSWORD", "gudmeal-demo-123")
 
 USERS = [
     ("demo-customer-1", "customer@gudmeal.test", "Ada Customer", [], {}),
+    ("demo-customer-2", "friend@gudmeal.test", "Bayo Friend", [], {}),  # group orders need two people
     (
         "demo-owner-1",
         "owner@gudmeal.test",

@@ -98,3 +98,22 @@ flowchart TD
   `get_payment_options` (card / wallet / pay on delivery with the server's reasons). Gudy can open the Wallet
   screen but has no tool that tops up, moves or withdraws money. Offline mode answers wallet, pay-on-delivery
   and seller cash-on-delivery questions in English and Pidgin.
+- **Interstate waybill (phase 3).** Two read-only tools for the customer, delivery and support agents:
+  - `get_waybill_options`: destinations from the customer's city, with from-prices, transit days, and door
+    delivery or collection points.
+  - `track_waybill`: by tracking number, or the customer's latest waybill; it uses the public tracking
+    endpoint, so no personal data is involved.
+
+  Booking happens on the app or website screen that Gudy opens (`open_screen` → `waybill`), so no new
+  approval-gated tool was needed. Offline mode recognises tracking numbers, “send to Abuja”-style
+  questions and “where is my waybill”. Gudy now has 40 tools; as before, every price it states is copied
+  from a tool result.
+- **Plus, points and group orders (phase 4).** Three read-only tools for the customer, support and growth
+  agents:
+  - `get_plus_membership`: price, benefits, membership and savings
+  - `get_rewards`: points, redeem steps, personal vouchers, referral code
+  - `get_group_orders`: my groups, status, join code, my share
+
+  `open_screen` gains `plus`, `rewards` and `group`. Gudy never joins Plus, redeems points, applies codes
+  or pays shares; the customer does that on the screen Gudy opens. Offline mode answers these questions in
+  English and Pidgin. Gudy now has 43 tools.

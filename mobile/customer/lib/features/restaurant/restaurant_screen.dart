@@ -7,6 +7,7 @@ import '../../providers.dart';
 import '../../ui/components.dart';
 import '../../widgets.dart';
 import '../cart/cart_controller.dart';
+import '../group/group_screens.dart' show StartGroupSheet;
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   /// [initialItemId] opens that dish straight away (e.g. "Order food" on a Discover dish).
@@ -77,6 +78,21 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
                   const SizedBox(height: 8),
                   Text('${ratingPercent(r.rating)} positive (${r.ratingCount}) · ${r.vertical == 'beauty' ? 'packed in' : 'ready in'} ~${d.avgPrepMinutes} min · ${d.address}',
                       style: Theme.of(context).textTheme.bodySmall),
+                  if (canOrder)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: OutlinedButton.icon(
+                        key: const ValueKey('order-with-friends'),
+                        onPressed: () => showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          showDragHandle: true,
+                          builder: (_) => StartGroupSheet(restaurantId: r.id),
+                        ),
+                        icon: const Icon(Icons.groups_rounded),
+                        label: const Text('Order with friends'),
+                      ),
+                    ),
                   if (!canOrder)
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
@@ -116,11 +132,21 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
 }
 
 class ItemSheet extends ConsumerStatefulWidget {
-  const ItemSheet({super.key, required this.item, required this.groups, required this.restaurantId, required this.restaurantName});
+  const ItemSheet({
+    super.key,
+    required this.item,
+    required this.groups,
+    required this.restaurantId,
+    required this.restaurantName,
+    this.onAdd,
+  });
   final MenuItem item;
   final Map<String, OptionGroup> groups;
   final String restaurantId;
   final String restaurantName;
+
+  /// Group orders: hand the chosen line to the caller instead of adding it to this phone's cart.
+  final void Function(CartLine line)? onAdd;
 
   @override
   ConsumerState<ItemSheet> createState() => _ItemSheetState();
@@ -155,6 +181,11 @@ class _ItemSheetState extends ConsumerState<ItemSheet> {
           for (final cid in _chosen[g.id] ?? const <String>[]) '${g.name}: ${g.choices.firstWhere((c) => c.id == cid).name}',
       ],
     );
+    if (widget.onAdd != null) {
+      Navigator.pop(context);
+      widget.onAdd!(CartLine(itemId: item.id, quantity: _qty, selections: cartItem.selections));
+      return;
+    }
     final cart = ref.read(cartProvider.notifier);
     if (!cart.add(widget.restaurantId, widget.restaurantName, cartItem)) {
       showDialog<void>(

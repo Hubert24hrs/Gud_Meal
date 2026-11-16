@@ -3562,7 +3562,8 @@ as List<String>,
 /// @nodoc
 mixin _$PriceBreakdown {
 
- int get subtotalKobo; int get deliveryFeeKobo; int get serviceFeeKobo; int get smallOrderFeeKobo; int get vatKobo; int get discountKobo; int get codFeeKobo; int get linehaulFeeKobo; int get pickupFeeKobo; int get totalKobo; String? get voucherCode;
+ int get subtotalKobo; int get deliveryFeeKobo; int get serviceFeeKobo; int get smallOrderFeeKobo; int get vatKobo; int get discountKobo; int get codFeeKobo; int get linehaulFeeKobo; int get pickupFeeKobo;/// Gud Meal Plus: fees and VAT the member did not pay (informational).
+ int get plusSavingsKobo; int get totalKobo; String? get voucherCode;
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3576,20 +3577,20 @@ $PriceBreakdownCopyWith<PriceBreakdown> get copyWith => _$PriceBreakdownCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as PriceBreakdown;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PriceBreakdown&&(identical(other.subtotalKobo, _this.subtotalKobo) || other.subtotalKobo == _this.subtotalKobo)&&(identical(other.deliveryFeeKobo, _this.deliveryFeeKobo) || other.deliveryFeeKobo == _this.deliveryFeeKobo)&&(identical(other.serviceFeeKobo, _this.serviceFeeKobo) || other.serviceFeeKobo == _this.serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, _this.smallOrderFeeKobo) || other.smallOrderFeeKobo == _this.smallOrderFeeKobo)&&(identical(other.vatKobo, _this.vatKobo) || other.vatKobo == _this.vatKobo)&&(identical(other.discountKobo, _this.discountKobo) || other.discountKobo == _this.discountKobo)&&(identical(other.codFeeKobo, _this.codFeeKobo) || other.codFeeKobo == _this.codFeeKobo)&&(identical(other.linehaulFeeKobo, _this.linehaulFeeKobo) || other.linehaulFeeKobo == _this.linehaulFeeKobo)&&(identical(other.pickupFeeKobo, _this.pickupFeeKobo) || other.pickupFeeKobo == _this.pickupFeeKobo)&&(identical(other.totalKobo, _this.totalKobo) || other.totalKobo == _this.totalKobo)&&(identical(other.voucherCode, _this.voucherCode) || other.voucherCode == _this.voucherCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PriceBreakdown&&(identical(other.subtotalKobo, _this.subtotalKobo) || other.subtotalKobo == _this.subtotalKobo)&&(identical(other.deliveryFeeKobo, _this.deliveryFeeKobo) || other.deliveryFeeKobo == _this.deliveryFeeKobo)&&(identical(other.serviceFeeKobo, _this.serviceFeeKobo) || other.serviceFeeKobo == _this.serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, _this.smallOrderFeeKobo) || other.smallOrderFeeKobo == _this.smallOrderFeeKobo)&&(identical(other.vatKobo, _this.vatKobo) || other.vatKobo == _this.vatKobo)&&(identical(other.discountKobo, _this.discountKobo) || other.discountKobo == _this.discountKobo)&&(identical(other.codFeeKobo, _this.codFeeKobo) || other.codFeeKobo == _this.codFeeKobo)&&(identical(other.linehaulFeeKobo, _this.linehaulFeeKobo) || other.linehaulFeeKobo == _this.linehaulFeeKobo)&&(identical(other.pickupFeeKobo, _this.pickupFeeKobo) || other.pickupFeeKobo == _this.pickupFeeKobo)&&(identical(other.plusSavingsKobo, _this.plusSavingsKobo) || other.plusSavingsKobo == _this.plusSavingsKobo)&&(identical(other.totalKobo, _this.totalKobo) || other.totalKobo == _this.totalKobo)&&(identical(other.voucherCode, _this.voucherCode) || other.voucherCode == _this.voucherCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as PriceBreakdown;
-  return Object.hash(runtimeType,_this.subtotalKobo,_this.deliveryFeeKobo,_this.serviceFeeKobo,_this.smallOrderFeeKobo,_this.vatKobo,_this.discountKobo,_this.codFeeKobo,_this.linehaulFeeKobo,_this.pickupFeeKobo,_this.totalKobo,_this.voucherCode);
+  return Object.hash(runtimeType,_this.subtotalKobo,_this.deliveryFeeKobo,_this.serviceFeeKobo,_this.smallOrderFeeKobo,_this.vatKobo,_this.discountKobo,_this.codFeeKobo,_this.linehaulFeeKobo,_this.pickupFeeKobo,_this.plusSavingsKobo,_this.totalKobo,_this.voucherCode);
 }
 
 @override
 String toString() {
   final _this = this as PriceBreakdown;
-  return 'PriceBreakdown(subtotalKobo: ${_this.subtotalKobo}, deliveryFeeKobo: ${_this.deliveryFeeKobo}, serviceFeeKobo: ${_this.serviceFeeKobo}, smallOrderFeeKobo: ${_this.smallOrderFeeKobo}, vatKobo: ${_this.vatKobo}, discountKobo: ${_this.discountKobo}, codFeeKobo: ${_this.codFeeKobo}, linehaulFeeKobo: ${_this.linehaulFeeKobo}, pickupFeeKobo: ${_this.pickupFeeKobo}, totalKobo: ${_this.totalKobo}, voucherCode: ${_this.voucherCode})';
+  return 'PriceBreakdown(subtotalKobo: ${_this.subtotalKobo}, deliveryFeeKobo: ${_this.deliveryFeeKobo}, serviceFeeKobo: ${_this.serviceFeeKobo}, smallOrderFeeKobo: ${_this.smallOrderFeeKobo}, vatKobo: ${_this.vatKobo}, discountKobo: ${_this.discountKobo}, codFeeKobo: ${_this.codFeeKobo}, linehaulFeeKobo: ${_this.linehaulFeeKobo}, pickupFeeKobo: ${_this.pickupFeeKobo}, plusSavingsKobo: ${_this.plusSavingsKobo}, totalKobo: ${_this.totalKobo}, voucherCode: ${_this.voucherCode})';
 }
 
 
@@ -3600,7 +3601,7 @@ abstract mixin class $PriceBreakdownCopyWith<$Res>  {
   factory $PriceBreakdownCopyWith(PriceBreakdown value, $Res Function(PriceBreakdown) _then) = _$PriceBreakdownCopyWithImpl;
 @useResult
 $Res call({
- int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int linehaulFeeKobo, int pickupFeeKobo, int totalKobo, String? voucherCode
+ int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int linehaulFeeKobo, int pickupFeeKobo, int plusSavingsKobo, int totalKobo, String? voucherCode
 });
 
 
@@ -3617,7 +3618,7 @@ class _$PriceBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? linehaulFeeKobo = null,Object? pickupFeeKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? linehaulFeeKobo = null,Object? pickupFeeKobo = null,Object? plusSavingsKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
   return _then(PriceBreakdown(
 subtotalKobo: null == subtotalKobo ? _self.subtotalKobo : subtotalKobo // ignore: cast_nullable_to_non_nullable
 as int,deliveryFeeKobo: null == deliveryFeeKobo ? _self.deliveryFeeKobo : deliveryFeeKobo // ignore: cast_nullable_to_non_nullable
@@ -3628,6 +3629,7 @@ as int,discountKobo: null == discountKobo ? _self.discountKobo : discountKobo //
 as int,codFeeKobo: null == codFeeKobo ? _self.codFeeKobo : codFeeKobo // ignore: cast_nullable_to_non_nullable
 as int,linehaulFeeKobo: null == linehaulFeeKobo ? _self.linehaulFeeKobo : linehaulFeeKobo // ignore: cast_nullable_to_non_nullable
 as int,pickupFeeKobo: null == pickupFeeKobo ? _self.pickupFeeKobo : pickupFeeKobo // ignore: cast_nullable_to_non_nullable
+as int,plusSavingsKobo: null == plusSavingsKobo ? _self.plusSavingsKobo : plusSavingsKobo // ignore: cast_nullable_to_non_nullable
 as int,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
 as int,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -3715,10 +3717,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int totalKobo,  String? voucherCode)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int plusSavingsKobo,  int totalKobo,  String? voucherCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PriceBreakdown() when $default != null:
-return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.totalKobo,_that.voucherCode);case _:
+return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.plusSavingsKobo,_that.totalKobo,_that.voucherCode);case _:
   return orElse();
 
 }
@@ -3736,10 +3738,10 @@ return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int totalKobo,  String? voucherCode)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int plusSavingsKobo,  int totalKobo,  String? voucherCode)  $default,) {final _that = this;
 switch (_that) {
 case _PriceBreakdown():
-return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.totalKobo,_that.voucherCode);case _:
+return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.plusSavingsKobo,_that.totalKobo,_that.voucherCode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3756,10 +3758,10 @@ return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int totalKobo,  String? voucherCode)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int subtotalKobo,  int deliveryFeeKobo,  int serviceFeeKobo,  int smallOrderFeeKobo,  int vatKobo,  int discountKobo,  int codFeeKobo,  int linehaulFeeKobo,  int pickupFeeKobo,  int plusSavingsKobo,  int totalKobo,  String? voucherCode)?  $default,) {final _that = this;
 switch (_that) {
 case _PriceBreakdown() when $default != null:
-return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.totalKobo,_that.voucherCode);case _:
+return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_that.smallOrderFeeKobo,_that.vatKobo,_that.discountKobo,_that.codFeeKobo,_that.linehaulFeeKobo,_that.pickupFeeKobo,_that.plusSavingsKobo,_that.totalKobo,_that.voucherCode);case _:
   return null;
 
 }
@@ -3771,7 +3773,7 @@ return $default(_that.subtotalKobo,_that.deliveryFeeKobo,_that.serviceFeeKobo,_t
 @JsonSerializable()
 
 class _PriceBreakdown implements PriceBreakdown {
-  const _PriceBreakdown({required this.subtotalKobo, this.deliveryFeeKobo = 0, this.serviceFeeKobo = 0, this.smallOrderFeeKobo = 0, this.vatKobo = 0, this.discountKobo = 0, this.codFeeKobo = 0, this.linehaulFeeKobo = 0, this.pickupFeeKobo = 0, required this.totalKobo, this.voucherCode});
+  const _PriceBreakdown({required this.subtotalKobo, this.deliveryFeeKobo = 0, this.serviceFeeKobo = 0, this.smallOrderFeeKobo = 0, this.vatKobo = 0, this.discountKobo = 0, this.codFeeKobo = 0, this.linehaulFeeKobo = 0, this.pickupFeeKobo = 0, this.plusSavingsKobo = 0, required this.totalKobo, this.voucherCode});
   factory _PriceBreakdown.fromJson(Map<String, dynamic> json) => _$PriceBreakdownFromJson(json);
 
 @override final  int subtotalKobo;
@@ -3783,6 +3785,8 @@ class _PriceBreakdown implements PriceBreakdown {
 @override@JsonKey() final  int codFeeKobo;
 @override@JsonKey() final  int linehaulFeeKobo;
 @override@JsonKey() final  int pickupFeeKobo;
+/// Gud Meal Plus: fees and VAT the member did not pay (informational).
+@override@JsonKey() final  int plusSavingsKobo;
 @override final  int totalKobo;
 @override final  String? voucherCode;
 
@@ -3799,18 +3803,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PriceBreakdown&&(identical(other.subtotalKobo, subtotalKobo) || other.subtotalKobo == subtotalKobo)&&(identical(other.deliveryFeeKobo, deliveryFeeKobo) || other.deliveryFeeKobo == deliveryFeeKobo)&&(identical(other.serviceFeeKobo, serviceFeeKobo) || other.serviceFeeKobo == serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, smallOrderFeeKobo) || other.smallOrderFeeKobo == smallOrderFeeKobo)&&(identical(other.vatKobo, vatKobo) || other.vatKobo == vatKobo)&&(identical(other.discountKobo, discountKobo) || other.discountKobo == discountKobo)&&(identical(other.codFeeKobo, codFeeKobo) || other.codFeeKobo == codFeeKobo)&&(identical(other.linehaulFeeKobo, linehaulFeeKobo) || other.linehaulFeeKobo == linehaulFeeKobo)&&(identical(other.pickupFeeKobo, pickupFeeKobo) || other.pickupFeeKobo == pickupFeeKobo)&&(identical(other.totalKobo, totalKobo) || other.totalKobo == totalKobo)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PriceBreakdown&&(identical(other.subtotalKobo, subtotalKobo) || other.subtotalKobo == subtotalKobo)&&(identical(other.deliveryFeeKobo, deliveryFeeKobo) || other.deliveryFeeKobo == deliveryFeeKobo)&&(identical(other.serviceFeeKobo, serviceFeeKobo) || other.serviceFeeKobo == serviceFeeKobo)&&(identical(other.smallOrderFeeKobo, smallOrderFeeKobo) || other.smallOrderFeeKobo == smallOrderFeeKobo)&&(identical(other.vatKobo, vatKobo) || other.vatKobo == vatKobo)&&(identical(other.discountKobo, discountKobo) || other.discountKobo == discountKobo)&&(identical(other.codFeeKobo, codFeeKobo) || other.codFeeKobo == codFeeKobo)&&(identical(other.linehaulFeeKobo, linehaulFeeKobo) || other.linehaulFeeKobo == linehaulFeeKobo)&&(identical(other.pickupFeeKobo, pickupFeeKobo) || other.pickupFeeKobo == pickupFeeKobo)&&(identical(other.plusSavingsKobo, plusSavingsKobo) || other.plusSavingsKobo == plusSavingsKobo)&&(identical(other.totalKobo, totalKobo) || other.totalKobo == totalKobo)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,subtotalKobo,deliveryFeeKobo,serviceFeeKobo,smallOrderFeeKobo,vatKobo,discountKobo,codFeeKobo,linehaulFeeKobo,pickupFeeKobo,totalKobo,voucherCode);
+    return Object.hash(runtimeType,subtotalKobo,deliveryFeeKobo,serviceFeeKobo,smallOrderFeeKobo,vatKobo,discountKobo,codFeeKobo,linehaulFeeKobo,pickupFeeKobo,plusSavingsKobo,totalKobo,voucherCode);
 }
 
 @override
 String toString() {
-    return 'PriceBreakdown(subtotalKobo: $subtotalKobo, deliveryFeeKobo: $deliveryFeeKobo, serviceFeeKobo: $serviceFeeKobo, smallOrderFeeKobo: $smallOrderFeeKobo, vatKobo: $vatKobo, discountKobo: $discountKobo, codFeeKobo: $codFeeKobo, linehaulFeeKobo: $linehaulFeeKobo, pickupFeeKobo: $pickupFeeKobo, totalKobo: $totalKobo, voucherCode: $voucherCode)';
+    return 'PriceBreakdown(subtotalKobo: $subtotalKobo, deliveryFeeKobo: $deliveryFeeKobo, serviceFeeKobo: $serviceFeeKobo, smallOrderFeeKobo: $smallOrderFeeKobo, vatKobo: $vatKobo, discountKobo: $discountKobo, codFeeKobo: $codFeeKobo, linehaulFeeKobo: $linehaulFeeKobo, pickupFeeKobo: $pickupFeeKobo, plusSavingsKobo: $plusSavingsKobo, totalKobo: $totalKobo, voucherCode: $voucherCode)';
 }
 
 
@@ -3821,7 +3825,7 @@ abstract mixin class _$PriceBreakdownCopyWith<$Res> implements $PriceBreakdownCo
   factory _$PriceBreakdownCopyWith(_PriceBreakdown value, $Res Function(_PriceBreakdown) _then) = __$PriceBreakdownCopyWithImpl;
 @override @useResult
 $Res call({
- int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int linehaulFeeKobo, int pickupFeeKobo, int totalKobo, String? voucherCode
+ int subtotalKobo, int deliveryFeeKobo, int serviceFeeKobo, int smallOrderFeeKobo, int vatKobo, int discountKobo, int codFeeKobo, int linehaulFeeKobo, int pickupFeeKobo, int plusSavingsKobo, int totalKobo, String? voucherCode
 });
 
 
@@ -3838,7 +3842,7 @@ class __$PriceBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? linehaulFeeKobo = null,Object? pickupFeeKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? subtotalKobo = null,Object? deliveryFeeKobo = null,Object? serviceFeeKobo = null,Object? smallOrderFeeKobo = null,Object? vatKobo = null,Object? discountKobo = null,Object? codFeeKobo = null,Object? linehaulFeeKobo = null,Object? pickupFeeKobo = null,Object? plusSavingsKobo = null,Object? totalKobo = null,Object? voucherCode = freezed,}) {
   return _then(_PriceBreakdown(
 subtotalKobo: null == subtotalKobo ? _self.subtotalKobo : subtotalKobo // ignore: cast_nullable_to_non_nullable
 as int,deliveryFeeKobo: null == deliveryFeeKobo ? _self.deliveryFeeKobo : deliveryFeeKobo // ignore: cast_nullable_to_non_nullable
@@ -3849,6 +3853,7 @@ as int,discountKobo: null == discountKobo ? _self.discountKobo : discountKobo //
 as int,codFeeKobo: null == codFeeKobo ? _self.codFeeKobo : codFeeKobo // ignore: cast_nullable_to_non_nullable
 as int,linehaulFeeKobo: null == linehaulFeeKobo ? _self.linehaulFeeKobo : linehaulFeeKobo // ignore: cast_nullable_to_non_nullable
 as int,pickupFeeKobo: null == pickupFeeKobo ? _self.pickupFeeKobo : pickupFeeKobo // ignore: cast_nullable_to_non_nullable
+as int,plusSavingsKobo: null == plusSavingsKobo ? _self.plusSavingsKobo : plusSavingsKobo // ignore: cast_nullable_to_non_nullable
 as int,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
 as int,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -4467,7 +4472,8 @@ mixin _$Order {
 
  String get id; String get shortCode; String get vertical; String get status; String get restaurantName; String get fulfillment; List<PricedLine> get lines; PriceBreakdown? get breakdown; DeliveryAddress? get deliveryAddress; OrderProgress? get progress; String? get riderName; String? get customerName; String? get restaurantAddress; GeoPoint? get restaurantLocation; DateTime? get estimatedDeliveryAt; DateTime? get readyAt; DateTime? get createdAt; int? get riderPayKobo; bool get reviewed; ParcelDetails? get parcel; int get refundTotalKobo; OrderPayment get payment; DateTime? get cashCollectedAt; String? get paymentMethod; int get collectCashKobo;/// Interstate waybill details (vertical 'waybill').
  WaybillDetails? get waybill;/// Rider view of a waybill's rider job: 'first_mile' ends with hub staff, 'last_mile' at the door.
- String? get legKind; bool get hubHandover;
+ String? get legKind; bool get hubHandover;/// Placed by the host of a group order.
+ String? get groupOrderId;
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4481,20 +4487,20 @@ $OrderCopyWith<Order> get copyWith => _$OrderCopyWithImpl<Order>(this as Order, 
 @override
 bool operator ==(Object other) {
   final _this = this as Order;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.shortCode, _this.shortCode) || other.shortCode == _this.shortCode)&&(identical(other.vertical, _this.vertical) || other.vertical == _this.vertical)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.restaurantName, _this.restaurantName) || other.restaurantName == _this.restaurantName)&&(identical(other.fulfillment, _this.fulfillment) || other.fulfillment == _this.fulfillment)&&const DeepCollectionEquality().equals(other.lines, _this.lines)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.deliveryAddress, _this.deliveryAddress) || other.deliveryAddress == _this.deliveryAddress)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.riderName, _this.riderName) || other.riderName == _this.riderName)&&(identical(other.customerName, _this.customerName) || other.customerName == _this.customerName)&&(identical(other.restaurantAddress, _this.restaurantAddress) || other.restaurantAddress == _this.restaurantAddress)&&(identical(other.restaurantLocation, _this.restaurantLocation) || other.restaurantLocation == _this.restaurantLocation)&&(identical(other.estimatedDeliveryAt, _this.estimatedDeliveryAt) || other.estimatedDeliveryAt == _this.estimatedDeliveryAt)&&(identical(other.readyAt, _this.readyAt) || other.readyAt == _this.readyAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.riderPayKobo, _this.riderPayKobo) || other.riderPayKobo == _this.riderPayKobo)&&(identical(other.reviewed, _this.reviewed) || other.reviewed == _this.reviewed)&&(identical(other.parcel, _this.parcel) || other.parcel == _this.parcel)&&(identical(other.refundTotalKobo, _this.refundTotalKobo) || other.refundTotalKobo == _this.refundTotalKobo)&&(identical(other.payment, _this.payment) || other.payment == _this.payment)&&(identical(other.cashCollectedAt, _this.cashCollectedAt) || other.cashCollectedAt == _this.cashCollectedAt)&&(identical(other.paymentMethod, _this.paymentMethod) || other.paymentMethod == _this.paymentMethod)&&(identical(other.collectCashKobo, _this.collectCashKobo) || other.collectCashKobo == _this.collectCashKobo)&&(identical(other.waybill, _this.waybill) || other.waybill == _this.waybill)&&(identical(other.legKind, _this.legKind) || other.legKind == _this.legKind)&&(identical(other.hubHandover, _this.hubHandover) || other.hubHandover == _this.hubHandover));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.shortCode, _this.shortCode) || other.shortCode == _this.shortCode)&&(identical(other.vertical, _this.vertical) || other.vertical == _this.vertical)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.restaurantName, _this.restaurantName) || other.restaurantName == _this.restaurantName)&&(identical(other.fulfillment, _this.fulfillment) || other.fulfillment == _this.fulfillment)&&const DeepCollectionEquality().equals(other.lines, _this.lines)&&(identical(other.breakdown, _this.breakdown) || other.breakdown == _this.breakdown)&&(identical(other.deliveryAddress, _this.deliveryAddress) || other.deliveryAddress == _this.deliveryAddress)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.riderName, _this.riderName) || other.riderName == _this.riderName)&&(identical(other.customerName, _this.customerName) || other.customerName == _this.customerName)&&(identical(other.restaurantAddress, _this.restaurantAddress) || other.restaurantAddress == _this.restaurantAddress)&&(identical(other.restaurantLocation, _this.restaurantLocation) || other.restaurantLocation == _this.restaurantLocation)&&(identical(other.estimatedDeliveryAt, _this.estimatedDeliveryAt) || other.estimatedDeliveryAt == _this.estimatedDeliveryAt)&&(identical(other.readyAt, _this.readyAt) || other.readyAt == _this.readyAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.riderPayKobo, _this.riderPayKobo) || other.riderPayKobo == _this.riderPayKobo)&&(identical(other.reviewed, _this.reviewed) || other.reviewed == _this.reviewed)&&(identical(other.parcel, _this.parcel) || other.parcel == _this.parcel)&&(identical(other.refundTotalKobo, _this.refundTotalKobo) || other.refundTotalKobo == _this.refundTotalKobo)&&(identical(other.payment, _this.payment) || other.payment == _this.payment)&&(identical(other.cashCollectedAt, _this.cashCollectedAt) || other.cashCollectedAt == _this.cashCollectedAt)&&(identical(other.paymentMethod, _this.paymentMethod) || other.paymentMethod == _this.paymentMethod)&&(identical(other.collectCashKobo, _this.collectCashKobo) || other.collectCashKobo == _this.collectCashKobo)&&(identical(other.waybill, _this.waybill) || other.waybill == _this.waybill)&&(identical(other.legKind, _this.legKind) || other.legKind == _this.legKind)&&(identical(other.hubHandover, _this.hubHandover) || other.hubHandover == _this.hubHandover)&&(identical(other.groupOrderId, _this.groupOrderId) || other.groupOrderId == _this.groupOrderId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Order;
-  return Object.hashAll([runtimeType,_this.id,_this.shortCode,_this.vertical,_this.status,_this.restaurantName,_this.fulfillment,const DeepCollectionEquality().hash(_this.lines),_this.breakdown,_this.deliveryAddress,_this.progress,_this.riderName,_this.customerName,_this.restaurantAddress,_this.restaurantLocation,_this.estimatedDeliveryAt,_this.readyAt,_this.createdAt,_this.riderPayKobo,_this.reviewed,_this.parcel,_this.refundTotalKobo,_this.payment,_this.cashCollectedAt,_this.paymentMethod,_this.collectCashKobo,_this.waybill,_this.legKind,_this.hubHandover]);
+  return Object.hashAll([runtimeType,_this.id,_this.shortCode,_this.vertical,_this.status,_this.restaurantName,_this.fulfillment,const DeepCollectionEquality().hash(_this.lines),_this.breakdown,_this.deliveryAddress,_this.progress,_this.riderName,_this.customerName,_this.restaurantAddress,_this.restaurantLocation,_this.estimatedDeliveryAt,_this.readyAt,_this.createdAt,_this.riderPayKobo,_this.reviewed,_this.parcel,_this.refundTotalKobo,_this.payment,_this.cashCollectedAt,_this.paymentMethod,_this.collectCashKobo,_this.waybill,_this.legKind,_this.hubHandover,_this.groupOrderId]);
 }
 
 @override
 String toString() {
   final _this = this as Order;
-  return 'Order(id: ${_this.id}, shortCode: ${_this.shortCode}, vertical: ${_this.vertical}, status: ${_this.status}, restaurantName: ${_this.restaurantName}, fulfillment: ${_this.fulfillment}, lines: ${_this.lines}, breakdown: ${_this.breakdown}, deliveryAddress: ${_this.deliveryAddress}, progress: ${_this.progress}, riderName: ${_this.riderName}, customerName: ${_this.customerName}, restaurantAddress: ${_this.restaurantAddress}, restaurantLocation: ${_this.restaurantLocation}, estimatedDeliveryAt: ${_this.estimatedDeliveryAt}, readyAt: ${_this.readyAt}, createdAt: ${_this.createdAt}, riderPayKobo: ${_this.riderPayKobo}, reviewed: ${_this.reviewed}, parcel: ${_this.parcel}, refundTotalKobo: ${_this.refundTotalKobo}, payment: ${_this.payment}, cashCollectedAt: ${_this.cashCollectedAt}, paymentMethod: ${_this.paymentMethod}, collectCashKobo: ${_this.collectCashKobo}, waybill: ${_this.waybill}, legKind: ${_this.legKind}, hubHandover: ${_this.hubHandover})';
+  return 'Order(id: ${_this.id}, shortCode: ${_this.shortCode}, vertical: ${_this.vertical}, status: ${_this.status}, restaurantName: ${_this.restaurantName}, fulfillment: ${_this.fulfillment}, lines: ${_this.lines}, breakdown: ${_this.breakdown}, deliveryAddress: ${_this.deliveryAddress}, progress: ${_this.progress}, riderName: ${_this.riderName}, customerName: ${_this.customerName}, restaurantAddress: ${_this.restaurantAddress}, restaurantLocation: ${_this.restaurantLocation}, estimatedDeliveryAt: ${_this.estimatedDeliveryAt}, readyAt: ${_this.readyAt}, createdAt: ${_this.createdAt}, riderPayKobo: ${_this.riderPayKobo}, reviewed: ${_this.reviewed}, parcel: ${_this.parcel}, refundTotalKobo: ${_this.refundTotalKobo}, payment: ${_this.payment}, cashCollectedAt: ${_this.cashCollectedAt}, paymentMethod: ${_this.paymentMethod}, collectCashKobo: ${_this.collectCashKobo}, waybill: ${_this.waybill}, legKind: ${_this.legKind}, hubHandover: ${_this.hubHandover}, groupOrderId: ${_this.groupOrderId})';
 }
 
 
@@ -4505,7 +4511,7 @@ abstract mixin class $OrderCopyWith<$Res>  {
   factory $OrderCopyWith(Order value, $Res Function(Order) _then) = _$OrderCopyWithImpl;
 @useResult
 $Res call({
- String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo, WaybillDetails? waybill, String? legKind, bool hubHandover
+ String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo, WaybillDetails? waybill, String? legKind, bool hubHandover, String? groupOrderId
 });
 
 
@@ -4522,7 +4528,7 @@ class _$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,Object? waybill = freezed,Object? legKind = freezed,Object? hubHandover = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,Object? waybill = freezed,Object? legKind = freezed,Object? hubHandover = null,Object? groupOrderId = freezed,}) {
   return _then(Order(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
@@ -4552,7 +4558,8 @@ as String?,collectCashKobo: null == collectCashKobo ? _self.collectCashKobo : co
 as int,waybill: freezed == waybill ? _self.waybill : waybill // ignore: cast_nullable_to_non_nullable
 as WaybillDetails?,legKind: freezed == legKind ? _self.legKind : legKind // ignore: cast_nullable_to_non_nullable
 as String?,hubHandover: null == hubHandover ? _self.hubHandover : hubHandover // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,groupOrderId: freezed == groupOrderId ? _self.groupOrderId : groupOrderId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of Order
@@ -4718,10 +4725,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover,  String? groupOrderId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover,_that.groupOrderId);case _:
   return orElse();
 
 }
@@ -4739,10 +4746,10 @@ return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.resta
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover,  String? groupOrderId)  $default,) {final _that = this;
 switch (_that) {
 case _Order():
-return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover,_that.groupOrderId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4759,10 +4766,10 @@ return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.resta
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String shortCode,  String vertical,  String status,  String restaurantName,  String fulfillment,  List<PricedLine> lines,  PriceBreakdown? breakdown,  DeliveryAddress? deliveryAddress,  OrderProgress? progress,  String? riderName,  String? customerName,  String? restaurantAddress,  GeoPoint? restaurantLocation,  DateTime? estimatedDeliveryAt,  DateTime? readyAt,  DateTime? createdAt,  int? riderPayKobo,  bool reviewed,  ParcelDetails? parcel,  int refundTotalKobo,  OrderPayment payment,  DateTime? cashCollectedAt,  String? paymentMethod,  int collectCashKobo,  WaybillDetails? waybill,  String? legKind,  bool hubHandover,  String? groupOrderId)?  $default,) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover);case _:
+return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.restaurantName,_that.fulfillment,_that.lines,_that.breakdown,_that.deliveryAddress,_that.progress,_that.riderName,_that.customerName,_that.restaurantAddress,_that.restaurantLocation,_that.estimatedDeliveryAt,_that.readyAt,_that.createdAt,_that.riderPayKobo,_that.reviewed,_that.parcel,_that.refundTotalKobo,_that.payment,_that.cashCollectedAt,_that.paymentMethod,_that.collectCashKobo,_that.waybill,_that.legKind,_that.hubHandover,_that.groupOrderId);case _:
   return null;
 
 }
@@ -4774,7 +4781,7 @@ return $default(_that.id,_that.shortCode,_that.vertical,_that.status,_that.resta
 @JsonSerializable()
 
 class _Order implements Order {
-  const _Order({required this.id, required this.shortCode, this.vertical = 'food', required this.status, required this.restaurantName, this.fulfillment = 'delivery',  List<PricedLine> lines = const <PricedLine>[], this.breakdown, this.deliveryAddress, this.progress, this.riderName, this.customerName, this.restaurantAddress, this.restaurantLocation, this.estimatedDeliveryAt, this.readyAt, this.createdAt, this.riderPayKobo, this.reviewed = false, this.parcel, this.refundTotalKobo = 0, this.payment = const OrderPayment(), this.cashCollectedAt, this.paymentMethod, this.collectCashKobo = 0, this.waybill, this.legKind, this.hubHandover = false}): _lines = lines;
+  const _Order({required this.id, required this.shortCode, this.vertical = 'food', required this.status, required this.restaurantName, this.fulfillment = 'delivery',  List<PricedLine> lines = const <PricedLine>[], this.breakdown, this.deliveryAddress, this.progress, this.riderName, this.customerName, this.restaurantAddress, this.restaurantLocation, this.estimatedDeliveryAt, this.readyAt, this.createdAt, this.riderPayKobo, this.reviewed = false, this.parcel, this.refundTotalKobo = 0, this.payment = const OrderPayment(), this.cashCollectedAt, this.paymentMethod, this.collectCashKobo = 0, this.waybill, this.legKind, this.hubHandover = false, this.groupOrderId}): _lines = lines;
   factory _Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
 @override final  String id;
@@ -4813,6 +4820,8 @@ class _Order implements Order {
 /// Rider view of a waybill's rider job: 'first_mile' ends with hub staff, 'last_mile' at the door.
 @override final  String? legKind;
 @override@JsonKey() final  bool hubHandover;
+/// Placed by the host of a group order.
+@override final  String? groupOrderId;
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
@@ -4827,18 +4836,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.shortCode, shortCode) || other.shortCode == shortCode)&&(identical(other.vertical, vertical) || other.vertical == vertical)&&(identical(other.status, status) || other.status == status)&&(identical(other.restaurantName, restaurantName) || other.restaurantName == restaurantName)&&(identical(other.fulfillment, fulfillment) || other.fulfillment == fulfillment)&&const DeepCollectionEquality().equals(other.lines, _lines)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.riderName, riderName) || other.riderName == riderName)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.restaurantAddress, restaurantAddress) || other.restaurantAddress == restaurantAddress)&&(identical(other.restaurantLocation, restaurantLocation) || other.restaurantLocation == restaurantLocation)&&(identical(other.estimatedDeliveryAt, estimatedDeliveryAt) || other.estimatedDeliveryAt == estimatedDeliveryAt)&&(identical(other.readyAt, readyAt) || other.readyAt == readyAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.riderPayKobo, riderPayKobo) || other.riderPayKobo == riderPayKobo)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed)&&(identical(other.parcel, parcel) || other.parcel == parcel)&&(identical(other.refundTotalKobo, refundTotalKobo) || other.refundTotalKobo == refundTotalKobo)&&(identical(other.payment, payment) || other.payment == payment)&&(identical(other.cashCollectedAt, cashCollectedAt) || other.cashCollectedAt == cashCollectedAt)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.collectCashKobo, collectCashKobo) || other.collectCashKobo == collectCashKobo)&&(identical(other.waybill, waybill) || other.waybill == waybill)&&(identical(other.legKind, legKind) || other.legKind == legKind)&&(identical(other.hubHandover, hubHandover) || other.hubHandover == hubHandover));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.shortCode, shortCode) || other.shortCode == shortCode)&&(identical(other.vertical, vertical) || other.vertical == vertical)&&(identical(other.status, status) || other.status == status)&&(identical(other.restaurantName, restaurantName) || other.restaurantName == restaurantName)&&(identical(other.fulfillment, fulfillment) || other.fulfillment == fulfillment)&&const DeepCollectionEquality().equals(other.lines, _lines)&&(identical(other.breakdown, breakdown) || other.breakdown == breakdown)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.riderName, riderName) || other.riderName == riderName)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.restaurantAddress, restaurantAddress) || other.restaurantAddress == restaurantAddress)&&(identical(other.restaurantLocation, restaurantLocation) || other.restaurantLocation == restaurantLocation)&&(identical(other.estimatedDeliveryAt, estimatedDeliveryAt) || other.estimatedDeliveryAt == estimatedDeliveryAt)&&(identical(other.readyAt, readyAt) || other.readyAt == readyAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.riderPayKobo, riderPayKobo) || other.riderPayKobo == riderPayKobo)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed)&&(identical(other.parcel, parcel) || other.parcel == parcel)&&(identical(other.refundTotalKobo, refundTotalKobo) || other.refundTotalKobo == refundTotalKobo)&&(identical(other.payment, payment) || other.payment == payment)&&(identical(other.cashCollectedAt, cashCollectedAt) || other.cashCollectedAt == cashCollectedAt)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.collectCashKobo, collectCashKobo) || other.collectCashKobo == collectCashKobo)&&(identical(other.waybill, waybill) || other.waybill == waybill)&&(identical(other.legKind, legKind) || other.legKind == legKind)&&(identical(other.hubHandover, hubHandover) || other.hubHandover == hubHandover)&&(identical(other.groupOrderId, groupOrderId) || other.groupOrderId == groupOrderId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,id,shortCode,vertical,status,restaurantName,fulfillment,const DeepCollectionEquality().hash(_lines),breakdown,deliveryAddress,progress,riderName,customerName,restaurantAddress,restaurantLocation,estimatedDeliveryAt,readyAt,createdAt,riderPayKobo,reviewed,parcel,refundTotalKobo,payment,cashCollectedAt,paymentMethod,collectCashKobo,waybill,legKind,hubHandover]);
+    return Object.hashAll([runtimeType,id,shortCode,vertical,status,restaurantName,fulfillment,const DeepCollectionEquality().hash(_lines),breakdown,deliveryAddress,progress,riderName,customerName,restaurantAddress,restaurantLocation,estimatedDeliveryAt,readyAt,createdAt,riderPayKobo,reviewed,parcel,refundTotalKobo,payment,cashCollectedAt,paymentMethod,collectCashKobo,waybill,legKind,hubHandover,groupOrderId]);
 }
 
 @override
 String toString() {
-    return 'Order(id: $id, shortCode: $shortCode, vertical: $vertical, status: $status, restaurantName: $restaurantName, fulfillment: $fulfillment, lines: $lines, breakdown: $breakdown, deliveryAddress: $deliveryAddress, progress: $progress, riderName: $riderName, customerName: $customerName, restaurantAddress: $restaurantAddress, restaurantLocation: $restaurantLocation, estimatedDeliveryAt: $estimatedDeliveryAt, readyAt: $readyAt, createdAt: $createdAt, riderPayKobo: $riderPayKobo, reviewed: $reviewed, parcel: $parcel, refundTotalKobo: $refundTotalKobo, payment: $payment, cashCollectedAt: $cashCollectedAt, paymentMethod: $paymentMethod, collectCashKobo: $collectCashKobo, waybill: $waybill, legKind: $legKind, hubHandover: $hubHandover)';
+    return 'Order(id: $id, shortCode: $shortCode, vertical: $vertical, status: $status, restaurantName: $restaurantName, fulfillment: $fulfillment, lines: $lines, breakdown: $breakdown, deliveryAddress: $deliveryAddress, progress: $progress, riderName: $riderName, customerName: $customerName, restaurantAddress: $restaurantAddress, restaurantLocation: $restaurantLocation, estimatedDeliveryAt: $estimatedDeliveryAt, readyAt: $readyAt, createdAt: $createdAt, riderPayKobo: $riderPayKobo, reviewed: $reviewed, parcel: $parcel, refundTotalKobo: $refundTotalKobo, payment: $payment, cashCollectedAt: $cashCollectedAt, paymentMethod: $paymentMethod, collectCashKobo: $collectCashKobo, waybill: $waybill, legKind: $legKind, hubHandover: $hubHandover, groupOrderId: $groupOrderId)';
 }
 
 
@@ -4849,7 +4858,7 @@ abstract mixin class _$OrderCopyWith<$Res> implements $OrderCopyWith<$Res> {
   factory _$OrderCopyWith(_Order value, $Res Function(_Order) _then) = __$OrderCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo, WaybillDetails? waybill, String? legKind, bool hubHandover
+ String id, String shortCode, String vertical, String status, String restaurantName, String fulfillment, List<PricedLine> lines, PriceBreakdown? breakdown, DeliveryAddress? deliveryAddress, OrderProgress? progress, String? riderName, String? customerName, String? restaurantAddress, GeoPoint? restaurantLocation, DateTime? estimatedDeliveryAt, DateTime? readyAt, DateTime? createdAt, int? riderPayKobo, bool reviewed, ParcelDetails? parcel, int refundTotalKobo, OrderPayment payment, DateTime? cashCollectedAt, String? paymentMethod, int collectCashKobo, WaybillDetails? waybill, String? legKind, bool hubHandover, String? groupOrderId
 });
 
 
@@ -4866,7 +4875,7 @@ class __$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,Object? waybill = freezed,Object? legKind = freezed,Object? hubHandover = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shortCode = null,Object? vertical = null,Object? status = null,Object? restaurantName = null,Object? fulfillment = null,Object? lines = null,Object? breakdown = freezed,Object? deliveryAddress = freezed,Object? progress = freezed,Object? riderName = freezed,Object? customerName = freezed,Object? restaurantAddress = freezed,Object? restaurantLocation = freezed,Object? estimatedDeliveryAt = freezed,Object? readyAt = freezed,Object? createdAt = freezed,Object? riderPayKobo = freezed,Object? reviewed = null,Object? parcel = freezed,Object? refundTotalKobo = null,Object? payment = null,Object? cashCollectedAt = freezed,Object? paymentMethod = freezed,Object? collectCashKobo = null,Object? waybill = freezed,Object? legKind = freezed,Object? hubHandover = null,Object? groupOrderId = freezed,}) {
   return _then(_Order(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
@@ -4896,7 +4905,8 @@ as String?,collectCashKobo: null == collectCashKobo ? _self.collectCashKobo : co
 as int,waybill: freezed == waybill ? _self.waybill : waybill // ignore: cast_nullable_to_non_nullable
 as WaybillDetails?,legKind: freezed == legKind ? _self.legKind : legKind // ignore: cast_nullable_to_non_nullable
 as String?,hubHandover: null == hubHandover ? _self.hubHandover : hubHandover // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,groupOrderId: freezed == groupOrderId ? _self.groupOrderId : groupOrderId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -10042,6 +10052,4542 @@ as bool,
 }
 
 
+}
+
+
+/// @nodoc
+mixin _$PlusPlan {
+
+ bool get enabled; int get priceKobo; int get vatKobo; int get periodDays; int get freeDeliveryMinSubtotalKobo; int get serviceFeeDiscountBps; int get pointsMultiplier; List<String> get benefits;
+/// Create a copy of PlusPlan
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PlusPlanCopyWith<PlusPlan> get copyWith => _$PlusPlanCopyWithImpl<PlusPlan>(this as PlusPlan, _$identity);
+
+  /// Serializes this PlusPlan to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as PlusPlan;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PlusPlan&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled)&&(identical(other.priceKobo, _this.priceKobo) || other.priceKobo == _this.priceKobo)&&(identical(other.vatKobo, _this.vatKobo) || other.vatKobo == _this.vatKobo)&&(identical(other.periodDays, _this.periodDays) || other.periodDays == _this.periodDays)&&(identical(other.freeDeliveryMinSubtotalKobo, _this.freeDeliveryMinSubtotalKobo) || other.freeDeliveryMinSubtotalKobo == _this.freeDeliveryMinSubtotalKobo)&&(identical(other.serviceFeeDiscountBps, _this.serviceFeeDiscountBps) || other.serviceFeeDiscountBps == _this.serviceFeeDiscountBps)&&(identical(other.pointsMultiplier, _this.pointsMultiplier) || other.pointsMultiplier == _this.pointsMultiplier)&&const DeepCollectionEquality().equals(other.benefits, _this.benefits));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as PlusPlan;
+  return Object.hash(runtimeType,_this.enabled,_this.priceKobo,_this.vatKobo,_this.periodDays,_this.freeDeliveryMinSubtotalKobo,_this.serviceFeeDiscountBps,_this.pointsMultiplier,const DeepCollectionEquality().hash(_this.benefits));
+}
+
+@override
+String toString() {
+  final _this = this as PlusPlan;
+  return 'PlusPlan(enabled: ${_this.enabled}, priceKobo: ${_this.priceKobo}, vatKobo: ${_this.vatKobo}, periodDays: ${_this.periodDays}, freeDeliveryMinSubtotalKobo: ${_this.freeDeliveryMinSubtotalKobo}, serviceFeeDiscountBps: ${_this.serviceFeeDiscountBps}, pointsMultiplier: ${_this.pointsMultiplier}, benefits: ${_this.benefits})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PlusPlanCopyWith<$Res>  {
+  factory $PlusPlanCopyWith(PlusPlan value, $Res Function(PlusPlan) _then) = _$PlusPlanCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled, int priceKobo, int vatKobo, int periodDays, int freeDeliveryMinSubtotalKobo, int serviceFeeDiscountBps, int pointsMultiplier, List<String> benefits
+});
+
+
+
+
+}
+/// @nodoc
+class _$PlusPlanCopyWithImpl<$Res>
+    implements $PlusPlanCopyWith<$Res> {
+  _$PlusPlanCopyWithImpl(this._self, this._then);
+
+  final PlusPlan _self;
+  final $Res Function(PlusPlan) _then;
+
+/// Create a copy of PlusPlan
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? priceKobo = null,Object? vatKobo = null,Object? periodDays = null,Object? freeDeliveryMinSubtotalKobo = null,Object? serviceFeeDiscountBps = null,Object? pointsMultiplier = null,Object? benefits = null,}) {
+  return _then(PlusPlan(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,priceKobo: null == priceKobo ? _self.priceKobo : priceKobo // ignore: cast_nullable_to_non_nullable
+as int,vatKobo: null == vatKobo ? _self.vatKobo : vatKobo // ignore: cast_nullable_to_non_nullable
+as int,periodDays: null == periodDays ? _self.periodDays : periodDays // ignore: cast_nullable_to_non_nullable
+as int,freeDeliveryMinSubtotalKobo: null == freeDeliveryMinSubtotalKobo ? _self.freeDeliveryMinSubtotalKobo : freeDeliveryMinSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,serviceFeeDiscountBps: null == serviceFeeDiscountBps ? _self.serviceFeeDiscountBps : serviceFeeDiscountBps // ignore: cast_nullable_to_non_nullable
+as int,pointsMultiplier: null == pointsMultiplier ? _self.pointsMultiplier : pointsMultiplier // ignore: cast_nullable_to_non_nullable
+as int,benefits: null == benefits ? _self.benefits : benefits // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PlusPlan].
+extension PlusPlanPatterns on PlusPlan {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PlusPlan value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PlusPlan() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PlusPlan value)  $default,){
+final _that = this;
+switch (_that) {
+case _PlusPlan():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PlusPlan value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PlusPlan() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  int priceKobo,  int vatKobo,  int periodDays,  int freeDeliveryMinSubtotalKobo,  int serviceFeeDiscountBps,  int pointsMultiplier,  List<String> benefits)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PlusPlan() when $default != null:
+return $default(_that.enabled,_that.priceKobo,_that.vatKobo,_that.periodDays,_that.freeDeliveryMinSubtotalKobo,_that.serviceFeeDiscountBps,_that.pointsMultiplier,_that.benefits);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  int priceKobo,  int vatKobo,  int periodDays,  int freeDeliveryMinSubtotalKobo,  int serviceFeeDiscountBps,  int pointsMultiplier,  List<String> benefits)  $default,) {final _that = this;
+switch (_that) {
+case _PlusPlan():
+return $default(_that.enabled,_that.priceKobo,_that.vatKobo,_that.periodDays,_that.freeDeliveryMinSubtotalKobo,_that.serviceFeeDiscountBps,_that.pointsMultiplier,_that.benefits);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  int priceKobo,  int vatKobo,  int periodDays,  int freeDeliveryMinSubtotalKobo,  int serviceFeeDiscountBps,  int pointsMultiplier,  List<String> benefits)?  $default,) {final _that = this;
+switch (_that) {
+case _PlusPlan() when $default != null:
+return $default(_that.enabled,_that.priceKobo,_that.vatKobo,_that.periodDays,_that.freeDeliveryMinSubtotalKobo,_that.serviceFeeDiscountBps,_that.pointsMultiplier,_that.benefits);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PlusPlan implements PlusPlan {
+  const _PlusPlan({this.enabled = true, required this.priceKobo, this.vatKobo = 0, this.periodDays = 30, this.freeDeliveryMinSubtotalKobo = 0, this.serviceFeeDiscountBps = 0, this.pointsMultiplier = 1,  List<String> benefits = const <String>[]}): _benefits = benefits;
+  factory _PlusPlan.fromJson(Map<String, dynamic> json) => _$PlusPlanFromJson(json);
+
+@override@JsonKey() final  bool enabled;
+@override final  int priceKobo;
+@override@JsonKey() final  int vatKobo;
+@override@JsonKey() final  int periodDays;
+@override@JsonKey() final  int freeDeliveryMinSubtotalKobo;
+@override@JsonKey() final  int serviceFeeDiscountBps;
+@override@JsonKey() final  int pointsMultiplier;
+ final  List<String> _benefits;
+@override@JsonKey() List<String> get benefits {
+  if (_benefits is EqualUnmodifiableListView) return _benefits;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_benefits);
+}
+
+
+/// Create a copy of PlusPlan
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PlusPlanCopyWith<_PlusPlan> get copyWith => __$PlusPlanCopyWithImpl<_PlusPlan>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PlusPlanToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PlusPlan&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.priceKobo, priceKobo) || other.priceKobo == priceKobo)&&(identical(other.vatKobo, vatKobo) || other.vatKobo == vatKobo)&&(identical(other.periodDays, periodDays) || other.periodDays == periodDays)&&(identical(other.freeDeliveryMinSubtotalKobo, freeDeliveryMinSubtotalKobo) || other.freeDeliveryMinSubtotalKobo == freeDeliveryMinSubtotalKobo)&&(identical(other.serviceFeeDiscountBps, serviceFeeDiscountBps) || other.serviceFeeDiscountBps == serviceFeeDiscountBps)&&(identical(other.pointsMultiplier, pointsMultiplier) || other.pointsMultiplier == pointsMultiplier)&&const DeepCollectionEquality().equals(other.benefits, _benefits));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,enabled,priceKobo,vatKobo,periodDays,freeDeliveryMinSubtotalKobo,serviceFeeDiscountBps,pointsMultiplier,const DeepCollectionEquality().hash(_benefits));
+}
+
+@override
+String toString() {
+    return 'PlusPlan(enabled: $enabled, priceKobo: $priceKobo, vatKobo: $vatKobo, periodDays: $periodDays, freeDeliveryMinSubtotalKobo: $freeDeliveryMinSubtotalKobo, serviceFeeDiscountBps: $serviceFeeDiscountBps, pointsMultiplier: $pointsMultiplier, benefits: $benefits)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PlusPlanCopyWith<$Res> implements $PlusPlanCopyWith<$Res> {
+  factory _$PlusPlanCopyWith(_PlusPlan value, $Res Function(_PlusPlan) _then) = __$PlusPlanCopyWithImpl;
+@override @useResult
+$Res call({
+ bool enabled, int priceKobo, int vatKobo, int periodDays, int freeDeliveryMinSubtotalKobo, int serviceFeeDiscountBps, int pointsMultiplier, List<String> benefits
+});
+
+
+
+
+}
+/// @nodoc
+class __$PlusPlanCopyWithImpl<$Res>
+    implements _$PlusPlanCopyWith<$Res> {
+  __$PlusPlanCopyWithImpl(this._self, this._then);
+
+  final _PlusPlan _self;
+  final $Res Function(_PlusPlan) _then;
+
+/// Create a copy of PlusPlan
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? priceKobo = null,Object? vatKobo = null,Object? periodDays = null,Object? freeDeliveryMinSubtotalKobo = null,Object? serviceFeeDiscountBps = null,Object? pointsMultiplier = null,Object? benefits = null,}) {
+  return _then(_PlusPlan(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,priceKobo: null == priceKobo ? _self.priceKobo : priceKobo // ignore: cast_nullable_to_non_nullable
+as int,vatKobo: null == vatKobo ? _self.vatKobo : vatKobo // ignore: cast_nullable_to_non_nullable
+as int,periodDays: null == periodDays ? _self.periodDays : periodDays // ignore: cast_nullable_to_non_nullable
+as int,freeDeliveryMinSubtotalKobo: null == freeDeliveryMinSubtotalKobo ? _self.freeDeliveryMinSubtotalKobo : freeDeliveryMinSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,serviceFeeDiscountBps: null == serviceFeeDiscountBps ? _self.serviceFeeDiscountBps : serviceFeeDiscountBps // ignore: cast_nullable_to_non_nullable
+as int,pointsMultiplier: null == pointsMultiplier ? _self.pointsMultiplier : pointsMultiplier // ignore: cast_nullable_to_non_nullable
+as int,benefits: null == benefits ? _self._benefits : benefits // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$PlusMembership {
+
+ String get status; DateTime get paidThrough; String get paidThroughText; int get daysLeft; bool get autoRenew; bool get canRenew; int get periods; int get savingsKobo;
+/// Create a copy of PlusMembership
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PlusMembershipCopyWith<PlusMembership> get copyWith => _$PlusMembershipCopyWithImpl<PlusMembership>(this as PlusMembership, _$identity);
+
+  /// Serializes this PlusMembership to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as PlusMembership;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PlusMembership&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.paidThrough, _this.paidThrough) || other.paidThrough == _this.paidThrough)&&(identical(other.paidThroughText, _this.paidThroughText) || other.paidThroughText == _this.paidThroughText)&&(identical(other.daysLeft, _this.daysLeft) || other.daysLeft == _this.daysLeft)&&(identical(other.autoRenew, _this.autoRenew) || other.autoRenew == _this.autoRenew)&&(identical(other.canRenew, _this.canRenew) || other.canRenew == _this.canRenew)&&(identical(other.periods, _this.periods) || other.periods == _this.periods)&&(identical(other.savingsKobo, _this.savingsKobo) || other.savingsKobo == _this.savingsKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as PlusMembership;
+  return Object.hash(runtimeType,_this.status,_this.paidThrough,_this.paidThroughText,_this.daysLeft,_this.autoRenew,_this.canRenew,_this.periods,_this.savingsKobo);
+}
+
+@override
+String toString() {
+  final _this = this as PlusMembership;
+  return 'PlusMembership(status: ${_this.status}, paidThrough: ${_this.paidThrough}, paidThroughText: ${_this.paidThroughText}, daysLeft: ${_this.daysLeft}, autoRenew: ${_this.autoRenew}, canRenew: ${_this.canRenew}, periods: ${_this.periods}, savingsKobo: ${_this.savingsKobo})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PlusMembershipCopyWith<$Res>  {
+  factory $PlusMembershipCopyWith(PlusMembership value, $Res Function(PlusMembership) _then) = _$PlusMembershipCopyWithImpl;
+@useResult
+$Res call({
+ String status, DateTime paidThrough, String paidThroughText, int daysLeft, bool autoRenew, bool canRenew, int periods, int savingsKobo
+});
+
+
+
+
+}
+/// @nodoc
+class _$PlusMembershipCopyWithImpl<$Res>
+    implements $PlusMembershipCopyWith<$Res> {
+  _$PlusMembershipCopyWithImpl(this._self, this._then);
+
+  final PlusMembership _self;
+  final $Res Function(PlusMembership) _then;
+
+/// Create a copy of PlusMembership
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? paidThrough = null,Object? paidThroughText = null,Object? daysLeft = null,Object? autoRenew = null,Object? canRenew = null,Object? periods = null,Object? savingsKobo = null,}) {
+  return _then(PlusMembership(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,paidThrough: null == paidThrough ? _self.paidThrough : paidThrough // ignore: cast_nullable_to_non_nullable
+as DateTime,paidThroughText: null == paidThroughText ? _self.paidThroughText : paidThroughText // ignore: cast_nullable_to_non_nullable
+as String,daysLeft: null == daysLeft ? _self.daysLeft : daysLeft // ignore: cast_nullable_to_non_nullable
+as int,autoRenew: null == autoRenew ? _self.autoRenew : autoRenew // ignore: cast_nullable_to_non_nullable
+as bool,canRenew: null == canRenew ? _self.canRenew : canRenew // ignore: cast_nullable_to_non_nullable
+as bool,periods: null == periods ? _self.periods : periods // ignore: cast_nullable_to_non_nullable
+as int,savingsKobo: null == savingsKobo ? _self.savingsKobo : savingsKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PlusMembership].
+extension PlusMembershipPatterns on PlusMembership {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PlusMembership value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PlusMembership() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PlusMembership value)  $default,){
+final _that = this;
+switch (_that) {
+case _PlusMembership():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PlusMembership value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PlusMembership() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String status,  DateTime paidThrough,  String paidThroughText,  int daysLeft,  bool autoRenew,  bool canRenew,  int periods,  int savingsKobo)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PlusMembership() when $default != null:
+return $default(_that.status,_that.paidThrough,_that.paidThroughText,_that.daysLeft,_that.autoRenew,_that.canRenew,_that.periods,_that.savingsKobo);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String status,  DateTime paidThrough,  String paidThroughText,  int daysLeft,  bool autoRenew,  bool canRenew,  int periods,  int savingsKobo)  $default,) {final _that = this;
+switch (_that) {
+case _PlusMembership():
+return $default(_that.status,_that.paidThrough,_that.paidThroughText,_that.daysLeft,_that.autoRenew,_that.canRenew,_that.periods,_that.savingsKobo);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String status,  DateTime paidThrough,  String paidThroughText,  int daysLeft,  bool autoRenew,  bool canRenew,  int periods,  int savingsKobo)?  $default,) {final _that = this;
+switch (_that) {
+case _PlusMembership() when $default != null:
+return $default(_that.status,_that.paidThrough,_that.paidThroughText,_that.daysLeft,_that.autoRenew,_that.canRenew,_that.periods,_that.savingsKobo);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PlusMembership implements PlusMembership {
+  const _PlusMembership({this.status = 'active', required this.paidThrough, this.paidThroughText = '', this.daysLeft = 0, this.autoRenew = true, this.canRenew = false, this.periods = 0, this.savingsKobo = 0});
+  factory _PlusMembership.fromJson(Map<String, dynamic> json) => _$PlusMembershipFromJson(json);
+
+@override@JsonKey() final  String status;
+@override final  DateTime paidThrough;
+@override@JsonKey() final  String paidThroughText;
+@override@JsonKey() final  int daysLeft;
+@override@JsonKey() final  bool autoRenew;
+@override@JsonKey() final  bool canRenew;
+@override@JsonKey() final  int periods;
+@override@JsonKey() final  int savingsKobo;
+
+/// Create a copy of PlusMembership
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PlusMembershipCopyWith<_PlusMembership> get copyWith => __$PlusMembershipCopyWithImpl<_PlusMembership>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PlusMembershipToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PlusMembership&&(identical(other.status, status) || other.status == status)&&(identical(other.paidThrough, paidThrough) || other.paidThrough == paidThrough)&&(identical(other.paidThroughText, paidThroughText) || other.paidThroughText == paidThroughText)&&(identical(other.daysLeft, daysLeft) || other.daysLeft == daysLeft)&&(identical(other.autoRenew, autoRenew) || other.autoRenew == autoRenew)&&(identical(other.canRenew, canRenew) || other.canRenew == canRenew)&&(identical(other.periods, periods) || other.periods == periods)&&(identical(other.savingsKobo, savingsKobo) || other.savingsKobo == savingsKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,status,paidThrough,paidThroughText,daysLeft,autoRenew,canRenew,periods,savingsKobo);
+}
+
+@override
+String toString() {
+    return 'PlusMembership(status: $status, paidThrough: $paidThrough, paidThroughText: $paidThroughText, daysLeft: $daysLeft, autoRenew: $autoRenew, canRenew: $canRenew, periods: $periods, savingsKobo: $savingsKobo)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PlusMembershipCopyWith<$Res> implements $PlusMembershipCopyWith<$Res> {
+  factory _$PlusMembershipCopyWith(_PlusMembership value, $Res Function(_PlusMembership) _then) = __$PlusMembershipCopyWithImpl;
+@override @useResult
+$Res call({
+ String status, DateTime paidThrough, String paidThroughText, int daysLeft, bool autoRenew, bool canRenew, int periods, int savingsKobo
+});
+
+
+
+
+}
+/// @nodoc
+class __$PlusMembershipCopyWithImpl<$Res>
+    implements _$PlusMembershipCopyWith<$Res> {
+  __$PlusMembershipCopyWithImpl(this._self, this._then);
+
+  final _PlusMembership _self;
+  final $Res Function(_PlusMembership) _then;
+
+/// Create a copy of PlusMembership
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? paidThrough = null,Object? paidThroughText = null,Object? daysLeft = null,Object? autoRenew = null,Object? canRenew = null,Object? periods = null,Object? savingsKobo = null,}) {
+  return _then(_PlusMembership(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,paidThrough: null == paidThrough ? _self.paidThrough : paidThrough // ignore: cast_nullable_to_non_nullable
+as DateTime,paidThroughText: null == paidThroughText ? _self.paidThroughText : paidThroughText // ignore: cast_nullable_to_non_nullable
+as String,daysLeft: null == daysLeft ? _self.daysLeft : daysLeft // ignore: cast_nullable_to_non_nullable
+as int,autoRenew: null == autoRenew ? _self.autoRenew : autoRenew // ignore: cast_nullable_to_non_nullable
+as bool,canRenew: null == canRenew ? _self.canRenew : canRenew // ignore: cast_nullable_to_non_nullable
+as bool,periods: null == periods ? _self.periods : periods // ignore: cast_nullable_to_non_nullable
+as int,savingsKobo: null == savingsKobo ? _self.savingsKobo : savingsKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$PlusOverview {
+
+ PlusPlan get plan; bool get member; PlusMembership? get membership;
+/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PlusOverviewCopyWith<PlusOverview> get copyWith => _$PlusOverviewCopyWithImpl<PlusOverview>(this as PlusOverview, _$identity);
+
+  /// Serializes this PlusOverview to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as PlusOverview;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PlusOverview&&(identical(other.plan, _this.plan) || other.plan == _this.plan)&&(identical(other.member, _this.member) || other.member == _this.member)&&(identical(other.membership, _this.membership) || other.membership == _this.membership));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as PlusOverview;
+  return Object.hash(runtimeType,_this.plan,_this.member,_this.membership);
+}
+
+@override
+String toString() {
+  final _this = this as PlusOverview;
+  return 'PlusOverview(plan: ${_this.plan}, member: ${_this.member}, membership: ${_this.membership})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PlusOverviewCopyWith<$Res>  {
+  factory $PlusOverviewCopyWith(PlusOverview value, $Res Function(PlusOverview) _then) = _$PlusOverviewCopyWithImpl;
+@useResult
+$Res call({
+ PlusPlan plan, bool member, PlusMembership? membership
+});
+
+
+$PlusPlanCopyWith<$Res> get plan;$PlusMembershipCopyWith<$Res>? get membership;
+
+}
+/// @nodoc
+class _$PlusOverviewCopyWithImpl<$Res>
+    implements $PlusOverviewCopyWith<$Res> {
+  _$PlusOverviewCopyWithImpl(this._self, this._then);
+
+  final PlusOverview _self;
+  final $Res Function(PlusOverview) _then;
+
+/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? plan = null,Object? member = null,Object? membership = freezed,}) {
+  return _then(PlusOverview(
+plan: null == plan ? _self.plan : plan // ignore: cast_nullable_to_non_nullable
+as PlusPlan,member: null == member ? _self.member : member // ignore: cast_nullable_to_non_nullable
+as bool,membership: freezed == membership ? _self.membership : membership // ignore: cast_nullable_to_non_nullable
+as PlusMembership?,
+  ));
+}
+/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PlusPlanCopyWith<$Res> get plan {
+  
+  return $PlusPlanCopyWith<$Res>(_self.plan, (value) {
+    return _then(_self.copyWith(plan: value));
+  });
+}/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PlusMembershipCopyWith<$Res>? get membership {
+    if (_self.membership == null) {
+    return null;
+  }
+
+  return $PlusMembershipCopyWith<$Res>(_self.membership!, (value) {
+    return _then(_self.copyWith(membership: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [PlusOverview].
+extension PlusOverviewPatterns on PlusOverview {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PlusOverview value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PlusOverview() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PlusOverview value)  $default,){
+final _that = this;
+switch (_that) {
+case _PlusOverview():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PlusOverview value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PlusOverview() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PlusPlan plan,  bool member,  PlusMembership? membership)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PlusOverview() when $default != null:
+return $default(_that.plan,_that.member,_that.membership);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PlusPlan plan,  bool member,  PlusMembership? membership)  $default,) {final _that = this;
+switch (_that) {
+case _PlusOverview():
+return $default(_that.plan,_that.member,_that.membership);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PlusPlan plan,  bool member,  PlusMembership? membership)?  $default,) {final _that = this;
+switch (_that) {
+case _PlusOverview() when $default != null:
+return $default(_that.plan,_that.member,_that.membership);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PlusOverview implements PlusOverview {
+  const _PlusOverview({required this.plan, this.member = false, this.membership});
+  factory _PlusOverview.fromJson(Map<String, dynamic> json) => _$PlusOverviewFromJson(json);
+
+@override final  PlusPlan plan;
+@override@JsonKey() final  bool member;
+@override final  PlusMembership? membership;
+
+/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PlusOverviewCopyWith<_PlusOverview> get copyWith => __$PlusOverviewCopyWithImpl<_PlusOverview>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PlusOverviewToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PlusOverview&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.member, member) || other.member == member)&&(identical(other.membership, membership) || other.membership == membership));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,plan,member,membership);
+}
+
+@override
+String toString() {
+    return 'PlusOverview(plan: $plan, member: $member, membership: $membership)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PlusOverviewCopyWith<$Res> implements $PlusOverviewCopyWith<$Res> {
+  factory _$PlusOverviewCopyWith(_PlusOverview value, $Res Function(_PlusOverview) _then) = __$PlusOverviewCopyWithImpl;
+@override @useResult
+$Res call({
+ PlusPlan plan, bool member, PlusMembership? membership
+});
+
+
+@override $PlusPlanCopyWith<$Res> get plan;@override $PlusMembershipCopyWith<$Res>? get membership;
+
+}
+/// @nodoc
+class __$PlusOverviewCopyWithImpl<$Res>
+    implements _$PlusOverviewCopyWith<$Res> {
+  __$PlusOverviewCopyWithImpl(this._self, this._then);
+
+  final _PlusOverview _self;
+  final $Res Function(_PlusOverview) _then;
+
+/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? plan = null,Object? member = null,Object? membership = freezed,}) {
+  return _then(_PlusOverview(
+plan: null == plan ? _self.plan : plan // ignore: cast_nullable_to_non_nullable
+as PlusPlan,member: null == member ? _self.member : member // ignore: cast_nullable_to_non_nullable
+as bool,membership: freezed == membership ? _self.membership : membership // ignore: cast_nullable_to_non_nullable
+as PlusMembership?,
+  ));
+}
+
+/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PlusPlanCopyWith<$Res> get plan {
+  
+  return $PlusPlanCopyWith<$Res>(_self.plan, (value) {
+    return _then(_self.copyWith(plan: value));
+  });
+}/// Create a copy of PlusOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PlusMembershipCopyWith<$Res>? get membership {
+    if (_self.membership == null) {
+    return null;
+  }
+
+  return $PlusMembershipCopyWith<$Res>(_self.membership!, (value) {
+    return _then(_self.copyWith(membership: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$RewardVoucher {
+
+ String get code; String get description; int get valueKobo; int get minSubtotalKobo; DateTime? get endsAt; String get source;
+/// Create a copy of RewardVoucher
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RewardVoucherCopyWith<RewardVoucher> get copyWith => _$RewardVoucherCopyWithImpl<RewardVoucher>(this as RewardVoucher, _$identity);
+
+  /// Serializes this RewardVoucher to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RewardVoucher;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RewardVoucher&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.valueKobo, _this.valueKobo) || other.valueKobo == _this.valueKobo)&&(identical(other.minSubtotalKobo, _this.minSubtotalKobo) || other.minSubtotalKobo == _this.minSubtotalKobo)&&(identical(other.endsAt, _this.endsAt) || other.endsAt == _this.endsAt)&&(identical(other.source, _this.source) || other.source == _this.source));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RewardVoucher;
+  return Object.hash(runtimeType,_this.code,_this.description,_this.valueKobo,_this.minSubtotalKobo,_this.endsAt,_this.source);
+}
+
+@override
+String toString() {
+  final _this = this as RewardVoucher;
+  return 'RewardVoucher(code: ${_this.code}, description: ${_this.description}, valueKobo: ${_this.valueKobo}, minSubtotalKobo: ${_this.minSubtotalKobo}, endsAt: ${_this.endsAt}, source: ${_this.source})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RewardVoucherCopyWith<$Res>  {
+  factory $RewardVoucherCopyWith(RewardVoucher value, $Res Function(RewardVoucher) _then) = _$RewardVoucherCopyWithImpl;
+@useResult
+$Res call({
+ String code, String description, int valueKobo, int minSubtotalKobo, DateTime? endsAt, String source
+});
+
+
+
+
+}
+/// @nodoc
+class _$RewardVoucherCopyWithImpl<$Res>
+    implements $RewardVoucherCopyWith<$Res> {
+  _$RewardVoucherCopyWithImpl(this._self, this._then);
+
+  final RewardVoucher _self;
+  final $Res Function(RewardVoucher) _then;
+
+/// Create a copy of RewardVoucher
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? description = null,Object? valueKobo = null,Object? minSubtotalKobo = null,Object? endsAt = freezed,Object? source = null,}) {
+  return _then(RewardVoucher(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,valueKobo: null == valueKobo ? _self.valueKobo : valueKobo // ignore: cast_nullable_to_non_nullable
+as int,minSubtotalKobo: null == minSubtotalKobo ? _self.minSubtotalKobo : minSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,endsAt: freezed == endsAt ? _self.endsAt : endsAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RewardVoucher].
+extension RewardVoucherPatterns on RewardVoucher {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RewardVoucher value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RewardVoucher() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RewardVoucher value)  $default,){
+final _that = this;
+switch (_that) {
+case _RewardVoucher():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RewardVoucher value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RewardVoucher() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String code,  String description,  int valueKobo,  int minSubtotalKobo,  DateTime? endsAt,  String source)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RewardVoucher() when $default != null:
+return $default(_that.code,_that.description,_that.valueKobo,_that.minSubtotalKobo,_that.endsAt,_that.source);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String code,  String description,  int valueKobo,  int minSubtotalKobo,  DateTime? endsAt,  String source)  $default,) {final _that = this;
+switch (_that) {
+case _RewardVoucher():
+return $default(_that.code,_that.description,_that.valueKobo,_that.minSubtotalKobo,_that.endsAt,_that.source);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String code,  String description,  int valueKobo,  int minSubtotalKobo,  DateTime? endsAt,  String source)?  $default,) {final _that = this;
+switch (_that) {
+case _RewardVoucher() when $default != null:
+return $default(_that.code,_that.description,_that.valueKobo,_that.minSubtotalKobo,_that.endsAt,_that.source);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RewardVoucher implements RewardVoucher {
+  const _RewardVoucher({required this.code, this.description = '', required this.valueKobo, this.minSubtotalKobo = 0, this.endsAt, this.source = 'points'});
+  factory _RewardVoucher.fromJson(Map<String, dynamic> json) => _$RewardVoucherFromJson(json);
+
+@override final  String code;
+@override@JsonKey() final  String description;
+@override final  int valueKobo;
+@override@JsonKey() final  int minSubtotalKobo;
+@override final  DateTime? endsAt;
+@override@JsonKey() final  String source;
+
+/// Create a copy of RewardVoucher
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RewardVoucherCopyWith<_RewardVoucher> get copyWith => __$RewardVoucherCopyWithImpl<_RewardVoucher>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RewardVoucherToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RewardVoucher&&(identical(other.code, code) || other.code == code)&&(identical(other.description, description) || other.description == description)&&(identical(other.valueKobo, valueKobo) || other.valueKobo == valueKobo)&&(identical(other.minSubtotalKobo, minSubtotalKobo) || other.minSubtotalKobo == minSubtotalKobo)&&(identical(other.endsAt, endsAt) || other.endsAt == endsAt)&&(identical(other.source, source) || other.source == source));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,code,description,valueKobo,minSubtotalKobo,endsAt,source);
+}
+
+@override
+String toString() {
+    return 'RewardVoucher(code: $code, description: $description, valueKobo: $valueKobo, minSubtotalKobo: $minSubtotalKobo, endsAt: $endsAt, source: $source)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RewardVoucherCopyWith<$Res> implements $RewardVoucherCopyWith<$Res> {
+  factory _$RewardVoucherCopyWith(_RewardVoucher value, $Res Function(_RewardVoucher) _then) = __$RewardVoucherCopyWithImpl;
+@override @useResult
+$Res call({
+ String code, String description, int valueKobo, int minSubtotalKobo, DateTime? endsAt, String source
+});
+
+
+
+
+}
+/// @nodoc
+class __$RewardVoucherCopyWithImpl<$Res>
+    implements _$RewardVoucherCopyWith<$Res> {
+  __$RewardVoucherCopyWithImpl(this._self, this._then);
+
+  final _RewardVoucher _self;
+  final $Res Function(_RewardVoucher) _then;
+
+/// Create a copy of RewardVoucher
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? description = null,Object? valueKobo = null,Object? minSubtotalKobo = null,Object? endsAt = freezed,Object? source = null,}) {
+  return _then(_RewardVoucher(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,valueKobo: null == valueKobo ? _self.valueKobo : valueKobo // ignore: cast_nullable_to_non_nullable
+as int,minSubtotalKobo: null == minSubtotalKobo ? _self.minSubtotalKobo : minSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,endsAt: freezed == endsAt ? _self.endsAt : endsAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$PointsEntry {
+
+ String get id; String get kind; int get points; String? get orderId; String? get voucherCode; String get note; DateTime get at;
+/// Create a copy of PointsEntry
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PointsEntryCopyWith<PointsEntry> get copyWith => _$PointsEntryCopyWithImpl<PointsEntry>(this as PointsEntry, _$identity);
+
+  /// Serializes this PointsEntry to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as PointsEntry;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PointsEntry&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.kind, _this.kind) || other.kind == _this.kind)&&(identical(other.points, _this.points) || other.points == _this.points)&&(identical(other.orderId, _this.orderId) || other.orderId == _this.orderId)&&(identical(other.voucherCode, _this.voucherCode) || other.voucherCode == _this.voucherCode)&&(identical(other.note, _this.note) || other.note == _this.note)&&(identical(other.at, _this.at) || other.at == _this.at));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as PointsEntry;
+  return Object.hash(runtimeType,_this.id,_this.kind,_this.points,_this.orderId,_this.voucherCode,_this.note,_this.at);
+}
+
+@override
+String toString() {
+  final _this = this as PointsEntry;
+  return 'PointsEntry(id: ${_this.id}, kind: ${_this.kind}, points: ${_this.points}, orderId: ${_this.orderId}, voucherCode: ${_this.voucherCode}, note: ${_this.note}, at: ${_this.at})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PointsEntryCopyWith<$Res>  {
+  factory $PointsEntryCopyWith(PointsEntry value, $Res Function(PointsEntry) _then) = _$PointsEntryCopyWithImpl;
+@useResult
+$Res call({
+ String id, String kind, int points, String? orderId, String? voucherCode, String note, DateTime at
+});
+
+
+
+
+}
+/// @nodoc
+class _$PointsEntryCopyWithImpl<$Res>
+    implements $PointsEntryCopyWith<$Res> {
+  _$PointsEntryCopyWithImpl(this._self, this._then);
+
+  final PointsEntry _self;
+  final $Res Function(PointsEntry) _then;
+
+/// Create a copy of PointsEntry
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? kind = null,Object? points = null,Object? orderId = freezed,Object? voucherCode = freezed,Object? note = null,Object? at = null,}) {
+  return _then(PointsEntry(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as String,points: null == points ? _self.points : points // ignore: cast_nullable_to_non_nullable
+as int,orderId: freezed == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String?,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
+as String?,note: null == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
+as String,at: null == at ? _self.at : at // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PointsEntry].
+extension PointsEntryPatterns on PointsEntry {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PointsEntry value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PointsEntry() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PointsEntry value)  $default,){
+final _that = this;
+switch (_that) {
+case _PointsEntry():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PointsEntry value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PointsEntry() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String kind,  int points,  String? orderId,  String? voucherCode,  String note,  DateTime at)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PointsEntry() when $default != null:
+return $default(_that.id,_that.kind,_that.points,_that.orderId,_that.voucherCode,_that.note,_that.at);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String kind,  int points,  String? orderId,  String? voucherCode,  String note,  DateTime at)  $default,) {final _that = this;
+switch (_that) {
+case _PointsEntry():
+return $default(_that.id,_that.kind,_that.points,_that.orderId,_that.voucherCode,_that.note,_that.at);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String kind,  int points,  String? orderId,  String? voucherCode,  String note,  DateTime at)?  $default,) {final _that = this;
+switch (_that) {
+case _PointsEntry() when $default != null:
+return $default(_that.id,_that.kind,_that.points,_that.orderId,_that.voucherCode,_that.note,_that.at);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PointsEntry implements PointsEntry {
+  const _PointsEntry({required this.id, required this.kind, required this.points, this.orderId, this.voucherCode, this.note = '', required this.at});
+  factory _PointsEntry.fromJson(Map<String, dynamic> json) => _$PointsEntryFromJson(json);
+
+@override final  String id;
+@override final  String kind;
+@override final  int points;
+@override final  String? orderId;
+@override final  String? voucherCode;
+@override@JsonKey() final  String note;
+@override final  DateTime at;
+
+/// Create a copy of PointsEntry
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PointsEntryCopyWith<_PointsEntry> get copyWith => __$PointsEntryCopyWithImpl<_PointsEntry>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PointsEntryToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PointsEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.points, points) || other.points == points)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.note, note) || other.note == note)&&(identical(other.at, at) || other.at == at));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,kind,points,orderId,voucherCode,note,at);
+}
+
+@override
+String toString() {
+    return 'PointsEntry(id: $id, kind: $kind, points: $points, orderId: $orderId, voucherCode: $voucherCode, note: $note, at: $at)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PointsEntryCopyWith<$Res> implements $PointsEntryCopyWith<$Res> {
+  factory _$PointsEntryCopyWith(_PointsEntry value, $Res Function(_PointsEntry) _then) = __$PointsEntryCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String kind, int points, String? orderId, String? voucherCode, String note, DateTime at
+});
+
+
+
+
+}
+/// @nodoc
+class __$PointsEntryCopyWithImpl<$Res>
+    implements _$PointsEntryCopyWith<$Res> {
+  __$PointsEntryCopyWithImpl(this._self, this._then);
+
+  final _PointsEntry _self;
+  final $Res Function(_PointsEntry) _then;
+
+/// Create a copy of PointsEntry
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? kind = null,Object? points = null,Object? orderId = freezed,Object? voucherCode = freezed,Object? note = null,Object? at = null,}) {
+  return _then(_PointsEntry(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as String,points: null == points ? _self.points : points // ignore: cast_nullable_to_non_nullable
+as int,orderId: freezed == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String?,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
+as String?,note: null == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
+as String,at: null == at ? _self.at : at // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$RewardsRedeem {
+
+ bool get enabled; int get stepPoints; int get stepValueKobo; int get redeemablePoints; int get pointsToNext; int get minSubtotalKobo; int get validDays;
+/// Create a copy of RewardsRedeem
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RewardsRedeemCopyWith<RewardsRedeem> get copyWith => _$RewardsRedeemCopyWithImpl<RewardsRedeem>(this as RewardsRedeem, _$identity);
+
+  /// Serializes this RewardsRedeem to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RewardsRedeem;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RewardsRedeem&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled)&&(identical(other.stepPoints, _this.stepPoints) || other.stepPoints == _this.stepPoints)&&(identical(other.stepValueKobo, _this.stepValueKobo) || other.stepValueKobo == _this.stepValueKobo)&&(identical(other.redeemablePoints, _this.redeemablePoints) || other.redeemablePoints == _this.redeemablePoints)&&(identical(other.pointsToNext, _this.pointsToNext) || other.pointsToNext == _this.pointsToNext)&&(identical(other.minSubtotalKobo, _this.minSubtotalKobo) || other.minSubtotalKobo == _this.minSubtotalKobo)&&(identical(other.validDays, _this.validDays) || other.validDays == _this.validDays));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RewardsRedeem;
+  return Object.hash(runtimeType,_this.enabled,_this.stepPoints,_this.stepValueKobo,_this.redeemablePoints,_this.pointsToNext,_this.minSubtotalKobo,_this.validDays);
+}
+
+@override
+String toString() {
+  final _this = this as RewardsRedeem;
+  return 'RewardsRedeem(enabled: ${_this.enabled}, stepPoints: ${_this.stepPoints}, stepValueKobo: ${_this.stepValueKobo}, redeemablePoints: ${_this.redeemablePoints}, pointsToNext: ${_this.pointsToNext}, minSubtotalKobo: ${_this.minSubtotalKobo}, validDays: ${_this.validDays})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RewardsRedeemCopyWith<$Res>  {
+  factory $RewardsRedeemCopyWith(RewardsRedeem value, $Res Function(RewardsRedeem) _then) = _$RewardsRedeemCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled, int stepPoints, int stepValueKobo, int redeemablePoints, int pointsToNext, int minSubtotalKobo, int validDays
+});
+
+
+
+
+}
+/// @nodoc
+class _$RewardsRedeemCopyWithImpl<$Res>
+    implements $RewardsRedeemCopyWith<$Res> {
+  _$RewardsRedeemCopyWithImpl(this._self, this._then);
+
+  final RewardsRedeem _self;
+  final $Res Function(RewardsRedeem) _then;
+
+/// Create a copy of RewardsRedeem
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? stepPoints = null,Object? stepValueKobo = null,Object? redeemablePoints = null,Object? pointsToNext = null,Object? minSubtotalKobo = null,Object? validDays = null,}) {
+  return _then(RewardsRedeem(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,stepPoints: null == stepPoints ? _self.stepPoints : stepPoints // ignore: cast_nullable_to_non_nullable
+as int,stepValueKobo: null == stepValueKobo ? _self.stepValueKobo : stepValueKobo // ignore: cast_nullable_to_non_nullable
+as int,redeemablePoints: null == redeemablePoints ? _self.redeemablePoints : redeemablePoints // ignore: cast_nullable_to_non_nullable
+as int,pointsToNext: null == pointsToNext ? _self.pointsToNext : pointsToNext // ignore: cast_nullable_to_non_nullable
+as int,minSubtotalKobo: null == minSubtotalKobo ? _self.minSubtotalKobo : minSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,validDays: null == validDays ? _self.validDays : validDays // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RewardsRedeem].
+extension RewardsRedeemPatterns on RewardsRedeem {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RewardsRedeem value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RewardsRedeem() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RewardsRedeem value)  $default,){
+final _that = this;
+switch (_that) {
+case _RewardsRedeem():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RewardsRedeem value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RewardsRedeem() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  int stepPoints,  int stepValueKobo,  int redeemablePoints,  int pointsToNext,  int minSubtotalKobo,  int validDays)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RewardsRedeem() when $default != null:
+return $default(_that.enabled,_that.stepPoints,_that.stepValueKobo,_that.redeemablePoints,_that.pointsToNext,_that.minSubtotalKobo,_that.validDays);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  int stepPoints,  int stepValueKobo,  int redeemablePoints,  int pointsToNext,  int minSubtotalKobo,  int validDays)  $default,) {final _that = this;
+switch (_that) {
+case _RewardsRedeem():
+return $default(_that.enabled,_that.stepPoints,_that.stepValueKobo,_that.redeemablePoints,_that.pointsToNext,_that.minSubtotalKobo,_that.validDays);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  int stepPoints,  int stepValueKobo,  int redeemablePoints,  int pointsToNext,  int minSubtotalKobo,  int validDays)?  $default,) {final _that = this;
+switch (_that) {
+case _RewardsRedeem() when $default != null:
+return $default(_that.enabled,_that.stepPoints,_that.stepValueKobo,_that.redeemablePoints,_that.pointsToNext,_that.minSubtotalKobo,_that.validDays);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RewardsRedeem implements RewardsRedeem {
+  const _RewardsRedeem({this.enabled = true, this.stepPoints = 500, this.stepValueKobo = 50000, this.redeemablePoints = 0, this.pointsToNext = 0, this.minSubtotalKobo = 0, this.validDays = 90});
+  factory _RewardsRedeem.fromJson(Map<String, dynamic> json) => _$RewardsRedeemFromJson(json);
+
+@override@JsonKey() final  bool enabled;
+@override@JsonKey() final  int stepPoints;
+@override@JsonKey() final  int stepValueKobo;
+@override@JsonKey() final  int redeemablePoints;
+@override@JsonKey() final  int pointsToNext;
+@override@JsonKey() final  int minSubtotalKobo;
+@override@JsonKey() final  int validDays;
+
+/// Create a copy of RewardsRedeem
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RewardsRedeemCopyWith<_RewardsRedeem> get copyWith => __$RewardsRedeemCopyWithImpl<_RewardsRedeem>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RewardsRedeemToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RewardsRedeem&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.stepPoints, stepPoints) || other.stepPoints == stepPoints)&&(identical(other.stepValueKobo, stepValueKobo) || other.stepValueKobo == stepValueKobo)&&(identical(other.redeemablePoints, redeemablePoints) || other.redeemablePoints == redeemablePoints)&&(identical(other.pointsToNext, pointsToNext) || other.pointsToNext == pointsToNext)&&(identical(other.minSubtotalKobo, minSubtotalKobo) || other.minSubtotalKobo == minSubtotalKobo)&&(identical(other.validDays, validDays) || other.validDays == validDays));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,enabled,stepPoints,stepValueKobo,redeemablePoints,pointsToNext,minSubtotalKobo,validDays);
+}
+
+@override
+String toString() {
+    return 'RewardsRedeem(enabled: $enabled, stepPoints: $stepPoints, stepValueKobo: $stepValueKobo, redeemablePoints: $redeemablePoints, pointsToNext: $pointsToNext, minSubtotalKobo: $minSubtotalKobo, validDays: $validDays)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RewardsRedeemCopyWith<$Res> implements $RewardsRedeemCopyWith<$Res> {
+  factory _$RewardsRedeemCopyWith(_RewardsRedeem value, $Res Function(_RewardsRedeem) _then) = __$RewardsRedeemCopyWithImpl;
+@override @useResult
+$Res call({
+ bool enabled, int stepPoints, int stepValueKobo, int redeemablePoints, int pointsToNext, int minSubtotalKobo, int validDays
+});
+
+
+
+
+}
+/// @nodoc
+class __$RewardsRedeemCopyWithImpl<$Res>
+    implements _$RewardsRedeemCopyWith<$Res> {
+  __$RewardsRedeemCopyWithImpl(this._self, this._then);
+
+  final _RewardsRedeem _self;
+  final $Res Function(_RewardsRedeem) _then;
+
+/// Create a copy of RewardsRedeem
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? stepPoints = null,Object? stepValueKobo = null,Object? redeemablePoints = null,Object? pointsToNext = null,Object? minSubtotalKobo = null,Object? validDays = null,}) {
+  return _then(_RewardsRedeem(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,stepPoints: null == stepPoints ? _self.stepPoints : stepPoints // ignore: cast_nullable_to_non_nullable
+as int,stepValueKobo: null == stepValueKobo ? _self.stepValueKobo : stepValueKobo // ignore: cast_nullable_to_non_nullable
+as int,redeemablePoints: null == redeemablePoints ? _self.redeemablePoints : redeemablePoints // ignore: cast_nullable_to_non_nullable
+as int,pointsToNext: null == pointsToNext ? _self.pointsToNext : pointsToNext // ignore: cast_nullable_to_non_nullable
+as int,minSubtotalKobo: null == minSubtotalKobo ? _self.minSubtotalKobo : minSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,validDays: null == validDays ? _self.validDays : validDays // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$RewardsReferral {
+
+ bool get enabled; String get code; int get friendGetsKobo; int get youGetKobo; int get minSubtotalKobo; int get friendsRewarded; bool get applied; bool get canApply; String get shareText;
+/// Create a copy of RewardsReferral
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RewardsReferralCopyWith<RewardsReferral> get copyWith => _$RewardsReferralCopyWithImpl<RewardsReferral>(this as RewardsReferral, _$identity);
+
+  /// Serializes this RewardsReferral to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RewardsReferral;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RewardsReferral&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled)&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.friendGetsKobo, _this.friendGetsKobo) || other.friendGetsKobo == _this.friendGetsKobo)&&(identical(other.youGetKobo, _this.youGetKobo) || other.youGetKobo == _this.youGetKobo)&&(identical(other.minSubtotalKobo, _this.minSubtotalKobo) || other.minSubtotalKobo == _this.minSubtotalKobo)&&(identical(other.friendsRewarded, _this.friendsRewarded) || other.friendsRewarded == _this.friendsRewarded)&&(identical(other.applied, _this.applied) || other.applied == _this.applied)&&(identical(other.canApply, _this.canApply) || other.canApply == _this.canApply)&&(identical(other.shareText, _this.shareText) || other.shareText == _this.shareText));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RewardsReferral;
+  return Object.hash(runtimeType,_this.enabled,_this.code,_this.friendGetsKobo,_this.youGetKobo,_this.minSubtotalKobo,_this.friendsRewarded,_this.applied,_this.canApply,_this.shareText);
+}
+
+@override
+String toString() {
+  final _this = this as RewardsReferral;
+  return 'RewardsReferral(enabled: ${_this.enabled}, code: ${_this.code}, friendGetsKobo: ${_this.friendGetsKobo}, youGetKobo: ${_this.youGetKobo}, minSubtotalKobo: ${_this.minSubtotalKobo}, friendsRewarded: ${_this.friendsRewarded}, applied: ${_this.applied}, canApply: ${_this.canApply}, shareText: ${_this.shareText})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RewardsReferralCopyWith<$Res>  {
+  factory $RewardsReferralCopyWith(RewardsReferral value, $Res Function(RewardsReferral) _then) = _$RewardsReferralCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled, String code, int friendGetsKobo, int youGetKobo, int minSubtotalKobo, int friendsRewarded, bool applied, bool canApply, String shareText
+});
+
+
+
+
+}
+/// @nodoc
+class _$RewardsReferralCopyWithImpl<$Res>
+    implements $RewardsReferralCopyWith<$Res> {
+  _$RewardsReferralCopyWithImpl(this._self, this._then);
+
+  final RewardsReferral _self;
+  final $Res Function(RewardsReferral) _then;
+
+/// Create a copy of RewardsReferral
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? code = null,Object? friendGetsKobo = null,Object? youGetKobo = null,Object? minSubtotalKobo = null,Object? friendsRewarded = null,Object? applied = null,Object? canApply = null,Object? shareText = null,}) {
+  return _then(RewardsReferral(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,friendGetsKobo: null == friendGetsKobo ? _self.friendGetsKobo : friendGetsKobo // ignore: cast_nullable_to_non_nullable
+as int,youGetKobo: null == youGetKobo ? _self.youGetKobo : youGetKobo // ignore: cast_nullable_to_non_nullable
+as int,minSubtotalKobo: null == minSubtotalKobo ? _self.minSubtotalKobo : minSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,friendsRewarded: null == friendsRewarded ? _self.friendsRewarded : friendsRewarded // ignore: cast_nullable_to_non_nullable
+as int,applied: null == applied ? _self.applied : applied // ignore: cast_nullable_to_non_nullable
+as bool,canApply: null == canApply ? _self.canApply : canApply // ignore: cast_nullable_to_non_nullable
+as bool,shareText: null == shareText ? _self.shareText : shareText // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RewardsReferral].
+extension RewardsReferralPatterns on RewardsReferral {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RewardsReferral value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RewardsReferral() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RewardsReferral value)  $default,){
+final _that = this;
+switch (_that) {
+case _RewardsReferral():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RewardsReferral value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RewardsReferral() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  String code,  int friendGetsKobo,  int youGetKobo,  int minSubtotalKobo,  int friendsRewarded,  bool applied,  bool canApply,  String shareText)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RewardsReferral() when $default != null:
+return $default(_that.enabled,_that.code,_that.friendGetsKobo,_that.youGetKobo,_that.minSubtotalKobo,_that.friendsRewarded,_that.applied,_that.canApply,_that.shareText);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  String code,  int friendGetsKobo,  int youGetKobo,  int minSubtotalKobo,  int friendsRewarded,  bool applied,  bool canApply,  String shareText)  $default,) {final _that = this;
+switch (_that) {
+case _RewardsReferral():
+return $default(_that.enabled,_that.code,_that.friendGetsKobo,_that.youGetKobo,_that.minSubtotalKobo,_that.friendsRewarded,_that.applied,_that.canApply,_that.shareText);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  String code,  int friendGetsKobo,  int youGetKobo,  int minSubtotalKobo,  int friendsRewarded,  bool applied,  bool canApply,  String shareText)?  $default,) {final _that = this;
+switch (_that) {
+case _RewardsReferral() when $default != null:
+return $default(_that.enabled,_that.code,_that.friendGetsKobo,_that.youGetKobo,_that.minSubtotalKobo,_that.friendsRewarded,_that.applied,_that.canApply,_that.shareText);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RewardsReferral implements RewardsReferral {
+  const _RewardsReferral({this.enabled = true, this.code = '', this.friendGetsKobo = 0, this.youGetKobo = 0, this.minSubtotalKobo = 0, this.friendsRewarded = 0, this.applied = false, this.canApply = false, this.shareText = ''});
+  factory _RewardsReferral.fromJson(Map<String, dynamic> json) => _$RewardsReferralFromJson(json);
+
+@override@JsonKey() final  bool enabled;
+@override@JsonKey() final  String code;
+@override@JsonKey() final  int friendGetsKobo;
+@override@JsonKey() final  int youGetKobo;
+@override@JsonKey() final  int minSubtotalKobo;
+@override@JsonKey() final  int friendsRewarded;
+@override@JsonKey() final  bool applied;
+@override@JsonKey() final  bool canApply;
+@override@JsonKey() final  String shareText;
+
+/// Create a copy of RewardsReferral
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RewardsReferralCopyWith<_RewardsReferral> get copyWith => __$RewardsReferralCopyWithImpl<_RewardsReferral>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RewardsReferralToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RewardsReferral&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.code, code) || other.code == code)&&(identical(other.friendGetsKobo, friendGetsKobo) || other.friendGetsKobo == friendGetsKobo)&&(identical(other.youGetKobo, youGetKobo) || other.youGetKobo == youGetKobo)&&(identical(other.minSubtotalKobo, minSubtotalKobo) || other.minSubtotalKobo == minSubtotalKobo)&&(identical(other.friendsRewarded, friendsRewarded) || other.friendsRewarded == friendsRewarded)&&(identical(other.applied, applied) || other.applied == applied)&&(identical(other.canApply, canApply) || other.canApply == canApply)&&(identical(other.shareText, shareText) || other.shareText == shareText));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,enabled,code,friendGetsKobo,youGetKobo,minSubtotalKobo,friendsRewarded,applied,canApply,shareText);
+}
+
+@override
+String toString() {
+    return 'RewardsReferral(enabled: $enabled, code: $code, friendGetsKobo: $friendGetsKobo, youGetKobo: $youGetKobo, minSubtotalKobo: $minSubtotalKobo, friendsRewarded: $friendsRewarded, applied: $applied, canApply: $canApply, shareText: $shareText)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RewardsReferralCopyWith<$Res> implements $RewardsReferralCopyWith<$Res> {
+  factory _$RewardsReferralCopyWith(_RewardsReferral value, $Res Function(_RewardsReferral) _then) = __$RewardsReferralCopyWithImpl;
+@override @useResult
+$Res call({
+ bool enabled, String code, int friendGetsKobo, int youGetKobo, int minSubtotalKobo, int friendsRewarded, bool applied, bool canApply, String shareText
+});
+
+
+
+
+}
+/// @nodoc
+class __$RewardsReferralCopyWithImpl<$Res>
+    implements _$RewardsReferralCopyWith<$Res> {
+  __$RewardsReferralCopyWithImpl(this._self, this._then);
+
+  final _RewardsReferral _self;
+  final $Res Function(_RewardsReferral) _then;
+
+/// Create a copy of RewardsReferral
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? code = null,Object? friendGetsKobo = null,Object? youGetKobo = null,Object? minSubtotalKobo = null,Object? friendsRewarded = null,Object? applied = null,Object? canApply = null,Object? shareText = null,}) {
+  return _then(_RewardsReferral(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,friendGetsKobo: null == friendGetsKobo ? _self.friendGetsKobo : friendGetsKobo // ignore: cast_nullable_to_non_nullable
+as int,youGetKobo: null == youGetKobo ? _self.youGetKobo : youGetKobo // ignore: cast_nullable_to_non_nullable
+as int,minSubtotalKobo: null == minSubtotalKobo ? _self.minSubtotalKobo : minSubtotalKobo // ignore: cast_nullable_to_non_nullable
+as int,friendsRewarded: null == friendsRewarded ? _self.friendsRewarded : friendsRewarded // ignore: cast_nullable_to_non_nullable
+as int,applied: null == applied ? _self.applied : applied // ignore: cast_nullable_to_non_nullable
+as bool,canApply: null == canApply ? _self.canApply : canApply // ignore: cast_nullable_to_non_nullable
+as bool,shareText: null == shareText ? _self.shareText : shareText // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$RewardsOverview {
+
+ int get points; int get lifetimePoints; int get pointsValueKobo; RewardsRedeem get redeem; RewardsReferral get referral; List<RewardVoucher> get vouchers; List<PointsEntry> get history;
+/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RewardsOverviewCopyWith<RewardsOverview> get copyWith => _$RewardsOverviewCopyWithImpl<RewardsOverview>(this as RewardsOverview, _$identity);
+
+  /// Serializes this RewardsOverview to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RewardsOverview;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RewardsOverview&&(identical(other.points, _this.points) || other.points == _this.points)&&(identical(other.lifetimePoints, _this.lifetimePoints) || other.lifetimePoints == _this.lifetimePoints)&&(identical(other.pointsValueKobo, _this.pointsValueKobo) || other.pointsValueKobo == _this.pointsValueKobo)&&(identical(other.redeem, _this.redeem) || other.redeem == _this.redeem)&&(identical(other.referral, _this.referral) || other.referral == _this.referral)&&const DeepCollectionEquality().equals(other.vouchers, _this.vouchers)&&const DeepCollectionEquality().equals(other.history, _this.history));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RewardsOverview;
+  return Object.hash(runtimeType,_this.points,_this.lifetimePoints,_this.pointsValueKobo,_this.redeem,_this.referral,const DeepCollectionEquality().hash(_this.vouchers),const DeepCollectionEquality().hash(_this.history));
+}
+
+@override
+String toString() {
+  final _this = this as RewardsOverview;
+  return 'RewardsOverview(points: ${_this.points}, lifetimePoints: ${_this.lifetimePoints}, pointsValueKobo: ${_this.pointsValueKobo}, redeem: ${_this.redeem}, referral: ${_this.referral}, vouchers: ${_this.vouchers}, history: ${_this.history})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RewardsOverviewCopyWith<$Res>  {
+  factory $RewardsOverviewCopyWith(RewardsOverview value, $Res Function(RewardsOverview) _then) = _$RewardsOverviewCopyWithImpl;
+@useResult
+$Res call({
+ int points, int lifetimePoints, int pointsValueKobo, RewardsRedeem redeem, RewardsReferral referral, List<RewardVoucher> vouchers, List<PointsEntry> history
+});
+
+
+$RewardsRedeemCopyWith<$Res> get redeem;$RewardsReferralCopyWith<$Res> get referral;
+
+}
+/// @nodoc
+class _$RewardsOverviewCopyWithImpl<$Res>
+    implements $RewardsOverviewCopyWith<$Res> {
+  _$RewardsOverviewCopyWithImpl(this._self, this._then);
+
+  final RewardsOverview _self;
+  final $Res Function(RewardsOverview) _then;
+
+/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? points = null,Object? lifetimePoints = null,Object? pointsValueKobo = null,Object? redeem = null,Object? referral = null,Object? vouchers = null,Object? history = null,}) {
+  return _then(RewardsOverview(
+points: null == points ? _self.points : points // ignore: cast_nullable_to_non_nullable
+as int,lifetimePoints: null == lifetimePoints ? _self.lifetimePoints : lifetimePoints // ignore: cast_nullable_to_non_nullable
+as int,pointsValueKobo: null == pointsValueKobo ? _self.pointsValueKobo : pointsValueKobo // ignore: cast_nullable_to_non_nullable
+as int,redeem: null == redeem ? _self.redeem : redeem // ignore: cast_nullable_to_non_nullable
+as RewardsRedeem,referral: null == referral ? _self.referral : referral // ignore: cast_nullable_to_non_nullable
+as RewardsReferral,vouchers: null == vouchers ? _self.vouchers : vouchers // ignore: cast_nullable_to_non_nullable
+as List<RewardVoucher>,history: null == history ? _self.history : history // ignore: cast_nullable_to_non_nullable
+as List<PointsEntry>,
+  ));
+}
+/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RewardsRedeemCopyWith<$Res> get redeem {
+  
+  return $RewardsRedeemCopyWith<$Res>(_self.redeem, (value) {
+    return _then(_self.copyWith(redeem: value));
+  });
+}/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RewardsReferralCopyWith<$Res> get referral {
+  
+  return $RewardsReferralCopyWith<$Res>(_self.referral, (value) {
+    return _then(_self.copyWith(referral: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [RewardsOverview].
+extension RewardsOverviewPatterns on RewardsOverview {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RewardsOverview value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RewardsOverview() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RewardsOverview value)  $default,){
+final _that = this;
+switch (_that) {
+case _RewardsOverview():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RewardsOverview value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RewardsOverview() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int points,  int lifetimePoints,  int pointsValueKobo,  RewardsRedeem redeem,  RewardsReferral referral,  List<RewardVoucher> vouchers,  List<PointsEntry> history)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RewardsOverview() when $default != null:
+return $default(_that.points,_that.lifetimePoints,_that.pointsValueKobo,_that.redeem,_that.referral,_that.vouchers,_that.history);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int points,  int lifetimePoints,  int pointsValueKobo,  RewardsRedeem redeem,  RewardsReferral referral,  List<RewardVoucher> vouchers,  List<PointsEntry> history)  $default,) {final _that = this;
+switch (_that) {
+case _RewardsOverview():
+return $default(_that.points,_that.lifetimePoints,_that.pointsValueKobo,_that.redeem,_that.referral,_that.vouchers,_that.history);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int points,  int lifetimePoints,  int pointsValueKobo,  RewardsRedeem redeem,  RewardsReferral referral,  List<RewardVoucher> vouchers,  List<PointsEntry> history)?  $default,) {final _that = this;
+switch (_that) {
+case _RewardsOverview() when $default != null:
+return $default(_that.points,_that.lifetimePoints,_that.pointsValueKobo,_that.redeem,_that.referral,_that.vouchers,_that.history);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RewardsOverview implements RewardsOverview {
+  const _RewardsOverview({this.points = 0, this.lifetimePoints = 0, this.pointsValueKobo = 0, required this.redeem, required this.referral,  List<RewardVoucher> vouchers = const <RewardVoucher>[],  List<PointsEntry> history = const <PointsEntry>[]}): _vouchers = vouchers,_history = history;
+  factory _RewardsOverview.fromJson(Map<String, dynamic> json) => _$RewardsOverviewFromJson(json);
+
+@override@JsonKey() final  int points;
+@override@JsonKey() final  int lifetimePoints;
+@override@JsonKey() final  int pointsValueKobo;
+@override final  RewardsRedeem redeem;
+@override final  RewardsReferral referral;
+ final  List<RewardVoucher> _vouchers;
+@override@JsonKey() List<RewardVoucher> get vouchers {
+  if (_vouchers is EqualUnmodifiableListView) return _vouchers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_vouchers);
+}
+
+ final  List<PointsEntry> _history;
+@override@JsonKey() List<PointsEntry> get history {
+  if (_history is EqualUnmodifiableListView) return _history;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_history);
+}
+
+
+/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RewardsOverviewCopyWith<_RewardsOverview> get copyWith => __$RewardsOverviewCopyWithImpl<_RewardsOverview>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RewardsOverviewToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RewardsOverview&&(identical(other.points, points) || other.points == points)&&(identical(other.lifetimePoints, lifetimePoints) || other.lifetimePoints == lifetimePoints)&&(identical(other.pointsValueKobo, pointsValueKobo) || other.pointsValueKobo == pointsValueKobo)&&(identical(other.redeem, redeem) || other.redeem == redeem)&&(identical(other.referral, referral) || other.referral == referral)&&const DeepCollectionEquality().equals(other.vouchers, _vouchers)&&const DeepCollectionEquality().equals(other.history, _history));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,points,lifetimePoints,pointsValueKobo,redeem,referral,const DeepCollectionEquality().hash(_vouchers),const DeepCollectionEquality().hash(_history));
+}
+
+@override
+String toString() {
+    return 'RewardsOverview(points: $points, lifetimePoints: $lifetimePoints, pointsValueKobo: $pointsValueKobo, redeem: $redeem, referral: $referral, vouchers: $vouchers, history: $history)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RewardsOverviewCopyWith<$Res> implements $RewardsOverviewCopyWith<$Res> {
+  factory _$RewardsOverviewCopyWith(_RewardsOverview value, $Res Function(_RewardsOverview) _then) = __$RewardsOverviewCopyWithImpl;
+@override @useResult
+$Res call({
+ int points, int lifetimePoints, int pointsValueKobo, RewardsRedeem redeem, RewardsReferral referral, List<RewardVoucher> vouchers, List<PointsEntry> history
+});
+
+
+@override $RewardsRedeemCopyWith<$Res> get redeem;@override $RewardsReferralCopyWith<$Res> get referral;
+
+}
+/// @nodoc
+class __$RewardsOverviewCopyWithImpl<$Res>
+    implements _$RewardsOverviewCopyWith<$Res> {
+  __$RewardsOverviewCopyWithImpl(this._self, this._then);
+
+  final _RewardsOverview _self;
+  final $Res Function(_RewardsOverview) _then;
+
+/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? points = null,Object? lifetimePoints = null,Object? pointsValueKobo = null,Object? redeem = null,Object? referral = null,Object? vouchers = null,Object? history = null,}) {
+  return _then(_RewardsOverview(
+points: null == points ? _self.points : points // ignore: cast_nullable_to_non_nullable
+as int,lifetimePoints: null == lifetimePoints ? _self.lifetimePoints : lifetimePoints // ignore: cast_nullable_to_non_nullable
+as int,pointsValueKobo: null == pointsValueKobo ? _self.pointsValueKobo : pointsValueKobo // ignore: cast_nullable_to_non_nullable
+as int,redeem: null == redeem ? _self.redeem : redeem // ignore: cast_nullable_to_non_nullable
+as RewardsRedeem,referral: null == referral ? _self.referral : referral // ignore: cast_nullable_to_non_nullable
+as RewardsReferral,vouchers: null == vouchers ? _self._vouchers : vouchers // ignore: cast_nullable_to_non_nullable
+as List<RewardVoucher>,history: null == history ? _self._history : history // ignore: cast_nullable_to_non_nullable
+as List<PointsEntry>,
+  ));
+}
+
+/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RewardsRedeemCopyWith<$Res> get redeem {
+  
+  return $RewardsRedeemCopyWith<$Res>(_self.redeem, (value) {
+    return _then(_self.copyWith(redeem: value));
+  });
+}/// Create a copy of RewardsOverview
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RewardsReferralCopyWith<$Res> get referral {
+  
+  return $RewardsReferralCopyWith<$Res>(_self.referral, (value) {
+    return _then(_self.copyWith(referral: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$GroupMemberView {
+
+ String get uid; String get name; bool get isHost; bool get me; bool get ready; int get items; int get itemsKobo;
+/// Create a copy of GroupMemberView
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupMemberViewCopyWith<GroupMemberView> get copyWith => _$GroupMemberViewCopyWithImpl<GroupMemberView>(this as GroupMemberView, _$identity);
+
+  /// Serializes this GroupMemberView to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as GroupMemberView;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupMemberView&&(identical(other.uid, _this.uid) || other.uid == _this.uid)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.isHost, _this.isHost) || other.isHost == _this.isHost)&&(identical(other.me, _this.me) || other.me == _this.me)&&(identical(other.ready, _this.ready) || other.ready == _this.ready)&&(identical(other.items, _this.items) || other.items == _this.items)&&(identical(other.itemsKobo, _this.itemsKobo) || other.itemsKobo == _this.itemsKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as GroupMemberView;
+  return Object.hash(runtimeType,_this.uid,_this.name,_this.isHost,_this.me,_this.ready,_this.items,_this.itemsKobo);
+}
+
+@override
+String toString() {
+  final _this = this as GroupMemberView;
+  return 'GroupMemberView(uid: ${_this.uid}, name: ${_this.name}, isHost: ${_this.isHost}, me: ${_this.me}, ready: ${_this.ready}, items: ${_this.items}, itemsKobo: ${_this.itemsKobo})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupMemberViewCopyWith<$Res>  {
+  factory $GroupMemberViewCopyWith(GroupMemberView value, $Res Function(GroupMemberView) _then) = _$GroupMemberViewCopyWithImpl;
+@useResult
+$Res call({
+ String uid, String name, bool isHost, bool me, bool ready, int items, int itemsKobo
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupMemberViewCopyWithImpl<$Res>
+    implements $GroupMemberViewCopyWith<$Res> {
+  _$GroupMemberViewCopyWithImpl(this._self, this._then);
+
+  final GroupMemberView _self;
+  final $Res Function(GroupMemberView) _then;
+
+/// Create a copy of GroupMemberView
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? name = null,Object? isHost = null,Object? me = null,Object? ready = null,Object? items = null,Object? itemsKobo = null,}) {
+  return _then(GroupMemberView(
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,isHost: null == isHost ? _self.isHost : isHost // ignore: cast_nullable_to_non_nullable
+as bool,me: null == me ? _self.me : me // ignore: cast_nullable_to_non_nullable
+as bool,ready: null == ready ? _self.ready : ready // ignore: cast_nullable_to_non_nullable
+as bool,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as int,itemsKobo: null == itemsKobo ? _self.itemsKobo : itemsKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupMemberView].
+extension GroupMemberViewPatterns on GroupMemberView {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupMemberView value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupMemberView() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupMemberView value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupMemberView():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupMemberView value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupMemberView() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  String name,  bool isHost,  bool me,  bool ready,  int items,  int itemsKobo)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupMemberView() when $default != null:
+return $default(_that.uid,_that.name,_that.isHost,_that.me,_that.ready,_that.items,_that.itemsKobo);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  String name,  bool isHost,  bool me,  bool ready,  int items,  int itemsKobo)  $default,) {final _that = this;
+switch (_that) {
+case _GroupMemberView():
+return $default(_that.uid,_that.name,_that.isHost,_that.me,_that.ready,_that.items,_that.itemsKobo);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  String name,  bool isHost,  bool me,  bool ready,  int items,  int itemsKobo)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupMemberView() when $default != null:
+return $default(_that.uid,_that.name,_that.isHost,_that.me,_that.ready,_that.items,_that.itemsKobo);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GroupMemberView implements GroupMemberView {
+  const _GroupMemberView({required this.uid, required this.name, this.isHost = false, this.me = false, this.ready = false, this.items = 0, this.itemsKobo = 0});
+  factory _GroupMemberView.fromJson(Map<String, dynamic> json) => _$GroupMemberViewFromJson(json);
+
+@override final  String uid;
+@override final  String name;
+@override@JsonKey() final  bool isHost;
+@override@JsonKey() final  bool me;
+@override@JsonKey() final  bool ready;
+@override@JsonKey() final  int items;
+@override@JsonKey() final  int itemsKobo;
+
+/// Create a copy of GroupMemberView
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupMemberViewCopyWith<_GroupMemberView> get copyWith => __$GroupMemberViewCopyWithImpl<_GroupMemberView>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupMemberViewToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupMemberView&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.name, name) || other.name == name)&&(identical(other.isHost, isHost) || other.isHost == isHost)&&(identical(other.me, me) || other.me == me)&&(identical(other.ready, ready) || other.ready == ready)&&(identical(other.items, items) || other.items == items)&&(identical(other.itemsKobo, itemsKobo) || other.itemsKobo == itemsKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,uid,name,isHost,me,ready,items,itemsKobo);
+}
+
+@override
+String toString() {
+    return 'GroupMemberView(uid: $uid, name: $name, isHost: $isHost, me: $me, ready: $ready, items: $items, itemsKobo: $itemsKobo)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupMemberViewCopyWith<$Res> implements $GroupMemberViewCopyWith<$Res> {
+  factory _$GroupMemberViewCopyWith(_GroupMemberView value, $Res Function(_GroupMemberView) _then) = __$GroupMemberViewCopyWithImpl;
+@override @useResult
+$Res call({
+ String uid, String name, bool isHost, bool me, bool ready, int items, int itemsKobo
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupMemberViewCopyWithImpl<$Res>
+    implements _$GroupMemberViewCopyWith<$Res> {
+  __$GroupMemberViewCopyWithImpl(this._self, this._then);
+
+  final _GroupMemberView _self;
+  final $Res Function(_GroupMemberView) _then;
+
+/// Create a copy of GroupMemberView
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? name = null,Object? isHost = null,Object? me = null,Object? ready = null,Object? items = null,Object? itemsKobo = null,}) {
+  return _then(_GroupMemberView(
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,isHost: null == isHost ? _self.isHost : isHost // ignore: cast_nullable_to_non_nullable
+as bool,me: null == me ? _self.me : me // ignore: cast_nullable_to_non_nullable
+as bool,ready: null == ready ? _self.ready : ready // ignore: cast_nullable_to_non_nullable
+as bool,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as int,itemsKobo: null == itemsKobo ? _self.itemsKobo : itemsKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$GroupLineView {
+
+ String get id; String get memberUid; String get member; String get itemId; String get name; int get quantity; List<OptionSelection> get selections; List<String> get options; String? get notes; int get lineTotalKobo; String? get problem;
+/// Create a copy of GroupLineView
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupLineViewCopyWith<GroupLineView> get copyWith => _$GroupLineViewCopyWithImpl<GroupLineView>(this as GroupLineView, _$identity);
+
+  /// Serializes this GroupLineView to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as GroupLineView;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupLineView&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.memberUid, _this.memberUid) || other.memberUid == _this.memberUid)&&(identical(other.member, _this.member) || other.member == _this.member)&&(identical(other.itemId, _this.itemId) || other.itemId == _this.itemId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.quantity, _this.quantity) || other.quantity == _this.quantity)&&const DeepCollectionEquality().equals(other.selections, _this.selections)&&const DeepCollectionEquality().equals(other.options, _this.options)&&(identical(other.notes, _this.notes) || other.notes == _this.notes)&&(identical(other.lineTotalKobo, _this.lineTotalKobo) || other.lineTotalKobo == _this.lineTotalKobo)&&(identical(other.problem, _this.problem) || other.problem == _this.problem));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as GroupLineView;
+  return Object.hash(runtimeType,_this.id,_this.memberUid,_this.member,_this.itemId,_this.name,_this.quantity,const DeepCollectionEquality().hash(_this.selections),const DeepCollectionEquality().hash(_this.options),_this.notes,_this.lineTotalKobo,_this.problem);
+}
+
+@override
+String toString() {
+  final _this = this as GroupLineView;
+  return 'GroupLineView(id: ${_this.id}, memberUid: ${_this.memberUid}, member: ${_this.member}, itemId: ${_this.itemId}, name: ${_this.name}, quantity: ${_this.quantity}, selections: ${_this.selections}, options: ${_this.options}, notes: ${_this.notes}, lineTotalKobo: ${_this.lineTotalKobo}, problem: ${_this.problem})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupLineViewCopyWith<$Res>  {
+  factory $GroupLineViewCopyWith(GroupLineView value, $Res Function(GroupLineView) _then) = _$GroupLineViewCopyWithImpl;
+@useResult
+$Res call({
+ String id, String memberUid, String member, String itemId, String name, int quantity, List<OptionSelection> selections, List<String> options, String? notes, int lineTotalKobo, String? problem
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupLineViewCopyWithImpl<$Res>
+    implements $GroupLineViewCopyWith<$Res> {
+  _$GroupLineViewCopyWithImpl(this._self, this._then);
+
+  final GroupLineView _self;
+  final $Res Function(GroupLineView) _then;
+
+/// Create a copy of GroupLineView
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? memberUid = null,Object? member = null,Object? itemId = null,Object? name = null,Object? quantity = null,Object? selections = null,Object? options = null,Object? notes = freezed,Object? lineTotalKobo = null,Object? problem = freezed,}) {
+  return _then(GroupLineView(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,memberUid: null == memberUid ? _self.memberUid : memberUid // ignore: cast_nullable_to_non_nullable
+as String,member: null == member ? _self.member : member // ignore: cast_nullable_to_non_nullable
+as String,itemId: null == itemId ? _self.itemId : itemId // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as int,selections: null == selections ? _self.selections : selections // ignore: cast_nullable_to_non_nullable
+as List<OptionSelection>,options: null == options ? _self.options : options // ignore: cast_nullable_to_non_nullable
+as List<String>,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String?,lineTotalKobo: null == lineTotalKobo ? _self.lineTotalKobo : lineTotalKobo // ignore: cast_nullable_to_non_nullable
+as int,problem: freezed == problem ? _self.problem : problem // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupLineView].
+extension GroupLineViewPatterns on GroupLineView {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupLineView value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupLineView() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupLineView value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupLineView():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupLineView value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupLineView() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String memberUid,  String member,  String itemId,  String name,  int quantity,  List<OptionSelection> selections,  List<String> options,  String? notes,  int lineTotalKobo,  String? problem)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupLineView() when $default != null:
+return $default(_that.id,_that.memberUid,_that.member,_that.itemId,_that.name,_that.quantity,_that.selections,_that.options,_that.notes,_that.lineTotalKobo,_that.problem);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String memberUid,  String member,  String itemId,  String name,  int quantity,  List<OptionSelection> selections,  List<String> options,  String? notes,  int lineTotalKobo,  String? problem)  $default,) {final _that = this;
+switch (_that) {
+case _GroupLineView():
+return $default(_that.id,_that.memberUid,_that.member,_that.itemId,_that.name,_that.quantity,_that.selections,_that.options,_that.notes,_that.lineTotalKobo,_that.problem);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String memberUid,  String member,  String itemId,  String name,  int quantity,  List<OptionSelection> selections,  List<String> options,  String? notes,  int lineTotalKobo,  String? problem)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupLineView() when $default != null:
+return $default(_that.id,_that.memberUid,_that.member,_that.itemId,_that.name,_that.quantity,_that.selections,_that.options,_that.notes,_that.lineTotalKobo,_that.problem);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GroupLineView implements GroupLineView {
+  const _GroupLineView({required this.id, required this.memberUid, this.member = '', required this.itemId, required this.name, required this.quantity,  List<OptionSelection> selections = const <OptionSelection>[],  List<String> options = const <String>[], this.notes, this.lineTotalKobo = 0, this.problem}): _selections = selections,_options = options;
+  factory _GroupLineView.fromJson(Map<String, dynamic> json) => _$GroupLineViewFromJson(json);
+
+@override final  String id;
+@override final  String memberUid;
+@override@JsonKey() final  String member;
+@override final  String itemId;
+@override final  String name;
+@override final  int quantity;
+ final  List<OptionSelection> _selections;
+@override@JsonKey() List<OptionSelection> get selections {
+  if (_selections is EqualUnmodifiableListView) return _selections;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_selections);
+}
+
+ final  List<String> _options;
+@override@JsonKey() List<String> get options {
+  if (_options is EqualUnmodifiableListView) return _options;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_options);
+}
+
+@override final  String? notes;
+@override@JsonKey() final  int lineTotalKobo;
+@override final  String? problem;
+
+/// Create a copy of GroupLineView
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupLineViewCopyWith<_GroupLineView> get copyWith => __$GroupLineViewCopyWithImpl<_GroupLineView>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupLineViewToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupLineView&&(identical(other.id, id) || other.id == id)&&(identical(other.memberUid, memberUid) || other.memberUid == memberUid)&&(identical(other.member, member) || other.member == member)&&(identical(other.itemId, itemId) || other.itemId == itemId)&&(identical(other.name, name) || other.name == name)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&const DeepCollectionEquality().equals(other.selections, _selections)&&const DeepCollectionEquality().equals(other.options, _options)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.lineTotalKobo, lineTotalKobo) || other.lineTotalKobo == lineTotalKobo)&&(identical(other.problem, problem) || other.problem == problem));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,memberUid,member,itemId,name,quantity,const DeepCollectionEquality().hash(_selections),const DeepCollectionEquality().hash(_options),notes,lineTotalKobo,problem);
+}
+
+@override
+String toString() {
+    return 'GroupLineView(id: $id, memberUid: $memberUid, member: $member, itemId: $itemId, name: $name, quantity: $quantity, selections: $selections, options: $options, notes: $notes, lineTotalKobo: $lineTotalKobo, problem: $problem)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupLineViewCopyWith<$Res> implements $GroupLineViewCopyWith<$Res> {
+  factory _$GroupLineViewCopyWith(_GroupLineView value, $Res Function(_GroupLineView) _then) = __$GroupLineViewCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String memberUid, String member, String itemId, String name, int quantity, List<OptionSelection> selections, List<String> options, String? notes, int lineTotalKobo, String? problem
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupLineViewCopyWithImpl<$Res>
+    implements _$GroupLineViewCopyWith<$Res> {
+  __$GroupLineViewCopyWithImpl(this._self, this._then);
+
+  final _GroupLineView _self;
+  final $Res Function(_GroupLineView) _then;
+
+/// Create a copy of GroupLineView
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? memberUid = null,Object? member = null,Object? itemId = null,Object? name = null,Object? quantity = null,Object? selections = null,Object? options = null,Object? notes = freezed,Object? lineTotalKobo = null,Object? problem = freezed,}) {
+  return _then(_GroupLineView(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,memberUid: null == memberUid ? _self.memberUid : memberUid // ignore: cast_nullable_to_non_nullable
+as String,member: null == member ? _self.member : member // ignore: cast_nullable_to_non_nullable
+as String,itemId: null == itemId ? _self.itemId : itemId // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as int,selections: null == selections ? _self._selections : selections // ignore: cast_nullable_to_non_nullable
+as List<OptionSelection>,options: null == options ? _self._options : options // ignore: cast_nullable_to_non_nullable
+as List<String>,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String?,lineTotalKobo: null == lineTotalKobo ? _self.lineTotalKobo : lineTotalKobo // ignore: cast_nullable_to_non_nullable
+as int,problem: freezed == problem ? _self.problem : problem // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$GroupShareView {
+
+ String get uid; String get name; bool get me; int get itemsKobo; int get amountKobo; String get status; bool get paidByHost;
+/// Create a copy of GroupShareView
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupShareViewCopyWith<GroupShareView> get copyWith => _$GroupShareViewCopyWithImpl<GroupShareView>(this as GroupShareView, _$identity);
+
+  /// Serializes this GroupShareView to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as GroupShareView;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupShareView&&(identical(other.uid, _this.uid) || other.uid == _this.uid)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.me, _this.me) || other.me == _this.me)&&(identical(other.itemsKobo, _this.itemsKobo) || other.itemsKobo == _this.itemsKobo)&&(identical(other.amountKobo, _this.amountKobo) || other.amountKobo == _this.amountKobo)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.paidByHost, _this.paidByHost) || other.paidByHost == _this.paidByHost));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as GroupShareView;
+  return Object.hash(runtimeType,_this.uid,_this.name,_this.me,_this.itemsKobo,_this.amountKobo,_this.status,_this.paidByHost);
+}
+
+@override
+String toString() {
+  final _this = this as GroupShareView;
+  return 'GroupShareView(uid: ${_this.uid}, name: ${_this.name}, me: ${_this.me}, itemsKobo: ${_this.itemsKobo}, amountKobo: ${_this.amountKobo}, status: ${_this.status}, paidByHost: ${_this.paidByHost})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupShareViewCopyWith<$Res>  {
+  factory $GroupShareViewCopyWith(GroupShareView value, $Res Function(GroupShareView) _then) = _$GroupShareViewCopyWithImpl;
+@useResult
+$Res call({
+ String uid, String name, bool me, int itemsKobo, int amountKobo, String status, bool paidByHost
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupShareViewCopyWithImpl<$Res>
+    implements $GroupShareViewCopyWith<$Res> {
+  _$GroupShareViewCopyWithImpl(this._self, this._then);
+
+  final GroupShareView _self;
+  final $Res Function(GroupShareView) _then;
+
+/// Create a copy of GroupShareView
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? name = null,Object? me = null,Object? itemsKobo = null,Object? amountKobo = null,Object? status = null,Object? paidByHost = null,}) {
+  return _then(GroupShareView(
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,me: null == me ? _self.me : me // ignore: cast_nullable_to_non_nullable
+as bool,itemsKobo: null == itemsKobo ? _self.itemsKobo : itemsKobo // ignore: cast_nullable_to_non_nullable
+as int,amountKobo: null == amountKobo ? _self.amountKobo : amountKobo // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,paidByHost: null == paidByHost ? _self.paidByHost : paidByHost // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupShareView].
+extension GroupShareViewPatterns on GroupShareView {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupShareView value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupShareView() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupShareView value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupShareView():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupShareView value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupShareView() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  String name,  bool me,  int itemsKobo,  int amountKobo,  String status,  bool paidByHost)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupShareView() when $default != null:
+return $default(_that.uid,_that.name,_that.me,_that.itemsKobo,_that.amountKobo,_that.status,_that.paidByHost);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  String name,  bool me,  int itemsKobo,  int amountKobo,  String status,  bool paidByHost)  $default,) {final _that = this;
+switch (_that) {
+case _GroupShareView():
+return $default(_that.uid,_that.name,_that.me,_that.itemsKobo,_that.amountKobo,_that.status,_that.paidByHost);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  String name,  bool me,  int itemsKobo,  int amountKobo,  String status,  bool paidByHost)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupShareView() when $default != null:
+return $default(_that.uid,_that.name,_that.me,_that.itemsKobo,_that.amountKobo,_that.status,_that.paidByHost);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GroupShareView implements GroupShareView {
+  const _GroupShareView({required this.uid, required this.name, this.me = false, this.itemsKobo = 0, required this.amountKobo, this.status = 'unpaid', this.paidByHost = false});
+  factory _GroupShareView.fromJson(Map<String, dynamic> json) => _$GroupShareViewFromJson(json);
+
+@override final  String uid;
+@override final  String name;
+@override@JsonKey() final  bool me;
+@override@JsonKey() final  int itemsKobo;
+@override final  int amountKobo;
+@override@JsonKey() final  String status;
+@override@JsonKey() final  bool paidByHost;
+
+/// Create a copy of GroupShareView
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupShareViewCopyWith<_GroupShareView> get copyWith => __$GroupShareViewCopyWithImpl<_GroupShareView>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupShareViewToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupShareView&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.name, name) || other.name == name)&&(identical(other.me, me) || other.me == me)&&(identical(other.itemsKobo, itemsKobo) || other.itemsKobo == itemsKobo)&&(identical(other.amountKobo, amountKobo) || other.amountKobo == amountKobo)&&(identical(other.status, status) || other.status == status)&&(identical(other.paidByHost, paidByHost) || other.paidByHost == paidByHost));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,uid,name,me,itemsKobo,amountKobo,status,paidByHost);
+}
+
+@override
+String toString() {
+    return 'GroupShareView(uid: $uid, name: $name, me: $me, itemsKobo: $itemsKobo, amountKobo: $amountKobo, status: $status, paidByHost: $paidByHost)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupShareViewCopyWith<$Res> implements $GroupShareViewCopyWith<$Res> {
+  factory _$GroupShareViewCopyWith(_GroupShareView value, $Res Function(_GroupShareView) _then) = __$GroupShareViewCopyWithImpl;
+@override @useResult
+$Res call({
+ String uid, String name, bool me, int itemsKobo, int amountKobo, String status, bool paidByHost
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupShareViewCopyWithImpl<$Res>
+    implements _$GroupShareViewCopyWith<$Res> {
+  __$GroupShareViewCopyWithImpl(this._self, this._then);
+
+  final _GroupShareView _self;
+  final $Res Function(_GroupShareView) _then;
+
+/// Create a copy of GroupShareView
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? name = null,Object? me = null,Object? itemsKobo = null,Object? amountKobo = null,Object? status = null,Object? paidByHost = null,}) {
+  return _then(_GroupShareView(
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,me: null == me ? _self.me : me // ignore: cast_nullable_to_non_nullable
+as bool,itemsKobo: null == itemsKobo ? _self.itemsKobo : itemsKobo // ignore: cast_nullable_to_non_nullable
+as int,amountKobo: null == amountKobo ? _self.amountKobo : amountKobo // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,paidByHost: null == paidByHost ? _self.paidByHost : paidByHost // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$GroupOrderRef {
+
+ String get id; String get shortCode; String get status; int get totalKobo;
+/// Create a copy of GroupOrderRef
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupOrderRefCopyWith<GroupOrderRef> get copyWith => _$GroupOrderRefCopyWithImpl<GroupOrderRef>(this as GroupOrderRef, _$identity);
+
+  /// Serializes this GroupOrderRef to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as GroupOrderRef;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupOrderRef&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.shortCode, _this.shortCode) || other.shortCode == _this.shortCode)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.totalKobo, _this.totalKobo) || other.totalKobo == _this.totalKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as GroupOrderRef;
+  return Object.hash(runtimeType,_this.id,_this.shortCode,_this.status,_this.totalKobo);
+}
+
+@override
+String toString() {
+  final _this = this as GroupOrderRef;
+  return 'GroupOrderRef(id: ${_this.id}, shortCode: ${_this.shortCode}, status: ${_this.status}, totalKobo: ${_this.totalKobo})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupOrderRefCopyWith<$Res>  {
+  factory $GroupOrderRefCopyWith(GroupOrderRef value, $Res Function(GroupOrderRef) _then) = _$GroupOrderRefCopyWithImpl;
+@useResult
+$Res call({
+ String id, String shortCode, String status, int totalKobo
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupOrderRefCopyWithImpl<$Res>
+    implements $GroupOrderRefCopyWith<$Res> {
+  _$GroupOrderRefCopyWithImpl(this._self, this._then);
+
+  final GroupOrderRef _self;
+  final $Res Function(GroupOrderRef) _then;
+
+/// Create a copy of GroupOrderRef
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shortCode = null,Object? status = null,Object? totalKobo = null,}) {
+  return _then(GroupOrderRef(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupOrderRef].
+extension GroupOrderRefPatterns on GroupOrderRef {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupOrderRef value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupOrderRef() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupOrderRef value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupOrderRef():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupOrderRef value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupOrderRef() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String shortCode,  String status,  int totalKobo)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupOrderRef() when $default != null:
+return $default(_that.id,_that.shortCode,_that.status,_that.totalKobo);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String shortCode,  String status,  int totalKobo)  $default,) {final _that = this;
+switch (_that) {
+case _GroupOrderRef():
+return $default(_that.id,_that.shortCode,_that.status,_that.totalKobo);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String shortCode,  String status,  int totalKobo)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupOrderRef() when $default != null:
+return $default(_that.id,_that.shortCode,_that.status,_that.totalKobo);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GroupOrderRef implements GroupOrderRef {
+  const _GroupOrderRef({required this.id, this.shortCode = '', required this.status, this.totalKobo = 0});
+  factory _GroupOrderRef.fromJson(Map<String, dynamic> json) => _$GroupOrderRefFromJson(json);
+
+@override final  String id;
+@override@JsonKey() final  String shortCode;
+@override final  String status;
+@override@JsonKey() final  int totalKobo;
+
+/// Create a copy of GroupOrderRef
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupOrderRefCopyWith<_GroupOrderRef> get copyWith => __$GroupOrderRefCopyWithImpl<_GroupOrderRef>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupOrderRefToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupOrderRef&&(identical(other.id, id) || other.id == id)&&(identical(other.shortCode, shortCode) || other.shortCode == shortCode)&&(identical(other.status, status) || other.status == status)&&(identical(other.totalKobo, totalKobo) || other.totalKobo == totalKobo));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,shortCode,status,totalKobo);
+}
+
+@override
+String toString() {
+    return 'GroupOrderRef(id: $id, shortCode: $shortCode, status: $status, totalKobo: $totalKobo)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupOrderRefCopyWith<$Res> implements $GroupOrderRefCopyWith<$Res> {
+  factory _$GroupOrderRefCopyWith(_GroupOrderRef value, $Res Function(_GroupOrderRef) _then) = __$GroupOrderRefCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String shortCode, String status, int totalKobo
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupOrderRefCopyWithImpl<$Res>
+    implements _$GroupOrderRefCopyWith<$Res> {
+  __$GroupOrderRefCopyWithImpl(this._self, this._then);
+
+  final _GroupOrderRef _self;
+  final $Res Function(_GroupOrderRef) _then;
+
+/// Create a copy of GroupOrderRef
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shortCode = null,Object? status = null,Object? totalKobo = null,}) {
+  return _then(_GroupOrderRef(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,shortCode: null == shortCode ? _self.shortCode : shortCode // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$GroupMyShare {
+
+ int get amountKobo; int get itemsKobo; String get status;
+/// Create a copy of GroupMyShare
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupMyShareCopyWith<GroupMyShare> get copyWith => _$GroupMyShareCopyWithImpl<GroupMyShare>(this as GroupMyShare, _$identity);
+
+  /// Serializes this GroupMyShare to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as GroupMyShare;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupMyShare&&(identical(other.amountKobo, _this.amountKobo) || other.amountKobo == _this.amountKobo)&&(identical(other.itemsKobo, _this.itemsKobo) || other.itemsKobo == _this.itemsKobo)&&(identical(other.status, _this.status) || other.status == _this.status));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as GroupMyShare;
+  return Object.hash(runtimeType,_this.amountKobo,_this.itemsKobo,_this.status);
+}
+
+@override
+String toString() {
+  final _this = this as GroupMyShare;
+  return 'GroupMyShare(amountKobo: ${_this.amountKobo}, itemsKobo: ${_this.itemsKobo}, status: ${_this.status})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupMyShareCopyWith<$Res>  {
+  factory $GroupMyShareCopyWith(GroupMyShare value, $Res Function(GroupMyShare) _then) = _$GroupMyShareCopyWithImpl;
+@useResult
+$Res call({
+ int amountKobo, int itemsKobo, String status
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupMyShareCopyWithImpl<$Res>
+    implements $GroupMyShareCopyWith<$Res> {
+  _$GroupMyShareCopyWithImpl(this._self, this._then);
+
+  final GroupMyShare _self;
+  final $Res Function(GroupMyShare) _then;
+
+/// Create a copy of GroupMyShare
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? amountKobo = null,Object? itemsKobo = null,Object? status = null,}) {
+  return _then(GroupMyShare(
+amountKobo: null == amountKobo ? _self.amountKobo : amountKobo // ignore: cast_nullable_to_non_nullable
+as int,itemsKobo: null == itemsKobo ? _self.itemsKobo : itemsKobo // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupMyShare].
+extension GroupMySharePatterns on GroupMyShare {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupMyShare value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupMyShare() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupMyShare value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupMyShare():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupMyShare value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupMyShare() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int amountKobo,  int itemsKobo,  String status)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupMyShare() when $default != null:
+return $default(_that.amountKobo,_that.itemsKobo,_that.status);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int amountKobo,  int itemsKobo,  String status)  $default,) {final _that = this;
+switch (_that) {
+case _GroupMyShare():
+return $default(_that.amountKobo,_that.itemsKobo,_that.status);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int amountKobo,  int itemsKobo,  String status)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupMyShare() when $default != null:
+return $default(_that.amountKobo,_that.itemsKobo,_that.status);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GroupMyShare implements GroupMyShare {
+  const _GroupMyShare({required this.amountKobo, this.itemsKobo = 0, this.status = 'unpaid'});
+  factory _GroupMyShare.fromJson(Map<String, dynamic> json) => _$GroupMyShareFromJson(json);
+
+@override final  int amountKobo;
+@override@JsonKey() final  int itemsKobo;
+@override@JsonKey() final  String status;
+
+/// Create a copy of GroupMyShare
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupMyShareCopyWith<_GroupMyShare> get copyWith => __$GroupMyShareCopyWithImpl<_GroupMyShare>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupMyShareToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupMyShare&&(identical(other.amountKobo, amountKobo) || other.amountKobo == amountKobo)&&(identical(other.itemsKobo, itemsKobo) || other.itemsKobo == itemsKobo)&&(identical(other.status, status) || other.status == status));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,amountKobo,itemsKobo,status);
+}
+
+@override
+String toString() {
+    return 'GroupMyShare(amountKobo: $amountKobo, itemsKobo: $itemsKobo, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupMyShareCopyWith<$Res> implements $GroupMyShareCopyWith<$Res> {
+  factory _$GroupMyShareCopyWith(_GroupMyShare value, $Res Function(_GroupMyShare) _then) = __$GroupMyShareCopyWithImpl;
+@override @useResult
+$Res call({
+ int amountKobo, int itemsKobo, String status
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupMyShareCopyWithImpl<$Res>
+    implements _$GroupMyShareCopyWith<$Res> {
+  __$GroupMyShareCopyWithImpl(this._self, this._then);
+
+  final _GroupMyShare _self;
+  final $Res Function(_GroupMyShare) _then;
+
+/// Create a copy of GroupMyShare
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? amountKobo = null,Object? itemsKobo = null,Object? status = null,}) {
+  return _then(_GroupMyShare(
+amountKobo: null == amountKobo ? _self.amountKobo : amountKobo // ignore: cast_nullable_to_non_nullable
+as int,itemsKobo: null == itemsKobo ? _self.itemsKobo : itemsKobo // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$GroupRestaurant {
+
+ String get id; String get name;
+/// Create a copy of GroupRestaurant
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupRestaurantCopyWith<GroupRestaurant> get copyWith => _$GroupRestaurantCopyWithImpl<GroupRestaurant>(this as GroupRestaurant, _$identity);
+
+  /// Serializes this GroupRestaurant to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as GroupRestaurant;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupRestaurant&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as GroupRestaurant;
+  return Object.hash(runtimeType,_this.id,_this.name);
+}
+
+@override
+String toString() {
+  final _this = this as GroupRestaurant;
+  return 'GroupRestaurant(id: ${_this.id}, name: ${_this.name})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupRestaurantCopyWith<$Res>  {
+  factory $GroupRestaurantCopyWith(GroupRestaurant value, $Res Function(GroupRestaurant) _then) = _$GroupRestaurantCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupRestaurantCopyWithImpl<$Res>
+    implements $GroupRestaurantCopyWith<$Res> {
+  _$GroupRestaurantCopyWithImpl(this._self, this._then);
+
+  final GroupRestaurant _self;
+  final $Res Function(GroupRestaurant) _then;
+
+/// Create a copy of GroupRestaurant
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,}) {
+  return _then(GroupRestaurant(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupRestaurant].
+extension GroupRestaurantPatterns on GroupRestaurant {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupRestaurant value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupRestaurant() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupRestaurant value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupRestaurant():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupRestaurant value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupRestaurant() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupRestaurant() when $default != null:
+return $default(_that.id,_that.name);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name)  $default,) {final _that = this;
+switch (_that) {
+case _GroupRestaurant():
+return $default(_that.id,_that.name);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupRestaurant() when $default != null:
+return $default(_that.id,_that.name);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GroupRestaurant implements GroupRestaurant {
+  const _GroupRestaurant({required this.id, required this.name});
+  factory _GroupRestaurant.fromJson(Map<String, dynamic> json) => _$GroupRestaurantFromJson(json);
+
+@override final  String id;
+@override final  String name;
+
+/// Create a copy of GroupRestaurant
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupRestaurantCopyWith<_GroupRestaurant> get copyWith => __$GroupRestaurantCopyWithImpl<_GroupRestaurant>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupRestaurantToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupRestaurant&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,name);
+}
+
+@override
+String toString() {
+    return 'GroupRestaurant(id: $id, name: $name)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupRestaurantCopyWith<$Res> implements $GroupRestaurantCopyWith<$Res> {
+  factory _$GroupRestaurantCopyWith(_GroupRestaurant value, $Res Function(_GroupRestaurant) _then) = __$GroupRestaurantCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupRestaurantCopyWithImpl<$Res>
+    implements _$GroupRestaurantCopyWith<$Res> {
+  __$GroupRestaurantCopyWithImpl(this._self, this._then);
+
+  final _GroupRestaurant _self;
+  final $Res Function(_GroupRestaurant) _then;
+
+/// Create a copy of GroupRestaurant
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,}) {
+  return _then(_GroupRestaurant(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$GroupOrder {
+
+ String get id; String get code; String get status; String get splitMode; bool get isHost; String get hostName; GroupRestaurant get restaurant; String get fulfillment; String? get deliveryArea; List<GroupMemberView> get members; int get maxMembers; List<GroupLineView> get lines; int get estimatedItemsKobo; DateTime? get expiresAt; GroupOrderRef? get order; int get totalKobo; List<GroupShareView> get shares; GroupMyShare? get myShare; int get paidKobo; int get remainingKobo; DateTime? get payBy; bool get canPay; bool get canCoverRest; String? get cancelReason;
+/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupOrderCopyWith<GroupOrder> get copyWith => _$GroupOrderCopyWithImpl<GroupOrder>(this as GroupOrder, _$identity);
+
+  /// Serializes this GroupOrder to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as GroupOrder;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupOrder&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.splitMode, _this.splitMode) || other.splitMode == _this.splitMode)&&(identical(other.isHost, _this.isHost) || other.isHost == _this.isHost)&&(identical(other.hostName, _this.hostName) || other.hostName == _this.hostName)&&(identical(other.restaurant, _this.restaurant) || other.restaurant == _this.restaurant)&&(identical(other.fulfillment, _this.fulfillment) || other.fulfillment == _this.fulfillment)&&(identical(other.deliveryArea, _this.deliveryArea) || other.deliveryArea == _this.deliveryArea)&&const DeepCollectionEquality().equals(other.members, _this.members)&&(identical(other.maxMembers, _this.maxMembers) || other.maxMembers == _this.maxMembers)&&const DeepCollectionEquality().equals(other.lines, _this.lines)&&(identical(other.estimatedItemsKobo, _this.estimatedItemsKobo) || other.estimatedItemsKobo == _this.estimatedItemsKobo)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.order, _this.order) || other.order == _this.order)&&(identical(other.totalKobo, _this.totalKobo) || other.totalKobo == _this.totalKobo)&&const DeepCollectionEquality().equals(other.shares, _this.shares)&&(identical(other.myShare, _this.myShare) || other.myShare == _this.myShare)&&(identical(other.paidKobo, _this.paidKobo) || other.paidKobo == _this.paidKobo)&&(identical(other.remainingKobo, _this.remainingKobo) || other.remainingKobo == _this.remainingKobo)&&(identical(other.payBy, _this.payBy) || other.payBy == _this.payBy)&&(identical(other.canPay, _this.canPay) || other.canPay == _this.canPay)&&(identical(other.canCoverRest, _this.canCoverRest) || other.canCoverRest == _this.canCoverRest)&&(identical(other.cancelReason, _this.cancelReason) || other.cancelReason == _this.cancelReason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as GroupOrder;
+  return Object.hashAll([runtimeType,_this.id,_this.code,_this.status,_this.splitMode,_this.isHost,_this.hostName,_this.restaurant,_this.fulfillment,_this.deliveryArea,const DeepCollectionEquality().hash(_this.members),_this.maxMembers,const DeepCollectionEquality().hash(_this.lines),_this.estimatedItemsKobo,_this.expiresAt,_this.order,_this.totalKobo,const DeepCollectionEquality().hash(_this.shares),_this.myShare,_this.paidKobo,_this.remainingKobo,_this.payBy,_this.canPay,_this.canCoverRest,_this.cancelReason]);
+}
+
+@override
+String toString() {
+  final _this = this as GroupOrder;
+  return 'GroupOrder(id: ${_this.id}, code: ${_this.code}, status: ${_this.status}, splitMode: ${_this.splitMode}, isHost: ${_this.isHost}, hostName: ${_this.hostName}, restaurant: ${_this.restaurant}, fulfillment: ${_this.fulfillment}, deliveryArea: ${_this.deliveryArea}, members: ${_this.members}, maxMembers: ${_this.maxMembers}, lines: ${_this.lines}, estimatedItemsKobo: ${_this.estimatedItemsKobo}, expiresAt: ${_this.expiresAt}, order: ${_this.order}, totalKobo: ${_this.totalKobo}, shares: ${_this.shares}, myShare: ${_this.myShare}, paidKobo: ${_this.paidKobo}, remainingKobo: ${_this.remainingKobo}, payBy: ${_this.payBy}, canPay: ${_this.canPay}, canCoverRest: ${_this.canCoverRest}, cancelReason: ${_this.cancelReason})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupOrderCopyWith<$Res>  {
+  factory $GroupOrderCopyWith(GroupOrder value, $Res Function(GroupOrder) _then) = _$GroupOrderCopyWithImpl;
+@useResult
+$Res call({
+ String id, String code, String status, String splitMode, bool isHost, String hostName, GroupRestaurant restaurant, String fulfillment, String? deliveryArea, List<GroupMemberView> members, int maxMembers, List<GroupLineView> lines, int estimatedItemsKobo, DateTime? expiresAt, GroupOrderRef? order, int totalKobo, List<GroupShareView> shares, GroupMyShare? myShare, int paidKobo, int remainingKobo, DateTime? payBy, bool canPay, bool canCoverRest, String? cancelReason
+});
+
+
+$GroupRestaurantCopyWith<$Res> get restaurant;$GroupOrderRefCopyWith<$Res>? get order;$GroupMyShareCopyWith<$Res>? get myShare;
+
+}
+/// @nodoc
+class _$GroupOrderCopyWithImpl<$Res>
+    implements $GroupOrderCopyWith<$Res> {
+  _$GroupOrderCopyWithImpl(this._self, this._then);
+
+  final GroupOrder _self;
+  final $Res Function(GroupOrder) _then;
+
+/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? code = null,Object? status = null,Object? splitMode = null,Object? isHost = null,Object? hostName = null,Object? restaurant = null,Object? fulfillment = null,Object? deliveryArea = freezed,Object? members = null,Object? maxMembers = null,Object? lines = null,Object? estimatedItemsKobo = null,Object? expiresAt = freezed,Object? order = freezed,Object? totalKobo = null,Object? shares = null,Object? myShare = freezed,Object? paidKobo = null,Object? remainingKobo = null,Object? payBy = freezed,Object? canPay = null,Object? canCoverRest = null,Object? cancelReason = freezed,}) {
+  return _then(GroupOrder(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,splitMode: null == splitMode ? _self.splitMode : splitMode // ignore: cast_nullable_to_non_nullable
+as String,isHost: null == isHost ? _self.isHost : isHost // ignore: cast_nullable_to_non_nullable
+as bool,hostName: null == hostName ? _self.hostName : hostName // ignore: cast_nullable_to_non_nullable
+as String,restaurant: null == restaurant ? _self.restaurant : restaurant // ignore: cast_nullable_to_non_nullable
+as GroupRestaurant,fulfillment: null == fulfillment ? _self.fulfillment : fulfillment // ignore: cast_nullable_to_non_nullable
+as String,deliveryArea: freezed == deliveryArea ? _self.deliveryArea : deliveryArea // ignore: cast_nullable_to_non_nullable
+as String?,members: null == members ? _self.members : members // ignore: cast_nullable_to_non_nullable
+as List<GroupMemberView>,maxMembers: null == maxMembers ? _self.maxMembers : maxMembers // ignore: cast_nullable_to_non_nullable
+as int,lines: null == lines ? _self.lines : lines // ignore: cast_nullable_to_non_nullable
+as List<GroupLineView>,estimatedItemsKobo: null == estimatedItemsKobo ? _self.estimatedItemsKobo : estimatedItemsKobo // ignore: cast_nullable_to_non_nullable
+as int,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,order: freezed == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as GroupOrderRef?,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
+as int,shares: null == shares ? _self.shares : shares // ignore: cast_nullable_to_non_nullable
+as List<GroupShareView>,myShare: freezed == myShare ? _self.myShare : myShare // ignore: cast_nullable_to_non_nullable
+as GroupMyShare?,paidKobo: null == paidKobo ? _self.paidKobo : paidKobo // ignore: cast_nullable_to_non_nullable
+as int,remainingKobo: null == remainingKobo ? _self.remainingKobo : remainingKobo // ignore: cast_nullable_to_non_nullable
+as int,payBy: freezed == payBy ? _self.payBy : payBy // ignore: cast_nullable_to_non_nullable
+as DateTime?,canPay: null == canPay ? _self.canPay : canPay // ignore: cast_nullable_to_non_nullable
+as bool,canCoverRest: null == canCoverRest ? _self.canCoverRest : canCoverRest // ignore: cast_nullable_to_non_nullable
+as bool,cancelReason: freezed == cancelReason ? _self.cancelReason : cancelReason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupRestaurantCopyWith<$Res> get restaurant {
+  
+  return $GroupRestaurantCopyWith<$Res>(_self.restaurant, (value) {
+    return _then(_self.copyWith(restaurant: value));
+  });
+}/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupOrderRefCopyWith<$Res>? get order {
+    if (_self.order == null) {
+    return null;
+  }
+
+  return $GroupOrderRefCopyWith<$Res>(_self.order!, (value) {
+    return _then(_self.copyWith(order: value));
+  });
+}/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupMyShareCopyWith<$Res>? get myShare {
+    if (_self.myShare == null) {
+    return null;
+  }
+
+  return $GroupMyShareCopyWith<$Res>(_self.myShare!, (value) {
+    return _then(_self.copyWith(myShare: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [GroupOrder].
+extension GroupOrderPatterns on GroupOrder {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupOrder value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupOrder() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupOrder value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupOrder():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupOrder value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupOrder() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String code,  String status,  String splitMode,  bool isHost,  String hostName,  GroupRestaurant restaurant,  String fulfillment,  String? deliveryArea,  List<GroupMemberView> members,  int maxMembers,  List<GroupLineView> lines,  int estimatedItemsKobo,  DateTime? expiresAt,  GroupOrderRef? order,  int totalKobo,  List<GroupShareView> shares,  GroupMyShare? myShare,  int paidKobo,  int remainingKobo,  DateTime? payBy,  bool canPay,  bool canCoverRest,  String? cancelReason)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupOrder() when $default != null:
+return $default(_that.id,_that.code,_that.status,_that.splitMode,_that.isHost,_that.hostName,_that.restaurant,_that.fulfillment,_that.deliveryArea,_that.members,_that.maxMembers,_that.lines,_that.estimatedItemsKobo,_that.expiresAt,_that.order,_that.totalKobo,_that.shares,_that.myShare,_that.paidKobo,_that.remainingKobo,_that.payBy,_that.canPay,_that.canCoverRest,_that.cancelReason);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String code,  String status,  String splitMode,  bool isHost,  String hostName,  GroupRestaurant restaurant,  String fulfillment,  String? deliveryArea,  List<GroupMemberView> members,  int maxMembers,  List<GroupLineView> lines,  int estimatedItemsKobo,  DateTime? expiresAt,  GroupOrderRef? order,  int totalKobo,  List<GroupShareView> shares,  GroupMyShare? myShare,  int paidKobo,  int remainingKobo,  DateTime? payBy,  bool canPay,  bool canCoverRest,  String? cancelReason)  $default,) {final _that = this;
+switch (_that) {
+case _GroupOrder():
+return $default(_that.id,_that.code,_that.status,_that.splitMode,_that.isHost,_that.hostName,_that.restaurant,_that.fulfillment,_that.deliveryArea,_that.members,_that.maxMembers,_that.lines,_that.estimatedItemsKobo,_that.expiresAt,_that.order,_that.totalKobo,_that.shares,_that.myShare,_that.paidKobo,_that.remainingKobo,_that.payBy,_that.canPay,_that.canCoverRest,_that.cancelReason);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String code,  String status,  String splitMode,  bool isHost,  String hostName,  GroupRestaurant restaurant,  String fulfillment,  String? deliveryArea,  List<GroupMemberView> members,  int maxMembers,  List<GroupLineView> lines,  int estimatedItemsKobo,  DateTime? expiresAt,  GroupOrderRef? order,  int totalKobo,  List<GroupShareView> shares,  GroupMyShare? myShare,  int paidKobo,  int remainingKobo,  DateTime? payBy,  bool canPay,  bool canCoverRest,  String? cancelReason)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupOrder() when $default != null:
+return $default(_that.id,_that.code,_that.status,_that.splitMode,_that.isHost,_that.hostName,_that.restaurant,_that.fulfillment,_that.deliveryArea,_that.members,_that.maxMembers,_that.lines,_that.estimatedItemsKobo,_that.expiresAt,_that.order,_that.totalKobo,_that.shares,_that.myShare,_that.paidKobo,_that.remainingKobo,_that.payBy,_that.canPay,_that.canCoverRest,_that.cancelReason);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GroupOrder implements GroupOrder {
+  const _GroupOrder({required this.id, required this.code, required this.status, this.splitMode = 'each', this.isHost = false, this.hostName = '', required this.restaurant, this.fulfillment = 'delivery', this.deliveryArea,  List<GroupMemberView> members = const <GroupMemberView>[], this.maxMembers = 10,  List<GroupLineView> lines = const <GroupLineView>[], this.estimatedItemsKobo = 0, this.expiresAt, this.order, this.totalKobo = 0,  List<GroupShareView> shares = const <GroupShareView>[], this.myShare, this.paidKobo = 0, this.remainingKobo = 0, this.payBy, this.canPay = false, this.canCoverRest = false, this.cancelReason}): _members = members,_lines = lines,_shares = shares;
+  factory _GroupOrder.fromJson(Map<String, dynamic> json) => _$GroupOrderFromJson(json);
+
+@override final  String id;
+@override final  String code;
+@override final  String status;
+@override@JsonKey() final  String splitMode;
+@override@JsonKey() final  bool isHost;
+@override@JsonKey() final  String hostName;
+@override final  GroupRestaurant restaurant;
+@override@JsonKey() final  String fulfillment;
+@override final  String? deliveryArea;
+ final  List<GroupMemberView> _members;
+@override@JsonKey() List<GroupMemberView> get members {
+  if (_members is EqualUnmodifiableListView) return _members;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_members);
+}
+
+@override@JsonKey() final  int maxMembers;
+ final  List<GroupLineView> _lines;
+@override@JsonKey() List<GroupLineView> get lines {
+  if (_lines is EqualUnmodifiableListView) return _lines;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_lines);
+}
+
+@override@JsonKey() final  int estimatedItemsKobo;
+@override final  DateTime? expiresAt;
+@override final  GroupOrderRef? order;
+@override@JsonKey() final  int totalKobo;
+ final  List<GroupShareView> _shares;
+@override@JsonKey() List<GroupShareView> get shares {
+  if (_shares is EqualUnmodifiableListView) return _shares;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_shares);
+}
+
+@override final  GroupMyShare? myShare;
+@override@JsonKey() final  int paidKobo;
+@override@JsonKey() final  int remainingKobo;
+@override final  DateTime? payBy;
+@override@JsonKey() final  bool canPay;
+@override@JsonKey() final  bool canCoverRest;
+@override final  String? cancelReason;
+
+/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupOrderCopyWith<_GroupOrder> get copyWith => __$GroupOrderCopyWithImpl<_GroupOrder>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupOrderToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupOrder&&(identical(other.id, id) || other.id == id)&&(identical(other.code, code) || other.code == code)&&(identical(other.status, status) || other.status == status)&&(identical(other.splitMode, splitMode) || other.splitMode == splitMode)&&(identical(other.isHost, isHost) || other.isHost == isHost)&&(identical(other.hostName, hostName) || other.hostName == hostName)&&(identical(other.restaurant, restaurant) || other.restaurant == restaurant)&&(identical(other.fulfillment, fulfillment) || other.fulfillment == fulfillment)&&(identical(other.deliveryArea, deliveryArea) || other.deliveryArea == deliveryArea)&&const DeepCollectionEquality().equals(other.members, _members)&&(identical(other.maxMembers, maxMembers) || other.maxMembers == maxMembers)&&const DeepCollectionEquality().equals(other.lines, _lines)&&(identical(other.estimatedItemsKobo, estimatedItemsKobo) || other.estimatedItemsKobo == estimatedItemsKobo)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.order, order) || other.order == order)&&(identical(other.totalKobo, totalKobo) || other.totalKobo == totalKobo)&&const DeepCollectionEquality().equals(other.shares, _shares)&&(identical(other.myShare, myShare) || other.myShare == myShare)&&(identical(other.paidKobo, paidKobo) || other.paidKobo == paidKobo)&&(identical(other.remainingKobo, remainingKobo) || other.remainingKobo == remainingKobo)&&(identical(other.payBy, payBy) || other.payBy == payBy)&&(identical(other.canPay, canPay) || other.canPay == canPay)&&(identical(other.canCoverRest, canCoverRest) || other.canCoverRest == canCoverRest)&&(identical(other.cancelReason, cancelReason) || other.cancelReason == cancelReason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hashAll([runtimeType,id,code,status,splitMode,isHost,hostName,restaurant,fulfillment,deliveryArea,const DeepCollectionEquality().hash(_members),maxMembers,const DeepCollectionEquality().hash(_lines),estimatedItemsKobo,expiresAt,order,totalKobo,const DeepCollectionEquality().hash(_shares),myShare,paidKobo,remainingKobo,payBy,canPay,canCoverRest,cancelReason]);
+}
+
+@override
+String toString() {
+    return 'GroupOrder(id: $id, code: $code, status: $status, splitMode: $splitMode, isHost: $isHost, hostName: $hostName, restaurant: $restaurant, fulfillment: $fulfillment, deliveryArea: $deliveryArea, members: $members, maxMembers: $maxMembers, lines: $lines, estimatedItemsKobo: $estimatedItemsKobo, expiresAt: $expiresAt, order: $order, totalKobo: $totalKobo, shares: $shares, myShare: $myShare, paidKobo: $paidKobo, remainingKobo: $remainingKobo, payBy: $payBy, canPay: $canPay, canCoverRest: $canCoverRest, cancelReason: $cancelReason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupOrderCopyWith<$Res> implements $GroupOrderCopyWith<$Res> {
+  factory _$GroupOrderCopyWith(_GroupOrder value, $Res Function(_GroupOrder) _then) = __$GroupOrderCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String code, String status, String splitMode, bool isHost, String hostName, GroupRestaurant restaurant, String fulfillment, String? deliveryArea, List<GroupMemberView> members, int maxMembers, List<GroupLineView> lines, int estimatedItemsKobo, DateTime? expiresAt, GroupOrderRef? order, int totalKobo, List<GroupShareView> shares, GroupMyShare? myShare, int paidKobo, int remainingKobo, DateTime? payBy, bool canPay, bool canCoverRest, String? cancelReason
+});
+
+
+@override $GroupRestaurantCopyWith<$Res> get restaurant;@override $GroupOrderRefCopyWith<$Res>? get order;@override $GroupMyShareCopyWith<$Res>? get myShare;
+
+}
+/// @nodoc
+class __$GroupOrderCopyWithImpl<$Res>
+    implements _$GroupOrderCopyWith<$Res> {
+  __$GroupOrderCopyWithImpl(this._self, this._then);
+
+  final _GroupOrder _self;
+  final $Res Function(_GroupOrder) _then;
+
+/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? code = null,Object? status = null,Object? splitMode = null,Object? isHost = null,Object? hostName = null,Object? restaurant = null,Object? fulfillment = null,Object? deliveryArea = freezed,Object? members = null,Object? maxMembers = null,Object? lines = null,Object? estimatedItemsKobo = null,Object? expiresAt = freezed,Object? order = freezed,Object? totalKobo = null,Object? shares = null,Object? myShare = freezed,Object? paidKobo = null,Object? remainingKobo = null,Object? payBy = freezed,Object? canPay = null,Object? canCoverRest = null,Object? cancelReason = freezed,}) {
+  return _then(_GroupOrder(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,splitMode: null == splitMode ? _self.splitMode : splitMode // ignore: cast_nullable_to_non_nullable
+as String,isHost: null == isHost ? _self.isHost : isHost // ignore: cast_nullable_to_non_nullable
+as bool,hostName: null == hostName ? _self.hostName : hostName // ignore: cast_nullable_to_non_nullable
+as String,restaurant: null == restaurant ? _self.restaurant : restaurant // ignore: cast_nullable_to_non_nullable
+as GroupRestaurant,fulfillment: null == fulfillment ? _self.fulfillment : fulfillment // ignore: cast_nullable_to_non_nullable
+as String,deliveryArea: freezed == deliveryArea ? _self.deliveryArea : deliveryArea // ignore: cast_nullable_to_non_nullable
+as String?,members: null == members ? _self._members : members // ignore: cast_nullable_to_non_nullable
+as List<GroupMemberView>,maxMembers: null == maxMembers ? _self.maxMembers : maxMembers // ignore: cast_nullable_to_non_nullable
+as int,lines: null == lines ? _self._lines : lines // ignore: cast_nullable_to_non_nullable
+as List<GroupLineView>,estimatedItemsKobo: null == estimatedItemsKobo ? _self.estimatedItemsKobo : estimatedItemsKobo // ignore: cast_nullable_to_non_nullable
+as int,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,order: freezed == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as GroupOrderRef?,totalKobo: null == totalKobo ? _self.totalKobo : totalKobo // ignore: cast_nullable_to_non_nullable
+as int,shares: null == shares ? _self._shares : shares // ignore: cast_nullable_to_non_nullable
+as List<GroupShareView>,myShare: freezed == myShare ? _self.myShare : myShare // ignore: cast_nullable_to_non_nullable
+as GroupMyShare?,paidKobo: null == paidKobo ? _self.paidKobo : paidKobo // ignore: cast_nullable_to_non_nullable
+as int,remainingKobo: null == remainingKobo ? _self.remainingKobo : remainingKobo // ignore: cast_nullable_to_non_nullable
+as int,payBy: freezed == payBy ? _self.payBy : payBy // ignore: cast_nullable_to_non_nullable
+as DateTime?,canPay: null == canPay ? _self.canPay : canPay // ignore: cast_nullable_to_non_nullable
+as bool,canCoverRest: null == canCoverRest ? _self.canCoverRest : canCoverRest // ignore: cast_nullable_to_non_nullable
+as bool,cancelReason: freezed == cancelReason ? _self.cancelReason : cancelReason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupRestaurantCopyWith<$Res> get restaurant {
+  
+  return $GroupRestaurantCopyWith<$Res>(_self.restaurant, (value) {
+    return _then(_self.copyWith(restaurant: value));
+  });
+}/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupOrderRefCopyWith<$Res>? get order {
+    if (_self.order == null) {
+    return null;
+  }
+
+  return $GroupOrderRefCopyWith<$Res>(_self.order!, (value) {
+    return _then(_self.copyWith(order: value));
+  });
+}/// Create a copy of GroupOrder
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupMyShareCopyWith<$Res>? get myShare {
+    if (_self.myShare == null) {
+    return null;
+  }
+
+  return $GroupMyShareCopyWith<$Res>(_self.myShare!, (value) {
+    return _then(_self.copyWith(myShare: value));
+  });
+}
 }
 
 

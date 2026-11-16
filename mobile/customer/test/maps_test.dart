@@ -81,6 +81,9 @@ class MapsApi extends GudMealApi {
   Future<OrderSummary> orderSummary() async => const OrderSummary(completedCount: 1);
 
   @override
+  Future<List<RewardVoucher>> myVouchers() async => const [];
+
+  @override
   Future<LiveTracking> liveTracking(String orderId) async {
     trackingCalls++;
     return live;

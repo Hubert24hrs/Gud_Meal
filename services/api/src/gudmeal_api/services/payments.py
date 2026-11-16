@@ -13,6 +13,8 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
 from ..domain.models import Order
+from ..domain.money import allocate
+from ..domain.pricing import vat_inclusive_split
 from ..errors import NotFound, PaymentProviderError, Unauthenticated, ValidationFailed
 from ..ledger import ledger as postings
 from ..ledger.audit import AuditLog
@@ -212,11 +214,204 @@ class PaymentService:
             metadata={"purpose": "wallet_topup", "customer_id": principal.uid},
         )
 
+    async def start_plus_checkout(
+        self, principal: Principal, amount_kobo: int, provider_name: str | None, idempotency_key: str
+    ) -> dict[str, Any]:
+        """Hosted checkout for Gud Meal Plus; the membership starts once the gateway payment is verified."""
+        return await self._hosted_checkout(
+            self.gateways(provider_name),
+            purpose="plus",
+            order_id=None,
+            customer_id=principal.uid,
+            amount_kobo=amount_kobo,
+            reference_stem="GM-PLUS",
+            idempotency_key=f"plus:{principal.uid}:{idempotency_key}",
+            principal=principal,
+            callback_url=f"{self.callback_url}?purpose=plus",
+            metadata={"purpose": "plus", "customer_id": principal.uid},
+        )
+
+    async def pay_plus_with_wallet(
+        self, uid: str, amount_kobo: int, vat_kobo: int, idempotency_key: str, *, renewal: bool = False
+    ) -> dict[str, Any]:
+        """Pay for Gud Meal Plus from the wallet (joining, or an automatic renewal)."""
+        reference = f"GM-PLUS-W{secrets.token_hex(4).upper()}"
+        return await self._wallet_debit(
+            uid=uid,
+            amount_kobo=amount_kobo,
+            purpose="plus",
+            order_id=None,
+            reference=reference,
+            idempotency_key=f"plus:{uid}:{idempotency_key}",
+            ledger_kind="plus_payment",
+            entries=postings.plus_paid(postings.wallet_account(uid), amount_kobo, vat_kobo),
+            description="Gud Meal Plus renewal" if renewal else "Gud Meal Plus",
+            event_type="plus.paid",
+            event_payload={"customer_id": uid, "renewal": renewal},
+            what="Gud Meal Plus",
+        )
+
+    async def start_share_checkout(
+        self,
+        principal: Principal,
+        order: Order,
+        amount_kobo: int,
+        provider_name: str | None,
+        idempotency_key: str,
+    ) -> dict[str, Any]:
+        """Hosted checkout for one member's share of a group order (or the rest of the bill, for the host)."""
+        return await self._hosted_checkout(
+            self.gateways(provider_name),
+            purpose="group_share",
+            order_id=order.id,
+            customer_id=principal.uid,
+            amount_kobo=amount_kobo,
+            reference_stem=f"GM-{order.short_code}-G",
+            idempotency_key=f"share:{order.id}:{principal.uid}:{idempotency_key}",
+            principal=principal,
+            callback_url=f"{self.callback_url}?group_order_id={order.group_order_id}",
+            metadata={
+                "purpose": "group_share",
+                "order_id": order.id,
+                "group_order_id": order.group_order_id,
+                "customer_id": principal.uid,
+            },
+        )
+
+    async def pay_share_with_wallet(
+        self, uid: str, order: Order, amount_kobo: int, idempotency_key: str
+    ) -> dict[str, Any]:
+        """Pay a group-order share from the member's own wallet (instant)."""
+        return await self._wallet_debit(
+            uid=uid,
+            amount_kobo=amount_kobo,
+            purpose="group_share",
+            order_id=order.id,
+            reference=f"GM-{order.short_code}-GW{secrets.token_hex(3).upper()}",
+            idempotency_key=f"share:{order.id}:{uid}:{idempotency_key}",
+            ledger_kind="wallet_payment",
+            entries=postings.wallet_payment(uid, amount_kobo),
+            description=f"Share of group order {order.short_code}",
+            event_type="group_share.paid",
+            event_payload={"order_id": order.id, "customer_id": uid},
+            what="your share",
+        )
+
+    async def group_share_payments(self, order_id: str) -> list[dict[str, Any]]:
+        async with self.db.session() as s:
+            rows = list(
+                (
+                    await s.execute(
+                        select(PaymentRecord)
+                        .where(
+                            PaymentRecord.order_id == order_id,
+                            PaymentRecord.purpose == "group_share",
+                            PaymentRecord.status == "succeeded",
+                        )
+                        .order_by(PaymentRecord.created_at)
+                    )
+                ).scalars()
+            )
+        return [
+            {
+                "id": r.id,
+                "customer_id": r.customer_id,
+                "amount_kobo": r.amount_kobo,
+                "refunded_kobo": r.refunded_kobo,
+                "provider": r.provider,
+                "reference": r.reference,
+            }
+            for r in rows
+        ]
+
+    async def _wallet_debit(
+        self,
+        *,
+        uid: str,
+        amount_kobo: int,
+        purpose: Literal["plus", "group_share"],
+        order_id: str | None,
+        reference: str,
+        idempotency_key: str,
+        ledger_kind: str,
+        entries: list[postings.Posting],
+        description: str,
+        event_type: str,
+        event_payload: dict[str, Any],
+        what: str,
+    ) -> dict[str, Any]:
+        """Charge a customer's wallet under its account lock: balance check, succeeded payment record, ledger
+        posting and outbox event in one database transaction (the same request twice charges once)."""
+        if not self.wallet_enabled:
+            raise ValidationFailed("The Gud Meal wallet is not available right now")
+        now = utcnow()
+        account = postings.wallet_account(uid)
+        async with self.db.transaction() as s:
+            prior = await s.scalar(
+                select(PaymentRecord).where(PaymentRecord.idempotency_key == idempotency_key)
+            )
+            if prior is not None:
+                return self._init_view(prior)
+            await self.ledger.lock_account(s, account)
+            balance = await self.ledger.balance(s, account)
+            if balance < amount_kobo:
+                raise ValidationFailed(
+                    f"Your Gud Meal wallet balance is too low for {what}",
+                    details={
+                        "balance_kobo": balance,
+                        "needed_kobo": amount_kobo,
+                        "short_by_kobo": amount_kobo - balance,
+                    },
+                )
+            rec = PaymentRecord(
+                id=new_id(),
+                order_id=order_id,
+                customer_id=uid,
+                purpose=purpose,
+                provider="wallet",
+                reference=reference,
+                amount_kobo=amount_kobo,
+                currency="NGN",
+                status="succeeded",
+                channel="wallet",
+                paid_at=now,
+                idempotency_key=idempotency_key,
+                created_at=now,
+                updated_at=now,
+            )
+            s.add(rec)
+            await s.flush()
+            await self.ledger.post(
+                s,
+                kind=ledger_kind,
+                idempotency_key=f"payment:{rec.id}:captured",
+                postings=entries,
+                created_by="payments:wallet",
+                reference=reference,
+                order_id=order_id,
+                description=description,
+            )
+            add_outbox_event(
+                s,
+                event_type,
+                {
+                    **event_payload,
+                    "payment_id": rec.id,
+                    "provider": "wallet",
+                    "reference": reference,
+                    "amount_kobo": amount_kobo,
+                    "paid_at": now.isoformat(),
+                },
+            )
+            view = self._init_view(rec)
+        await self.relay.relay_pending()
+        return view
+
     async def _hosted_checkout(
         self,
         names: list[str],
         *,
-        purpose: Literal["order", "wallet_topup"],
+        purpose: Literal["order", "wallet_topup", "plus", "group_share"],
         order_id: str | None,
         customer_id: str,
         amount_kobo: int,
@@ -596,6 +791,55 @@ class PaymentService:
                                 "amount_kobo": row.amount_kobo,
                             },
                         )
+                    elif row.purpose == "group_share":
+                        await self.ledger.post(
+                            s,
+                            kind="payment_captured",
+                            idempotency_key=f"payment:{row.id}:captured",
+                            postings=postings.payment_captured(row.provider, row.amount_kobo),
+                            created_by=f"payments:{source}",
+                            reference=row.reference,
+                            order_id=row.order_id,
+                            description=f"Group order share {row.reference} captured",
+                        )
+                        add_outbox_event(
+                            s,
+                            "group_share.paid",
+                            {
+                                "order_id": row.order_id,
+                                "customer_id": row.customer_id,
+                                "payment_id": row.id,
+                                "provider": row.provider,
+                                "reference": row.reference,
+                                "amount_kobo": row.amount_kobo,
+                                "paid_at": (row.paid_at or now).isoformat(),
+                            },
+                        )
+                    elif row.purpose == "plus":
+                        cfg = await self.repos.get_pricing_config()
+                        _, vat = vat_inclusive_split(row.amount_kobo, cfg.vat_bps)
+                        await self.ledger.post(
+                            s,
+                            kind="plus_payment",
+                            idempotency_key=f"payment:{row.id}:captured",
+                            postings=postings.plus_paid(f"cash:{row.provider}", row.amount_kobo, vat),
+                            created_by=f"payments:{source}",
+                            reference=row.reference,
+                            description="Gud Meal Plus",
+                        )
+                        add_outbox_event(
+                            s,
+                            "plus.paid",
+                            {
+                                "customer_id": row.customer_id,
+                                "payment_id": row.id,
+                                "provider": row.provider,
+                                "reference": row.reference,
+                                "amount_kobo": row.amount_kobo,
+                                "paid_at": (row.paid_at or now).isoformat(),
+                                "renewal": False,
+                            },
+                        )
                     else:
                         await self.ledger.post(
                             s,
@@ -714,6 +958,93 @@ class PaymentService:
         auto_approve: bool,
         payment_id: str | None = None,
     ) -> dict[str, Any]:
+        """Refund an order. A split-bill group order (several share payments) is refunded to every payer in
+        proportion to what they still have paid in; approval is decided on the whole amount."""
+        approved = auto_approve or (0 < amount_kobo <= self.refund_auto_approve_limit)
+        if payment_id is None:
+            parts = await self._split_refund(order_id, amount_kobo)
+            if parts:
+                views = [
+                    await self._create_refund(
+                        order_id=order_id,
+                        amount_kobo=part,
+                        reason=reason,
+                        liability=liability,
+                        stage=stage,
+                        requested_by=requested_by,
+                        idempotency_key=f"{idempotency_key}:{pid}",
+                        approved=approved,
+                        payment_id=pid,
+                        process=False,
+                    )
+                    for pid, part in parts.items()
+                    if part > 0
+                ]
+                # Record every part before paying any out, so the order moves on only with the last one.
+                if approved:
+                    views = [await self.process_refund(v["id"]) for v in views]
+                return views[0]
+        return await self._create_refund(
+            order_id=order_id,
+            amount_kobo=amount_kobo,
+            reason=reason,
+            liability=liability,
+            stage=stage,
+            requested_by=requested_by,
+            idempotency_key=idempotency_key,
+            approved=approved,
+            payment_id=payment_id,
+        )
+
+    async def _split_refund(self, order_id: str, amount_kobo: int) -> dict[str, int] | None:
+        async with self.db.session() as s:
+            shares = list(
+                (
+                    await s.execute(
+                        select(PaymentRecord)
+                        .where(
+                            PaymentRecord.order_id == order_id,
+                            PaymentRecord.status == "succeeded",
+                            PaymentRecord.purpose == "group_share",
+                        )
+                        .order_by(PaymentRecord.created_at)
+                    )
+                ).scalars()
+            )
+            if not shares:
+                return None
+            open_rows = (
+                await s.execute(
+                    select(RefundRecord.payment_id, func.coalesce(func.sum(RefundRecord.amount_kobo), 0))
+                    .where(
+                        RefundRecord.order_id == order_id,
+                        RefundRecord.status.in_(("requested", "approved", "processing")),
+                    )
+                    .group_by(RefundRecord.payment_id)
+                )
+            ).all()
+        pending = {pid: int(total or 0) for pid, total in open_rows}
+        left = {p.id: max(0, p.amount_kobo - p.refunded_kobo - pending.get(p.id, 0)) for p in shares}
+        if amount_kobo <= 0 or amount_kobo > sum(left.values()):
+            raise ValidationFailed(
+                "Refund exceeds the refundable amount", details={"refundable_kobo": sum(left.values())}
+            )
+        return allocate({pid: v for pid, v in left.items() if v > 0}, amount_kobo)
+
+    async def _create_refund(
+        self,
+        *,
+        order_id: str,
+        amount_kobo: int,
+        reason: str,
+        liability: Literal["restaurant", "platform"],
+        stage: Literal["before_completion", "after_completion"],
+        requested_by: str,
+        idempotency_key: str,
+        approved: bool,
+        payment_id: str | None,
+        process: bool = True,
+    ) -> dict[str, Any]:
         async with self.db.transaction() as s:
             existing = await s.scalar(
                 select(RefundRecord).where(RefundRecord.idempotency_key == idempotency_key)
@@ -747,7 +1078,6 @@ class PaymentService:
                     "Refund exceeds the refundable amount", details={"refundable_kobo": refundable}
                 )
             destination = await self._refund_destination(payment)
-            approved = auto_approve or (0 < amount_kobo <= self.refund_auto_approve_limit)
             refund = RefundRecord(
                 id=new_id(),
                 payment_id=payment.id,
@@ -773,7 +1103,7 @@ class PaymentService:
                 resource_id=order_id,
                 details={"amount_kobo": amount_kobo, "auto_approved": approved, "destination": destination},
             )
-        if approved:
+        if approved and process:
             return await self.process_refund(refund.id)
         return refund_view(refund)
 
@@ -917,13 +1247,50 @@ class PaymentService:
                     "customer_id": payment.customer_id,
                     "amount_kobo": rec.amount_kobo,
                     "destination": rec.destination,
-                    "total_refunded_kobo": payment.refunded_kobo,
-                    "fully_refunded": payment.refunded_kobo >= payment.amount_kobo,
+                    **(await self._refund_totals(s, rec, payment, order)),
                 },
             )
             view = refund_view(rec)
         await self.relay.relay_pending()
         return view
+
+    async def _refund_totals(
+        self, s: Any, rec: RefundRecord, payment: PaymentRecord, order: Order | None
+    ) -> dict[str, Any]:
+        """Refund progress for the order: per payment, or across all shares of a split group order (where the
+        order changes status only once the last of its refunds has completed)."""
+        if payment.purpose != "group_share" or order is None:
+            return {
+                "total_refunded_kobo": payment.refunded_kobo,
+                "fully_refunded": payment.refunded_kobo >= payment.amount_kobo,
+                "pending_refunds": 0,
+            }
+        shares = list(
+            (
+                await s.execute(
+                    select(PaymentRecord).where(
+                        PaymentRecord.order_id == rec.order_id,
+                        PaymentRecord.status == "succeeded",
+                        PaymentRecord.purpose == "group_share",
+                    )
+                )
+            ).scalars()
+        )
+        remaining = sum(p.amount_kobo - p.refunded_kobo for p in shares)
+        pending = await s.scalar(
+            select(func.count())
+            .select_from(RefundRecord)
+            .where(
+                RefundRecord.order_id == rec.order_id,
+                RefundRecord.id != rec.id,
+                RefundRecord.status.in_(("requested", "approved", "processing")),
+            )
+        )
+        return {
+            "total_refunded_kobo": max(0, order.breakdown.total_kobo - remaining),
+            "fully_refunded": remaining <= 0,
+            "pending_refunds": int(pending or 0),
+        }
 
     async def _apply_refund_webhook(self, event_type: str, data: dict[str, Any]) -> None:
         provider_refund_id = str(data.get("id")) if data.get("id") is not None else None

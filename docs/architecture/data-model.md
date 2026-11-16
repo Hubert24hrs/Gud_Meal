@@ -41,6 +41,16 @@ All money fields are integers in **kobo** and end with `_kobo`.
 | `platform_configuration/{doc}` | fixed | API (admin) | staff; selected public fields | fees, commission, zones |
 | `feature_flags/{flag}` | flag | API (admin) | public (non-sensitive) | |
 | `applications/{id}` | auto | API | owner, staff | restaurant / rider onboarding |
+| `waybill_quotes/{id}` | auto | API | owner (via API) | interstate waybill quote (price, route, expected dates) |
+| `waybill_tracking/{code}` | tracking number | API | API only | maps a public tracking number to its order |
+| `memberships/{uid}` (+ `periods/{payment_id}`) | uid | API | owner (via API) | Gud Meal Plus: paid-through date, auto-renew, one period per payment |
+| `loyalty_accounts/{uid}` (+ `entries/{id}`) | uid | API | owner (via API) | Gud points balance, referral state; append-only entries |
+| `referral_codes/{code}` | code | API | API only | referral code → customer |
+| `group_orders/{id}` · `group_codes/{code}` | auto · code | API | members (via API) | shared cart, members, items, shares; join code → group |
+
+Interstate waybills are `orders` with `vertical = "waybill"` and a `waybill` object (tracking number, hubs,
+parties, stage, milestones). Their rider jobs are `orders` with `leg_of` / `leg_kind`. The network (cities, hubs,
+carriers, lanes) is `platform_configuration/logistics` ([ADR-0015](../adr/0015-interstate-waybill.md)).
 
 Bounded documents: menus are split into item documents; order line items are capped (50); event
 history lives in `order_events`, not arrays on the order.

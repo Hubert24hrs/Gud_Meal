@@ -53,3 +53,24 @@ describe("createApi", () => {
     await expect(api.orders.get("x")).rejects.toBeInstanceOf(ApiError);
   });
 });
+
+describe("growth calls", () => {
+  it("sends Plus, rewards and group-order requests with idempotency keys where money moves", async () => {
+    const seen: Request[] = [];
+    const api = createApi({ baseUrl: "http://api.test", getToken: async () => "tok", fetchImpl: mockFetch(200, {}, seen) });
+    await api.plus.subscribe("plus-key-0001", "wallet");
+    await api.rewards.redeem(500, "redeem-key-01");
+    await api.groups.join("ab3k7p");
+    await api.groups.pay("g1", "pay-key-00001", { cover_rest: true });
+    await api.groups.removeMember("g1", "cust-2");
+    const [plus, redeem, join, pay, remove] = seen;
+    expect(plus!.headers.get("idempotency-key")).toBe("plus-key-0001");
+    expect(await plus!.json()).toEqual({ provider: "wallet", auto_renew: true });
+    expect([redeem!.url, await redeem!.json()]).toEqual(["http://api.test/v1/rewards/redeem", { points: 500 }]);
+    expect(join!.url).toBe("http://api.test/v1/group-orders/join");
+    expect(await pay!.json()).toEqual({ cover_rest: true });
+    expect(pay!.headers.get("idempotency-key")).toBe("pay-key-00001");
+    expect([remove!.method, remove!.url]).toEqual(["DELETE", "http://api.test/v1/group-orders/g1/members/cust-2"]);
+  });
+});
+

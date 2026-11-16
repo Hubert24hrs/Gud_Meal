@@ -229,6 +229,19 @@ def wallet_payment(uid: str, amount_kobo: int) -> list[Posting]:
     ]
 
 
+def plus_paid(source_account: str, amount_kobo: int, vat_kobo: int) -> list[Posting]:
+    """Gud Meal Plus paid (price includes VAT) from a gateway (`cash:<provider>`) or a wallet."""
+    postings = net(
+        [
+            Posting(source_account, "debit", amount_kobo),
+            Posting("revenue:plus", "credit", amount_kobo - vat_kobo),
+            Posting("liability:vat", "credit", vat_kobo),
+        ]
+    )
+    validate_postings(postings)
+    return postings
+
+
 def cash_collected(rider_id: str, amount_kobo: int) -> list[Posting]:
     """Pay on delivery: the rider took the order total in cash, which they now owe the platform."""
     return [

@@ -75,8 +75,10 @@ class CashService:
         """Whether this customer may pay this order in cash at the door, and why not if they can't."""
         if not self.enabled or not await self._flag_allows():
             return False, "Pay on delivery is not available right now"
-        if order.is_parcel:
+        if order.is_parcel or order.is_waybill:
             return False, "Package deliveries are paid when you book"
+        if order.group_order_id:
+            return False, "Group orders are paid online"
         if order.fulfillment != Fulfillment.DELIVERY:
             return False, "Pay on delivery is only for delivery orders"
         if order.breakdown.total_kobo > self.max_order_kobo:

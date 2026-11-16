@@ -45,6 +45,9 @@ Screen = Literal[
     "order",
     "wallet",
     "waybill",
+    "plus",
+    "rewards",
+    "group",
 ]
 SCREEN_LABELS: dict[str, str] = {
     "home": "Go to Home",
@@ -59,6 +62,9 @@ SCREEN_LABELS: dict[str, str] = {
     "order": "Track this order",
     "wallet": "Open my wallet",
     "waybill": "Send to another city",
+    "plus": "Open Gud Meal Plus",
+    "rewards": "Open Rewards",
+    "group": "Open group orders",
 }
 
 
@@ -493,6 +499,123 @@ async def book_parcel(args: QuoteIdArgs, ctx: ToolContext) -> ToolOutput:
     )
 
 
+# ------------------------------------------------------------------------------------------- growth (read-only)
+GROUP_STATUS = {
+    "open": "collecting everyone's orders",
+    "locked": "cart locked by the host",
+    "cancelled": "cancelled",
+    "expired": "expired",
+}
+
+
+async def get_plus_membership(args: NoArgs, ctx: ToolContext) -> ToolOutput:
+    """Read-only: Gudy explains Plus but never joins, renews or cancels it."""
+    p = await ctx.api.get("/v1/plus")
+    plan, m = p["plan"], p.get("membership")
+    data: dict[str, Any] = {
+        "member": p["member"],
+        "available": plan["enabled"],
+        "price": f"{naira(plan['price_kobo'])} every {plan['period_days']} days (VAT included)",
+        "benefits": plan["benefits"],
+        "note": "Gudy cannot join, renew or cancel Plus: open_screen('plus') shows the Plus screen.",
+    }
+    if m:
+        data.update(
+            {
+                "status": m["status"],
+                "member_until": m["paid_through_text"],
+                "auto_renew_from_wallet": m["auto_renew"],
+                "saved_so_far": naira(m["savings_kobo"]),
+            }
+        )
+    card = {"type": "plus", "member": p["member"], "price": data["price"], "benefits": plan["benefits"]}
+    if m and p["member"]:
+        card.update({"member_until": m["paid_through_text"], "saved": naira(m["savings_kobo"])})
+    return ToolOutput(data, card=card)
+
+
+async def get_rewards(args: NoArgs, ctx: ToolContext) -> ToolOutput:
+    """Read-only: points, personal vouchers and the referral code (no redeeming or applying codes)."""
+    r = await ctx.api.get("/v1/rewards")
+    redeem, ref, earn = r["redeem"], r["referral"], r["earn"]
+    vouchers = [
+        {
+            "code": v["code"],
+            "worth": naira(v["value_kobo"]),
+            "min_order": naira(v["min_subtotal_kobo"]),
+            "expires": lagos_time(v["ends_at"]) if v.get("ends_at") else None,
+        }
+        for v in r["vouchers"]
+    ]
+    rate = f"{earn['points_per_100_naira']} point for every ₦100 spent on completed orders"
+    if earn["plus_multiplier"] > 1:
+        rate += f" ({earn['plus_multiplier']}x for Gud Meal Plus members)"
+    data: dict[str, Any] = {
+        "points": r["points"],
+        "points_worth": naira(r["points_value_kobo"]),
+        "earn_rate": rate,
+        "redeem_rule": f"{redeem['step_points']} points = {naira(redeem['step_value_kobo'])} off orders from "
+        f"{naira(redeem['min_subtotal_kobo'])}",
+        "redeemable_points": redeem["redeemable_points"],
+        "points_to_next_reward": redeem["points_to_next"],
+        "next_reward_worth": naira(redeem["step_value_kobo"]),
+        "referral_code": ref["code"],
+        "friend_gets": naira(ref["friend_gets_kobo"]),
+        "you_get": naira(ref["you_get_kobo"]),
+        "friends_rewarded": ref["friends_rewarded"],
+        "share_text": ref["share_text"],
+        "vouchers": vouchers,
+        "note": "Gudy cannot redeem points or apply referral codes: open_screen('rewards').",
+    }
+    card = {
+        "type": "rewards",
+        "points": r["points"],
+        "referral_code": ref["code"],
+        "share_text": ref["share_text"],
+        "vouchers": vouchers,
+    }
+    return ToolOutput(data, card=card)
+
+
+async def get_group_orders(args: NoArgs, ctx: ToolContext) -> ToolOutput:
+    """Read-only: the customer's group orders, who is in them and what they owe (shares come from the API)."""
+    groups = await ctx.api.get("/v1/group-orders")
+    rows = []
+    for g in groups:
+        order = g.get("order") or {}
+        if g["status"] == "ordered":
+            status = (
+                "waiting for everyone to pay"
+                if order.get("status") == "pending_payment"
+                else (f"order {str(order.get('status', '')).replace('_', ' ')}")
+            )
+        else:
+            status = GROUP_STATUS.get(g["status"], g["status"])
+        row: dict[str, Any] = {
+            "store": g["restaurant"]["name"],
+            "status": status,
+            "people": len(g["members"]),
+            "you_are_host": g["is_host"],
+            "host": g["host_name"],
+        }
+        if g["status"] == "open":
+            row["join_code"] = g["code"]
+        mine = g.get("my_share")
+        if mine:
+            row["your_share"] = naira(mine["amount_kobo"]) + (" (paid)" if mine["status"] == "paid" else "")
+        if g.get("remaining_kobo"):
+            row["still_to_pay"] = naira(g["remaining_kobo"])
+        row["group_order_id"] = g["id"]
+        rows.append(row)
+    data: dict[str, Any] = {"group_orders": rows}
+    if not rows:
+        data["how_to_start"] = (
+            "Open a Food or Beauty store and tap 'Order with friends', then share the 6-character code."
+        )
+    data["note"] = "Gudy cannot join, change or pay a group order: open_screen('group')."
+    return ToolOutput(data, card={"type": "group_orders", "groups": rows})
+
+
 def register(reg: ToolRegistry) -> None:
     add = reg.register
     add(
@@ -562,6 +685,36 @@ def register(reg: ToolRegistry) -> None:
             "why an option is unavailable. Gud Meal decides eligibility; quote the reasons exactly.",
             OptionalOrderArgs,
             get_payment_options,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_plus_membership",
+            "Gud Meal Plus: price, member benefits, and the customer's membership (until when, auto-renew, "
+            "savings). Read-only; customers join or cancel on the Plus screen.",
+            NoArgs,
+            get_plus_membership,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_rewards",
+            "The customer's Gud points, how to earn and redeem them, their personal vouchers and their referral "
+            "code. Read-only; redeeming and applying codes happen on the Rewards screen.",
+            NoArgs,
+            get_rewards,
+            EVERYONE,
+        )
+    )
+    add(
+        ToolSpec(
+            "get_group_orders",
+            "The customer's group orders (order with friends, split bill): store, status, join code, their share "
+            "and what is still unpaid. Read-only.",
+            NoArgs,
+            get_group_orders,
             EVERYONE,
         )
     )

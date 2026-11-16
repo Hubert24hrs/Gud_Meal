@@ -157,6 +157,7 @@ function ChatInner() {
 const SCREENS: Record<string, string> = {
   home: "/", food: "/food", beauty: "/beauty", parcel: "/send", discover: "/discover", orders: "/orders",
   support: "/support", profile: "/account", wallet: "/wallet", waybill: "/send?mode=interstate",
+  plus: "/plus", rewards: "/rewards", group: "/group",
 };
 
 /** Route for a screen Gudy points to (`open_screen` card). */
@@ -201,6 +202,41 @@ function CardView({ card }: { card: ChatCard }) {
         {card.cash_on_delivery_balance ? <p className="text-xs">Cash on delivery: {String(card.cash_on_delivery_balance)}</p> : null}
         <p className="mt-1 text-xs font-bold underline">Open wallet · top up</p>
       </Link>
+    );
+  }
+  if (card.type === "plus") {
+    const benefits = (card.benefits as string[]) ?? [];
+    return (
+      <Link href="/plus" className="block rounded-md bg-gradient-to-br from-[#3A1A0C] to-primary p-3 text-white">
+        <p className="text-xs font-semibold">Gud Meal Plus · {String(card.price)}</p>
+        {card.member ? <p className="text-sm font-black">Member until {String(card.member_until)} · saved {String(card.saved)}</p>
+          : benefits.map((b) => <p key={b} className="text-xs">✓ {b}</p>)}
+        <p className="mt-1 text-xs font-bold underline">{card.member ? "Open Plus" : "Join Plus"}</p>
+      </Link>
+    );
+  }
+  if (card.type === "rewards") {
+    const vouchers = (card.vouchers as { code: string; worth: string }[]) ?? [];
+    return (
+      <Link href="/rewards" className="block space-y-1 rounded-md border border-border bg-background p-3 text-xs">
+        <p className="text-sm font-black">{Number(card.points).toLocaleString()} Gud points</p>
+        <p>Referral code <span className="font-mono font-bold">{String(card.referral_code)}</span></p>
+        {vouchers.map((v) => <p key={v.code}>{v.worth} off · <span className="font-mono">{v.code}</span></p>)}
+        <p className="font-bold text-primary underline">Open Rewards</p>
+      </Link>
+    );
+  }
+  if (card.type === "group_orders") {
+    const groups = (card.groups as { store: string; status: string; group_order_id: string; join_code?: string; your_share?: string }[]) ?? [];
+    return (
+      <div className="space-y-1 rounded-md border border-border bg-background p-3 text-xs">
+        {groups.length === 0 ? <p>No group orders right now.</p> : groups.map((g) => (
+          <Link key={g.group_order_id} href={`/group/${g.group_order_id}`} className="block">
+            <strong>{g.store}</strong>: {g.status}{g.join_code ? ` · code ${g.join_code}` : ""}{g.your_share ? ` · your share ${g.your_share}` : ""}
+          </Link>
+        ))}
+        <Link href="/group" className="font-bold text-primary underline">Open group orders</Link>
+      </div>
     );
   }
   if (card.type === "waybill_options") {

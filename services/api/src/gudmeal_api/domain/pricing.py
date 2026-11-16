@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 
 from ..errors import ItemUnavailable, ValidationFailed, VoucherInvalid
 from .geo import GeoPoint, haversine_km
+from .growth import PlusConfig
 from .models import (
     CartLine,
     Fulfillment,
@@ -28,7 +29,7 @@ from .models import (
     SettlementTerms,
     Voucher,
 )
-from .money import apply_bps, clamp, multiply_decimal
+from .money import allocate, apply_bps, clamp, multiply_decimal
 
 if TYPE_CHECKING:
     from .logistics import WaybillLane
@@ -98,6 +99,7 @@ class PricingConfig(BaseModel):
     delivery: DeliveryFeeConfig = Field(default_factory=DeliveryFeeConfig)
     rider_pay: RiderPayConfig = Field(default_factory=RiderPayConfig)
     parcel: ParcelFeeConfig = Field(default_factory=ParcelFeeConfig)
+    plus: PlusConfig = Field(default_factory=PlusConfig)  # Gud Meal Plus plan and member benefits
     avg_speed_kmh: Decimal = Decimal("18")
     dispatch_buffer_minutes: int = 8
     zones: list[ZoneConfig] = Field(default_factory=list)
@@ -280,8 +282,10 @@ def compute_price(
     voucher: Voucher | None = None,
     now: datetime,
     measured_road_km: float | None = None,
+    plus: PlusConfig | None = None,
 ) -> PricingResult:
-    """`measured_road_km` (Google Routes) replaces the straight-line x road-factor estimate when known."""
+    """Price an order. `plus` is the Plus plan when the customer is a member and the service qualifies;
+    `measured_road_km` (Google Routes) replaces the straight-line x road-factor estimate when known."""
     subtotal = sum(ln.line_total_kobo for ln in lines)
     if subtotal <= 0:
         raise ValidationFailed("Order is empty")
@@ -294,16 +298,23 @@ def compute_price(
     if is_delivery and distance_km is None:
         raise ValidationFailed("Distance is required for delivery pricing")
 
-    d_fee = (
+    d_full = (
         delivery_fee(distance_km or 0.0, cfg, surge_bps, measured_km=measured_road_km) if is_delivery else 0
     )
-    s_fee = service_fee(subtotal, cfg)
+    s_full = service_fee(subtotal, cfg)
     small_fee = cfg.small_order_fee_kobo if is_delivery and subtotal < cfg.small_order_threshold_kobo else 0
+    d_fee, s_fee = d_full, s_full
+    if plus is not None:  # member benefits: free delivery above a minimum, a cheaper service fee
+        if is_delivery and subtotal >= plus.free_delivery_min_subtotal_kobo:
+            d_fee = 0
+        s_fee = s_full - apply_bps(s_full, plus.service_fee_discount_bps)
 
     discount = 0
     funded_by: Literal["platform", "restaurant"] | None = None
     delivery_discount = 0
     if voucher is not None:
+        if voucher.target == "delivery_fee" and d_full > 0 and d_fee == 0:
+            raise VoucherInvalid("Delivery is already free with Gud Meal Plus")
         discount = voucher_discount(
             voucher, subtotal_kobo=subtotal, delivery_fee_kobo=d_fee, restaurant_id=restaurant.id, now=now
         )
@@ -314,6 +325,10 @@ def compute_price(
     vat_base = s_fee + small_fee + (d_fee - delivery_discount)
     vat = apply_bps(vat_base, cfg.vat_bps)
     total = subtotal + d_fee + s_fee + small_fee + vat - discount
+    plus_savings = 0
+    if plus is not None:
+        vat_full = apply_bps(s_full + small_fee + (d_full - delivery_discount), cfg.vat_bps)
+        plus_savings = (d_full - d_fee) + (s_full - s_fee) + (vat_full - vat)
     if total <= 0:
         raise ValidationFailed("Order total must be positive")
 
@@ -334,6 +349,7 @@ def compute_price(
         small_order_fee_kobo=small_fee,
         vat_kobo=vat,
         discount_kobo=discount,
+        plus_savings_kobo=plus_savings,
         total_kobo=total,
         discount_funded_by=funded_by,
         voucher_code=voucher.code if voucher else None,
@@ -500,3 +516,30 @@ def compute_waybill_price(
         restaurant_earning_kobo=0,
     )
     return PricingResult(breakdown=breakdown, settlement=settlement)
+
+
+# ---------------------------------------------------------------------------------------------
+# Gud Meal Plus and group orders (ADR-0016)
+# ---------------------------------------------------------------------------------------------
+
+
+def vat_inclusive_split(gross_kobo: int, vat_bps: int) -> tuple[int, int]:
+    """Split a VAT-inclusive price into (net, VAT), VAT rounded half-up to the kobo."""
+    if gross_kobo <= 0:
+        raise ValidationFailed("Price must be positive")
+    denominator = 10_000 + vat_bps
+    vat = (gross_kobo * vat_bps * 2 + denominator) // (2 * denominator)
+    return gross_kobo - vat, vat
+
+
+def split_bill(items_by_member: dict[str, int], total_kobo: int) -> dict[str, int]:
+    """Group order shares: each member pays for their own items, and fees, VAT and discounts are shared in
+    proportion to those items. Shares add up exactly to the order total and are all positive."""
+    if not items_by_member or any(v <= 0 for v in items_by_member.values()):
+        raise ValidationFailed("Everyone sharing the bill needs at least one item")
+    if total_kobo <= 0:
+        raise ValidationFailed("Order total must be positive")
+    shares = allocate(items_by_member, total_kobo)
+    if any(v <= 0 for v in shares.values()):
+        raise ValidationFailed("The bill is too small to split")
+    return shares

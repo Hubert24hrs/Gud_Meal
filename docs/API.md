@@ -83,3 +83,56 @@ or `estimate`, and `precision` is `rooftop`, `street`, `area` or `approximate`.
 `dropoff_location`. `POST /v1/rider/location` is refused with `invalid_transition` (409) while the rider is
 offline. Quotes and parcel quotes include `road_distance_km` and `route_source`; delivery fees use the measured
 road distance when Google answered. The places endpoints share the `places` rate limit (40 burst, 0.5/s per user).
+
+## Interstate waybill (phase 3, [ADR-0015](adr/0015-interstate-waybill.md))
+
+| Method & path | Who | Purpose |
+|---|---|---|
+| `GET /v1/waybill/origins` | public | Cities you can send from: home pickup yes/no, drop-off hubs |
+| `GET /v1/waybill/destinations?origin=` | public | Where a city sends to: from-price, transit days, door delivery or collection hubs, carrier |
+| `POST /v1/waybills/quotes` · `GET /v1/waybills/quotes/{id}` | customer | Price a waybill and get the expected dates. Inputs: route, pickup or drop-off, door or collection, sender, recipient, size, weight, category, declared value, cash on delivery |
+| `POST /v1/waybills` (Idempotency-Key) | customer | Book from a quote (re-priced; `price_changed` if it moved). Returns the order with `waybill.tracking_code`. Pay with `POST /v1/orders/{id}/checkout`, by card or wallet only |
+| `GET /v1/track/{code}` | public, rate-limited per client address | Route, step, milestones, places, expected dates, collection point; **no names, phones or addresses** |
+| `GET /v1/admin/hubs` · `GET /v1/admin/hubs/{hub_id}/board` | `hubs:operate` (hub agents, operations) | Hubs; the board lists packages expected, in the hub, departed and arriving |
+| `POST /v1/admin/waybills/receive` · `…/depart` · `…/arrive` · `…/collect` | `hubs:operate` | Scan in at the origin hub, send a batch with a trip reference, mark arrival, hand over against the recipient's collection code |
+| `GET` · `PUT /v1/admin/config/logistics` | `config:read` / `config:write` | The network (cities, hubs, carriers, lanes and their prices); versioned and audited |
+| `POST /v1/admin/carriers/{carrier_id}/payouts` (Idempotency-Key) | finance (`payouts:approve`) | Record a bank payment to a carrier (at most what is owed) |
+
+Waybill fields in other responses:
+
+- Orders with `vertical: "waybill"` carry a `waybill` object (tracking number, hubs, parties, stage, milestones,
+  expected dates) and `progress.steps`, the five step labels.
+- The breakdown adds `linehaul_fee_kobo` and `pickup_fee_kobo`.
+- Rider views of waybill jobs carry `leg_kind` (`first_mile` | `last_mile`) and `hub_handover` (first-mile jobs end
+  with hub staff, not with a code).
+- `GET /v1/admin/cash` adds `carriers` and `totals.carrier_balances_kobo`.
+- Customer order lists never include rider jobs. Rider jobs cannot be checked out, cancelled or disputed.
+
+## Plus, rewards and group orders (phase 4, [ADR-0016](adr/0016-plus-rewards-group-orders.md))
+
+| Method & path | Who | Purpose |
+|---|---|---|
+| `GET /v1/plus` | customer | The plan (price, benefits) and my membership (until when, auto-renew, savings, `can_renew`) |
+| `POST /v1/plus/subscribe` (Idempotency-Key) `{"provider", "auto_renew"}` | customer | Join or renew. `provider: "wallet"` is instant; otherwise it returns a hosted checkout. Paying again works only in the last 7 days of a period |
+| `PUT /v1/plus/auto-renew` `{"auto_renew"}` | customer | Renew from the wallet each period, or cancel at the end of it |
+| `GET /v1/rewards` · `GET /v1/rewards/vouchers` | customer | Gud points, redeem steps, personal vouchers, referral code, history |
+| `POST /v1/rewards/redeem` (Idempotency-Key) `{"points"}` | customer | Turn points into a personal voucher (in steps, e.g. 500 points = ₦500) |
+| `POST /v1/rewards/referral` `{"code"}` | customer | Apply a friend's code (new customers, once): a welcome voucher at once |
+| `GET /v1/group-orders` · `POST /v1/group-orders` | customer | My group orders · start one at a Food or Beauty store (delivery address, `split_mode` `each` or `host`) |
+| `POST /v1/group-orders/join` `{"code"}` | customer (rate-limited) | Join with the 6-character code |
+| `GET /v1/group-orders/{id}` | members | Members, everyone's items (live prices), shares, my share, what is still unpaid, pay-by time |
+| `PUT /v1/group-orders/{id}/lines` · `…/ready` · `…/settings` | members (settings: host) | Replace my items · I'm done · who pays |
+| `POST /v1/group-orders/{id}/lock` · `…/unlock` · `…/cancel` · `DELETE …/members/{uid}` | host (leave: the member) | Manage the cart; cancelling after ordering refunds every paid share |
+| `POST /v1/group-orders/{id}/checkout` (Idempotency-Key) | host | One quote and one order for everyone (host's address, voucher, Plus); shares from `split_bill` |
+| `POST /v1/group-orders/{id}/pay` (Idempotency-Key) `{"provider", "cover_rest"}` | members | Pay my share by card or wallet, or (host) pay everything still unpaid |
+| `GET /v1/admin/growth` | analytics (finance, operations, marketing, admin) | Plus members and revenue, points outstanding, referrals, reward vouchers |
+| `GET` · `PUT /v1/admin/config/growth` | `config:read` / `config:write` | Points, referral and group-order settings (versioned, audited); the Plus plan is part of `/v1/admin/config/pricing` |
+| `POST /internal/jobs/renew-plus` | Cloud Scheduler | Daily wallet renewals and low-balance reminders |
+
+Related fields in other responses:
+
+- Quotes and orders carry `breakdown.plus_savings_kobo`.
+- Orders placed from a group carry `group_order_id`.
+- `GET /v1/config/public` adds `plus`.
+- Split-bill orders refuse `POST /v1/orders/{id}/checkout` and pay on delivery: each member pays through
+  `/group-orders/{id}/pay`.

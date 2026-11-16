@@ -1,10 +1,11 @@
 # Gud Meal — Discover. Order. Eat.
 
-AI-native delivery for Nigeria (Lagos and Enugu): **Food**, **Beauty & Skin care** from partner shops and
-**Package Delivery** by bike, with **Gudy**, an AI assistant that speaks English, Nigerian Pidgin, Igbo, Yoruba and
-Hausa. A customer app and website (Glovo-style, in Gud Meal orange, with animated draggable service bubbles), a
-partner dashboard, a rider app, a super-admin Command Centre, a FastAPI core API and a LangGraph multi-agent
-service — one ecosystem sharing identity (Firebase Auth), data (Firestore + PostgreSQL) and business rules.
+AI-native delivery for Nigeria (Lagos and Enugu): **Food**, **Beauty & Skin care** from partner shops and **Package
+Delivery** by bike and by **interstate waybill** (Lagos, Enugu, Abuja, Port Harcourt), with **Gudy**, an AI
+assistant that speaks English, Nigerian Pidgin, Igbo, Yoruba and Hausa. A customer app and website (Glovo-style, in
+Gud Meal orange, with animated draggable service bubbles), a partner dashboard, a rider app, a super-admin Command
+Centre, a FastAPI core API and a LangGraph multi-agent service — one ecosystem sharing identity (Firebase Auth),
+data (Firestore + PostgreSQL) and business rules.
 
 > “Gud Meal, I have ₦10,000. Find me the best meal for two people, order it, and have it delivered before 8pm.”
 > — the assistant plans options with exact totals, drafts the order, asks you to approve, and hands you a
@@ -14,11 +15,11 @@ service — one ecosystem sharing identity (Firebase Auth), data (Firestore + Po
 
 | Path | What | Stack |
 |---|---|---|
-| `services/api` | Core API: merchants (food, beauty), parcels, pricing, quotes, orders, payments (gateways with failover, wallet, pay on delivery, vendor COD), ledger, dispatch, admin | Python 3.13, FastAPI, SQLAlchemy, Firestore |
-| `services/agents` | Gudy: LangGraph orchestrator + 8 specialist agents, 38 approval-gated tools, offline mode | LangGraph, Gemini |
-| `apps/web` | Customer website (service bubbles, Food, Beauty, Send a package, Discover, Support, Gudy) | Next.js 16, Tailwind 4 |
+| `services/api` | Core API: merchants (food, beauty), parcels, interstate waybills and hubs, Gud Meal Plus, points and referrals, group orders with split bill, pricing, quotes, orders, payments (gateways with failover, wallet, pay on delivery, vendor COD), ledger, dispatch, admin | Python 3.13, FastAPI, SQLAlchemy, Firestore |
+| `services/agents` | Gudy: LangGraph orchestrator + 8 specialist agents, 43 approval-gated tools, offline mode | LangGraph, Gemini |
+| `apps/web` | Customer website (service bubbles, Food, Beauty, Send a package, interstate waybill and tracking, Plus, Rewards, group orders, Discover, Support, Gudy) | Next.js 16, Tailwind 4 |
 | `apps/partner` | Gud Meal Partner — restaurant dashboard | Next.js 16 |
-| `apps/admin` | Gud Meal Command Centre — super admin | Next.js 16 |
+| `apps/admin` | Gud Meal Command Centre — super admin, hub console, cash and carrier payouts, growth | Next.js 16 |
 | `mobile/customer` · `mobile/rider` · `mobile/core` | Customer & rider apps + shared package | Flutter, Riverpod, GoRouter, Dio, Freezed |
 | `packages/*` | Design tokens (→ CSS/TS/Dart), typed API client, React UI kit | TypeScript |
 | `firebase/` | Firestore/Storage rules, indexes, emulator config, rules tests | Firebase |
@@ -53,11 +54,11 @@ Details: [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
 
 | Suite | Command | Result (last run) |
 |---|---|---|
-| API (unit + HTTP integration) | `cd services/api && uv run pytest` | 482 passed |
-| API on PostgreSQL | `TEST_DATABASE_URL=postgresql+asyncpg://… uv run pytest tests/integration` | 40 passed |
-| Agents | `cd services/agents && uv run pytest` | 40 passed (1 live-Gemini test skipped without a key) |
-| Web | `npx vitest run --root packages/api-client` · `--root apps/web` · `npm run build` | 20 passed, 3 builds |
-| Flutter | `flutter test` in `mobile/core`, `mobile/customer`, `mobile/rider` | 35 passed |
+| API (unit + HTTP integration) | `cd services/api && uv run pytest` | 589 passed |
+| API on PostgreSQL | `TEST_DATABASE_URL=postgresql+asyncpg://… uv run pytest tests/integration` | 108 passed |
+| Agents | `cd services/agents && uv run pytest` | 43 passed (1 live-Gemini test skipped without a key) |
+| Web | `npx vitest run --root packages/api-client` · `--root apps/web` · `npm run build` | 29 passed, 3 builds |
+| Flutter | `flutter test` in `mobile/core`, `mobile/customer`, `mobile/rider` | 54 passed |
 | Firestore/Storage rules + Firestore adapter | `npm run test:rules` (needs Java 21 for the emulators) | passed in CI |
 
 ## Key documents

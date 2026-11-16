@@ -321,6 +321,70 @@ class GudMealApi {
       () => _dio.post('/v1/waybills', data: {'quote_id': quoteId, 'channel': 'app'}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
       (d) => Order.fromJson(_map(d)));
 
+  // ------------------------------------------------------------------- Gud Meal Plus
+  Future<PlusOverview> plus() => _call(() => _dio.get('/v1/plus'), (d) => PlusOverview.fromJson(_map(d)));
+
+  /// Card payments return an authorization URL to open; wallet payments start the membership at once.
+  Future<({TopUpResult payment, PlusOverview plus})> subscribePlus(String idempotencyKey, {String? provider, bool autoRenew = true}) =>
+      _call(
+          () => _dio.post('/v1/plus/subscribe',
+              data: {'provider': ?provider, 'auto_renew': autoRenew},
+              options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+          (d) => (payment: TopUpResult.fromJson(Map<String, dynamic>.from(_map(d)['payment'] as Map)), plus: PlusOverview.fromJson(_map(d))));
+
+  Future<PlusOverview> setPlusAutoRenew(bool on) =>
+      _call(() => _dio.put('/v1/plus/auto-renew', data: {'auto_renew': on}), (d) => PlusOverview.fromJson(_map(d)));
+
+  // ------------------------------------------------------------------- rewards
+  Future<RewardsOverview> rewards() => _call(() => _dio.get('/v1/rewards'), (d) => RewardsOverview.fromJson(_map(d)));
+  Future<List<RewardVoucher>> myVouchers() =>
+      _call(() => _dio.get('/v1/rewards/vouchers'), (d) => _list(d).map(RewardVoucher.fromJson).toList());
+  Future<RewardVoucher?> applyReferral(String code) => _call(() => _dio.post('/v1/rewards/referral', data: {'code': code}), (d) {
+        final v = _map(d)['voucher'];
+        return v == null ? null : RewardVoucher.fromJson(Map<String, dynamic>.from(v as Map));
+      });
+  Future<RewardVoucher> redeemPoints(int points, String idempotencyKey) => _call(
+      () => _dio.post('/v1/rewards/redeem', data: {'points': points}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => RewardVoucher.fromJson(Map<String, dynamic>.from(_map(d)['voucher'] as Map)));
+
+  // ------------------------------------------------------------------- group orders
+  Future<List<GroupOrder>> myGroups() => _call(() => _dio.get('/v1/group-orders'), (d) => _list(d).map(GroupOrder.fromJson).toList());
+  Future<GroupOrder> group(String id) => _call(() => _dio.get('/v1/group-orders/$id'), (d) => GroupOrder.fromJson(_map(d)));
+  Future<GroupOrder> createGroup({required String restaurantId, required String fulfillment, DeliveryAddress? address, String splitMode = 'each'}) =>
+      _call(
+          () => _dio.post('/v1/group-orders', data: {
+                'restaurant_id': restaurantId,
+                'fulfillment': fulfillment,
+                'delivery_address': ?address?.toJson(),
+                'split_mode': splitMode,
+              }),
+          (d) => GroupOrder.fromJson(_map(d)));
+  Future<GroupOrder> joinGroup(String code) =>
+      _call(() => _dio.post('/v1/group-orders/join', data: {'code': code}), (d) => GroupOrder.fromJson(_map(d)));
+  Future<GroupOrder> setGroupLines(String id, List<CartLine> lines) => _call(
+      () => _dio.put('/v1/group-orders/$id/lines', data: {'lines': [for (final l in lines) l.toJson()]}),
+      (d) => GroupOrder.fromJson(_map(d)));
+  Future<GroupOrder> setGroupReady(String id, bool ready) =>
+      _call(() => _dio.put('/v1/group-orders/$id/ready', data: {'ready': ready}), (d) => GroupOrder.fromJson(_map(d)));
+  Future<GroupOrder> setGroupSplitMode(String id, String mode) =>
+      _call(() => _dio.put('/v1/group-orders/$id/settings', data: {'split_mode': mode}), (d) => GroupOrder.fromJson(_map(d)));
+  Future<GroupOrder> lockGroup(String id, bool locked) =>
+      _call(() => _dio.post('/v1/group-orders/$id/${locked ? 'lock' : 'unlock'}'), (d) => GroupOrder.fromJson(_map(d)));
+  Future<void> leaveGroup(String id, String uid) => _call(() => _dio.delete('/v1/group-orders/$id/members/$uid'), (_) {});
+  Future<GroupOrder> checkoutGroup(String id, String idempotencyKey, {String? voucher}) => _call(
+      () => _dio.post('/v1/group-orders/$id/checkout',
+          data: {'voucher_code': ?voucher, 'channel': 'app'}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+      (d) => GroupOrder.fromJson(_map(d)));
+  Future<({TopUpResult payment, GroupOrder group})> payGroupShare(String id, String idempotencyKey, {String? provider, bool coverRest = false}) =>
+      _call(
+          () => _dio.post('/v1/group-orders/$id/pay',
+              data: {'provider': ?provider, 'cover_rest': coverRest}, options: Options(headers: {'Idempotency-Key': idempotencyKey})),
+          (d) => (
+                payment: TopUpResult.fromJson(Map<String, dynamic>.from(_map(d)['payment'] as Map)),
+                group: GroupOrder.fromJson(Map<String, dynamic>.from(_map(d)['group'] as Map)),
+              ));
+  Future<GroupOrder> cancelGroup(String id) => _call(() => _dio.post('/v1/group-orders/$id/cancel'), (d) => GroupOrder.fromJson(_map(d)));
+
   Future<WaybillTracking> trackWaybill(String code) =>
       _call(() => _dio.get('/v1/track/${Uri.encodeComponent(code)}'), (d) => WaybillTracking.fromJson(_map(d)));
   Future<Order> cancel(String id) => _call(() => _dio.post('/v1/orders/$id/cancel', data: {'reason': 'Cancelled in app'}), (d) => Order.fromJson(_map(d)));

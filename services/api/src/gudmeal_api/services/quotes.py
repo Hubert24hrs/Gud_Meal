@@ -6,6 +6,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 from ..domain.geo import haversine_km
+from ..domain.growth import PlusConfig, membership_active
 from ..domain.hours import is_open
 from ..domain.models import (
     Fulfillment,
@@ -16,7 +17,14 @@ from ..domain.models import (
     RestaurantStatus,
     Voucher,
 )
-from ..domain.pricing import PricingResult, compute_price, estimate_minutes, menu_fingerprint, price_line
+from ..domain.pricing import (
+    PricingConfig,
+    PricingResult,
+    compute_price,
+    estimate_minutes,
+    menu_fingerprint,
+    price_line,
+)
 from ..errors import (
     ItemUnavailable,
     NotFound,
@@ -56,12 +64,22 @@ class QuoteService:
         if not code:
             return None
         voucher = await self.repos.vouchers.get(code.strip().upper())
-        if voucher is None:
-            raise VoucherInvalid("Voucher code not recognised")
+        if voucher is None or (voucher.customer_id is not None and voucher.customer_id != customer_id):
+            raise VoucherInvalid("Voucher code not recognised")  # personal vouchers belong to one account
         used = await self.repos.store.get(f"vouchers/{voucher.code}/redemptions/{customer_id}")
         if used and int(used.get("count", 0)) >= voucher.per_customer_limit:
             raise VoucherInvalid("You have already used this voucher")
         return voucher
+
+    async def plus_for(
+        self, customer_id: str, vertical: str, cfg: PricingConfig, now: datetime
+    ) -> PlusConfig | None:
+        """The Plus plan when this customer is a member and the service qualifies for member benefits."""
+        plan = cfg.plus
+        if not plan.enabled or vertical not in plan.verticals:
+            return None
+        membership = await self.repos.memberships.get(customer_id)
+        return plan if membership_active(membership, now) else None
 
     def _check_availability(self, restaurant: Restaurant, req: QuoteRequest, now: datetime) -> datetime:
         if restaurant.status != RestaurantStatus.ACTIVE:
@@ -137,6 +155,7 @@ class QuoteService:
         measured = route is not None and route.source == "google"
 
         voucher = await self._voucher(req.voucher_code, customer_id)
+        plus = await self.plus_for(customer_id, restaurant.vertical.value, cfg, now)
         result = compute_price(
             lines=priced,
             restaurant=restaurant,
@@ -147,6 +166,7 @@ class QuoteService:
             voucher=voucher,
             now=now,
             measured_road_km=route.distance_km if measured and route else None,
+            plus=plus,
         )
         prep = max([restaurant.avg_prep_minutes] + [items[i].prep_minutes or 0 for i in item_ids])
         travel = route.duration_minutes if measured and route and route.duration_minutes else None

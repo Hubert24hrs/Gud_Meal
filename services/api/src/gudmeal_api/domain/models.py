@@ -357,6 +357,7 @@ class PriceBreakdown(Model):
     cod_fee_kobo: int = 0  # cash-on-delivery collection fee (parcels)
     linehaul_fee_kobo: int = 0  # waybill: carrying the package between cities
     pickup_fee_kobo: int = 0  # waybill: rider collects from the sender's address
+    plus_savings_kobo: int = 0  # Gud Meal Plus: fees and VAT the member did not pay (informational)
     total_kobo: int
     discount_funded_by: Literal["platform", "restaurant"] | None = None
     voucher_code: str | None = None
@@ -480,6 +481,7 @@ class Order(Model):
     waybill: WaybillDetails | None = None  # set for vertical == waybill
     # Internal rider job that moves a waybill between an address and a hub (no payment of its own).
     leg_of: str | None = None
+    group_order_id: str | None = None  # placed by the host of a group order (split bill)
     leg_kind: WaybillLegKind | None = None
     created_at: datetime
     updated_at: datetime
@@ -640,6 +642,8 @@ class Voucher(Model):
     per_customer_limit: int = Field(default=1, gt=0)
     used_count: int = 0
     is_active: bool = True
+    customer_id: str | None = None  # personal voucher (rewards): only this account can use it
+    source: Literal["campaign", "points", "referral", "referrer"] = "campaign"
 
 
 class Review(Model):

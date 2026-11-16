@@ -86,6 +86,8 @@ export interface PriceBreakdown {
   cod_fee_kobo?: Kobo;
   /** Waybill: carrying the package between cities, and the rider pickup from the sender. */
   linehaul_fee_kobo?: Kobo; pickup_fee_kobo?: Kobo;
+  /** Gud Meal Plus: fees and VAT the member did not pay on this order (informational). */
+  plus_savings_kobo?: Kobo;
 }
 export interface Quote {
   id: string; restaurant_id: string; restaurant_name: string; lines: PricedLine[]; breakdown: PriceBreakdown;
@@ -105,6 +107,8 @@ export interface Order {
   accepted_at: string | null; ready_at: string | null; picked_up_at: string | null; delivered_at: string | null;
   completed_at: string | null; cancelled_at: string | null; cancellation_reason: string | null;
   refund_total_kobo: Kobo; reviewed: boolean; channel: string; created_at: string; updated_at: string;
+  /** Placed by the host of a group order (split bill). */
+  group_order_id?: string | null;
   /** Set when the rider took cash at the door (pay on delivery and/or a package's COD amount). */
   cash_collected_at?: string | null;
   /** Waybill orders: steps are the waybill's own (Booked, At the hub, On the way, Arrived, Delivered). */
@@ -146,7 +150,7 @@ export interface CheckoutResult {
   failover_from?: string;
 }
 export interface PaymentView {
-  id: string; order_id: string | null; purpose?: "order" | "wallet_topup"; provider: string; reference: string;
+  id: string; order_id: string | null; purpose?: "order" | "wallet_topup" | "plus" | "group_share"; provider: string; reference: string;
   amount_kobo: Kobo; status: string; paid_at: string | null; refunded_kobo: Kobo; created_at: string;
   failure_reason: string | null; channel: string | null;
 }
@@ -329,6 +333,7 @@ export interface PricingConfig {
   rider_pay: { base_kobo: Kobo; per_km_kobo: Kobo; min_kobo: Kobo };
   avg_speed_kmh: string; dispatch_buffer_minutes: number;
   zones: { id: string; name: string; center: GeoPoint; radius_km: number; is_active: boolean; surge_bps: number }[];
+  plus?: PlusPlanConfig;
 }
 
 export interface ChatCard { type: string; [key: string]: unknown }
@@ -419,4 +424,92 @@ export interface LiveRider {
 export interface MapsStatus {
   provider: "google" | "local"; routes: "google" | "estimate"; traffic_aware: boolean; live_eta_refresh_seconds: number;
   requests_today: number; daily_cap: number;
+}
+
+// ------------------------------------------------------------------------------------- growth (phase 4)
+export interface PlusPlanConfig {
+  enabled: boolean; price_kobo: Kobo; period_days: number; free_delivery_min_subtotal_kobo: Kobo;
+  service_fee_discount_bps: number; verticals: string[]; points_multiplier: number; renew_window_hours: number;
+}
+export interface PlusPlan {
+  enabled: boolean; price_kobo: Kobo; vat_kobo: Kobo; period_days: number; free_delivery_min_subtotal_kobo: Kobo;
+  service_fee_discount_bps: number; points_multiplier: number; verticals: string[];
+  /** Ready-to-show benefit lines, e.g. "Free delivery on Food and Beauty orders of ₦3,000 or more". */
+  benefits: string[];
+}
+export interface PlusMembership {
+  status: "active" | "expired"; member_since: string; paid_through: string; paid_through_text: string;
+  days_left: number; auto_renew: boolean; can_renew: boolean; periods: number; savings_kobo: Kobo;
+}
+export interface PlusOverview { plan: PlusPlan; member: boolean; membership: PlusMembership | null }
+export interface PlusSubscribeResult extends PlusOverview { payment: TopUpResult & { payment_status?: string } }
+
+export interface RewardVoucher {
+  code: string; description: string; value_kobo: Kobo; min_subtotal_kobo: Kobo; ends_at: string | null;
+  source: "campaign" | "points" | "referral" | "referrer";
+}
+export interface PointsEntry {
+  id: string; kind: "earned" | "redeemed" | "reversed"; points: number; order_id: string | null;
+  voucher_code: string | null; note: string; at: string;
+}
+export interface RewardsOverview {
+  points: number; lifetime_points: number; points_value_kobo: Kobo;
+  redeem: {
+    enabled: boolean; step_points: number; step_value_kobo: Kobo; redeemable_points: number; points_to_next: number;
+    min_subtotal_kobo: Kobo; valid_days: number;
+  };
+  earn: { points_per_100_naira: number; plus_multiplier: number; member: boolean };
+  referral: {
+    enabled: boolean; code: string; friend_gets_kobo: Kobo; you_get_kobo: Kobo; min_subtotal_kobo: Kobo;
+    friends_rewarded: number; applied: boolean; can_apply: boolean; share_text: string;
+  };
+  vouchers: RewardVoucher[];
+  history: PointsEntry[];
+}
+
+export type GroupStatus = "open" | "locked" | "ordered" | "cancelled" | "expired";
+export type SplitMode = "host" | "each";
+export interface GroupMemberView {
+  uid: string; name: string; is_host: boolean; me: boolean; ready: boolean; items: number; items_kobo: Kobo;
+}
+export interface GroupLineView {
+  id: string; member_uid: string; member: string; item_id: string; name: string; quantity: number;
+  selections: { group_id: string; choice_ids: string[] }[]; options: string[]; notes: string | null;
+  line_total_kobo: Kobo; problem: string | null;
+}
+export interface GroupShareView {
+  uid: string; name: string; me: boolean; items_kobo: Kobo; amount_kobo: Kobo; status: "unpaid" | "paid";
+  paid_by_host: boolean;
+}
+export interface GroupOrder {
+  id: string; code: string; status: GroupStatus; split_mode: SplitMode; is_host: boolean; host_name: string;
+  restaurant: { id: string; name: string }; vertical: Vertical; fulfillment: Fulfillment; delivery_area: string | null;
+  members: GroupMemberView[]; max_members: number; lines: GroupLineView[]; estimated_items_kobo: Kobo;
+  expires_at: string;
+  order: { id: string; short_code: string; status: OrderStatus; total_kobo: Kobo; breakdown: PriceBreakdown } | null;
+  total_kobo: Kobo; shares: GroupShareView[];
+  my_share: { amount_kobo: Kobo; items_kobo: Kobo; status: "unpaid" | "paid" } | null;
+  paid_kobo: Kobo; remaining_kobo: Kobo; pay_by: string | null; can_pay: boolean; can_cover_rest: boolean;
+  cancel_reason: string | null;
+}
+export interface GroupCreateRequest {
+  restaurant_id: string; fulfillment: Fulfillment; delivery_address?: DeliveryAddress | null; split_mode: SplitMode;
+}
+export interface GroupPayResult { payment: TopUpResult & { payment_status?: string }; group: GroupOrder }
+
+export interface GrowthConfig {
+  version: number;
+  points_enabled: boolean; points_per_100_naira: number; point_value_kobo: Kobo; redeem_step_points: number;
+  redeem_min_subtotal_kobo: Kobo; redeem_valid_days: number;
+  referrals_enabled: boolean; referee_reward_kobo: Kobo; referee_min_subtotal_kobo: Kobo; referrer_reward_kobo: Kobo;
+  referrer_monthly_cap: number; referral_valid_days: number;
+  group_orders_enabled: boolean; group_max_members: number; group_open_hours: number;
+}
+export interface GrowthStats {
+  plus: { active_members: number; auto_renew_on: number; ending_in_7_days: number; revenue_kobo: Kobo; plan: PlusPlan };
+  rewards: {
+    points_outstanding: number; points_outstanding_value_kobo: Kobo; customers_with_points: number;
+    referred_customers: number; referrals_rewarded: number;
+    vouchers: Record<string, { issued: number; used: number; value_issued_kobo: Kobo }>;
+  };
 }

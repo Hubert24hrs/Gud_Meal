@@ -24,6 +24,7 @@ function Callback() {
   const reference = params.get("reference") ?? params.get("trxref") ?? params.get("tx_ref");
   const orderId = params.get("order_id");
   const isTopUp = params.get("purpose") === "wallet_topup";
+  const groupId = params.get("group_order_id");
 
   // Never trust the redirect: ask the server to verify with the provider.
   const verify = useQuery({
@@ -48,7 +49,19 @@ function Callback() {
         ) : status === "succeeded" ? (
           <>
             <CheckCircle2 className="mx-auto size-12 text-secondary" />
-            {isTopUp || verify.data?.purpose === "wallet_topup" ? (
+            {verify.data?.purpose === "plus" ? (
+              <>
+                <h1 className="font-display text-2xl">Welcome to Gud Meal Plus</h1>
+                <p className="text-sm text-muted">Free delivery and cheaper service fees start on your next order.</p>
+                <Link href="/plus"><Button size="lg" block>See my membership</Button></Link>
+              </>
+            ) : verify.data?.purpose === "group_share" ? (
+              <>
+                <h1 className="font-display text-2xl">Your share is paid</h1>
+                <p className="text-sm text-muted">The order goes to the store as soon as everyone has paid.</p>
+                <Link href={groupId ? `/group/${groupId}` : "/group"}><Button size="lg" block>Back to the group order</Button></Link>
+              </>
+            ) : isTopUp || verify.data?.purpose === "wallet_topup" ? (
               <>
                 <h1 className="font-display text-2xl">Wallet topped up</h1>
                 <p className="text-sm text-muted">The money is in your Gud Meal wallet. Pay for orders in one tap.</p>
@@ -69,6 +82,8 @@ function Callback() {
             <p className="text-sm text-muted">{verify.data?.failure_reason ?? "The payment was not successful. You have not been charged."}</p>
             {orderId && <Link href={`/orders/${orderId}`}><Button variant="outline" block>View order</Button></Link>}
             {isTopUp && <Link href="/wallet"><Button variant="outline" block>Back to my wallet</Button></Link>}
+            {groupId && <Link href={`/group/${groupId}`}><Button variant="outline" block>Back to the group order</Button></Link>}
+            {params.get("purpose") === "plus" && <Link href="/plus"><Button variant="outline" block>Back to Gud Meal Plus</Button></Link>}
           </>
         )}
       </Card>
