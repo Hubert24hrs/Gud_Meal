@@ -1,19 +1,98 @@
-# Builds and pushes both service images to Artifact Registry.
-# gcloud builds submit --config infra/cloudbuild/cloudbuild.yaml --substitutions _REGION=europe-west1,_REPO=gudmeal,_TAG=$SHA .
+# Builds and pushes the five images to Artifact Registry: gudmeal-api, gudmeal-agents and the websites
+# (gudmeal-web, gudmeal-partner, gudmeal-admin). The deploy workflow runs it with every substitution set:
+#
+#   gcloud builds submit --config infra/cloudbuild/cloudbuild.yaml --substitutions \
+#     _REGION=europe-west1,_REPO=gudmeal,_TAG=$SHA,_API_URL=...,_AGENTS_URL=...,_WEB_URL=...,_PARTNER_URL=...,\
+#     _ADMIN_URL=...,_FIREBASE_API_KEY=...,_FIREBASE_AUTH_DOMAIN=...,_FIREBASE_PROJECT_ID=...,_FIREBASE_APP_ID=...,\
+#     _APP_CHECK_SITE_KEY=...,_MAPS_BROWSER_KEY=... .
+#
+# The website settings are public values compiled into the browser code (see infra/docker/web.Dockerfile). The
+# websites build one after another so they share the dependency layer.
 steps:
   - id: api
     name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
     args: ["build", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-api:${_TAG}", "services/api"]
   - id: agents
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
     args: ["build", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-agents:${_TAG}", "services/agents"]
+  - id: web
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args:
+      - build
+      - --file=infra/docker/web.Dockerfile
+      - --build-arg=APP=web
+      - --build-arg=NEXT_PUBLIC_SITE_URL=${_WEB_URL}
+      - --build-arg=NEXT_PUBLIC_API_URL=${_API_URL}
+      - --build-arg=NEXT_PUBLIC_AGENTS_URL=${_AGENTS_URL}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_API_KEY=${_FIREBASE_API_KEY}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${_FIREBASE_AUTH_DOMAIN}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_PROJECT_ID=${_FIREBASE_PROJECT_ID}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_APP_ID=${_FIREBASE_APP_ID}
+      - --build-arg=NEXT_PUBLIC_APP_CHECK_SITE_KEY=${_APP_CHECK_SITE_KEY}
+      - --build-arg=NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY=${_MAPS_BROWSER_KEY}
+      - --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-web:${_TAG}
+      - .
+  - id: partner
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["web"]
+    args:
+      - build
+      - --file=infra/docker/web.Dockerfile
+      - --build-arg=APP=partner
+      - --build-arg=NEXT_PUBLIC_SITE_URL=${_PARTNER_URL}
+      - --build-arg=NEXT_PUBLIC_API_URL=${_API_URL}
+      - --build-arg=NEXT_PUBLIC_AGENTS_URL=${_AGENTS_URL}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_API_KEY=${_FIREBASE_API_KEY}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${_FIREBASE_AUTH_DOMAIN}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_PROJECT_ID=${_FIREBASE_PROJECT_ID}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_APP_ID=${_FIREBASE_APP_ID}
+      - --build-arg=NEXT_PUBLIC_APP_CHECK_SITE_KEY=${_APP_CHECK_SITE_KEY}
+      - --build-arg=NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY=${_MAPS_BROWSER_KEY}
+      - --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-partner:${_TAG}
+      - .
+  - id: admin
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["partner"]
+    args:
+      - build
+      - --file=infra/docker/web.Dockerfile
+      - --build-arg=APP=admin
+      - --build-arg=NEXT_PUBLIC_SITE_URL=${_ADMIN_URL}
+      - --build-arg=NEXT_PUBLIC_API_URL=${_API_URL}
+      - --build-arg=NEXT_PUBLIC_AGENTS_URL=${_AGENTS_URL}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_API_KEY=${_FIREBASE_API_KEY}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${_FIREBASE_AUTH_DOMAIN}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_PROJECT_ID=${_FIREBASE_PROJECT_ID}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_APP_ID=${_FIREBASE_APP_ID}
+      - --build-arg=NEXT_PUBLIC_APP_CHECK_SITE_KEY=${_APP_CHECK_SITE_KEY}
+      - --build-arg=NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY=${_MAPS_BROWSER_KEY}
+      - --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-admin:${_TAG}
+      - .
 images:
   - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-api:${_TAG}"
   - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-agents:${_TAG}"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-web:${_TAG}"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-partner:${_TAG}"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/gudmeal-admin:${_TAG}"
 substitutions:
   _REGION: europe-west1
   _REPO: gudmeal
   _TAG: latest
+  _API_URL: ""
+  _AGENTS_URL: ""
+  _WEB_URL: ""
+  _PARTNER_URL: ""
+  _ADMIN_URL: ""
+  _FIREBASE_API_KEY: ""
+  _FIREBASE_AUTH_DOMAIN: ""
+  _FIREBASE_PROJECT_ID: ""
+  _FIREBASE_APP_ID: ""
+  _APP_CHECK_SITE_KEY: ""
+  _MAPS_BROWSER_KEY: ""
+timeout: 2400s
 options:
   logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE

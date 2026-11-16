@@ -4,6 +4,10 @@ name: Deploy to Cloud Run
 # "production" (production with required reviewers) and these per-environment variables/secrets:
 #   vars.GCP_PROJECT_ID, vars.GCP_REGION, vars.ARTIFACT_REPO
 #   secrets.GCP_WORKLOAD_IDENTITY_PROVIDER, secrets.GCP_DEPLOY_SERVICE_ACCOUNT   (Workload Identity Federation — no JSON keys)
+# Website settings (public values compiled into the browser code; see docs/DEPLOYMENT.md):
+#   vars.FIREBASE_API_KEY, vars.FIREBASE_APP_ID (Firebase web app), optional vars.FIREBASE_AUTH_DOMAIN
+#   vars.APP_CHECK_SITE_KEY (reCAPTCHA Enterprise; required for production, where the API enforces App Check)
+#   optional vars.MAPS_BROWSER_KEY, and custom domains vars.API_URL / AGENTS_URL / WEB_URL / PARTNER_URL / ADMIN_URL
 on:
   workflow_dispatch:
     inputs:
@@ -26,6 +30,11 @@ jobs:
       REGION: ${{ vars.GCP_REGION }}
       REPO: ${{ vars.ARTIFACT_REPO }}
       TAG: ${{ github.sha }}
+      API_URL: ${{ vars.API_URL }}
+      AGENTS_URL: ${{ vars.AGENTS_URL }}
+      WEB_URL: ${{ vars.WEB_URL }}
+      PARTNER_URL: ${{ vars.PARTNER_URL }}
+      ADMIN_URL: ${{ vars.ADMIN_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -34,9 +43,23 @@ jobs:
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
       - name: Build & push images (Cloud Build)
+        env:
+          FIREBASE_API_KEY: ${{ vars.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ vars.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_APP_ID: ${{ vars.FIREBASE_APP_ID }}
+          APP_CHECK_SITE_KEY: ${{ vars.APP_CHECK_SITE_KEY }}
+          MAPS_BROWSER_KEY: ${{ vars.MAPS_BROWSER_KEY }}
+          TARGET: ${{ inputs.environment }}
         run: |
+          source infra/scripts/urls.sh
+          if [ -z "$FIREBASE_API_KEY" ] || [ -z "$FIREBASE_APP_ID" ]; then
+            echo "Set the FIREBASE_API_KEY and FIREBASE_APP_ID variables of this GitHub Environment" >&2; exit 1
+          fi
+          if [ "$TARGET" = production ] && [ -z "$APP_CHECK_SITE_KEY" ]; then
+            echo "Set APP_CHECK_SITE_KEY: the production API refuses signed-in calls without App Check" >&2; exit 1
+          fi
           gcloud builds submit --project "$PROJECT" --config infra/cloudbuild/cloudbuild.yaml \
-            --substitutions "_REGION=$REGION,_REPO=$REPO,_TAG=$TAG" .
+            --substitutions "_REGION=$REGION,_REPO=$REPO,_TAG=$TAG,_API_URL=$API_URL,_AGENTS_URL=$AGENTS_URL,_WEB_URL=$WEB_URL,_PARTNER_URL=$PARTNER_URL,_ADMIN_URL=$ADMIN_URL,_FIREBASE_API_KEY=$FIREBASE_API_KEY,_FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN:-$PROJECT.firebaseapp.com},_FIREBASE_PROJECT_ID=$PROJECT,_FIREBASE_APP_ID=$FIREBASE_APP_ID,_APP_CHECK_SITE_KEY=$APP_CHECK_SITE_KEY,_MAPS_BROWSER_KEY=$MAPS_BROWSER_KEY" .
       - name: Run database migrations (Cloud Run job)
         run: |
           gcloud run jobs deploy gudmeal-migrate --project "$PROJECT" --region "$REGION" \
@@ -46,5 +69,5 @@ jobs:
             --set-secrets "DATABASE_URL=api-database-url:latest" \
             --command alembic --args upgrade,head
           gcloud run jobs execute gudmeal-migrate --project "$PROJECT" --region "$REGION" --wait
-      - name: Deploy services
+      - name: Deploy services and websites
         run: infra/scripts/deploy.sh "${{ inputs.environment }}" "$PROJECT" "$REGION" "$REPO" "$TAG"

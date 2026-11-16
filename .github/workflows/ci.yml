@@ -144,3 +144,41 @@ jobs:
           for i in $(seq 1 30); do curl -sf localhost:8080/v1/health && break; sleep 1; done
           curl -sf "localhost:8080/v1/restaurants?limit=1" | head -c 200
           docker logs api | tail -5
+
+  websites:
+    name: Website image (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, partner, admin]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Cloud Run image (demo settings)
+        run: |
+          docker build -f infra/docker/web.Dockerfile -t "gudmeal-${{ matrix.app }}:ci" \
+            --build-arg APP=${{ matrix.app }} \
+            --build-arg NEXT_PUBLIC_SITE_URL=http://localhost:8080 \
+            --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000 \
+            --build-arg NEXT_PUBLIC_AGENTS_URL=http://localhost:8100 \
+            --build-arg NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key \
+            --build-arg NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=demo-gudmeal.firebaseapp.com \
+            --build-arg NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-gudmeal \
+            --build-arg NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:demo \
+            .
+      - name: Smoke-test the image (page and a static asset; the API is not running)
+        run: |
+          docker run -d --name site -p 8080:8080 -e API_URL=http://localhost:8000 "gudmeal-${{ matrix.app }}:ci"
+          code=000
+          for i in $(seq 1 30); do
+            code=$(curl -sL -o page.html -w '%{http_code}' localhost:8080/ || true)
+            [ "$code" = 200 ] && break
+            sleep 1
+          done
+          echo "GET / -> $code"
+          [ "$code" = 200 ] || { docker logs site; exit 1; }
+          asset=$(grep -o '/_next/static/[^"]*\.js' page.html | head -1)
+          echo "GET $asset"
+          curl -sf -o /dev/null "localhost:8080$asset"
+          docker exec site id -un
+          docker logs site | tail -5

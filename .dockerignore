@@ -1,0 +1,24 @@
+# Build context of infra/docker/web.Dockerfile (the repository root). The API and agents images build from their
+# own folders and are not affected. Keep local env files, data and other apps out of the website images.
+**/node_modules
+**/.next
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+!**/.env.example
+**/*.local
+**/*.db
+**/.venv
+**/build
+**/.dart_tool
+.git
+.github
+.claude
+docs
+infra
+mobile
+services
+firebase/*
+!firebase/package.json

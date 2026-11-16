@@ -49,7 +49,8 @@ exists gcloud artifacts repositories describe gudmeal --location "$REGION" ||
     --description "Gud Meal service images"
 
 say "Service accounts (least privilege)"
-for sa in gudmeal-api gudmeal-agents gudmeal-tasks gudmeal-deployer; do
+# gudmeal-web runs the three websites and gets no roles: they only call the public API.
+for sa in gudmeal-api gudmeal-agents gudmeal-tasks gudmeal-deployer gudmeal-web; do
   exists gcloud iam service-accounts describe "$sa@$PROJECT.iam.gserviceaccount.com" ||
     gcloud iam service-accounts create "$sa" --display-name "$sa"
 done
@@ -86,7 +87,7 @@ exists gcloud tasks queues describe gudmeal-default --location "$REGION" ||
 
 say "Secret Manager placeholders (add values yourself: gcloud secrets versions add NAME --data-file=-)"
 for s in api-database-url agents-database-url agents-checkpoint-url paystack-secret-key flutterwave-secret-key \
-         flutterwave-secret-hash api-code-pepper gemini-api-key gemini-model google-maps-api-key \
+         flutterwave-secret-hash api-code-pepper gemini-api-key gemini-model google-maps-server-key \
          channel-token-secret whatsapp-access-token whatsapp-app-secret whatsapp-verify-token; do
   exists gcloud secrets describe "$s" || gcloud secrets create "$s" --replication-policy automatic
 done
@@ -113,10 +114,21 @@ EOF
   fi
 fi
 
+# The services' public URLs (deterministic run.app URLs, the same ones deploy.sh uses).
+source "$(dirname "$0")/urls.sh"
+
 cat <<EOF
 
-Next steps (after the first deploy, when the API URL is known):
-  API_URL=\$(gcloud run services describe gudmeal-api --region $REGION --format 'value(status.url)')
+In the Firebase console for $PROJECT (needs you, before the first deploy):
+  - Project settings → Your apps: register one Web app for the three websites. Put its apiKey and appId in the
+    GitHub Environment variables FIREBASE_API_KEY and FIREBASE_APP_ID (see docs/DEPLOYMENT.md).
+  - Authentication → Settings → Authorized domains: add ${WEB_URL#https://}, ${PARTNER_URL#https://} and
+    ${ADMIN_URL#https://}.
+  - App Check: create a reCAPTCHA Enterprise key for those three domains, register it for the web app and set the
+    GitHub Environment variable APP_CHECK_SITE_KEY (required for production, where the API enforces App Check).
+
+Next steps (after the first deploy):
+  API_URL=$API_URL
   gcloud run services add-iam-policy-binding gudmeal-api --region $REGION \\
     --member serviceAccount:gudmeal-tasks@$PROJECT.iam.gserviceaccount.com --role roles/run.invoker
   gcloud pubsub subscriptions create gudmeal-events-push --topic gudmeal-domain-events \\
