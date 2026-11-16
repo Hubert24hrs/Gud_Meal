@@ -454,3 +454,23 @@ export interface GrowthStats {
     vouchers: Record<string, { issued: number; used: number; value_issued_kobo: Kobo }>;
   };
 }
+
+// ------------------------------------------------------------------------------------- WhatsApp (phase 5)
+export interface WhatsAppStatus {
+  /** False until Gud Meal's WhatsApp Business number is live. */
+  enabled: boolean;
+  linked: boolean;
+  /** Masked, e.g. "+234 801 ••• 1111". */
+  number: string | null;
+  linked_at: string | null;
+  business_number: string;
+  /** wa.me link to chat with Gudy once linked. */
+  chat_link: string | null;
+}
+export interface WhatsAppLinkCode {
+  code: string;
+  expires_at: string;
+  business_number: string;
+  /** wa.me link that pre-fills "LINK <code>". */
+  wa_link: string;
+}

@@ -14592,6 +14592,570 @@ $GroupMyShareCopyWith<$Res>? get myShare {
 
 
 /// @nodoc
+mixin _$WhatsAppStatus {
+
+ bool get enabled; bool get linked; String? get number; DateTime? get linkedAt; String get businessNumber; String? get chatLink;
+/// Create a copy of WhatsAppStatus
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WhatsAppStatusCopyWith<WhatsAppStatus> get copyWith => _$WhatsAppStatusCopyWithImpl<WhatsAppStatus>(this as WhatsAppStatus, _$identity);
+
+  /// Serializes this WhatsAppStatus to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WhatsAppStatus;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WhatsAppStatus&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled)&&(identical(other.linked, _this.linked) || other.linked == _this.linked)&&(identical(other.number, _this.number) || other.number == _this.number)&&(identical(other.linkedAt, _this.linkedAt) || other.linkedAt == _this.linkedAt)&&(identical(other.businessNumber, _this.businessNumber) || other.businessNumber == _this.businessNumber)&&(identical(other.chatLink, _this.chatLink) || other.chatLink == _this.chatLink));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WhatsAppStatus;
+  return Object.hash(runtimeType,_this.enabled,_this.linked,_this.number,_this.linkedAt,_this.businessNumber,_this.chatLink);
+}
+
+@override
+String toString() {
+  final _this = this as WhatsAppStatus;
+  return 'WhatsAppStatus(enabled: ${_this.enabled}, linked: ${_this.linked}, number: ${_this.number}, linkedAt: ${_this.linkedAt}, businessNumber: ${_this.businessNumber}, chatLink: ${_this.chatLink})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WhatsAppStatusCopyWith<$Res>  {
+  factory $WhatsAppStatusCopyWith(WhatsAppStatus value, $Res Function(WhatsAppStatus) _then) = _$WhatsAppStatusCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled, bool linked, String? number, DateTime? linkedAt, String businessNumber, String? chatLink
+});
+
+
+
+
+}
+/// @nodoc
+class _$WhatsAppStatusCopyWithImpl<$Res>
+    implements $WhatsAppStatusCopyWith<$Res> {
+  _$WhatsAppStatusCopyWithImpl(this._self, this._then);
+
+  final WhatsAppStatus _self;
+  final $Res Function(WhatsAppStatus) _then;
+
+/// Create a copy of WhatsAppStatus
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? linked = null,Object? number = freezed,Object? linkedAt = freezed,Object? businessNumber = null,Object? chatLink = freezed,}) {
+  return _then(WhatsAppStatus(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
+as bool,number: freezed == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
+as String?,linkedAt: freezed == linkedAt ? _self.linkedAt : linkedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
+as String,chatLink: freezed == chatLink ? _self.chatLink : chatLink // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WhatsAppStatus].
+extension WhatsAppStatusPatterns on WhatsAppStatus {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WhatsAppStatus value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WhatsAppStatus() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WhatsAppStatus value)  $default,){
+final _that = this;
+switch (_that) {
+case _WhatsAppStatus():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WhatsAppStatus value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WhatsAppStatus() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  bool linked,  String? number,  DateTime? linkedAt,  String businessNumber,  String? chatLink)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WhatsAppStatus() when $default != null:
+return $default(_that.enabled,_that.linked,_that.number,_that.linkedAt,_that.businessNumber,_that.chatLink);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  bool linked,  String? number,  DateTime? linkedAt,  String businessNumber,  String? chatLink)  $default,) {final _that = this;
+switch (_that) {
+case _WhatsAppStatus():
+return $default(_that.enabled,_that.linked,_that.number,_that.linkedAt,_that.businessNumber,_that.chatLink);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  bool linked,  String? number,  DateTime? linkedAt,  String businessNumber,  String? chatLink)?  $default,) {final _that = this;
+switch (_that) {
+case _WhatsAppStatus() when $default != null:
+return $default(_that.enabled,_that.linked,_that.number,_that.linkedAt,_that.businessNumber,_that.chatLink);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WhatsAppStatus implements WhatsAppStatus {
+  const _WhatsAppStatus({this.enabled = false, this.linked = false, this.number, this.linkedAt, this.businessNumber = '', this.chatLink});
+  factory _WhatsAppStatus.fromJson(Map<String, dynamic> json) => _$WhatsAppStatusFromJson(json);
+
+@override@JsonKey() final  bool enabled;
+@override@JsonKey() final  bool linked;
+@override final  String? number;
+@override final  DateTime? linkedAt;
+@override@JsonKey() final  String businessNumber;
+@override final  String? chatLink;
+
+/// Create a copy of WhatsAppStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WhatsAppStatusCopyWith<_WhatsAppStatus> get copyWith => __$WhatsAppStatusCopyWithImpl<_WhatsAppStatus>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WhatsAppStatusToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WhatsAppStatus&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.number, number) || other.number == number)&&(identical(other.linkedAt, linkedAt) || other.linkedAt == linkedAt)&&(identical(other.businessNumber, businessNumber) || other.businessNumber == businessNumber)&&(identical(other.chatLink, chatLink) || other.chatLink == chatLink));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,enabled,linked,number,linkedAt,businessNumber,chatLink);
+}
+
+@override
+String toString() {
+    return 'WhatsAppStatus(enabled: $enabled, linked: $linked, number: $number, linkedAt: $linkedAt, businessNumber: $businessNumber, chatLink: $chatLink)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WhatsAppStatusCopyWith<$Res> implements $WhatsAppStatusCopyWith<$Res> {
+  factory _$WhatsAppStatusCopyWith(_WhatsAppStatus value, $Res Function(_WhatsAppStatus) _then) = __$WhatsAppStatusCopyWithImpl;
+@override @useResult
+$Res call({
+ bool enabled, bool linked, String? number, DateTime? linkedAt, String businessNumber, String? chatLink
+});
+
+
+
+
+}
+/// @nodoc
+class __$WhatsAppStatusCopyWithImpl<$Res>
+    implements _$WhatsAppStatusCopyWith<$Res> {
+  __$WhatsAppStatusCopyWithImpl(this._self, this._then);
+
+  final _WhatsAppStatus _self;
+  final $Res Function(_WhatsAppStatus) _then;
+
+/// Create a copy of WhatsAppStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? linked = null,Object? number = freezed,Object? linkedAt = freezed,Object? businessNumber = null,Object? chatLink = freezed,}) {
+  return _then(_WhatsAppStatus(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
+as bool,number: freezed == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
+as String?,linkedAt: freezed == linkedAt ? _self.linkedAt : linkedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
+as String,chatLink: freezed == chatLink ? _self.chatLink : chatLink // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$WhatsAppLinkCode {
+
+ String get code; DateTime get expiresAt; String get businessNumber; String get waLink;
+/// Create a copy of WhatsAppLinkCode
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WhatsAppLinkCodeCopyWith<WhatsAppLinkCode> get copyWith => _$WhatsAppLinkCodeCopyWithImpl<WhatsAppLinkCode>(this as WhatsAppLinkCode, _$identity);
+
+  /// Serializes this WhatsAppLinkCode to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as WhatsAppLinkCode;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WhatsAppLinkCode&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.businessNumber, _this.businessNumber) || other.businessNumber == _this.businessNumber)&&(identical(other.waLink, _this.waLink) || other.waLink == _this.waLink));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as WhatsAppLinkCode;
+  return Object.hash(runtimeType,_this.code,_this.expiresAt,_this.businessNumber,_this.waLink);
+}
+
+@override
+String toString() {
+  final _this = this as WhatsAppLinkCode;
+  return 'WhatsAppLinkCode(code: ${_this.code}, expiresAt: ${_this.expiresAt}, businessNumber: ${_this.businessNumber}, waLink: ${_this.waLink})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $WhatsAppLinkCodeCopyWith<$Res>  {
+  factory $WhatsAppLinkCodeCopyWith(WhatsAppLinkCode value, $Res Function(WhatsAppLinkCode) _then) = _$WhatsAppLinkCodeCopyWithImpl;
+@useResult
+$Res call({
+ String code, DateTime expiresAt, String businessNumber, String waLink
+});
+
+
+
+
+}
+/// @nodoc
+class _$WhatsAppLinkCodeCopyWithImpl<$Res>
+    implements $WhatsAppLinkCodeCopyWith<$Res> {
+  _$WhatsAppLinkCodeCopyWithImpl(this._self, this._then);
+
+  final WhatsAppLinkCode _self;
+  final $Res Function(WhatsAppLinkCode) _then;
+
+/// Create a copy of WhatsAppLinkCode
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? expiresAt = null,Object? businessNumber = null,Object? waLink = null,}) {
+  return _then(WhatsAppLinkCode(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
+as String,waLink: null == waLink ? _self.waLink : waLink // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [WhatsAppLinkCode].
+extension WhatsAppLinkCodePatterns on WhatsAppLinkCode {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WhatsAppLinkCode value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WhatsAppLinkCode() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WhatsAppLinkCode value)  $default,){
+final _that = this;
+switch (_that) {
+case _WhatsAppLinkCode():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WhatsAppLinkCode value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WhatsAppLinkCode() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String code,  DateTime expiresAt,  String businessNumber,  String waLink)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WhatsAppLinkCode() when $default != null:
+return $default(_that.code,_that.expiresAt,_that.businessNumber,_that.waLink);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String code,  DateTime expiresAt,  String businessNumber,  String waLink)  $default,) {final _that = this;
+switch (_that) {
+case _WhatsAppLinkCode():
+return $default(_that.code,_that.expiresAt,_that.businessNumber,_that.waLink);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String code,  DateTime expiresAt,  String businessNumber,  String waLink)?  $default,) {final _that = this;
+switch (_that) {
+case _WhatsAppLinkCode() when $default != null:
+return $default(_that.code,_that.expiresAt,_that.businessNumber,_that.waLink);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _WhatsAppLinkCode implements WhatsAppLinkCode {
+  const _WhatsAppLinkCode({required this.code, required this.expiresAt, this.businessNumber = '', required this.waLink});
+  factory _WhatsAppLinkCode.fromJson(Map<String, dynamic> json) => _$WhatsAppLinkCodeFromJson(json);
+
+@override final  String code;
+@override final  DateTime expiresAt;
+@override@JsonKey() final  String businessNumber;
+@override final  String waLink;
+
+/// Create a copy of WhatsAppLinkCode
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WhatsAppLinkCodeCopyWith<_WhatsAppLinkCode> get copyWith => __$WhatsAppLinkCodeCopyWithImpl<_WhatsAppLinkCode>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$WhatsAppLinkCodeToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _WhatsAppLinkCode&&(identical(other.code, code) || other.code == code)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.businessNumber, businessNumber) || other.businessNumber == businessNumber)&&(identical(other.waLink, waLink) || other.waLink == waLink));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,code,expiresAt,businessNumber,waLink);
+}
+
+@override
+String toString() {
+    return 'WhatsAppLinkCode(code: $code, expiresAt: $expiresAt, businessNumber: $businessNumber, waLink: $waLink)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WhatsAppLinkCodeCopyWith<$Res> implements $WhatsAppLinkCodeCopyWith<$Res> {
+  factory _$WhatsAppLinkCodeCopyWith(_WhatsAppLinkCode value, $Res Function(_WhatsAppLinkCode) _then) = __$WhatsAppLinkCodeCopyWithImpl;
+@override @useResult
+$Res call({
+ String code, DateTime expiresAt, String businessNumber, String waLink
+});
+
+
+
+
+}
+/// @nodoc
+class __$WhatsAppLinkCodeCopyWithImpl<$Res>
+    implements _$WhatsAppLinkCodeCopyWith<$Res> {
+  __$WhatsAppLinkCodeCopyWithImpl(this._self, this._then);
+
+  final _WhatsAppLinkCode _self;
+  final $Res Function(_WhatsAppLinkCode) _then;
+
+/// Create a copy of WhatsAppLinkCode
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? expiresAt = null,Object? businessNumber = null,Object? waLink = null,}) {
+  return _then(_WhatsAppLinkCode(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
+as String,waLink: null == waLink ? _self.waLink : waLink // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$TopUpResult {
 
  String get reference; String get provider; String? get authorizationUrl; int get amountKobo;

@@ -681,6 +681,32 @@ String groupStatusLabel(GroupOrder g) => switch (g.status) {
         },
     };
 
+// ------------------------------------------------------------------------------------------ WhatsApp (phase 5)
+
+@freezed
+abstract class WhatsAppStatus with _$WhatsAppStatus {
+  const factory WhatsAppStatus({
+    @Default(false) bool enabled,
+    @Default(false) bool linked,
+    String? number,
+    DateTime? linkedAt,
+    @Default('') String businessNumber,
+    String? chatLink,
+  }) = _WhatsAppStatus;
+  factory WhatsAppStatus.fromJson(Map<String, dynamic> json) => _$WhatsAppStatusFromJson(json);
+}
+
+@freezed
+abstract class WhatsAppLinkCode with _$WhatsAppLinkCode {
+  const factory WhatsAppLinkCode({
+    required String code,
+    required DateTime expiresAt,
+    @Default('') String businessNumber,
+    required String waLink,
+  }) = _WhatsAppLinkCode;
+  factory WhatsAppLinkCode.fromJson(Map<String, dynamic> json) => _$WhatsAppLinkCodeFromJson(json);
+}
+
 @freezed
 abstract class TopUpResult with _$TopUpResult {
   const factory TopUpResult({

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../../providers.dart';
+import 'whatsapp_sheet.dart';
 import '../../ui/components.dart';
 
 /// Profile: who you are, your addresses, deals, payments, settings and help.
@@ -93,6 +94,8 @@ class ProfileScreen extends ConsumerWidget {
               _tile(context, Icons.workspace_premium_outlined, 'Gud Meal Plus', badge: 'Free delivery', onTap: () => context.push('/plus')),
               _tile(context, Icons.card_giftcard_rounded, 'Gud points and invite friends', onTap: () => context.push('/rewards')),
               _tile(context, Icons.groups_outlined, 'Group orders', onTap: () => context.push('/group')),
+              _tile(context, Icons.chat_outlined, 'Order on WhatsApp', onTap: () => showModalBottomSheet<void>(
+                    context: context, isScrollControlled: true, showDragHandle: true, builder: (_) => const WhatsAppSheet())),
               _tile(context, Icons.settings_outlined, 'App settings', onTap: () => _settings(context, ref)),
               _tile(context, Icons.quiz_outlined, 'FAQ', onTap: () => context.go('/support')),
               if (user != null)
