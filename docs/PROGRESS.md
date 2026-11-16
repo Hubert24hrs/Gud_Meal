@@ -286,7 +286,8 @@ dependency scanning, distributed rate limiting, NDPA documentation.
 5. Legal: NDPA review, privacy policy/terms, fund-holding (collect-then-settle) review with Paystack and counsel.
 6. Apple/Google developer accounts and signing keys for store releases.
 7. Google Maps API key (address search, map pins in Lagos and Enugu, live rider map).
-8. Gudy on WhatsApp ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a):
+8. Gudy on WhatsApp ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a). **Deferred by the owner on 2026-11-16, to do
+   later, after the first deployment** (the webhook needs a deployed API):
    - Meta Business verification and a WhatsApp Business number with an approved display name
    - a permanent system-user token, the app secret and a verify token
    - approval of Meta's messaging charges, and Meta-approved templates for order updates
@@ -317,8 +318,8 @@ $0–75 dev — excluding payment fees and SMS. Details and assumptions: [COST_E
 1. Bootstrap `gud-meal-dev`, deploy via the manual workflow, and run the Paystack test-mode flow end-to-end.
 2. Add a Gemini key, pin the model, run `pytest -m live_gemini` and build an evaluation set for Gudy in all five
    languages (Pidgin, Igbo, Yoruba and Hausa reviewed by native speakers).
-3. Switch on Gudy on WhatsApp once the Meta account is ready ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a), then
-   add Meta-approved templates for order updates. Also replace the sample waybill
+3. Switch on Gudy on WhatsApp once the Meta account is ready ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a; deferred
+   by the owner on 2026-11-16), then add Meta-approved templates for order updates. Also replace the sample waybill
    network with real carriers and hubs, and confirm the growth defaults.
 4. Switch customer tracking to Firestore listeners and add Google Maps (address search, pins, live map).
 5. Partner photo uploads (Storage rules already allow it), partner staff management, shop wording for beauty
