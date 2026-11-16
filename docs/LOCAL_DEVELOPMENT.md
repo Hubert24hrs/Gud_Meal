@@ -56,6 +56,23 @@ HMAC-signed webhook through the same verification → ledger → order pipeline 
 To test real Paystack test mode, set `PAYSTACK_SECRET_KEY=sk_test_…` in `services/api/.env` and expose the
 webhook URL (`/v1/webhooks/paystack`) with a tunnel.
 
+## 3a. Gudy on WhatsApp locally
+
+`node scripts/dev.mjs api` switches WhatsApp on with the **sandbox sender**, so no Meta account is needed. Run the
+agents service too (`node scripts/dev.mjs agents`; without `GOOGLE_API_KEY`, Gudy runs in offline mode).
+
+1. Open the **WhatsApp simulator** at http://localhost:8000/v1/dev/whatsapp (local and test only) and pick a
+   phone number. Messages you send there are signed like Meta's webhooks and go through the real pipeline:
+   signature check, de-duplication, task, linking, Gudy, reply.
+2. Sign in on the website as `customer@gudmeal.test`, open Account → **Connect WhatsApp** and send the
+   `LINK 123456` message it shows from the simulator.
+3. Chat: "What do you offer?", share a location, "I have ₦10,000, find me food for 2 people", "plan 1", then tap
+   **Yes, go ahead** and pay on the sandbox payment page. `STOP` disconnects.
+
+To try Meta's real Cloud API, set `WHATSAPP_PROVIDER=cloud`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_APP_SECRET`,
+`WHATSAPP_VERIFY_TOKEN` and `WHATSAPP_PHONE_NUMBER_ID` in `services/api/.env` (git-ignored, never committed) and
+expose `/v1/webhooks/whatsapp` with a tunnel.
+
 ## 4. Using real Firestore / PostgreSQL locally
 
 - Firestore emulator: install Java 21, run `firebase emulators:start --only auth,firestore`, then start the API

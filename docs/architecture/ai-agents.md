@@ -117,3 +117,20 @@ flowchart TD
   `open_screen` gains `plus`, `rewards` and `group`. Gudy never joins Plus, redeems points, applies codes
   or pays shares; the customer does that on the screen Gudy opens. Offline mode answers these questions in
   English and Pidgin. Gudy now has 43 tools.
+- **WhatsApp (phase 5, [ADR-0017](../adr/0017-gudy-on-whatsapp.md)).** The API runs Gudy for linked WhatsApp
+  numbers through the normal `POST /v1/chat`, with `channel: "whatsapp"` and a short-lived channel token that
+  carries only the `customer` role. There are no new tools.
+  - **Style.** The `whatsapp` channel adds a prompt hint: short plain-text replies, and approvals answered with
+    the Yes/No buttons.
+  - **Approvals.** The API turns them into WhatsApp reply buttons. The text comes from the tool's server-side
+    preview, which now spells out where the order goes ("Delivering to Lekki Phase 1, Lagos") because WhatsApp has
+    no order screen. The street address stays out of the order summaries the model reads.
+  - **Shared locations.** A location shared in the chat reaches Gudy as `delivery_address`, so plans, quotes
+    and drafts use it instead of the first saved address.
+  - **Order channel.** Orders and support tickets Gudy creates in a WhatsApp chat are saved with channel
+    `whatsapp`; from the app and website they stay `ai_agent`.
+  - **Routing.** Food and budget requests ("I have ₦10,000, find me food for 2") go back to the customer agent
+    even mid-way through a growth conversation.
+  - **Service identity.** Gudy's tool calls to the API carry a service credential (`INTERNAL_AUTH_MODE`: a
+    Google-signed OIDC token in the cloud, the shared secret locally) so they pass App Check. The customer's
+    own token is still required on every call.

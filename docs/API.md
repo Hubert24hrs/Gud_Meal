@@ -5,16 +5,19 @@
   (regenerate with `uv run python scripts/export_openapi.py ../../packages/api-client/openapi.json` in `services/api`).
 - Agents service: http://localhost:8100/docs — `POST /v1/chat`, `POST /v1/chat/{thread_id}/approval`,
   `GET /v1/threads`, `GET /v1/threads/{id}/messages`, `DELETE /v1/threads/{id}`, `GET /v1/admin/metrics`.
+  `POST /v1/chat` takes `channel` (`app`, `web`, `partner`, `admin` or `whatsapp`) and, from the
+  WhatsApp channel, an optional `delivery_address` (a location the customer shared).
 
 ## Conventions
 
 | Topic | Rule |
 |---|---|
-| Auth | `Authorization: Bearer <Firebase ID token>`; optional `X-Firebase-AppCheck` (required when enforced) |
+| Auth | `Authorization: Bearer <Firebase ID token>`; optional `X-Firebase-AppCheck` (required when enforced). Gudy's WhatsApp chats use a channel token (`gmc1.…`, customer role only, 10 minutes) that the API issues itself |
+| Service calls | Gud Meal's agents service sends `X-Service-Authorization: Bearer <Google OIDC token>` (shared `X-Internal-Token` locally) and is then exempt from App Check; the user's own token is still required |
 | Money | integer kobo, fields end in `_kobo` |
 | Idempotency | `Idempotency-Key` header (8–200 chars) required on `POST /v1/orders`, `POST /v1/orders/{id}/checkout`, `POST /v1/rider/payouts`; replays return the stored response with `Idempotent-Replayed: true` |
 | Errors | `{"error": {"code", "message", "details", "request_id"}}` with stable codes (`price_changed`, `quote_expired`, `invalid_transition`, `voucher_invalid`, `out_of_delivery_area`, `rate_limited`, …) |
-| Webhooks | `POST /v1/webhooks/paystack` (`x-paystack-signature`), `POST /v1/webhooks/flutterwave` (`verif-hash`) |
+| Webhooks | `POST /v1/webhooks/paystack` (`x-paystack-signature`), `POST /v1/webhooks/flutterwave` (`verif-hash`), `POST /v1/webhooks/whatsapp` (`X-Hub-Signature-256`) |
 | Internal | `/internal/*` accepts only Google OIDC tokens from allowed service accounts (shared secret locally) |
 
 ## Route groups
@@ -114,3 +117,21 @@ Related fields in other responses:
 - `GET /v1/config/public` adds `plus`.
 - Split-bill orders refuse `POST /v1/orders/{id}/checkout` and pay on delivery: each member pays through
   `/group-orders/{id}/pay`.
+
+## Gudy on WhatsApp (phase 5, [ADR-0017](adr/0017-gudy-on-whatsapp.md))
+
+| Method & path | Who | Purpose |
+|---|---|---|
+| `GET /v1/me/whatsapp` | customer | Whether WhatsApp ordering is on, the business number, and my linked number (masked, e.g. `+234 801 ••• 1111`) |
+| `POST /v1/me/whatsapp/link-code` | customer (5 an hour) | A 6-digit code (single use, 10 minutes) and a `wa.me` link that pre-fills `LINK 123456` |
+| `DELETE /v1/me/whatsapp` | customer | Disconnect my number (sending `STOP` on WhatsApp does the same) |
+| `GET /v1/webhooks/whatsapp?hub.mode=&hub.verify_token=&hub.challenge=` | Meta | Webhook verification: echoes the challenge when the verify token matches; 404 while WhatsApp is off |
+| `POST /v1/webhooks/whatsapp` | Meta | Incoming messages. `X-Hub-Signature-256` must match (HMAC-SHA256 of the raw body with the app secret), else 401. De-duplicated by message id and queued |
+| `POST /internal/tasks/whatsapp-message` | Cloud Tasks | Handles one message: link codes, `STOP`, `HELP`, shared locations, and the chat with Gudy |
+| `GET /v1/dev/whatsapp` · `POST /v1/dev/whatsapp/{number}/send` · `GET /v1/dev/whatsapp/{number}/messages` | local and test only | WhatsApp simulator: sends signed fake webhooks (text, button taps, locations) and shows the sandbox replies |
+
+Related fields in other responses:
+
+- Orders and support tickets that Gudy creates in a WhatsApp chat carry `channel: "whatsapp"`. Gudy in the app and
+  on the website still uses `ai_agent`. `POST /v1/orders`, `POST /v1/parcels`, `POST /v1/waybills` and
+  `POST /v1/support/tickets` accept the new value.

@@ -27,14 +27,18 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 - ✅ Rate limits, input validation, audit log, security headers, CORS allow-list, internal OIDC auth
 - ✅ AI safety: tool allow-lists per agent and role, approval interrupts, prompt-injection guard, card redaction,
   tokens never checkpointed, thread isolation (tested)
+- ✅ WhatsApp channel: signed webhooks, number linking by one-time code, customer-only channel tokens, an
+  App Check exemption limited to the agents service account (which cannot call `/internal/*`)
 - 👤 Enable App Check enforcement in production (`APP_CHECK_ENFORCED=true`) after registering apps
 - ⬜ External penetration test / OWASP ASVS L2 review; dependency scanning (Dependabot) and SAST in CI
 - ⬜ Distributed rate limiting (current limiter is per instance)
 
 ## AI
-- ✅ LangGraph orchestrator, 8 agents, 30 tools, approvals, Postgres/SQLite checkpointers, cost tracking
+- ✅ LangGraph orchestrator, 8 agents, 43 tools, approvals, Postgres/SQLite checkpointers, cost tracking
 - ✅ Tool schemas convert to Gemini function declarations (offline test)
 - 👤 Provide `GOOGLE_API_KEY`; pin a stable Gemini Flash model id; run the live test (`pytest -m live_gemini`)
+- 👤 Gudy on WhatsApp: Meta account, number, keys and templates, and approval of Meta's messaging charges
+  ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a)
 - ⬜ Evaluation set (routing accuracy, tool-call accuracy, refusal quality) before each model change
 - ⬜ LangSmith tracing in staging
 
@@ -55,4 +59,4 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 - 👤 Create GCP projects, billing, budgets; run bootstrap; add secrets; first deploy
 - ⬜ Monitoring dashboards & alerts (5xx rate, webhook failures, stuck orders, outbox backlog, AI cost/day)
 - ⬜ Backup restore drill; incident runbooks; on-call rota
-- 👤 NDPA: privacy notice, DPIA, DPO, data-processing agreements, cookie policy; legal review of terms
+- 👤 NDPA: privacy notice (including what Meta processes for WhatsApp chats), DPIA, DPO, data-processing agreements, cookie policy; legal review of terms

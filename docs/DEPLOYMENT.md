@@ -27,7 +27,17 @@ printf '%s' 'postgresql+asyncpg://gudmeal_api:<password>@/gudmeal?host=/cloudsql
 
 Required secrets: `api-database-url`, `agents-database-url`, `agents-checkpoint-url`, `paystack-secret-key`,
 `api-code-pepper`, `gemini-api-key`, `gemini-model` (a pinned stable Flash id — verify with
-`services/agents/scripts/check_gemini_models.py`), optionally `flutterwave-*`, `google-maps-api-key`.
+`services/agents/scripts/check_gemini_models.py`), `channel-token-secret` (a long random value, read by both
+the API and the agents service), optionally `flutterwave-*`, `google-maps-api-key`, and the `whatsapp-*`
+secrets when Gudy on WhatsApp is switched on (section 4a).
+
+```bash
+openssl rand -base64 48 | tr -d '\n' | gcloud secrets versions add channel-token-secret --data-file=-
+```
+
+`deploy.sh` also sets the service identities: the agents service calls the API with its own Google-signed token
+(`INTERNAL_AUTH_MODE=oidc`), and the API lists that account in `TRUSTED_SERVICE_ACCOUNTS` so Gudy's calls pass App
+Check. That list does not open `/internal/*`, which stays limited to `gudmeal-tasks`.
 
 ## 2. Firebase rules and indexes
 
@@ -54,6 +64,35 @@ Pub/Sub push subscription to `/internal/events` (with dead-letter topic) and Clo
 `relay-outbox`, `reconcile-payments`, `sweep` and `renew-plus` (daily, Gud Meal Plus wallet renewals). Then set the Paystack webhook URL to
 `https://<api-url>/v1/webhooks/paystack` and (optionally) restrict by Paystack's source IPs via
 `PAYSTACK_WEBHOOK_IP_ALLOWLIST`.
+
+## 4a. Gudy on WhatsApp (optional; paid Meta service)
+
+WhatsApp Business messaging is billed by Meta per conversation, so it stays off (`WHATSAPP_ENABLED=false`) until
+the owner approves the cost ([ADR-0017](adr/0017-gudy-on-whatsapp.md)). To switch it on:
+
+1. In Meta Business Manager: verify the business, add a WhatsApp Business number with an approved display name,
+   and create a system user with a **permanent access token** for the WhatsApp Business Account.
+2. Store the secrets (the verify token is any long random value you choose):
+
+   ```bash
+   gcloud secrets versions add whatsapp-access-token --data-file=-   # paste the system-user token, then Ctrl-D
+   gcloud secrets versions add whatsapp-app-secret --data-file=-     # Meta app → Settings → Basic → App secret
+   openssl rand -hex 32 | tr -d '\n' | gcloud secrets versions add whatsapp-verify-token --data-file=-
+   ```
+
+3. Deploy with WhatsApp on:
+
+   ```bash
+   WHATSAPP_ENABLED=true WHATSAPP_PHONE_NUMBER_ID=<id from Meta> WHATSAPP_BUSINESS_NUMBER='+234 …' \
+     PUBLIC_WEB_URL=https://<website> infra/scripts/deploy.sh <environment> <project> <region> <repo> <tag>
+   ```
+
+4. In the Meta app's WhatsApp → Configuration, set the callback URL to `https://<api-url>/v1/webhooks/whatsapp`,
+   enter the verify token, and subscribe to the `messages` field. Meta's verification call must succeed.
+5. Check it: send `HELP` from a phone, then link a test account from the app (Profile → Order on WhatsApp).
+
+The bootstrap script also turns on Firestore TTL for `whatsapp_messages` and `whatsapp_link_codes` (field
+`expire_at`), so de-duplication records and old link codes delete themselves.
 
 ## 5. Web apps
 

@@ -47,6 +47,13 @@ All money fields are integers in **kobo** and end with `_kobo`.
 | `loyalty_accounts/{uid}` (+ `entries/{id}`) | uid | API | owner (via API) | Gud points balance, referral state; append-only entries |
 | `referral_codes/{code}` | code | API | API only | referral code → customer |
 | `group_orders/{id}` · `group_codes/{code}` | auto · code | API | members (via API) | shared cart, members, items, shares; join code → group |
+| `whatsapp_links/{wa_id}` | WhatsApp number | API | API only | the linked account, Gudy thread, pending approval and shared location ([ADR-0017](../adr/0017-gudy-on-whatsapp.md)) |
+| `whatsapp_accounts/{uid}` | uid | API | owner (via API, masked) | the number linked to an account (one number per account, one account per number) |
+| `whatsapp_link_codes/{code}` | 6-digit code | API | API only | one-time link codes: single use, 10 minutes (TTL on `expire_at`) |
+| `whatsapp_messages/{id}` | WhatsApp message id | API | API only | de-duplication of Meta's retries, no message content (TTL 7 days on `expire_at`) |
+
+Orders carry a `channel`: `app`, `web`, `ai_agent` (Gudy in the app or on the website), `whatsapp` (Gudy on
+WhatsApp) or `admin`. Support tickets use the same values, with `phone` in place of `admin`.
 
 Interstate waybills are `orders` with `vertical = "waybill"` and a `waybill` object (tracking number, hubs,
 parties, stage, milestones). Their rider jobs are `orders` with `leg_of` / `leg_kind`. The network (cities, hubs,
