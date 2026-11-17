@@ -193,6 +193,16 @@ def restore_hours() -> None:
         print(f"  restored the real opening hours of {shop}")
 
 
+def park_extra_riders() -> None:
+    """Riders 2-4 only exist for this check: take them offline again so job offers reach the rider app
+    (rider@gudmeal.test) when someone tests on a phone."""
+    for rider in ("rider2", "rider3", "rider4"):
+        try:
+            call("PUT", "/v1/rider/availability", rider, {"online": False})
+        except Fail as exc:
+            print(f"  could not take {rider} offline: {exc}")
+
+
 def check(name: str, condition: Any, detail: Any = "") -> None:
     passed = bool(condition)
     RESULTS.append((CURRENT[0], name, passed, "" if passed else str(detail)[:600]))
@@ -490,6 +500,76 @@ def food_delivery_card() -> None:
     check("rider earnings load", earnings is not None)
     ledger_balanced()
     STATE["completed_order"] = order["id"]
+
+
+def naira(kobo: int) -> str:
+    return f"NGN {kobo / 100:,.2f}"
+
+
+@flow
+def food_one_payment_covers_everything() -> None:
+    """Food in one checkout: the customer pays food + delivery fee + service fee (+VAT) once; a rider is then found"""
+    riders_online()
+    who = "friend"  # not a Gud Meal Plus member, so the full delivery and service fees are charged
+    check("this customer pays full fees (no Plus membership)", not call("GET", "/v1/plus", who).get("member"))
+    q = quote(who)
+    b = q["breakdown"]
+    print(
+        f"    quote: food {naira(b['subtotal_kobo'])} + delivery {naira(b['delivery_fee_kobo'])}"
+        f" + service {naira(b['service_fee_kobo'])} + VAT {naira(b['vat_kobo'])}"
+        f" - discount {naira(b['discount_kobo'])} = {naira(b['total_kobo'])}",
+        flush=True,
+    )
+    check(
+        "the quote charges food, a delivery fee and a service fee",
+        b["subtotal_kobo"] > 0 and b["delivery_fee_kobo"] > 0 and b["service_fee_kobo"] > 0,
+        b,
+    )
+    fees = b["delivery_fee_kobo"] + b["service_fee_kobo"] + b["small_order_fee_kobo"] + b["vat_kobo"]
+    check(
+        "total = food + delivery fee + service fee + VAT",
+        b["total_kobo"] == b["subtotal_kobo"] + fees - b["discount_kobo"],
+        b,
+    )
+
+    order = call("POST", "/v1/orders", who, {"quote_id": q["id"], "channel": "app"}, expect=201, idem=True)
+    co = call("POST", f"/v1/orders/{order['id']}/checkout", who, {}, idem=True)
+    check(
+        f"one checkout asks for the whole {naira(b['total_kobo'])}", co["amount_kobo"] == b["total_kobo"], co
+    )
+    complete_sandbox(co)
+    payments = items_of(call("GET", f"/v1/orders/{order['id']}/payments", who))
+    check(
+        "exactly one payment, for the full total",
+        len(payments) == 1
+        and payments[0]["amount_kobo"] == b["total_kobo"]
+        and payments[0]["status"] == "succeeded",
+        payments,
+    )
+    o = get_order(order["id"], who)
+    check("paid once, the order goes to the kitchen", o["status"] == "submitted_to_restaurant", o["status"])
+
+    # The kitchen accepts, then dispatch looks for a rider: the delivery fee in that same payment pays the rider.
+    _, rider = deliver(order["id"], who=who)
+    check(f"a rider was found and delivered it ({RIDERS[rider]})", True)
+    full = call("GET", f"/v1/admin/orders/{order['id']}", "admin")
+    s = full["order"]["settlement"]
+    kitchen = b["subtotal_kobo"] - s["commission_kobo"] - s["restaurant_funded_discount_kobo"]
+    platform = b["total_kobo"] - s["restaurant_earning_kobo"] - s["rider_pay_kobo"]
+    print(
+        f"    split of the one payment: kitchen {naira(s['restaurant_earning_kobo'])}"
+        f" (food minus {s['commission_bps'] / 100:g}% commission), rider {naira(s['rider_pay_kobo'])},"
+        f" Gud Meal {naira(platform)} (commission + fees, including {naira(b['vat_kobo'])} VAT held for the tax office)",
+        flush=True,
+    )
+    check("the kitchen gets the food minus commission", s["restaurant_earning_kobo"] == kitchen, s)
+    check("the rider is paid from the delivery fee", 0 < s["rider_pay_kobo"] <= b["delivery_fee_kobo"], s)
+    check(
+        "kitchen + rider + Gud Meal = exactly what the customer paid",
+        platform == s["commission_kobo"] + fees - s["platform_funded_discount_kobo"] - s["rider_pay_kobo"],
+        (platform, s, b),
+    )
+    ledger_balanced()
 
 
 @flow
@@ -1083,6 +1163,7 @@ def main() -> int:
         run(wanted)
     finally:
         restore_hours()
+        park_extra_riders()
     failed = [r for r in RESULTS if not r[2]]
     print(f"\n{len(RESULTS) - len(failed)} passed, {len(failed)} failed")
     for journey, name, _, detail in failed:

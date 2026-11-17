@@ -962,3 +962,12 @@ async def refresh_demo_riders(repos: Repositories) -> None:
         existing = await repos.riders.get(rider.uid)
         if existing and existing.is_online and existing.last_location:
             await repos.riders.update(rider.uid, {"last_location_at": now})
+
+
+async def park_extra_demo_riders(repos: Repositories) -> None:
+    """Local dev: only demo-rider-1 (rider@gudmeal.test, the account people sign in to the rider app with) starts
+    online. Otherwise job offers go to demo riders nobody is holding and run out before the app ever sees them."""
+    now = datetime.now(UTC)
+    for rider in [*demo_riders(now), *enugu_riders(now)]:
+        if rider.uid != DEMO_RIDER_UIDS[0]:
+            await repos.riders.update(rider.uid, {"is_online": False})

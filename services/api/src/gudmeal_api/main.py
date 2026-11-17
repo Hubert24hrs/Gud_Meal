@@ -62,6 +62,9 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
             counts = await seed(c.repos)
             log_event(logger, "seeded demo data", **counts)
             if settings.environment == "local":
+                from .seed.lagos import park_extra_demo_riders
+
+                await park_extra_demo_riders(c.repos)
                 heartbeat = asyncio.create_task(_demo_rider_heartbeat(c))
         log_event(
             logger,

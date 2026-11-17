@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers.dart';
 import '../../ui/gm_map.dart';
+import '../../ui/payment_picker.dart';
 import '../../widgets.dart';
 
 const _live = {
@@ -31,6 +33,32 @@ class OrderScreen extends ConsumerStatefulWidget {
 
 class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingObserver {
   Timer? _timer;
+  // A payment started from this screen (the payment page was closed before paying the first time).
+  String? _payReference;
+  bool _paying = false;
+  String? _payError;
+
+  Future<void> _pay(Order o, PayMethod method) async {
+    setState(() {
+      _paying = true;
+      _payError = null;
+    });
+    try {
+      // The server resumes the pending card payment (same page) or pays from the wallet straight away.
+      final checkout = await ref.read(apiProvider).checkout(o.id, newIdempotencyKey('checkout'), provider: method.provider);
+      ref.invalidate(walletProvider);
+      final url = checkout.authorizationUrl;
+      if (url != null) {
+        _payReference = checkout.reference;
+        await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);
+      }
+      ref.invalidate(orderProvider(o.id));
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _payError = e.message);
+    } finally {
+      if (mounted) setState(() => _paying = false);
+    }
+  }
 
   @override
   void initState() {
@@ -45,7 +73,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Returning from the payment page: ask the server to verify with the provider (never trust the redirect).
-    final reference = widget.paymentReference;
+    final reference = _payReference ?? widget.paymentReference;
     if (state == AppLifecycleState.resumed && reference != null) {
       ref.read(apiProvider).verifyPayment(reference).whenComplete(() => ref.invalidate(orderProvider(widget.id)));
     }
@@ -109,6 +137,32 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
             ],
             if (o.estimatedDeliveryAt != null && step < 5)
               Padding(padding: const EdgeInsets.only(top: 12), child: Text('Estimated arrival: ${formatLagosTime(o.estimatedDeliveryAt)}')),
+            if (['draft', 'pending_payment'].contains(o.status) && o.payment.status != 'paid')
+              Card(
+                margin: const EdgeInsets.only(top: 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    Text('Finish paying ${formatNaira(o.breakdown?.totalKobo)}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                    const Text('Your order goes ahead as soon as it is paid.'),
+                    const SizedBox(height: 10),
+                    FilledButton(
+                      onPressed: _paying ? null : () => _pay(o, PayMethod.card),
+                      child: const Text('Pay by card, transfer or USSD'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: _paying ? null : () => _pay(o, PayMethod.wallet),
+                      child: const Text('Pay from my Gud Meal wallet'),
+                    ),
+                    if (_payError != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(_payError!, style: TextStyle(color: theme.colorScheme.error)),
+                      ),
+                  ]),
+                ),
+              ),
             if (o.payment.provider == 'cash' && o.payment.status != 'paid' && !['cancelled', 'draft', 'pending_payment'].contains(o.status))
               Card(
                 color: theme.colorScheme.secondaryContainer,

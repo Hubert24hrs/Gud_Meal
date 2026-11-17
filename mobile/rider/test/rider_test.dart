@@ -10,8 +10,9 @@ import 'package:gud_meal_rider/screens/delivery_screen.dart';
 import 'package:gud_meal_rider/screens/home_screen.dart';
 
 class FakeLocation implements LocationSource {
-  FakeLocation({this.allowed = true});
+  FakeLocation({this.allowed = true, this.fix});
   final bool allowed;
+  final (GeoPoint, double)? fix;
   final controller = StreamController<(GeoPoint, double)>();
 
   @override
@@ -19,6 +20,9 @@ class FakeLocation implements LocationSource {
 
   @override
   Stream<(GeoPoint, double)> positions() => controller.stream;
+
+  @override
+  Future<(GeoPoint, double)?> current() async => fix;
 }
 
 class RecordingApi extends GudMealApi {
@@ -151,7 +155,100 @@ void main() {
       expect(reporter.last?.lat, 6.44);
       await reporter.stop();
     });
+
+    test('shares the position as soon as the rider goes online', () async {
+      final api = RecordingApi();
+      final reporter = LocationReporter(api, FakeLocation(fix: (const GeoPoint(lat: 6.4478, lng: 3.4723), 5.0)));
+      await reporter.start();
+      await Future<void>.delayed(Duration.zero);
+      expect(api.sent.single.lat, 6.4478);
+      expect(reporter.lastSentAt, isNotNull);
+      await reporter.stop();
+    });
+
+    test('keeps a rider waiting in one place visible to dispatch', () async {
+      // Standing still: the movement stream is silent, so the heartbeat keeps re-sending the position.
+      final api = RecordingApi();
+      final reporter = LocationReporter(
+        api,
+        FakeLocation(fix: (const GeoPoint(lat: 6.4478, lng: 3.4723), 5.0)),
+        heartbeat: const Duration(milliseconds: 30),
+      );
+      await reporter.start();
+      await Future<void>.delayed(const Duration(milliseconds: 140));
+      expect(api.sent.length, greaterThanOrEqualTo(3));
+      await reporter.stop();
+      final after = api.sent.length;
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(api.sent.length, after); // no pings once offline
+    });
+
+    test('re-sends the last known position when no fresh fix is available', () async {
+      final api = RecordingApi();
+      final source = FakeLocation();
+      final reporter = LocationReporter(api, source, heartbeat: const Duration(milliseconds: 30));
+      await reporter.start();
+      source.controller.add((const GeoPoint(lat: 6.44, lng: 3.46), 8.0));
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      expect(api.sent.length, greaterThanOrEqualTo(2));
+      expect(api.sent.every((p) => p.lat == 6.44), isTrue);
+      await reporter.stop();
+    });
   });
+
+  testWidgets('dashboard shows the online state, numbers and what to do while waiting', (tester) async {
+    final api = _DashboardApi();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+        apiProvider.overrideWithValue(api),
+        locationSourceProvider.overrideWithValue(FakeLocation(fix: (const GeoPoint(lat: 6.4478, lng: 3.4723), 5.0))),
+      ],
+      child: MaterialApp(theme: buildGudMealTheme(Brightness.light), home: const RiderHomeScreen()),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Hi, Chidi'), findsOneWidget);
+    expect(find.text("You're online"), findsOneWidget);
+    expect(find.text('₦12,500'), findsOneWidget); // earned in 7 days
+    expect(find.text('Earned in 7 days'), findsOneWidget);
+    expect(find.text('Deliveries done'), findsOneWidget);
+    expect(find.text('Waiting for orders near you…'), findsOneWidget);
+    expect(api.pings, greaterThanOrEqualTo(1)); // online on open: the position is shared straight away
+
+    api.pendingOffers = [offer(DateTime.now().toUtc().add(const Duration(seconds: 40)))];
+    await tester.pump(const Duration(seconds: 5)); // next poll
+    await tester.pumpAndSettle();
+    expect(find.text('New offers'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Accept'), findsOneWidget);
+    expect(find.text('Waiting for orders near you…'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox()); // dispose: stops polling and location sharing
+  });
+}
+
+class _DashboardApi extends GudMealApi {
+  _DashboardApi() : super(baseUrl: 'http://fake', token: () async => 't');
+  List<DeliveryOffer> pendingOffers = const [];
+  int pings = 0;
+
+  @override
+  Future<RiderProfile> riderProfile() async =>
+      const RiderProfile(uid: 'demo-rider-1', name: 'Chidi Okafor', status: 'active', isOnline: true, rating: 4.9, completedDeliveries: 12);
+
+  @override
+  Future<List<DeliveryOffer>> offers() async => pendingOffers;
+
+  @override
+  Future<List<Order>> activeDeliveries() async => const [];
+
+  @override
+  Future<Earnings> earnings() async => const Earnings(
+        balanceKobo: 900000, pendingPayoutsKobo: 0, availableKobo: 900000, deliveriesCompleted: 12, earnedLast7DaysKobo: 1250000);
+
+  @override
+  Future<void> sendLocation(GeoPoint p, {double? accuracyM}) async {
+    pings++;
+  }
 }
 
 class _ParcelApi extends GudMealApi {
@@ -191,6 +288,8 @@ class _CashApi extends GudMealApi {
     restaurantName: 'Jollof Junction',
     restaurantLocation: GeoPoint(lat: 6.44, lng: 3.46),
     riderPayKobo: 90000,
+    // The API gives riders `items` (names and quantities, no prices), not the customer's priced `lines`.
+    items: [OrderItem(name: 'Party Jollof Rice', quantity: 2), OrderItem(name: 'Chapman')],
     paymentMethod: 'cash',
     collectCashKobo: 1136500,
     deliveryAddress: DeliveryAddress(line1: '5 Admiralty Way', area: 'Lekki Phase 1', location: GeoPoint(lat: 6.44, lng: 3.47)),
@@ -265,6 +364,7 @@ void cashTests() {
     ));
     await tester.pumpAndSettle();
     expect(find.text('Collect ₦11,365 in cash'), findsOneWidget);
+    expect(find.text('Items: 2× Party Jollof Rice, 1× Chapman'), findsOneWidget);
     await tester.enterText(find.byType(TextField), '4118');
     await tester.pump();
     final button = find.widgetWithText(FilledButton, 'Complete delivery');

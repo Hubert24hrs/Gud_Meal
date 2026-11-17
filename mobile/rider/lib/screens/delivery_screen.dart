@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,9 +36,20 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
   final _code = TextEditingController();
   bool _busy = false;
   String? _error;
+  Timer? _refresh;
+
+  @override
+  void initState() {
+    super.initState();
+    // Keep the job current while the rider waits (the kitchen marks the food ready, the order is cancelled...).
+    _refresh = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!_busy) ref.invalidate(_deliveryProvider(widget.orderId));
+    });
+  }
 
   @override
   void dispose() {
+    _refresh?.cancel();
     _code.dispose();
     super.dispose();
   }
@@ -170,7 +183,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
               const SizedBox(height: 8),
               if (parcel == null)
                 Text(
-                  'Items: ${o.lines.map((l) => '${l.quantity}× ${l.name}').join(', ')}',
+                  'Items: ${o.items.isNotEmpty ? o.items.map((i) => '${i.quantity}× ${i.name}').join(', ') : o.lines.map((l) => '${l.quantity}× ${l.name}').join(', ')}',
                 )
               else if (parcel.description.isNotEmpty)
                 Text('Contents: ${parcel.description}'),
@@ -181,9 +194,11 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
               if (parcel == null &&
                   o.status == 'rider_assigned' &&
                   o.readyAt == null)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text('The kitchen is still preparing this order.'),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(o.vertical == 'food'
+                      ? 'The kitchen is still preparing this order.'
+                      : 'The shop is still packing this order.'),
                 ),
               const SizedBox(height: 20),
               if (o.status == 'rider_assigned')

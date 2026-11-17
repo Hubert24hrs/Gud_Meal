@@ -85,7 +85,8 @@ expose `/v1/webhooks/whatsapp` with a tunnel.
 See the table in the root README. Rules tests: `npm run test:rules` (starts the Firestore + Storage emulators).
 
 **End-to-end check of a running stack** (auth, api and agents started as above): every journey over HTTP with
-real emulator accounts, from browsing to food, beauty, pickup, wallet, pay on delivery, bike packages, interstate
+real emulator accounts, from browsing to food (including one checkout paying food, delivery fee, service fee and VAT
+together, and how that payment is split), beauty, pickup, wallet, pay on delivery, bike packages, interstate
 waybills, group orders, Plus, rewards, support, partner tools, sign-up approvals, payouts, the Command Centre,
 access control and Gudy. It prints PASS/FAIL per step:
 
@@ -117,4 +118,14 @@ while it runs, anyone on that Wi-Fi can reach the test servers.
 
 Test builds talk plain http to this computer and use the Auth emulator and the payment sandbox, so never publish
 them; rebuild if the computer's address changes. After **Approve** on the sandbox payment page, the page says
-"Return to the Gud Meal app": go back to the app, which confirms the payment.
+"Return to the Gud Meal app": go back to the app, which confirms the payment. An order whose payment page was
+closed shows **Finish paying** on its order screen.
+
+**Rider jobs:** locally only `rider@gudmeal.test` is online among the demo riders (the API starts the others
+offline), so every job is offered to the rider app. Keep the app open and online: an offer lasts 45 seconds and
+the phone buzzes; a missed offer comes back about 5 minutes later. The app shares its position every minute even
+when standing still (dispatch ignores riders it has not heard from for 3 minutes). Running the end-to-end check
+puts demo riders 2-4 online while it runs and offline again at the end.
+
+The rider app also runs in a browser (no GPS there, so pin a position):
+`flutter build web --dart-define=RIDER_TEST_LOCATION=6.4478,3.4723` in `mobile/rider`.

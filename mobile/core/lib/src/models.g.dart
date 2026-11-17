@@ -279,6 +279,14 @@ Map<String, dynamic> _$PricedLineToJson(_PricedLine instance) =>
       'selection_labels': instance.selectionLabels,
     };
 
+_OrderItem _$OrderItemFromJson(Map<String, dynamic> json) => _OrderItem(
+  name: json['name'] as String,
+  quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+);
+
+Map<String, dynamic> _$OrderItemToJson(_OrderItem instance) =>
+    <String, dynamic>{'name': instance.name, 'quantity': instance.quantity};
+
 _PriceBreakdown _$PriceBreakdownFromJson(Map<String, dynamic> json) =>
     _PriceBreakdown(
       subtotalKobo: (json['subtotal_kobo'] as num).toInt(),
@@ -367,6 +375,11 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
           ?.map((e) => PricedLine.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const <PricedLine>[],
+  items:
+      (json['items'] as List<dynamic>?)
+          ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <OrderItem>[],
   breakdown: json['breakdown'] == null
       ? null
       : PriceBreakdown.fromJson(json['breakdown'] as Map<String, dynamic>),
@@ -423,6 +436,7 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
   'restaurant_name': instance.restaurantName,
   'fulfillment': instance.fulfillment,
   'lines': instance.lines.map((e) => e.toJson()).toList(),
+  'items': instance.items.map((e) => e.toJson()).toList(),
   'breakdown': ?instance.breakdown?.toJson(),
   'delivery_address': ?instance.deliveryAddress?.toJson(),
   'progress': ?instance.progress?.toJson(),
@@ -1373,7 +1387,7 @@ _Earnings _$EarningsFromJson(Map<String, dynamic> json) => _Earnings(
   pendingPayoutsKobo: (json['pending_payouts_kobo'] as num).toInt(),
   availableKobo: (json['available_kobo'] as num).toInt(),
   deliveriesCompleted: (json['deliveries_completed'] as num).toInt(),
-  earnedLast7DaysKobo: (json['earned_last7_days_kobo'] as num).toInt(),
+  earnedLast7DaysKobo: (json['earned_last_7_days_kobo'] as num).toInt(),
   cashHeldKobo: (json['cash_held_kobo'] as num?)?.toInt() ?? 0,
 );
 
@@ -1382,7 +1396,7 @@ Map<String, dynamic> _$EarningsToJson(_Earnings instance) => <String, dynamic>{
   'pending_payouts_kobo': instance.pendingPayoutsKobo,
   'available_kobo': instance.availableKobo,
   'deliveries_completed': instance.deliveriesCompleted,
-  'earned_last7_days_kobo': instance.earnedLast7DaysKobo,
+  'earned_last_7_days_kobo': instance.earnedLast7DaysKobo,
   'cash_held_kobo': instance.cashHeldKobo,
 };
 

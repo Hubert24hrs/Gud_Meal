@@ -64,7 +64,7 @@ ${ready.map((a) => `<a class="app" href="${a.file}" download>${a.title} (${a.siz
 <ol><li>Tap an app to download it, then open the download.</li>
 <li>If Android asks, allow your browser to <b>install unknown apps</b>, then tap <b>Install</b>.</li>
 <li>Keep this phone on the same Wi-Fi as the computer running Gud Meal.</li></ol>
-<p class="note">Test builds made ${built} for the server at ${ip}. They use test accounts and a payment sandbox: no real money moves.</p>
+<p class="note">Test builds made ${built} for the server at ${ip}${arm64 ? " (64-bit Android phones)" : ""}. They use test accounts and a payment sandbox: no real money moves.</p>
 </main></body></html>`);
 console.log(`\nReady: ${ready.map((a) => a.file).join(", ") || "no APKs yet"} in mobile/dist.`);
 console.log(`Serve them with: node scripts/dev.mjs downloads --lan   ->   http://${ip}:8090`);

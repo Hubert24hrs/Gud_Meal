@@ -32,7 +32,12 @@ TASK_OFFER_TIMEOUT = "/internal/tasks/dispatch-offer-timeout"
 TASK_DISPATCH_RETRY = "/internal/tasks/dispatch-retry"
 DISPATCHABLE = {S.RESTAURANT_ACCEPTED, S.PREPARING, S.READY_FOR_PICKUP}
 ACTIVE_DELIVERY = {S.RIDER_ASSIGNED, S.PICKED_UP, S.IN_TRANSIT}
+#: After this many rounds with nobody to ask, ops are alerted; dispatch keeps trying, just less often.
 MAX_ATTEMPTS = 8
+RETRY_SECONDS = 60
+SLOW_RETRY_SECONDS = 120
+#: A rider whose offer ran out (not declined) can be asked again after this long, so a small fleet never runs out.
+REOFFER_AFTER = timedelta(minutes=5)
 #: Idle online riders are kept at this geohash precision (6 ≈ 1.2 km x 0.6 km cell), never more precisely.
 COARSE_GEOHASH = 6
 #: How often a live delivery's road ETA is re-measured (Routes calls cost money; pings arrive every few seconds).
@@ -80,6 +85,8 @@ class DispatchService:
         if online and profile.status != RiderStatus.ACTIVE:
             raise PermissionDenied("Your rider account is not active yet")
         await self.repos.riders.update(principal.uid, {"is_online": online})
+        if online and not profile.is_online:
+            await self.sweep()  # jobs waiting for a rider are offered now, not at the next retry
         return profile.model_copy(update={"is_online": online})
 
     async def update_location(
@@ -105,6 +112,10 @@ class DispatchService:
         else:
             cell_lat, cell_lng, _, _ = geohash_decode(geohash_encode(point.lat, point.lng, COARSE_GEOHASH))
             stored, precision = GeoPoint(lat=round(cell_lat, 5), lng=round(cell_lng, 5)), COARSE_GEOHASH
+        was_stale = (
+            profile.last_location_at is None
+            or (now - profile.last_location_at).total_seconds() > self.cfg.max_location_age_seconds
+        )
         await self.repos.riders.update(
             principal.uid,
             {
@@ -115,6 +126,8 @@ class DispatchService:
         )
         for order in active:
             await self._track(order, point, accuracy_m, now)
+        if was_stale and not active:
+            await self.sweep()  # the rider just became visible to dispatch again
 
     async def _track(self, order: Order, point: GeoPoint, accuracy_m: float | None, now: datetime) -> None:
         """Live tracking for the customer. Road ETAs are re-measured at most every few minutes (cost)."""
@@ -192,7 +205,13 @@ class DispatchService:
         if any(o.expires_at > now for o in open_offers):
             return None  # an offer is already outstanding
         previous = await self.repos.assignments.find(where=[("order_id", "==", order_id)])
-        excluded = (exclude or set()) | {a.rider_id for a in previous}
+        # Riders who declined or handed the job back are not asked again; a rider whose offer just ran out is
+        # skipped for a while (they may be away from the phone), then asked again.
+        excluded = (exclude or set()) | {
+            a.rider_id
+            for a in previous
+            if a.status != AssignmentStatus.EXPIRED or now - a.expires_at < REOFFER_AFTER
+        }
         riders = await self.repos.riders.find(
             where=[("is_online", "==", True), ("status", "==", RiderStatus.ACTIVE.value)], limit=500
         )
@@ -209,14 +228,15 @@ class DispatchService:
         )
         attempt = len(previous) + 1
         if not ranked:
-            await self.repos.orders.update(order_id, {"dispatch_attempts": order.dispatch_attempts + 1})
-            if order.dispatch_attempts + 1 >= MAX_ATTEMPTS:
+            attempts = order.dispatch_attempts + 1
+            await self.repos.orders.update(order_id, {"dispatch_attempts": attempts})
+            if attempts == MAX_ATTEMPTS:  # alert ops once, but keep looking for a rider
                 await self.emitter.emit(
                     "dispatch.unassigned", {"order_id": order_id, "attempts": attempts_label(order)}
                 )
                 log_event(logger, "dispatch exhausted", logging.WARNING, order_id=order_id)
-            else:
-                await self.tasks.enqueue(TASK_DISPATCH_RETRY, {"order_id": order_id}, delay_seconds=60)
+            delay = RETRY_SECONDS if attempts < MAX_ATTEMPTS else SLOW_RETRY_SECONDS
+            await self.tasks.enqueue(TASK_DISPATCH_RETRY, {"order_id": order_id}, delay_seconds=delay)
             return None
         best = ranked[0]
         assignment = DeliveryAssignment(
@@ -351,6 +371,22 @@ class DispatchService:
     async def retry(self, payload: dict[str, Any]) -> None:
         await self.start(str(payload["order_id"]))
 
+    async def sweep(self) -> int:
+        """Offer jobs still waiting for a rider right away (a rider came online, became visible again or finished a
+        delivery) instead of at the next retry. Returns how many offers were made."""
+        waiting: list[Order] = []
+        for status in DISPATCHABLE:
+            waiting += await self.repos.orders.find(where=[("status", "==", status.value)], limit=100)
+        offers = 0
+        for order in sorted(waiting, key=lambda o: o.created_at):
+            if (
+                order.rider_id is None
+                and order.fulfillment == Fulfillment.DELIVERY
+                and await self.start(order.id)
+            ):
+                offers += 1
+        return offers
+
     async def manual_assign(self, principal: Principal, order_id: str, rider_uid: str, reason: str) -> Order:
         require(principal, Permission.DISPATCH_MANUAL)
         rider = await self.repos.riders.get(rider_uid)
@@ -483,6 +519,7 @@ class DispatchService:
                 await self.repos.assignments.update(
                     order.assignment_id, {"status": AssignmentStatus.COMPLETED.value}
                 )
+            await self.sweep()  # the rider is free again: offer anything that is still waiting
 
 
 def attempts_label(order: Order) -> int:

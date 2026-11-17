@@ -148,6 +148,13 @@ abstract class PricedLine with _$PricedLine {
   factory PricedLine.fromJson(Map<String, dynamic> json) => _$PricedLineFromJson(json);
 }
 
+/// An item a rider collects: name and quantity only.
+@freezed
+abstract class OrderItem with _$OrderItem {
+  const factory OrderItem({required String name, @Default(1) int quantity}) = _OrderItem;
+  factory OrderItem.fromJson(Map<String, dynamic> json) => _$OrderItemFromJson(json);
+}
+
 @freezed
 abstract class PriceBreakdown with _$PriceBreakdown {
   const factory PriceBreakdown({
@@ -205,6 +212,8 @@ abstract class Order with _$Order {
     required String restaurantName,
     @Default('delivery') String fulfillment,
     @Default(<PricedLine>[]) List<PricedLine> lines,
+    /// The rider's view: what to collect, as names and quantities (riders never see prices, so no `lines`).
+    @Default(<OrderItem>[]) List<OrderItem> items,
     PriceBreakdown? breakdown,
     DeliveryAddress? deliveryAddress,
     OrderProgress? progress,
@@ -768,7 +777,8 @@ abstract class Earnings with _$Earnings {
     required int pendingPayoutsKobo,
     required int availableKobo,
     required int deliveriesCompleted,
-    required int earnedLast7DaysKobo,
+    // The generated name would be `earned_last7_days_kobo`; the API sends `earned_last_7_days_kobo`.
+    @JsonKey(name: 'earned_last_7_days_kobo') required int earnedLast7DaysKobo,
     /// Cash collected at the door that the rider still has to hand in (netted off before withdrawals).
     @Default(0) int cashHeldKobo,
   }) = _Earnings;

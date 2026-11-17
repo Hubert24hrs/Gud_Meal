@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../providers.dart';
 
+/// The rider's dashboard: online switch with location status, today's numbers, new offers (with a buzz), the
+/// deliveries in hand, and what to do while waiting.
 class RiderHomeScreen extends ConsumerStatefulWidget {
   const RiderHomeScreen({super.key});
 
@@ -17,6 +20,8 @@ class RiderHomeScreen extends ConsumerStatefulWidget {
 class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
   Timer? _poll;
   String? _message;
+  final _seenOffers = <String>{};
+  int? _activeCount;
 
   @override
   void initState() {
@@ -31,6 +36,22 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
       final reporter = ref.read(locationReporterProvider);
       if (next.value?.isOnline == true && !reporter.active && !reporter.stoppedByServer) reporter.start();
     }, fireImmediately: true);
+    // An offer only lasts ~45 s: buzz when a new one arrives so the rider notices it.
+    ref.listenManual(offersProvider, (_, next) {
+      final fresh = (next.value ?? const <DeliveryOffer>[]).where((o) => _seenOffers.add(o.id)).toList();
+      if (fresh.isNotEmpty) HapticFeedback.vibrate();
+    });
+    // A delivery finished or started: refresh the numbers.
+    ref.listenManual(activeDeliveriesProvider, (_, next) {
+      final count = next.value?.length;
+      if (count != null && count != _activeCount) {
+        if (_activeCount != null) {
+          ref.invalidate(earningsProvider);
+          ref.invalidate(riderProfileProvider);
+        }
+        _activeCount = count;
+      }
+    });
   }
 
   @override
@@ -42,6 +63,7 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
   Future<void> _setOnline(bool online) async {
     final message = await setRiderOnline(ref.read(apiProvider), ref.read(locationReporterProvider), online);
     ref.invalidate(riderProfileProvider);
+    ref.invalidate(offersProvider);
     if (mounted) setState(() => _message = message);
   }
 
@@ -50,11 +72,16 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
     final profile = ref.watch(riderProfileProvider);
     final offers = ref.watch(offersProvider);
     final active = ref.watch(activeDeliveriesProvider);
+    final earnings = ref.watch(earningsProvider);
+    final reporter = ref.watch(locationReporterProvider);
     final theme = Theme.of(context);
+    final p = profile.value;
+    final offerList = offers.value ?? const <DeliveryOffer>[];
+    final activeList = active.value ?? const <Order>[];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(profile.value?.name ?? 'Gud Meal Rider'),
+        title: Text(p == null ? 'Gud Meal Rider' : 'Hi, ${p.name.split(' ').first}'),
         actions: [
           IconButton(tooltip: 'Earnings', onPressed: () => context.push('/earnings'), icon: const Icon(Icons.account_balance_wallet_rounded)),
           IconButton(tooltip: 'Sign out', onPressed: () => ref.read(authRepositoryProvider).signOut(), icon: const Icon(Icons.logout_rounded)),
@@ -69,54 +96,53 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          ref.invalidate(riderProfileProvider);
+          ref.invalidate(earningsProvider);
           ref.invalidate(offersProvider);
           ref.invalidate(activeDeliveriesProvider);
         },
-        child: ListView(padding: const EdgeInsets.all(16), children: [
+        child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 96), children: [
           profile.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('$e'),
-            data: (p) => Card(
-              child: SwitchListTile(
-                value: p.isOnline,
-                onChanged: p.status == 'active' ? _setOnline : null,
-                title: Text(p.isOnline ? 'You are online' : 'You are offline', style: const TextStyle(fontWeight: FontWeight.w800)),
-                subtitle: Text(p.status == 'active'
-                    ? '${p.vehicle} · ★ ${p.rating.toStringAsFixed(2)} · ${p.completedDeliveries} deliveries'
-                    : 'Your account is ${p.status}. Contact support.'),
-              ),
+            data: (p) => _StatusCard(profile: p, reporter: reporter, onChanged: p.status == 'active' ? _setOnline : null),
+          ),
+          if (_message != null)
+            Padding(padding: const EdgeInsets.only(top: 8), child: Text(_message!, style: TextStyle(color: theme.colorScheme.error))),
+          const SizedBox(height: 12),
+          _Stats(earnings: earnings.value, profile: p),
+          if ((earnings.value?.cashHeldKobo ?? 0) > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text('You are holding ${formatNaira(earnings.value!.cashHeldKobo)} in cash to hand in.',
+                  style: TextStyle(color: theme.colorScheme.error, fontWeight: FontWeight.w700)),
             ),
-          ),
-          if (_message != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_message!, style: TextStyle(color: theme.colorScheme.error))),
-          const SizedBox(height: 16),
-          Text('Active deliveries', style: theme.textTheme.titleLarge),
-          ...active.when(
-            loading: () => [const SizedBox.shrink()],
-            error: (e, _) => [Text('$e')],
-            data: (list) => list.isEmpty
-                ? [const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('No active deliveries'))]
-                : [
-                    for (final o in list)
-                      Card(
-                        child: ListTile(
-                          title: Text('${o.restaurantName} · #${o.shortCode}', style: const TextStyle(fontWeight: FontWeight.w700)),
-                          subtitle: Text('${statusLabel(o.status)} · earn ${formatNaira(o.riderPayKobo)}'),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () => context.push('/deliveries/${o.id}'),
-                        ),
-                      ),
-                  ],
-          ),
-          const SizedBox(height: 16),
-          Text('New offers', style: theme.textTheme.titleLarge),
-          ...offers.when(
-            loading: () => [const SizedBox.shrink()],
-            error: (e, _) => [Text('$e')],
-            data: (list) => list.isEmpty
-                ? [const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Waiting for orders near you…'))]
-                : [for (final offer in list) OfferCard(offer: offer)],
-          ),
-          const SizedBox(height: 80),
+          if (offerList.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            _SectionTitle('New offers', count: offerList.length),
+            for (final offer in offerList) OfferCard(offer: offer),
+          ],
+          if (offers.hasError) Text('${offers.error}', style: TextStyle(color: theme.colorScheme.error)),
+          const SizedBox(height: 20),
+          _SectionTitle('Active deliveries', count: activeList.length),
+          if (active.hasError) Text('${active.error}', style: TextStyle(color: theme.colorScheme.error)),
+          if (activeList.isEmpty)
+            const Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('No active deliveries'))
+          else
+            for (final o in activeList)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.delivery_dining_rounded),
+                  title: Text('${o.restaurantName} · #${o.shortCode}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text('${statusLabel(o.status)} · earn ${formatNaira(o.riderPayKobo)}'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/deliveries/${o.id}'),
+                ),
+              ),
+          if (offerList.isEmpty) ...[
+            const SizedBox(height: 16),
+            _WaitingCard(online: p?.isOnline ?? false, busy: activeList.isNotEmpty),
+          ],
         ]),
       ),
     );
@@ -221,6 +247,179 @@ class _OfferCardState extends ConsumerState<OfferCard> {
               child: const Text('Decline'),
             ),
           ]),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Online switch, account line and whether the position is reaching Gud Meal (dispatch only offers jobs to riders
+/// it heard from in the last 3 minutes).
+class _StatusCard extends StatelessWidget {
+  const _StatusCard({required this.profile, required this.reporter, required this.onChanged});
+  final RiderProfile profile;
+  final LocationReporter reporter;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final online = profile.isOnline;
+    final sent = reporter.lastSentAt;
+    final location = !online
+        ? 'Location sharing is off'
+        : sent == null
+            ? 'Finding your location…'
+            : 'Location shared · updated ${_ago(sent)}';
+    final foreground = online ? scheme.onSecondaryContainer : scheme.onSurfaceVariant;
+    return Card(
+      color: online ? scheme.secondaryContainer : scheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(online ? Icons.delivery_dining_rounded : Icons.bedtime_rounded, size: 34, color: foreground),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(online ? "You're online" : "You're offline",
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: foreground)),
+                Text(
+                  profile.status != 'active'
+                      ? 'Your account is ${profile.status}. Contact support.'
+                      : online
+                          ? 'You get delivery offers near you'
+                          : 'Go online to get delivery offers',
+                  style: TextStyle(color: foreground),
+                ),
+              ]),
+            ),
+            Switch(value: online, onChanged: onChanged),
+          ]),
+          const SizedBox(height: 10),
+          Row(children: [
+            Icon(online ? Icons.my_location_rounded : Icons.location_disabled_rounded, size: 16, color: foreground),
+            const SizedBox(width: 6),
+            Expanded(child: Text(location, style: theme.textTheme.bodySmall?.copyWith(color: foreground))),
+            Text('${profile.vehicle} · ★ ${profile.rating.toStringAsFixed(1)}', style: theme.textTheme.bodySmall?.copyWith(color: foreground)),
+          ]),
+        ]),
+      ),
+    );
+  }
+}
+
+String _ago(DateTime t) {
+  final seconds = DateTime.now().difference(t).inSeconds;
+  if (seconds < 10) return 'just now';
+  if (seconds < 60) return '${seconds}s ago';
+  return '${seconds ~/ 60} min ago';
+}
+
+/// Earnings and delivery numbers at a glance.
+class _Stats extends StatelessWidget {
+  const _Stats({required this.earnings, required this.profile});
+  final Earnings? earnings;
+  final RiderProfile? profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final e = earnings;
+    Widget tile(IconData icon, String value, String label) => Expanded(child: _StatTile(icon: icon, value: value, label: label));
+    return Column(children: [
+      Row(children: [
+        tile(Icons.payments_rounded, e == null ? '…' : formatNaira(e.earnedLast7DaysKobo), 'Earned in 7 days'),
+        const SizedBox(width: 10),
+        tile(Icons.account_balance_wallet_rounded, e == null ? '…' : formatNaira(e.availableKobo), 'Ready to withdraw'),
+      ]),
+      const SizedBox(height: 10),
+      Row(children: [
+        tile(Icons.check_circle_rounded, '${profile?.completedDeliveries ?? e?.deliveriesCompleted ?? 0}', 'Deliveries done'),
+        const SizedBox(width: 10),
+        tile(Icons.star_rounded, profile == null ? '…' : profile!.rating.toStringAsFixed(2), 'Your rating'),
+      ]),
+    ]);
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  const _StatTile({required this.icon, required this.value, required this.label});
+  final IconData icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(children: [
+          Icon(icon, color: theme.colorScheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall),
+            ]),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text, {required this.count});
+  final String text;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(children: [
+        Text(text, style: theme.textTheme.titleLarge),
+        if (count > 0) ...[
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(color: theme.colorScheme.primary, borderRadius: BorderRadius.circular(12)),
+            child: Text('$count', style: TextStyle(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.w800)),
+          ),
+        ],
+      ]),
+    );
+  }
+}
+
+/// What the rider sees while there is no offer: keep the app open when online, or how to start.
+class _WaitingCard extends StatelessWidget {
+  const _WaitingCard({required this.online, required this.busy});
+  final bool online;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final (icon, title, body) = !online
+        ? (Icons.power_settings_new_rounded, 'Go online to start', 'Switch on above when you are ready to ride.')
+        : busy
+            ? (Icons.route_rounded, 'Finish your delivery', 'New offers appear here while you can still take one.')
+            : (Icons.radar_rounded, 'Waiting for orders near you…',
+                'Keep this app open. Each offer lasts 45 seconds and your phone buzzes when one arrives.');
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(children: [
+          Icon(icon, size: 40, color: theme.colorScheme.primary),
+          const SizedBox(height: 8),
+          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800), textAlign: TextAlign.center),
+          const SizedBox(height: 4),
+          Text(body, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
         ]),
       ),
     );

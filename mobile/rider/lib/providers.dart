@@ -13,10 +13,13 @@ final apiProvider = Provider<GudMealApi>((ref) {
   return GudMealApi(baseUrl: ref.watch(configProvider).apiUrl, token: auth.idToken);
 });
 
-/// Location port: Geolocator on devices, a fake in tests.
+/// Location port: Geolocator on devices, a fixed spot in browser test builds, a fake in tests.
 abstract class LocationSource {
   Future<bool> ensurePermission();
   Stream<(GeoPoint, double)> positions();
+
+  /// One position right now, or null if none can be had quickly.
+  Future<(GeoPoint, double)?> current();
 }
 
 class GeolocatorSource implements LocationSource {
@@ -33,9 +36,43 @@ class GeolocatorSource implements LocationSource {
         // Battery-aware: update when the rider moves 25 m; the API rate-limits pings server-side too.
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 25),
       ).map((p) => (GeoPoint(lat: p.latitude, lng: p.longitude), p.accuracy));
+
+  @override
+  Future<(GeoPoint, double)?> current() async {
+    try {
+      final p = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, timeLimit: Duration(seconds: 15)),
+      );
+      return (GeoPoint(lat: p.latitude, lng: p.longitude), p.accuracy);
+    } catch (_) {
+      return null; // no fix in time: the heartbeat re-sends the last known position instead
+    }
+  }
 }
 
-final locationSourceProvider = Provider<LocationSource>((ref) => GeolocatorSource());
+/// Browser test builds have no GPS: `--dart-define=RIDER_TEST_LOCATION=6.4478,3.4723` pins the rider there.
+class FixedLocationSource implements LocationSource {
+  FixedLocationSource(this.point);
+  factory FixedLocationSource.parse(String latLng) {
+    final parts = latLng.split(',').map((s) => double.parse(s.trim())).toList();
+    return FixedLocationSource(GeoPoint(lat: parts[0], lng: parts[1]));
+  }
+  final GeoPoint point;
+
+  @override
+  Future<bool> ensurePermission() async => true;
+
+  @override
+  Stream<(GeoPoint, double)> positions() => Stream.value((point, 10.0));
+
+  @override
+  Future<(GeoPoint, double)?> current() async => (point, 10.0);
+}
+
+final locationSourceProvider = Provider<LocationSource>((ref) {
+  const testLocation = String.fromEnvironment('RIDER_TEST_LOCATION');
+  return testLocation.isNotEmpty ? FixedLocationSource.parse(testLocation) : GeolocatorSource();
+});
 
 final riderProfileProvider = FutureProvider<RiderProfile>((ref) => ref.watch(apiProvider).riderProfile());
 final offersProvider = FutureProvider<List<DeliveryOffer>>((ref) => ref.watch(apiProvider).offers());
@@ -45,12 +82,22 @@ final earningsProvider = FutureProvider<Earnings>((ref) => ref.watch(apiProvider
 /// Streams the rider's GPS position to the API while online. Poor connectivity: failed pings are dropped
 /// (the next position supersedes them) rather than queued, so the server never receives stale bursts.
 /// The API refuses positions from offline riders (409); the reporter then stops sharing.
+///
+/// Riders often wait in one place, and the position stream only fires after 25 m of movement, so the reporter
+/// also sends the current (or last known) position every [heartbeat]: dispatch only offers jobs to riders it has
+/// heard from in the last 3 minutes (found on a phone test: a rider waiting online never got an offer).
 class LocationReporter {
-  LocationReporter(this._api, this._source);
+  LocationReporter(this._api, this._source, {this.heartbeat = const Duration(seconds: 60)});
   final GudMealApi _api;
   final LocationSource _source;
+  final Duration heartbeat;
   StreamSubscription<(GeoPoint, double)>? _sub;
+  Timer? _beat;
   GeoPoint? last;
+  double? _accuracy;
+
+  /// When the API last accepted a position (shown on the dashboard).
+  DateTime? lastSentAt;
 
   bool get active => _sub != null;
 
@@ -63,24 +110,45 @@ class LocationReporter {
     if (_sub != null) return true;
     if (!await _source.ensurePermission()) return false;
     stoppedByServer = false;
-    _sub = _source.positions().listen((event) async {
-      last = event.$1;
-      try {
-        await _api.sendLocation(event.$1, accuracyM: event.$2);
-      } on ApiException catch (e) {
-        if (e.status == 409) {
-          stoppedByServer = true;
-          await stop();
-        }
-        // Otherwise offline or rate limited: skip this ping.
-      } catch (_) {
-        // Skip this ping.
-      }
-    });
+    _sub = _source.positions().listen((event) => _send(event.$1, event.$2));
+    _beat = Timer.periodic(heartbeat, (_) => _heartbeat());
+    unawaited(_heartbeat()); // share the position as soon as the rider goes online
     return true;
   }
 
+  Future<void> _heartbeat() async {
+    if (!active) return;
+    final sent = lastSentAt;
+    if (sent != null && DateTime.now().difference(sent) < heartbeat ~/ 2) return; // a movement ping just went
+    final fix = await _source.current();
+    if (!active) return;
+    if (fix != null) {
+      await _send(fix.$1, fix.$2);
+    } else if (last != null) {
+      await _send(last!, _accuracy);
+    }
+  }
+
+  Future<void> _send(GeoPoint point, double? accuracy) async {
+    last = point;
+    _accuracy = accuracy;
+    try {
+      await _api.sendLocation(point, accuracyM: accuracy);
+      lastSentAt = DateTime.now();
+    } on ApiException catch (e) {
+      if (e.status == 409) {
+        stoppedByServer = true;
+        await stop();
+      }
+      // Otherwise offline or rate limited: skip this ping.
+    } catch (_) {
+      // Skip this ping.
+    }
+  }
+
   Future<void> stop() async {
+    _beat?.cancel();
+    _beat = null;
     await _sub?.cancel();
     _sub = null;
   }
