@@ -16,6 +16,8 @@
 - Flutter: `flutter analyze && flutter test` in `mobile/core|customer|rider`; models use Freezed → `dart run build_runner build` in `mobile/core`
 - Tokens: edit `packages/tokens/tokens.json`, then `node packages/tokens/build.mjs` (regenerates CSS/TS/Dart)
 - Local stack: `node scripts/dev.mjs auth|api|agents` and `npm run dev:web|dev:partner|dev:admin`
+- End-to-end check of the running stack (every journey over HTTP): `services/api/.venv/Scripts/python services/api/scripts/e2e_local.py [journey ...]`
+- Phone test: start auth/api/agents with `--lan`, `node scripts/build-test-apk.mjs`, then `node scripts/dev.mjs downloads --lan` (docs/LOCAL_DEVELOPMENT.md §6)
 
 ## Gotchas
 - `packages/ui/src/components.tsx` is a `"use client"` module: pure helpers that server components call

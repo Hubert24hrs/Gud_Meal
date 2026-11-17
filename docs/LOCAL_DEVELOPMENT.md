@@ -83,3 +83,38 @@ expose `/v1/webhooks/whatsapp` with a tunnel.
 ## 5. Tests
 
 See the table in the root README. Rules tests: `npm run test:rules` (starts the Firestore + Storage emulators).
+
+**End-to-end check of a running stack** (auth, api and agents started as above): every journey over HTTP with
+real emulator accounts, from browsing to food, beauty, pickup, wallet, pay on delivery, bike packages, interstate
+waybills, group orders, Plus, rewards, support, partner tools, sign-up approvals, payouts, the Command Centre,
+access control and Gudy. It prints PASS/FAIL per step:
+
+```bash
+services/api/.venv/Scripts/python services/api/scripts/e2e_local.py            # Windows (bin/python elsewhere)
+services/api/.venv/Scripts/python services/api/scripts/e2e_local.py parcel_bike_delivery   # one journey
+```
+
+Shops keep their real opening hours (Lagos time), so at night the check opens its test shops all day and puts
+the real hours back when it finishes.
+
+## 6. Test on your phone (Android)
+
+Your phone and this computer must be on the same Wi-Fi. Use this only on a network you trust (home or office):
+while it runs, anyone on that Wi-Fi can reach the test servers.
+
+1. Start the stack in **LAN mode**, each in its own terminal (Windows may ask to let Python/Node through the
+   firewall: allow it):
+   ```bash
+   node scripts/dev.mjs auth --lan
+   node scripts/dev.mjs api --lan
+   node scripts/dev.mjs agents --lan
+   ```
+   Then seed the demo accounts (section 2), or run the end-to-end check once: it seeds them too.
+2. Build the test APKs (needs the Android SDK; set `LAN_IP` to choose the address):
+   `node scripts/build-test-apk.mjs` (or `... customer` / `... rider`). They go to `mobile/dist` (git-ignored).
+3. Serve them: `node scripts/dev.mjs downloads --lan`, then open `http://<this computer's address>:8090` on the
+   phone (or scan a QR code of that address), install, and sign in with a demo account.
+
+Test builds talk plain http to this computer and use the Auth emulator and the payment sandbox, so never publish
+them; rebuild if the computer's address changes. After **Approve** on the sandbox payment page, the page says
+"Return to the Gud Meal app": go back to the app, which confirms the payment.

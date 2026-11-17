@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from conftest import LEKKI, auth, idem
+from conftest import LEKKI, _p, auth, idem
 from gudmeal_api.services import dispatch as dispatch_mod
 
 
@@ -130,6 +130,26 @@ async def test_restaurant_onboarding_approval_grants_roles(client, container):
     assert claims["restaurant_roles"] == {rid: "owner"} and "restaurant_owner" in claims["roles"]
     restaurant = await container.repos.restaurants.get(rid)
     assert restaurant.owner_uid == "cust-2" and restaurant.is_accepting_orders is False
+    assert restaurant.status == "pending"
+
+    # Customers cannot find (or order from) the new shop until it has a menu and opens for orders.
+    listed = (await client.get("/v1/restaurants", params={"q": "Ofada Hub"})).json()
+    assert all(r["id"] != rid for r in listed)
+    assert (await client.get(f"/v1/restaurants/{rid}")).status_code == 404
+    verifier = getattr(container.verifier, "_fallback", container.verifier)  # under the channel-token layer
+    verifier.principals["new_owner"] = _p("cust-2", "restaurant_owner", restaurants={rid: "owner"})
+    base = f"/v1/partner/restaurants/{rid}"
+    r = await client.put(f"{base}/accepting", json={"accepting": True}, headers=auth("new_owner"))
+    assert r.status_code == 422 and "at least one available item" in r.json()["error"]["message"]
+    r = await client.post(
+        f"{base}/items",
+        json={"category_id": "mains", "name": "Ofada rice & ayamase", "price_kobo": 350_000},
+        headers=auth("new_owner"),
+    )
+    assert r.status_code == 201, r.text
+    r = await client.put(f"{base}/accepting", json={"accepting": True}, headers=auth("new_owner"))
+    assert r.status_code == 200 and r.json()["status"] == "active" and r.json()["is_accepting_orders"] is True
+    assert (await client.get(f"/v1/restaurants/{rid}")).status_code == 200
 
 
 async def test_rider_application_and_availability(client, container):

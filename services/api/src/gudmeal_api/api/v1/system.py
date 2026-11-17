@@ -7,6 +7,7 @@ import json
 import uuid
 from datetime import timedelta
 from typing import Annotated, Any
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
@@ -119,14 +120,34 @@ button{{width:100%;padding:14px;border-radius:12px;border:0;font-size:16px;font-
 verification and ledger pipeline used for Paystack.</p></div></body></html>""")
 
 
-@dev.post("/sandbox-checkout/{reference}/complete")
-async def sandbox_complete(reference: str, outcome: str, c: Ctr) -> RedirectResponse:
+@dev.post("/sandbox-checkout/{reference}/complete", response_model=None)
+async def sandbox_complete(
+    reference: str, outcome: str, request: Request, c: Ctr
+) -> RedirectResponse | HTMLResponse:
     if c.sandbox is None:
         raise NotFound("Sandbox disabled")
-    body, signature, callback = c.sandbox.complete(reference, success=outcome == "success")
+    success = outcome == "success"
+    body, signature, callback = c.sandbox.complete(reference, success=success)
     await c.payments.handle_webhook("local_sandbox", body, {"x-sandbox-signature": signature}, "127.0.0.1")
+    if _from_another_device(request) and urlparse(callback).hostname in ("localhost", "127.0.0.1"):
+        # A phone on the same Wi-Fi as the laptop (testing the app) cannot open the laptop's localhost callback;
+        # the app verifies the payment itself, so send the tester back to it.
+        title = "Payment approved" if success else "Payment declined"
+        return HTMLResponse(f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Gud Meal · {title}</title>
+<style>body{{font-family:system-ui,sans-serif;background:#FFF9F3;color:#202521;display:grid;place-items:center;
+min-height:100vh;margin:0}}.card{{background:#fff;border-radius:16px;padding:32px;max-width:380px;width:90%;
+box-shadow:0 8px 30px rgba(0,0,0,.08);text-align:center}}h1{{font-size:24px;margin:0 0 12px}}</style>
+</head><body><div class="card"><h1>{title}</h1><p>Return to the Gud Meal app: it confirms the payment and
+updates your order. You can close this page.</p></div></body></html>""")
     sep = "&" if "?" in callback else "?"
     return RedirectResponse(f"{callback}{sep}reference={reference}", status_code=303)
+
+
+def _from_another_device(request: Request) -> bool:
+    """True when the browser is not on the machine running the API (e.g. a phone on the same Wi-Fi)."""
+    client = request.client.host if request.client else ""
+    return client not in ("127.0.0.1", "::1", "localhost", request.url.hostname)
 
 
 # ------------------------------------------------------------------------------------------------

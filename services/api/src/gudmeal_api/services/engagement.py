@@ -255,7 +255,7 @@ class ApplicationService:
             geohash=geohash_encode(location.lat, location.lng, 9),
             address=d["address"],
             area=d.get("area", ""),
-            status=RestaurantStatus.ACTIVE,
+            status=RestaurantStatus.PENDING,  # hidden until it has a menu and opens for orders
             is_accepting_orders=False,
             opening_hours=OpeningHours.every_day("09:00", "21:00"),
             owner_uid=app.applicant_uid,

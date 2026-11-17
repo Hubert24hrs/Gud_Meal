@@ -40,6 +40,8 @@ function Shell({ rid, children }: { rid: string; children: ReactNode }) {
         <div className="flex items-center justify-between p-4 lg:block lg:space-y-4">
           <Logo />
           <p className="hidden text-xs font-semibold uppercase tracking-wide text-secondary lg:block">Partner</p>
+          {/* Small screens (kitchen tablets, phones) hide the sidebar footer, so sign-out lives up here. */}
+          <button className="text-xs font-semibold text-primary lg:hidden" onClick={() => signOut()}>Sign out</button>
         </div>
         <nav className="flex gap-1 overflow-x-auto px-2 pb-2 lg:flex-col lg:px-3" aria-label="Restaurant">
           {NAV.map(([slug, label, Icon]) => {
@@ -68,6 +70,15 @@ function Shell({ rid, children }: { rid: string; children: ReactNode }) {
           {r && <Toggle checked={r.is_accepting_orders} disabled={accepting.isPending} onChange={(v) => accepting.mutate(v)}
             label={r.is_accepting_orders ? "Accepting orders" : "Paused"} />}
         </header>
+        {(r?.status === "pending" || accepting.error) && (
+          <div role={accepting.error ? "alert" : "status"}
+            className="border-b border-border bg-surface-muted px-4 py-3 text-sm sm:px-6">
+            {accepting.error ? <p className="text-danger">{(accepting.error as Error).message}</p> : (
+              <p><span className="font-semibold">Your shop isn&apos;t live yet.</span> Add at least one item to your menu,
+                then switch on <span className="font-semibold">Accepting orders</span> and customers will see it.</p>
+            )}
+          </div>
+        )}
         <div className="p-4 sm:p-6">{children}</div>
       </div>
     </div>

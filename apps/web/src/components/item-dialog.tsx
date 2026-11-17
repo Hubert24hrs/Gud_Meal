@@ -71,6 +71,13 @@ export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose
 
   return (
     <Dialog open onClose={onClose} title={item.name} footer={
+      <div className="space-y-3">
+      {confirmReplace && (
+        // Next to the button (not at the end of a long options list) so it is seen before confirming.
+        <p role="alert" className="rounded-md bg-accent-soft p-3 text-sm">
+          Your cart has items from {cart.restaurant_name}. Adding this will start a new cart from {restaurantName}.
+        </p>
+      )}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">
           <button className="grid size-9 place-items-center rounded-full border border-border" aria-label="Decrease quantity"
@@ -82,6 +89,7 @@ export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose
         <Button block size="lg" onClick={addToCart} disabled={Boolean(error)}>
           {confirmReplace ? "Start new cart" : "Add"} · {formatNaira(unit * quantity)}
         </Button>
+      </div>
       </div>
     }>
       <div className="space-y-5">
@@ -115,11 +123,6 @@ export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose
           Notes for the kitchen (optional)
           <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={200} placeholder="e.g. less pepper, no onions" />
         </label>
-        {confirmReplace && (
-          <p role="alert" className="rounded-md bg-accent-soft p-3 text-sm">
-            Your cart has items from {cart.restaurant_name}. Adding this will start a new cart from {restaurantName}.
-          </p>
-        )}
         {error && <p className="text-sm text-muted">{error}</p>}
       </div>
     </Dialog>

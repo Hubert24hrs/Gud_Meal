@@ -2,19 +2,43 @@
 
 import { Button, Card, Spinner } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Smartphone, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { RequireAuth } from "@/components/require-auth";
 import { useApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 export default function CallbackPage() {
-  return (
-    <RequireAuth>
-      <Suspense><Callback /></Suspense>
-    </RequireAuth>
-  );
+  return <Suspense><CallbackGate /></Suspense>;
+}
+
+function CallbackGate() {
+  const { user, loading } = useAuth();
+  const params = useSearchParams();
+  if (loading) {
+    return <div className="container-page grid place-items-center py-20"><Spinner className="size-10 text-primary" /></div>;
+  }
+  if (!user) {
+    // Payments started in the mobile app finish here, in a browser tab where nobody is signed in to the website. The
+    // app verifies the payment itself, so send people back to it instead of asking them to sign in.
+    const next = `/checkout/callback?${params.toString()}`;
+    return (
+      <div className="container-page grid place-items-center py-20">
+        <Card className="w-full max-w-md space-y-4 p-8 text-center">
+          <Smartphone className="mx-auto size-12 text-primary" aria-hidden="true" />
+          <h1 className="font-display text-2xl">Return to the Gud Meal app</h1>
+          <p className="text-sm text-muted">
+            You can close this page. The app checks the payment and updates your order automatically.
+          </p>
+          <Link href={`/login?next=${encodeURIComponent(next)}`}>
+            <Button variant="outline" block>Paid on the website? Sign in</Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
+  return <Callback />;
 }
 
 function Callback() {

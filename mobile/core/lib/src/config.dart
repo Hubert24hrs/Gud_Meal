@@ -37,5 +37,13 @@ class AppConfig {
         firebaseMessagingSenderId: const String.fromEnvironment('FIREBASE_SENDER_ID', defaultValue: '000000000000'),
       );
 
-  String get emulatorHost => _host;
+  /// Where the Firebase Auth emulator runs: AUTH_EMULATOR_HOST if given, else the API's host when API_URL is set
+  /// (a phone on the same Wi-Fi as the laptop running the stack), else the emulator/simulator default.
+  String get emulatorHost {
+    const explicit = String.fromEnvironment('AUTH_EMULATOR_HOST');
+    if (explicit.isNotEmpty) return explicit;
+    const api = String.fromEnvironment('API_URL');
+    final apiHost = api.isEmpty ? '' : (Uri.tryParse(api)?.host ?? '');
+    return apiHost.isNotEmpty ? apiHost : _host;
+  }
 }

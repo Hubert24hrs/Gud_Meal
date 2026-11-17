@@ -7,6 +7,10 @@ val mapsApiKey: String = Properties().run {
     getProperty("MAPS_API_KEY") ?: System.getenv("MAPS_API_KEY") ?: ""
 }
 
+// Test builds that reach a laptop over the local Wi-Fi use plain http: only builds made with
+// GUDMEAL_ALLOW_CLEARTEXT=true allow it (debug builds always do; store builds never do).
+val allowCleartext: String = if (System.getenv("GUDMEAL_ALLOW_CLEARTEXT") == "true") "true" else "false"
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -36,10 +40,14 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["usesCleartextTraffic"] = allowCleartext
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders["usesCleartextTraffic"] = "true"
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.

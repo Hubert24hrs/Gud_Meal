@@ -84,3 +84,7 @@ logs/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+
+# Test APKs for phones (scripts/build-test-apk.mjs) and the --lan Auth emulator config
+mobile/dist/
+firebase/firebase.lan.json

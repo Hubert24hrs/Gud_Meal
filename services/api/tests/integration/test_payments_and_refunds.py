@@ -262,3 +262,29 @@ async def test_rider_payout_rules(flow, client, container):
     )
     assert r.status_code == 422
     assert (await client.get("/v1/rider/earnings", headers=auth("customer"))).status_code == 403
+
+
+async def test_sandbox_sends_a_phone_on_the_wifi_back_to_the_app(flow, container):
+    """A phone testing the app against a laptop cannot open the laptop's localhost callback: after approving it is
+    told to return to the app (which verifies the payment). The laptop's own browser still gets the redirect."""
+    import httpx
+
+    from gudmeal_api.main import create_app
+
+    app = create_app(container.settings, container=container)
+    for client_ip, expect in (("192.168.1.23", 200), ("192.168.1.8", 303)):
+        order = await flow.order()
+        r = await flow.client.post(
+            f"/v1/orders/{order['id']}/checkout", json={}, headers={**auth("customer"), **idem()}
+        )
+        ref = r.json()["reference"]
+        container.sandbox.charges[ref].callback_url = "http://localhost:3000/checkout/callback"
+        transport = httpx.ASGITransport(app=app, client=(client_ip, 50123))
+        async with httpx.AsyncClient(transport=transport, base_url="http://192.168.1.8:8000") as http:
+            r = await http.post(f"/v1/dev/sandbox-checkout/{ref}/complete?outcome=success")
+        assert r.status_code == expect, (client_ip, r.status_code)
+        if expect == 200:
+            assert "Payment approved" in r.text and "Return to the Gud Meal app" in r.text
+        else:
+            assert r.headers["location"].startswith("http://localhost:3000/checkout/callback?reference=")
+        assert (await flow.get(order["id"]))["payment"]["status"] == "paid"

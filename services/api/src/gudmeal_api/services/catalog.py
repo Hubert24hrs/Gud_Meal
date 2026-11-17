@@ -433,7 +433,17 @@ class CatalogService:
         self, principal: Principal, restaurant_id: str, accepting: bool
     ) -> Restaurant:
         require_restaurant(principal, restaurant_id, "orders")
-        await self.repos.restaurants.update(restaurant_id, {"is_accepting_orders": accepting})
+        restaurant = await self.get_restaurant(restaurant_id, include_inactive=True)
+        changes: dict[str, Any] = {"is_accepting_orders": accepting}
+        if accepting and restaurant.status == RestaurantStatus.PENDING:
+            # A newly approved shop stays hidden from customers until it first opens for orders, and it can only do
+            # that with something to sell (ops can also activate it from the Command Centre).
+            if not any(item.is_available for item in await self.repos.list_items(restaurant_id)):
+                raise ValidationFailed(
+                    "Add at least one available item to your menu before opening for orders"
+                )
+            changes["status"] = RestaurantStatus.ACTIVE.value
+        await self.repos.restaurants.update(restaurant_id, changes)
         return await self.get_restaurant(restaurant_id, include_inactive=True)
 
     async def set_categories(

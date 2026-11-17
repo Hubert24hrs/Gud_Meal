@@ -27,7 +27,8 @@ function Login() {
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, formState } = useForm<Values>({ resolver: zodResolver(schema) });
 
-  const done = () => router.replace(next.startsWith("/") ? next : "/");
+  // Only same-site paths: "//host" and "/\host" would leave the site (open redirect).
+  const done = () => router.replace(/^\/(?![/\\])/.test(next) ? next : "/");
 
   const onSubmit = handleSubmit(async (v) => {
     setError(null);
