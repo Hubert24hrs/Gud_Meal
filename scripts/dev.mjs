@@ -41,6 +41,17 @@ const targets = {
       // With --lan the payment sandbox page is opened by the phone, so its links use the Wi-Fi address.
       PUBLIC_BASE_URL: `http://${ip ?? "localhost"}:8000`, PAYMENT_CALLBACK_URL: "http://localhost:3000/checkout/callback",
       INTERNAL_SHARED_SECRET: "local-dev-only", CHECK_TOKEN_REVOCATION: "false",
+      // Testing at any hour, anywhere in the city: shops stay open, riders up to 40 km away get offers, and a
+      // missed offer comes back within about a minute.
+      DEMO_SHOPS_ALWAYS_OPEN: process.env.DEMO_SHOPS_ALWAYS_OPEN ?? "true",
+      DISPATCH_PICKUP_RADIUS_KM: process.env.DISPATCH_PICKUP_RADIUS_KM ?? "40",
+      DISPATCH_REOFFER_SECONDS: process.env.DISPATCH_REOFFER_SECONDS ?? "20",
+      // Riders normally stop getting cash jobs once they hold N50,000; a tester would hit that after a few
+      // pay-on-delivery orders (cash is handed in on the Command Centre's Cash page). N1,000,000 locally.
+      RIDER_CASH_LIMIT_KOBO: process.env.RIDER_CASH_LIMIT_KOBO ?? "100000000",
+      // Phone tests (--lan) have nobody at the shop's dashboard: demo shops accept and pack orders by themselves
+      // after a few seconds. Set DEMO_SHOP_AUTOPILOT=false to play the shop in the partner dashboard instead.
+      DEMO_SHOP_AUTOPILOT: process.env.DEMO_SHOP_AUTOPILOT ?? (lan ? "true" : "false"),
       // Gudy on WhatsApp with the sandbox sender: try it at http://localhost:8000/v1/dev/whatsapp
       WHATSAPP_ENABLED: "true", WHATSAPP_PROVIDER: "sandbox", AGENTS_BASE_URL: "http://localhost:8100",
     },

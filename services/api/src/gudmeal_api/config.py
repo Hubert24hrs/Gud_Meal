@@ -105,6 +105,15 @@ class Settings(BaseSettings):
     unpaid_order_ttl_seconds: int = 1800
     restaurant_accept_timeout_seconds: int = 480
     dispatch_offer_timeout_seconds: int = 45
+    # First search radius around the pickup; it widens by 3 km each round with nobody to ask (up to 30 km).
+    dispatch_pickup_radius_km: float = 6.0
+    # A rider who missed an offer (it ran out) is asked again for the same job after this long.
+    dispatch_reoffer_seconds: int = 300
+    # Local testing only (ignored unless ENVIRONMENT=local with the seeded demo data):
+    demo_shops_always_open: bool = False  # demo shops take orders around the clock
+    demo_shop_autopilot: bool = (
+        False  # demo shops accept and pack orders by themselves (nobody at the dashboard)
+    )
     delivery_code_max_attempts: int = 5
     code_pepper: SecretStr = SecretStr("local-dev-pepper-change-me")
 
@@ -160,6 +169,8 @@ class Settings(BaseSettings):
             problems.append("EVENT_BUS=pubsub and TASK_QUEUE=cloudtasks are required")
         if self.seed_demo_data:
             problems.append("SEED_DEMO_DATA must be false")
+        if self.demo_shops_always_open or self.demo_shop_autopilot:
+            problems.append("DEMO_SHOPS_ALWAYS_OPEN and DEMO_SHOP_AUTOPILOT are for local testing only")
         if self.environment == "production" and not self.app_check_enforced:
             problems.append("APP_CHECK_ENFORCED must be true in production")
         if self.app_check_enforced and not self.trusted_service_accounts:

@@ -46,6 +46,16 @@ async def _demo_rider_heartbeat(c: Container) -> None:
             await refresh_demo_riders(c.repos)
 
 
+async def _demo_shop_autopilot(c: Container) -> None:
+    """Local testing: demo shops accept and pack orders nobody at the dashboard has answered."""
+    from .seed.autopilot import run_demo_shops
+
+    while True:
+        await asyncio.sleep(4)
+        with contextlib.suppress(Exception):
+            await run_demo_shops(c)
+
+
 def create_app(settings: Settings | None = None, *, container: Container | None = None) -> FastAPI:
     settings = settings or get_settings()
 
@@ -56,6 +66,7 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
         c = container or await build_container(settings)
         app.state.container = c
         heartbeat: asyncio.Task[None] | None = None
+        autopilot: asyncio.Task[None] | None = None
         if owned and settings.data_backend == "memory" and settings.seed_demo_data:
             from .seed import seed
 
@@ -65,7 +76,15 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
                 from .seed.lagos import park_extra_demo_riders
 
                 await park_extra_demo_riders(c.repos)
+                if settings.demo_shops_always_open:
+                    from .seed.lagos import open_demo_shops_all_day
+
+                    opened = await open_demo_shops_all_day(c.repos)
+                    log_event(logger, "demo shops open around the clock (local testing)", shops=opened)
                 heartbeat = asyncio.create_task(_demo_rider_heartbeat(c))
+                if settings.demo_shop_autopilot:
+                    autopilot = asyncio.create_task(_demo_shop_autopilot(c))
+                    log_event(logger, "demo shop autopilot on (local testing)")
         log_event(
             logger,
             "api started",
@@ -76,8 +95,9 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
         try:
             yield
         finally:
-            if heartbeat:
-                heartbeat.cancel()
+            for background in (heartbeat, autopilot):
+                if background:
+                    background.cancel()
             if owned:
                 await c.close()
 

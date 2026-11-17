@@ -307,6 +307,24 @@ def ledger_balanced() -> None:
     check("ledger balances (debits = credits)", tb["debits_kobo"] == tb["credits_kobo"], tb)
 
 
+ACCEPTED = ("restaurant_accepted", "preparing", "rider_assigned", "ready_for_pickup")
+
+
+def shop_step(base: str, step: str, staff: str, body: dict | None = None) -> dict:
+    """A shop action on an order. In phone-test mode (`dev.mjs api --lan`) the demo shop autopilot may have done
+    it already (409): then the order as the shop sees it now is returned instead."""
+    r = call("POST", f"{base}/{step}", staff, body, expect=(200, 409))
+    if "error" not in r:
+        return r
+    parts = base.split("/")
+    orders = items_of(call("GET", f"/v1/partner/restaurants/{parts[4]}/orders", staff))
+    current = next((o for o in orders if o["id"] == parts[-1]), None)
+    if current is None:
+        raise Fail(f"{step} was refused and the shop no longer lists the order: {r}")
+    print(f"    (the demo shop autopilot had already done '{step}')", flush=True)
+    return current
+
+
 def deliver(
     order_id: str,
     *,
@@ -322,13 +340,13 @@ def deliver(
     customer's code (optionally trying a wrong code first; riders get 5 quick attempts, then 1 per 50 s)."""
     base = f"/v1/partner/restaurants/{shop}/orders/{order_id}"
     if has_shop:
-        r = call("POST", f"{base}/accept", staff, {"prep_minutes": 10})
-        check("shop accepts the order", r["status"] == "restaurant_accepted", r["status"])
+        r = shop_step(base, "accept", staff, {"prep_minutes": 10})
+        check("shop accepts the order", r["status"] in ACCEPTED, r["status"])
     rider, offer = find_offer(order_id)
     r = call("POST", f"/v1/rider/offers/{offer['id']}/accept", rider)
     check(f"{RIDERS[rider]} accepts the delivery offer", r["status"] == "rider_assigned", r["status"])
     if has_shop:
-        r = call("POST", f"{base}/ready", owner)
+        r = shop_step(base, "ready", owner)
         check("shop marks the order ready", r.get("ready_at"), r)
     r = call("POST", f"/v1/rider/deliveries/{order_id}/pickup", rider)
     check("rider picks it up", r.get("status") == "picked_up", r.get("status"))
@@ -577,8 +595,8 @@ def food_pickup() -> None:
     """Food pickup: the customer collects at the counter with a pickup code"""
     o = paid_order(fulfillment="pickup")
     base = f"/v1/partner/restaurants/{JJ}/orders/{o['id']}"
-    call("POST", f"{base}/accept", "kitchen", {"prep_minutes": 10})
-    r = call("POST", f"{base}/ready", "owner")
+    shop_step(base, "accept", "kitchen", {"prep_minutes": 10})
+    r = shop_step(base, "ready", "owner")
     check("order ready for pickup", r["status"] == "ready_for_pickup", r["status"])
     codes = call("GET", f"/v1/orders/{o['id']}/codes", "customer")
     call(

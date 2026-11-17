@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
+import math
 import uuid
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -38,6 +40,9 @@ RETRY_SECONDS = 60
 SLOW_RETRY_SECONDS = 120
 #: A rider whose offer ran out (not declined) can be asked again after this long, so a small fleet never runs out.
 REOFFER_AFTER = timedelta(minutes=5)
+#: Each round with nobody close enough looks this much further from the pickup, up to MAX_PICKUP_RADIUS_KM.
+RADIUS_STEP_KM = 3.0
+MAX_PICKUP_RADIUS_KM = 30.0
 #: Idle online riders are kept at this geohash precision (6 ≈ 1.2 km x 0.6 km cell), never more precisely.
 COARSE_GEOHASH = 6
 #: How often a live delivery's road ETA is re-measured (Routes calls cost money; pings arrive every few seconds).
@@ -57,6 +62,7 @@ class DispatchService:
         notifier: Notifier,
         emitter: Emitter,
         offer_timeout_seconds: int = 45,
+        reoffer_after_seconds: int | None = None,
         config: DispatchConfig | None = None,
         rider_cash_limit_kobo: int = 5_000_000,
         maps: MapsService | None = None,
@@ -67,6 +73,9 @@ class DispatchService:
         self.notifier = notifier
         self.emitter = emitter
         self.offer_timeout = offer_timeout_seconds
+        self.reoffer_after = (
+            REOFFER_AFTER if reoffer_after_seconds is None else timedelta(seconds=reoffer_after_seconds)
+        )
         self.cfg = config or DispatchConfig()
         self.cash_limit = rider_cash_limit_kobo
         self.maps = maps or MapsService(None)
@@ -192,7 +201,11 @@ class DispatchService:
         return [o for o in offers if o.expires_at > now]
 
     # ============================================================================ dispatch engine
-    async def start(self, order_id: str, *, exclude: set[str] | None = None) -> DeliveryAssignment | None:
+    async def start(
+        self, order_id: str, *, exclude: set[str] | None = None, count_round: bool = True
+    ) -> DeliveryAssignment | None:
+        """Offer the job to the best available rider. With nobody to ask, a counted round schedules the next try;
+        an opportunistic look (`count_round=False`, from `sweep`) changes nothing: the scheduled try is still due."""
         order = await self.repos.orders.get(order_id)
         if order is None or order.fulfillment != Fulfillment.DELIVERY or order.status not in DISPATCHABLE:
             return None
@@ -210,7 +223,7 @@ class DispatchService:
         excluded = (exclude or set()) | {
             a.rider_id
             for a in previous
-            if a.status != AssignmentStatus.EXPIRED or now - a.expires_at < REOFFER_AFTER
+            if a.status != AssignmentStatus.EXPIRED or now - a.expires_at < self.reoffer_after
         }
         riders = await self.repos.riders.find(
             where=[("is_online", "==", True), ("status", "==", RiderStatus.ACTIVE.value)], limit=500
@@ -218,16 +231,22 @@ class DispatchService:
         cash_due = order.cash_to_collect_kobo
         if cash_due:  # don't send riders out with more cash than they may carry
             riders = [r for r in riders if r.cash_held_kobo + cash_due <= self.cash_limit]
+        # Nobody close enough last round (a small fleet, or a pickup far from every rider): look further each time.
+        # Found on a phone test: a package picked up in Ajah never reached the only rider, 11.5 km away in Ikate.
+        base = self.cfg.max_pickup_radius_km
+        radius = min(base + RADIUS_STEP_KM * order.dispatch_attempts, max(base, MAX_PICKUP_RADIUS_KM))
         ranked = rank_riders(
             riders,
             restaurant_location=order.restaurant_location,
             delivery_distance_km=order.distance_km or 0.0,
             now=now,
-            cfg=self.cfg,
+            cfg=replace(self.cfg, max_pickup_radius_km=radius),
             exclude=excluded,
         )
         attempt = len(previous) + 1
         if not ranked:
+            if not count_round:
+                return None
             attempts = order.dispatch_attempts + 1
             await self.repos.orders.update(order_id, {"dispatch_attempts": attempts})
             if attempts == MAX_ATTEMPTS:  # alert ops once, but keep looking for a rider
@@ -236,6 +255,14 @@ class DispatchService:
                 )
                 log_event(logger, "dispatch exhausted", logging.WARNING, order_id=order_id)
             delay = RETRY_SECONDS if attempts < MAX_ATTEMPTS else SLOW_RETRY_SECONDS
+            # A rider who missed the offer can be asked again soon: come back as soon as that wait is over.
+            waits = [
+                (self.reoffer_after - (now - a.expires_at)).total_seconds()
+                for a in previous
+                if a.status == AssignmentStatus.EXPIRED and now - a.expires_at < self.reoffer_after
+            ]
+            if waits:
+                delay = max(1, min(delay, math.ceil(min(waits))))
             await self.tasks.enqueue(TASK_DISPATCH_RETRY, {"order_id": order_id}, delay_seconds=delay)
             return None
         best = ranked[0]
@@ -382,7 +409,8 @@ class DispatchService:
             if (
                 order.rider_id is None
                 and order.fulfillment == Fulfillment.DELIVERY
-                and await self.start(order.id)
+                # An extra look between scheduled tries: it must not add tries or count as a round.
+                and await self.start(order.id, count_round=False)
             ):
                 offers += 1
         return offers

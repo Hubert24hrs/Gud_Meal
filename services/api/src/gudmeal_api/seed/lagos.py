@@ -971,3 +971,13 @@ async def park_extra_demo_riders(repos: Repositories) -> None:
     for rider in [*demo_riders(now), *enugu_riders(now)]:
         if rider.uid != DEMO_RIDER_UIDS[0]:
             await repos.riders.update(rider.uid, {"is_online": False})
+
+
+async def open_demo_shops_all_day(repos: Repositories) -> int:
+    """Local testing only (DEMO_SHOPS_ALWAYS_OPEN): every shop takes orders around the clock, so testers can order
+    at night. Real shops keep their own hours."""
+    always = OpeningHours.every_day("00:00", "23:59").model_dump(mode="json")
+    shops = await repos.restaurants.find()
+    for shop in shops:
+        await repos.restaurants.update(shop.id, {"opening_hours": always})
+    return len(shops)

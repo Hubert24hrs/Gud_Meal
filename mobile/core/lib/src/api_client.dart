@@ -36,6 +36,16 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
+/// An offer only lasts seconds, so its countdown must not depend on clocks agreeing. The API says how many seconds
+/// are left (`expires_in_seconds`); the deadline is rebuilt on this device's clock from the moment the answer
+/// arrived. Found on a phone test: the server's clock was 16 s slow, so a 45 s offer showed 28 s; a phone whose
+/// clock runs a minute fast would have shown every offer as expired.
+DeliveryOffer offerFromJson(Map<String, dynamic> json, DateTime receivedAt) {
+  final offer = DeliveryOffer.fromJson(json);
+  final left = json['expires_in_seconds'];
+  return left is num ? offer.copyWith(expiresAt: receivedAt.add(Duration(seconds: left.toInt()))) : offer;
+}
+
 String newIdempotencyKey([String prefix = 'app']) {
   final r = Random.secure();
   final hex = List.generate(16, (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
@@ -408,7 +418,10 @@ class GudMealApi {
       _call(() => _dio.put('/v1/rider/availability', data: {'online': online}), (d) => RiderProfile.fromJson(_map(d)));
   Future<void> sendLocation(GeoPoint p, {double? accuracyM}) => _call(
       () => _dio.post('/v1/rider/location', data: {'lat': p.lat, 'lng': p.lng, 'accuracy_m': ?accuracyM}), (_) {});
-  Future<List<DeliveryOffer>> offers() => _call(() => _dio.get('/v1/rider/offers'), (d) => _list(d).map(DeliveryOffer.fromJson).toList());
+  Future<List<DeliveryOffer>> offers() => _call(() => _dio.get('/v1/rider/offers'), (d) {
+        final receivedAt = DateTime.now().toUtc();
+        return _list(d).map((json) => offerFromJson(json, receivedAt)).toList();
+      });
   Future<Order> acceptOffer(String id) => _call(() => _dio.post('/v1/rider/offers/$id/accept'), (d) => Order.fromJson(_map(d)));
   Future<void> declineOffer(String id, String reason) => _call(() => _dio.post('/v1/rider/offers/$id/decline', data: {'reason': reason}), (_) {});
   Future<List<Order>> activeDeliveries() => _call(() => _dio.get('/v1/rider/deliveries'), (d) => _list(d).map(Order.fromJson).toList());

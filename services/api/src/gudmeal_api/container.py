@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 
 from .config import Settings
+from .domain.dispatch import DispatchConfig
 from .domain.money import format_naira
 from .ledger.audit import AuditLog
 from .ledger.db import Database
@@ -290,6 +291,8 @@ async def build_container(
         notifier=notifier,
         emitter=emitter,
         offer_timeout_seconds=settings.dispatch_offer_timeout_seconds,
+        reoffer_after_seconds=settings.dispatch_reoffer_seconds,
+        config=DispatchConfig(max_pickup_radius_km=settings.dispatch_pickup_radius_km),
         rider_cash_limit_kobo=settings.rider_cash_limit_kobo,
         maps=maps,
     )

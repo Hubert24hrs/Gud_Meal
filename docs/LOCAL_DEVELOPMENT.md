@@ -123,9 +123,22 @@ closed shows **Finish paying** on its order screen.
 
 **Rider jobs:** locally only `rider@gudmeal.test` is online among the demo riders (the API starts the others
 offline), so every job is offered to the rider app. Keep the app open and online: an offer lasts 45 seconds and
-the phone buzzes; a missed offer comes back about 5 minutes later. The app shares its position every minute even
-when standing still (dispatch ignores riders it has not heard from for 3 minutes). Running the end-to-end check
-puts demo riders 2-4 online while it runs and offline again at the end.
+the phone buzzes (the countdown comes from the server's `expires_in_seconds`, so it is right even when the
+phone's or this computer's clock is not). The app shares its position every minute even when standing still
+(dispatch ignores riders it has not heard from for 3 minutes). Running the end-to-end check puts demo riders 2-4 online while it runs and
+offline again at the end.
+
+**Testing alone, at any hour, from anywhere in the city.** `node scripts/dev.mjs api` sets these for local testing
+(each is an environment variable you can override; the server ignores the two `DEMO_` switches unless
+`ENVIRONMENT=local`, and refuses to start with them in staging or production):
+
+| Local setting | What it does | Normal value |
+|---|---|---|
+| `DEMO_SHOPS_ALWAYS_OPEN=true` | Every demo shop takes orders around the clock | shops keep their hours (most 10:00-23:00 Lagos time) |
+| `DEMO_SHOP_AUTOPILOT=true` (only with `--lan`) | Nobody is at the shop's dashboard during a phone test, so a demo shop accepts a food or beauty order left unanswered for about 12 seconds and marks it ready about 30 seconds later. Set it to `false` to play the shop yourself in the partner dashboard. Pickup orders are accepted but still handed over by a person, with the customer's code | off: the shop's staff accept |
+| `DISPATCH_PICKUP_RADIUS_KM=40` | Riders up to 40 km from the pickup get the offer at once | 6 km first, then 3 km further each round with nobody to ask, up to 30 km |
+| `DISPATCH_REOFFER_SECONDS=20` | A rider who missed an offer (it ran out) is asked again 20 seconds later | 300 (5 minutes); riders who declined are never asked again |
+| `RIDER_CASH_LIMIT_KOBO=100000000` | Riders keep getting cash jobs until they hold N1,000,000 | N50,000; cash is handed in on the Command Centre's Cash page |
 
 The rider app also runs in a browser (no GPS there, so pin a position):
 `flutter build web --dart-define=RIDER_TEST_LOCATION=6.4478,3.4723` in `mobile/rider`.

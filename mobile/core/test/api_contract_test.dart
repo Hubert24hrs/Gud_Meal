@@ -21,6 +21,25 @@ void main() {
     expect(earnings.availableKobo, 261190);
   });
 
+  test('an offer counts down from the seconds left, whatever the clocks say', () {
+    final receivedAt = DateTime.utc(2026, 11, 17, 4, 0, 0);
+    final json = <String, dynamic>{
+      'id': 'a1',
+      'order_id': 'o1',
+      'restaurant_name': 'Suya Lane',
+      'distance_to_restaurant_km': 1.2,
+      'payout_kobo': 60990,
+      // The server's clock is 16 s slow: by this phone's clock the offer would seem to have 24 s left, not 40.
+      'expires_at': '2026-11-17T04:00:24Z',
+      'expires_in_seconds': 40,
+      'pickup': {'lat': 6.43, 'lng': 3.42},
+    };
+    expect(offerFromJson(json, receivedAt).expiresAt, receivedAt.add(const Duration(seconds: 40)));
+    // A server that does not send the seconds left: keep its deadline.
+    final older = Map<String, dynamic>.of(json)..remove('expires_in_seconds');
+    expect(offerFromJson(older, receivedAt).expiresAt.toUtc(), DateTime.utc(2026, 11, 17, 4, 0, 24));
+  });
+
   test("a rider's order lists what to collect without prices", () {
     final order = Order.fromJson({
       'id': 'o1',

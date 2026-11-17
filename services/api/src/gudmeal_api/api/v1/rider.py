@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Header
@@ -66,7 +67,17 @@ async def location(data: LocationInput, c: Ctr, principal: CurrentPrincipal) -> 
 
 @router.get("/offers")
 async def offers(c: Ctr, principal: CurrentPrincipal) -> Any:
-    return await c.dispatch.pending_offers(principal)
+    """Offers waiting for this rider. `expires_in_seconds` is how long each has left by the server's clock: apps
+    count down from it, so a phone (or server) whose clock is wrong still shows the right time to answer."""
+    pending = await c.dispatch.pending_offers(principal)
+    now = datetime.now(UTC)
+    return [
+        {
+            **offer.model_dump(mode="json"),
+            "expires_in_seconds": max(0, int((offer.expires_at - now).total_seconds())),
+        }
+        for offer in pending
+    ]
 
 
 @router.post("/offers/{assignment_id}/accept")

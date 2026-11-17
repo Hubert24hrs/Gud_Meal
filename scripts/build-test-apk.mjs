@@ -50,17 +50,23 @@ for (const app of pageOnly ? [] : apps.filter((a) => wanted.length === 0 || want
 for (const app of apps) {
   const apk = join(dist, app.file);
   if (existsSync(apk)) app.size = `${(statSync(apk).size / 1024 / 1024).toFixed(0)} MB`;
+  // The app's own icon next to its download link, so the two apps are easy to tell apart.
+  const icon = join(root, "mobile", app.id, "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png");
+  if (existsSync(icon)) {
+    copyFileSync(icon, join(dist, `${app.id}-icon.png`));
+    app.icon = `${app.id}-icon.png`;
+  }
 }
 const ready = apps.filter((a) => a.size);
 const built = new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 writeFileSync(join(dist, "index.html"), `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Gud Meal test apps</title>
 <style>body{font-family:system-ui,sans-serif;background:#FFF9F3;color:#202521;margin:0;padding:24px}
-main{max-width:440px;margin:0 auto}h1{font-size:26px}a.app{display:block;background:#E85D32;color:#fff;text-decoration:none;
+main{max-width:440px;margin:0 auto}h1{font-size:26px}a.app{display:flex;align-items:center;gap:14px;background:#E85D32;color:#fff;text-decoration:none;
 border-radius:14px;padding:18px 20px;margin:14px 0;font-weight:700;font-size:18px}a.app small{display:block;font-weight:400;
-font-size:14px;opacity:.9;margin-top:4px}ol{padding-left:20px;line-height:1.6}.note{font-size:13px;color:#5f6661}</style>
+font-size:14px;opacity:.9;margin-top:4px}a.app img{width:56px;height:56px;border-radius:13px;flex:none}ol{padding-left:20px;line-height:1.6}.note{font-size:13px;color:#5f6661}</style>
 </head><body><main><h1>Gud Meal test apps</h1>
-${ready.map((a) => `<a class="app" href="${a.file}" download>${a.title} (${a.size})<small>${a.note}</small></a>`).join("\n")}
+${ready.map((a) => `<a class="app" href="${a.file}" download>${a.icon ? `<img src="${a.icon}" alt="">` : ""}<span>${a.title} (${a.size})<small>${a.note}</small></span></a>`).join("\n")}
 <ol><li>Tap an app to download it, then open the download.</li>
 <li>If Android asks, allow your browser to <b>install unknown apps</b>, then tap <b>Install</b>.</li>
 <li>Keep this phone on the same Wi-Fi as the computer running Gud Meal.</li></ol>
