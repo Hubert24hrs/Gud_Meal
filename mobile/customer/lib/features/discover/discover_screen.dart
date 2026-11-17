@@ -40,9 +40,9 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final top = MediaQuery.paddingOf(context).top;
-    final food = ref.watch(merchantsProvider((vertical: 'food', category: null, pickup: false, sort: 'rating', query: null, cuisine: null)));
-    final beauty = ref.watch(merchantsProvider((vertical: 'beauty', category: null, pickup: false, sort: 'rating', query: null, cuisine: null)));
-    final demand = [...?food.value, ...?beauty.value]
+    // Every kind of shop near the customer, as on the website's Discover page.
+    final shops = ref.watch(merchantsProvider((vertical: 'all', category: null, pickup: false, sort: 'rating', query: null, cuisine: null)));
+    final demand = [...?shops.value]
       ..sort((a, b) => (b.rating * b.ratingCount.clamp(1, 2000)).compareTo(a.rating * a.ratingCount.clamp(1, 2000)));
 
     return Scaffold(
@@ -92,10 +92,10 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               child: Text('Where everyone’s ordering, available now', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
             ),
           ),
-          if (food.isLoading && demand.isEmpty)
+          if (shops.isLoading && demand.isEmpty)
             const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator())))
-          else if (food.hasError && demand.isEmpty)
-            SliverToBoxAdapter(child: ErrorRetry(error: food.error!, onRetry: () => ref.invalidate(merchantsProvider)))
+          else if (shops.hasError && demand.isEmpty)
+            SliverToBoxAdapter(child: ErrorRetry(error: shops.error!, onRetry: () => ref.invalidate(merchantsProvider)))
           else
             SliverList.builder(itemCount: demand.length.clamp(0, 12), itemBuilder: (_, i) => _DemandRow(merchant: demand[i])),
         ],
@@ -223,10 +223,10 @@ class _DemandRow extends StatelessWidget {
                     ],
                   ]),
                   if (r.promotions.isNotEmpty) ...[const SizedBox(height: 6), PromoTag(r.promotions.first.label)],
-                  if (r.vertical == 'beauty')
+                  if (r.vertical != 'food')
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text('Beauty & Skin care', style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.w700, fontSize: 12)),
+                      child: Text(serviceCopy(r.vertical).title, style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.w700, fontSize: 12)),
                     ),
                 ]),
               ),

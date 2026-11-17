@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import 'discover.dart';
 import 'models.dart';
+import 'preferences.dart';
 import 'places.dart';
 
 typedef TokenProvider = Future<String?> Function();
@@ -418,6 +419,22 @@ class GudMealApi {
   Future<WaybillTracking> trackWaybill(String code) =>
       _call(() => _dio.get('/v1/track/${Uri.encodeComponent(code)}'), (d) => WaybillTracking.fromJson(_map(d)));
   Future<Order> cancel(String id) => _call(() => _dio.post('/v1/orders/$id/cancel', data: {'reason': 'Cancelled in app'}), (d) => Order.fromJson(_map(d)));
+
+  /// Food preferences kept on the customer's profile: allergies, diet, and whether orders may shape
+  /// recommendations.
+  Future<FoodPreferences> foodPreferences() =>
+      _call(() => _dio.get('/v1/me/profile'), (d) => FoodPreferences.fromJson(_map(d)));
+  Future<FoodPreferences> saveFoodPreferences(FoodPreferences preferences) =>
+      _call(() => _dio.patch('/v1/me/profile', data: preferences.toJson()), (d) => FoodPreferences.fromJson(_map(d)));
+
+  /// Everything Gud Meal holds about the signed-in customer (their right under the NDPA).
+  Future<Map<String, dynamic>> exportMyData() => _call(() => _dio.get('/v1/me/export'), (d) => _map(d));
+
+  /// Applications to sell on Gud Meal or to ride with it; the Gud Meal team reviews them.
+  Future<void> applyAsBusiness(Map<String, dynamic> application) =>
+      _call(() => _dio.post('/v1/applications/restaurant', data: application), (_) {});
+  Future<void> applyAsRider(Map<String, dynamic> application) =>
+      _call(() => _dio.post('/v1/applications/rider', data: application), (_) {});
 
   Future<List<DeliveryAddress>> addresses() => _call(() => _dio.get('/v1/me/addresses'), (d) => _list(d).map(DeliveryAddress.fromJson).toList());
   Future<void> saveAddress(DeliveryAddress a) => _call(() => _dio.post('/v1/me/addresses', data: a.toJson()), (_) {});

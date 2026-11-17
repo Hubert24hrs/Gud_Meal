@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:gud_meal_core/gud_meal_core.dart';
+
 import '../../providers.dart';
 
 /// Accepts 0803…, 803… or +234803… and returns E.164 (+234…), or null if not a Nigerian mobile number.
@@ -74,6 +76,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     }
   }
 
+  /// "Continue with Google". A phone on the local test server has no Google account chooser, so it asks which
+  /// Google address to use (the sign-in emulator's stand-in for the chooser).
+  Future<void> _google(AuthRepository auth) async {
+    String? testEmail;
+    if (auth.googleAsksForTestEmail) {
+      testEmail = await showDialog<String>(context: context, builder: (_) => const _TestGoogleAccount());
+      if (testEmail == null) return;
+    }
+    await _run(() => auth.signInWithGoogle(testEmail: testEmail));
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authRepositoryProvider);
@@ -130,10 +143,73 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
           ]),
         ]),
-        bottomNavigationBar: _error == null
-            ? null
-            : SafeArea(child: Padding(padding: const EdgeInsets.all(16), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)))),
+        // "Continue with Google" sits under both tabs, as on the website's sign-in page.
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              if (_error != null)
+                Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+              OutlinedButton.icon(
+                key: const ValueKey('google-sign-in'),
+                onPressed: _busy ? null : () => _google(auth),
+                icon: const Icon(Icons.account_circle_outlined),
+                label: const Text('Continue with Google'),
+              ),
+            ]),
+          ),
+        ),
       ),
+    );
+  }
+}
+
+/// Test server only: the Google account to sign in with. The live app opens Google's own account chooser.
+class _TestGoogleAccount extends StatefulWidget {
+  const _TestGoogleAccount();
+
+  @override
+  State<_TestGoogleAccount> createState() => _TestGoogleAccountState();
+}
+
+class _TestGoogleAccountState extends State<_TestGoogleAccount> {
+  final _email = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    super.dispose();
+  }
+
+  void _continue() {
+    final email = _email.text.trim().toLowerCase();
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      setState(() => _error = 'Enter a Google address, e.g. ada@gmail.com');
+      return;
+    }
+    Navigator.of(context).pop(email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Continue with Google'),
+      content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text('This is the test server, so there is no Google account chooser. Type the Google address to sign in with.'),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _email,
+          autofocus: true,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(labelText: 'Google address', errorText: _error),
+          onSubmitted: (_) => _continue(),
+        ),
+      ]),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        FilledButton(onPressed: _continue, child: const Text('Continue')),
+      ],
     );
   }
 }

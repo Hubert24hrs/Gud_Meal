@@ -24,7 +24,7 @@ Future<void> main() async {
   runApp(ProviderScope(
     overrides: [
       configProvider.overrideWithValue(config),
-      authRepositoryProvider.overrideWithValue(FirebaseAuthRepository(FirebaseAuth.instance)),
+      authRepositoryProvider.overrideWithValue(FirebaseAuthRepository(FirebaseAuth.instance, usingEmulator: config.useEmulators)),
     ],
     child: const RiderApp(),
   ));

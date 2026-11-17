@@ -116,6 +116,9 @@ void main() {
   });
 
   testWidgets('checkout asks the server for the total before paying', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340); // a phone: the whole checkout is on screen
+    tester.view.devicePixelRatio = 2.6;
+    addTearDown(tester.view.reset);
     final api = FakeApi();
     final container = ProviderContainer(overrides: [
       authRepositoryProvider.overrideWithValue(FakeAuthRepository(const GmUser(uid: 'u1'))),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -22,6 +23,13 @@ abstract class AuthRepository {
   /// Starts phone sign-in (Nigerian numbers in E.164, e.g. +2348012345678). Returns a verification id.
   Future<String> startPhoneSignIn(String phoneNumber);
   Future<void> confirmPhoneCode(String verificationId, String smsCode);
+
+  /// Sign in with a Google account ("Continue with Google", as on the website).
+  ///
+  /// The local sign-in emulator has no Google account chooser, so on the test server the screen asks which
+  /// Google address to use and passes it as [testEmail]; [googleAsksForTestEmail] says when that is needed.
+  Future<void> signInWithGoogle({String? testEmail});
+  bool get googleAsksForTestEmail;
   Future<void> signOut();
 }
 
@@ -41,8 +49,11 @@ Future<void> connectAuthEmulator(fb.FirebaseAuth auth, String host, {int port = 
 }
 
 class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository(this._auth);
+  FirebaseAuthRepository(this._auth, {this.usingEmulator = false});
   final fb.FirebaseAuth _auth;
+
+  /// Connected to the local Auth emulator (local testing), not to Firebase.
+  final bool usingEmulator;
 
   GmUser? _map(fb.User? u) => u == null ? null : GmUser(uid: u.uid, email: u.email, name: u.displayName, phone: u.phoneNumber);
 
@@ -89,6 +100,26 @@ class FirebaseAuthRepository implements AuthRepository {
       _auth.signInWithCredential(fb.PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode));
 
   @override
+  bool get googleAsksForTestEmail => usingEmulator;
+
+  @override
+  Future<void> signInWithGoogle({String? testEmail}) async {
+    if (usingEmulator) {
+      // The emulator accepts an unsigned ID token: the stand-in for Google's account chooser on the test
+      // server, on phones and in a browser alike (the emulator's own pop-up cannot open inside an embedded
+      // preview).
+      final email = (testEmail ?? '').trim().toLowerCase();
+      if (!email.contains('@')) throw ArgumentError.value(testEmail, 'testEmail', 'Enter a Google address');
+      final token = jsonEncode({'sub': 'test-$email', 'email': email, 'email_verified': true, 'name': email.split('@').first});
+      await _auth.signInWithCredential(fb.GoogleAuthProvider.credential(idToken: token));
+    } else if (kIsWeb) {
+      await _auth.signInWithPopup(fb.GoogleAuthProvider()); // Google's account chooser
+    } else {
+      await _auth.signInWithProvider(fb.GoogleAuthProvider());
+    }
+  }
+
+  @override
   Future<void> signOut() => _auth.signOut();
 }
 
@@ -119,6 +150,16 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> signUpWithEmail(String name, String email, String password) => signInWithEmail(email, password);
+
+  @override
+  bool googleAsksForTestEmail = false;
+
+  @override
+  Future<void> signInWithGoogle({String? testEmail}) async {
+    final email = testEmail ?? 'google.user@example.com';
+    _user = GmUser(uid: 'u-$email', email: email, name: email.split('@').first);
+    _controller.add(_user);
+  }
 
   @override
   Future<String> startPhoneSignIn(String phoneNumber) async => 'verification-$phoneNumber';

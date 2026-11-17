@@ -31,6 +31,41 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   /// Exact address from the map picker (search, GPS or a saved address). Without it the neighbourhood centre is used.
   PickedAddress? _picked;
+  bool _locating = false;
+
+  /// One tap: the phone's GPS position becomes the delivery address (the server finds the street, or the
+  /// nearest neighbourhood when it has no street for that spot).
+  Future<void> _useMyLocation() async {
+    setState(() {
+      _locating = true;
+      _error = null;
+    });
+    try {
+      final here = await ref.read(customerLocationProvider).current();
+      final lookup = await ref.read(apiProvider).reverseGeocode(here);
+      if (!mounted) return;
+      if (!lookup.serviceable) {
+        setState(() => _error = 'Gud Meal does not deliver to where you are yet. Search for the address to deliver to.');
+        return;
+      }
+      setState(() {
+        _picked = PickedAddress(
+          address: lookup.toAddress(pin: here),
+          serviceable: true,
+          precise: lookup.place.isPrecise,
+          placeId: lookup.place.placeId,
+        );
+        if (lookup.place.isPrecise) _line1.text = lookup.place.formattedAddress;
+        _quote = null;
+      });
+    } on LocationUnavailable catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _locating = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -169,6 +204,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   : [_picked!.address.line1, _picked!.address.area].whereType<String>().toSet().join(', ')),
               trailing: Text(_picked == null ? 'Find' : 'Change', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w700)),
               onTap: _busy ? null : _pickAddress,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              key: const ValueKey('checkout-use-my-location'),
+              onPressed: _busy || _locating ? null : _useMyLocation,
+              icon: _locating
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.my_location_rounded),
+              label: const Text('Use my current location'),
             ),
           ),
           const SizedBox(height: 8),

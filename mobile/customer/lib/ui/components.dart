@@ -1,7 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
+import '../features/location/address_picker.dart' show LocationUnavailable, customerLocationProvider;
 import '../providers.dart';
 import 'illustrations.dart';
 
@@ -65,6 +68,30 @@ class AddressPill extends ConsumerWidget {
   }
 }
 
+/// The delivery area nearest to [here], or null when even the nearest is more than [withinKm] away
+/// (Gud Meal does not deliver there).
+Area? nearestArea(GeoPoint here, List<Area> areas, {double withinKm = 25}) {
+  Area? nearest;
+  var best = double.infinity;
+  for (final area in areas) {
+    final km = _kmBetween(here, area.location);
+    if (km < best) {
+      best = km;
+      nearest = area;
+    }
+  }
+  return best <= withinKm ? nearest : null;
+}
+
+/// Great-circle distance in kilometres.
+double _kmBetween(GeoPoint a, GeoPoint b) {
+  const toRad = math.pi / 180;
+  final dLat = (b.lat - a.lat) * toRad;
+  final dLng = (b.lng - a.lng) * toRad;
+  final h = math.pow(math.sin(dLat / 2), 2) + math.cos(a.lat * toRad) * math.cos(b.lat * toRad) * math.pow(math.sin(dLng / 2), 2);
+  return 2 * 6371 * math.asin(math.min(1, math.sqrt(h)));
+}
+
 Future<void> showAreaPicker(BuildContext context, WidgetRef ref) async {
   final picked = await showModalBottomSheet<Area>(
     context: context,
@@ -84,6 +111,30 @@ class _AreaPicker extends ConsumerStatefulWidget {
 
 class _AreaPickerState extends ConsumerState<_AreaPicker> {
   String _q = '';
+  bool _locating = false;
+  String? _gpsNote;
+
+  /// "Use my current location": the delivery area nearest to the phone's GPS fix.
+  Future<void> _useMyLocation(List<Area> all) async {
+    setState(() {
+      _locating = true;
+      _gpsNote = null;
+    });
+    try {
+      final here = await ref.read(customerLocationProvider).current();
+      final nearest = nearestArea(here, all);
+      if (!mounted) return;
+      if (nearest == null) {
+        setState(() => _gpsNote = 'Gud Meal does not deliver where you are yet. Choose the area to deliver to.');
+      } else {
+        Navigator.of(context).pop(nearest);
+      }
+    } on LocationUnavailable catch (e) {
+      if (mounted) setState(() => _gpsNote = e.message);
+    } finally {
+      if (mounted) setState(() => _locating = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +154,16 @@ class _AreaPickerState extends ConsumerState<_AreaPicker> {
               autofocus: false,
               decoration: const InputDecoration(prefixIcon: Icon(Icons.search_rounded), hintText: 'Search your area'),
               onChanged: (v) => setState(() => _q = v.toLowerCase().trim()),
+            ),
+            ListTile(
+              key: const ValueKey('area-use-my-location'),
+              contentPadding: EdgeInsets.zero,
+              leading: _locating
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Icon(Icons.my_location_rounded, color: brandOrange),
+              title: const Text('Use my current location', style: TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(_gpsNote ?? 'Finds the delivery area nearest to you'),
+              onTap: _locating ? null : () => _useMyLocation(areas.value ?? const []),
             ),
           ]),
         ),

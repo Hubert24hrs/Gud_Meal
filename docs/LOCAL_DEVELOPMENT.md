@@ -146,3 +146,7 @@ The rider app also runs in a browser (no GPS there, so pin a position):
 In a browser, both apps keep you signed in for one page load only while they use the sign-in emulator: reload
 the page and you sign in again. (Once the Firebase web SDK has checked a remembered session with Google, the
 emulator can no longer be attached, and every sign-in would fail.) Phones are not affected.
+
+"Continue with Google" on the test server: the sign-in emulator has no Google account chooser, so the app asks
+which Google address to use and signs in with it. The live app will open Google's chooser once the Firebase
+project exists.

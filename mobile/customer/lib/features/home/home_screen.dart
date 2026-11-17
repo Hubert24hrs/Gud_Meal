@@ -57,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           SliverToBoxAdapter(
             child: SectionTitle(first == null ? 'These are for you' : '$first, these are for you',
-                info: 'Top-rated places near ${area.name}, picked for you'),
+                info: 'Top-rated places near ${area.name}, picked for you', onMore: () => context.go('/discover')),
           ),
           SliverToBoxAdapter(
             child: forYou.when(
@@ -84,6 +84,11 @@ class HomeScreen extends ConsumerWidget {
           ),
           SliverToBoxAdapter(child: _Promos(forYou: forYou.value ?? const [])),
           SliverToBoxAdapter(child: _AskGudy(onAsk: (q) => context.push('/assistant?q=${Uri.encodeComponent(q)}'))),
+          // The same closing sections as the website's home page.
+          const SliverToBoxAdapter(child: WhyGudMeal()),
+          SliverToBoxAdapter(
+            child: GrowWithGudMeal(onBusiness: () => context.push('/partner-with-us'), onRider: () => context.push('/ride')),
+          ),
           const SliverToBoxAdapter(child: SizedBox(height: 96)),
         ]),
       ),
@@ -189,6 +194,114 @@ class _AskGudy extends StatelessWidget {
               onPressed: () => onAsk(idea),
             ),
         ]),
+      ]),
+    );
+  }
+}
+
+/// Why people use Gud Meal: the three cards of the website's home page.
+class WhyGudMeal extends StatelessWidget {
+  const WhyGudMeal({super.key});
+
+  static const reasons = [
+    (
+      Icons.auto_awesome_rounded,
+      'Gudy plans to your budget',
+      'Say what you want and how much you have. Gudy builds options with exact totals, fees and VAT included, and you '
+          'approve before paying.',
+    ),
+    (
+      Icons.account_balance_wallet_outlined,
+      'Transparent, safe payments',
+      'Pay with card, transfer or USSD on a secure page. We verify every payment before your order is sent.',
+    ),
+    (
+      Icons.pedal_bike_rounded,
+      'Live tracking to your door',
+      'Follow your rider and confirm delivery with your private 4-digit code. Packages too.',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Column(children: [
+        for (final (icon, title, body) in reasons)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(GmRadius.lg),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(icon, color: theme.colorScheme.primary),
+              const SizedBox(height: 10),
+              Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              Text(body, style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+            ]),
+          ),
+      ]),
+    );
+  }
+}
+
+/// "Sell on Gud Meal. Ride with Gud Meal.": the website's closing banner, with both sign-ups.
+class GrowWithGudMeal extends StatelessWidget {
+  const GrowWithGudMeal({super.key, required this.onBusiness, required this.onRider});
+  final VoidCallback onBusiness;
+  final VoidCallback onRider;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(color: scheme.secondary, borderRadius: BorderRadius.circular(GmRadius.lg)),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              'Sell on Gud Meal. Ride with Gud Meal.',
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: scheme.onSecondary, height: 1.15),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Restaurants, supermarkets, pharmacies, market sellers and beauty shops get orders, insights and weekly '
+              'settlements. Riders earn on their schedule.',
+              style: TextStyle(color: scheme.onSecondary.withValues(alpha: .92)),
+            ),
+            const SizedBox(height: 14),
+            Wrap(spacing: 10, runSpacing: 10, children: [
+              FilledButton(
+                onPressed: onBusiness,
+                style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: scheme.secondary),
+                child: const Text('Add your business'),
+              ),
+              OutlinedButton(
+                onPressed: onRider,
+                style: OutlinedButton.styleFrom(foregroundColor: scheme.onSecondary, side: BorderSide(color: scheme.onSecondary.withValues(alpha: .6))),
+                child: const Text('Become a rider'),
+              ),
+            ]),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Row(children: [
+            Icon(Icons.verified_user_outlined, size: 16, color: scheme.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Expanded(child: Text('You approve every order before you pay.', style: theme.textTheme.bodySmall)),
+          ]),
+        ),
       ]),
     );
   }

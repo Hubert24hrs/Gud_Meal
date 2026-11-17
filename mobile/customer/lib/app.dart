@@ -11,6 +11,7 @@ import 'features/cart/checkout_screen.dart';
 import 'features/discover/discover_screen.dart';
 import 'features/group/group_screens.dart';
 import 'features/home/home_screen.dart';
+import 'features/info/info_screens.dart';
 import 'features/location/nearby_map_screen.dart';
 import 'features/orders/order_screen.dart';
 import 'features/orders/orders_screen.dart';
@@ -42,7 +43,7 @@ class _AuthListenable extends ChangeNotifier {
 }
 
 /// Screens that need an account. Tabs (Orders, Profile) show a sign-in prompt instead of redirecting.
-const _protected = ['/checkout', '/assistant', '/send', '/orders/', '/wallet', '/plus', '/rewards', '/group', '/receipts'];
+const _protected = ['/checkout', '/assistant', '/send', '/orders/', '/wallet', '/plus', '/rewards', '/group', '/receipts', '/partner-with-us', '/ride'];
 
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -115,6 +116,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/checkout', builder: (_, _) => const CheckoutScreen()),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletScreen()),
       GoRoute(path: '/receipts', builder: (_, _) => const ReceiptsScreen()),
+      // Pages the website has too: help centre, package tracking by number, and the two sign-ups.
+      GoRoute(path: '/help', builder: (_, _) => const HelpScreen()),
+      GoRoute(path: '/track', builder: (_, s) => TrackScreen(code: s.uri.queryParameters['code'])),
+      GoRoute(path: '/partner-with-us', builder: (_, _) => const BusinessApplyScreen()),
+      GoRoute(path: '/ride', builder: (_, _) => const RiderApplyScreen()),
       GoRoute(path: '/plus', builder: (_, _) => const PlusScreen()),
       GoRoute(path: '/rewards', builder: (_, _) => const RewardsScreen()),
       GoRoute(

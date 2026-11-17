@@ -17,7 +17,7 @@ const CATEGORIES: Record<string, string> = {
 
 const FAQ = [
   ["How do refunds work?", "If a store rejects your order, or you cancel before it is accepted (or before a rider is assigned to your package), you get a full refund automatically. For anything else, open a ticket and our team reviews it within 24 hours."],
-  ["How do I pay?", "Card, bank transfer or USSD on Paystack’s secure page. Gud Meal never sees your card details. The Gud Meal wallet and pay on delivery are coming soon."],
+  ["How do I pay?", "Card, bank transfer or USSD on a secure payment page (Gud Meal never sees your card details), from your Gud Meal wallet in one tap, or in cash on delivery once you have completed an order."],
   ["What is the delivery code?", "A 4-digit code in your order. Only give it to the rider once you have your order. For packages, share it with the person receiving it."],
   ["Where do you deliver?", "Lagos and Enugu for now. Choose your area at the top of the page; more cities are coming."],
   ["Is Gudy a real person?", "Gudy is Gud Meal’s AI assistant. It always asks you to approve before placing an order or creating a payment, and you can ask for a person at any time."],
