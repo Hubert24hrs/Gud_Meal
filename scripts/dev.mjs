@@ -3,7 +3,9 @@
 // Uses safe local defaults (memory data + payment sandbox + Firebase Auth emulator). Real keys go in .env files.
 // --lan: also listen on this computer's Wi-Fi address so a phone on the same Wi-Fi can use a test APK
 // (see docs/LOCAL_DEVELOPMENT.md, "Test on your phone"). Set LAN_IP to choose the address yourself.
-import { spawn } from "node:child_process";
+// customer-web takes --port=5051, the spare address (see WEB_APP_PORTS below).
+// Several names run together, and --seed creates the demo accounts: `auth api agents downloads --lan --seed`.
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +16,14 @@ const isWin = process.platform === "win32";
 const py = (svc) => join(root, "services", svc, ".venv", isWin ? "Scripts/python.exe" : "bin/python");
 const lan = process.argv.includes("--lan");
 const ip = lan ? lanIp() : null;
+
+// The web build of the customer app is served on 5050. `customer-web --port=5051` is the spare address, for a
+// browser that holds broken site data for 5050 and shows a blank page. The API and Gudy allow both.
+const WEB_APP_PORTS = ["5050", "5051"];
+const webPort = process.argv.find((arg) => arg.startsWith("--port="))?.slice("--port=".length) ?? WEB_APP_PORTS[0];
+// Web pages that may call the local services: the three websites and the web build of the customer app.
+const corsOrigins = process.env.CORS_ORIGINS
+  ?? JSON.stringify(["3000", "3001", "3002", ...WEB_APP_PORTS].map((port) => `http://localhost:${port}`));
 
 // The Auth emulator reads its listen address from firebase.json; --lan uses a copy that listens on every interface.
 function lanFirebaseConfig() {
@@ -40,7 +50,7 @@ const targets = {
       DATA_BACKEND: "memory", SEED_DEMO_DATA: "true", DATABASE_URL: "sqlite+aiosqlite:///./gudmeal_local_v3.db",
       // With --lan the payment sandbox page is opened by the phone, so its links use the Wi-Fi address.
       PUBLIC_BASE_URL: `http://${ip ?? "localhost"}:8000`, PAYMENT_CALLBACK_URL: "http://localhost:3000/checkout/callback",
-      INTERNAL_SHARED_SECRET: "local-dev-only", CHECK_TOKEN_REVOCATION: "false",
+      INTERNAL_SHARED_SECRET: "local-dev-only", CHECK_TOKEN_REVOCATION: "false", CORS_ORIGINS: corsOrigins,
       // Testing at any hour, anywhere in the city: shops stay open, riders up to 40 km away get offers, and a
       // missed offer comes back within about a minute.
       DEMO_SHOPS_ALWAYS_OPEN: process.env.DEMO_SHOPS_ALWAYS_OPEN ?? "true",
@@ -60,7 +70,7 @@ const targets = {
     cmd: py("agents"),
     args: ["-m", "uvicorn", "--factory", "gudmeal_agents.main:app_factory", "--port", "8100", ...(lan ? ["--host", "0.0.0.0"] : [])],
     cwd: join(root, "services/agents"),
-    env: { API_BASE_URL: "http://localhost:8000", CHECKPOINTER: "sqlite" },
+    env: { API_BASE_URL: "http://localhost:8000", CHECKPOINTER: "sqlite", CORS_ORIGINS: corsOrigins },
   },
   // Serves test APKs (mobile/dist, made by scripts/build-test-apk.mjs) to phones on the same Wi-Fi.
   downloads: {
@@ -72,7 +82,7 @@ const targets = {
   // Serves the last `flutter build web` of the customer app (run that first) for browser testing.
   "customer-web": {
     cmd: isWin ? "python" : "python3",
-    args: ["-m", "http.server", "5050", "--bind", "127.0.0.1", "--directory", join(root, "mobile/customer/build/web")],
+    args: ["-m", "http.server", webPort, "--bind", "127.0.0.1", "--directory", join(root, "mobile/customer/build/web")],
     cwd: root,
     env: {},
   },
@@ -85,22 +95,76 @@ const targets = {
   },
 };
 
-const name = process.argv[2];
-const target = targets[name];
-if (!target) {
-  console.error(`usage: node scripts/dev.mjs <${Object.keys(targets).join("|")}> [--lan]`);
+// One name runs that service. Several names run together and stop together: the phone test is
+// `node scripts/dev.mjs auth api agents downloads --lan --seed`.
+const names = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
+if (!names.length || names.some((name) => !targets[name])) {
+  console.error(`usage: node scripts/dev.mjs <${Object.keys(targets).join("|")}> [another ...] [--lan] [--seed]`);
   process.exit(2);
 }
-if (lan) console.log(`LAN mode: phones on this Wi-Fi reach ${name} at http://${ip} (allow it if Windows Firewall asks)`);
-if (target.cmd.endsWith("python.exe") || target.cmd.endsWith("/python")) {
-  if (!existsSync(target.cmd)) {
-    console.error(`Missing virtualenv: run \`uv sync\` in ${target.cwd}`);
+if (names.includes("customer-web") && !WEB_APP_PORTS.includes(webPort)) {
+  console.error(`customer-web runs on ${WEB_APP_PORTS.join(" or ")}: the local API and Gudy allow only those addresses`);
+  process.exit(2);
+}
+if (lan) console.log(`LAN mode: phones on this Wi-Fi reach ${names.join(", ")} at http://${ip} (allow it if Windows Firewall asks)`);
+for (const name of names) {
+  const { cmd, cwd } = targets[name];
+  if ((cmd.endsWith("python.exe") || cmd.endsWith("/python")) && !existsSync(cmd)) {
+    console.error(`Missing virtualenv: run "uv sync" in ${cwd}`);
     process.exit(1);
   }
 }
-const child = spawn(target.cmd, target.args, {
-  cwd: target.cwd, stdio: "inherit", shell: target.shell ?? false,
-  env: { ...process.env, ...shared, ...target.env },
+
+const children = names.map((name) => {
+  const target = targets[name];
+  const child = spawn(target.cmd, target.args, {
+    cwd: target.cwd, stdio: "inherit", shell: target.shell ?? false,
+    env: { ...process.env, ...shared, ...target.env },
+  });
+  child.on("error", (error) => {
+    console.error(`${name} did not start: ${error.message}`);
+    stopAll(1);
+  });
+  // When one service stops, the rest stop with it, so a half-running stack never looks healthy.
+  child.on("exit", (code) => stopAll(code ?? 0));
+  return child;
 });
-child.on("exit", (code) => process.exit(code ?? 0));
-for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => child.kill(sig));
+// On Windows the Auth emulator runs under a shell, and stopping the shell alone leaves it holding its port:
+// stop the whole process tree.
+function stop(child) {
+  if (!child.pid || child.exitCode !== null || child.signalCode !== null) return;
+  if (isWin) spawnSync("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" });
+  else child.kill("SIGTERM");
+}
+let stopping = false;
+function stopAll(code) {
+  if (stopping) return;
+  stopping = true;
+  children.forEach(stop);
+  process.exit(code);
+}
+for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => stopAll(0));
+
+// --seed: create the demo accounts once the Auth emulator answers (the script in docs/LOCAL_DEVELOPMENT.md,
+// section 2). The emulator forgets every account when it stops, so a restarted stack needs them again.
+if (process.argv.includes("--seed") && names.includes("auth")) seedDemoAccounts();
+
+async function seedDemoAccounts() {
+  // The emulator waits on requests to Google while it starts: seconds on a good internet connection, minutes on
+  // a poor one. Keep waiting for as long as it runs (when it stops, this launcher stops too).
+  for (let waited = 0; ; waited += 2) {
+    try {
+      if ((await fetch(`http://${shared.FIREBASE_AUTH_EMULATOR_HOST}/`)).ok) {
+        const seed = spawn(py("api"), ["scripts/seed_auth_emulator.py"], {
+          cwd: join(root, "services/api"), stdio: "inherit", env: { ...process.env, ...shared },
+        });
+        seed.on("error", (error) => console.error(`The demo accounts were not created: ${error.message}`));
+        return;
+      }
+    } catch {
+      // The emulator is still starting.
+    }
+    if (waited === 60) console.log("Still waiting for the Auth emulator before creating the demo accounts (a poor internet connection slows its start)");
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+}

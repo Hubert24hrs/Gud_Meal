@@ -17,7 +17,7 @@
 - Tokens: edit `packages/tokens/tokens.json`, then `node packages/tokens/build.mjs` (regenerates CSS/TS/Dart)
 - Local stack: `node scripts/dev.mjs auth|api|agents` and `npm run dev:web|dev:partner|dev:admin`
 - End-to-end check of the running stack (every journey over HTTP): `services/api/.venv/Scripts/python services/api/scripts/e2e_local.py [journey ...]`
-- Phone test: start auth/api/agents with `--lan`, `node scripts/build-test-apk.mjs`, then `node scripts/dev.mjs downloads --lan` (docs/LOCAL_DEVELOPMENT.md §6). `dev.mjs api` turns on local-testing settings (shops always open, 40 km rider search, quick re-offers; with `--lan` demo shops accept orders by themselves)
+- Phone test: `node scripts/dev.mjs auth api agents downloads --lan --seed` (preview server `phone-test`: sign-in emulator, API, Gudy, download page and demo accounts in one), then `node scripts/build-test-apk.mjs` (docs/LOCAL_DEVELOPMENT.md §6). `dev.mjs api` turns on local-testing settings (shops always open, 40 km rider search, quick re-offers; with `--lan` demo shops accept orders by themselves)
 - App icons: `powershell -File scripts/make-app-icons.ps1` (from `assets/brand/gud-meal-logo.jpg`; Windows only)
 
 ## Gotchas
@@ -26,3 +26,6 @@
 - On Windows, write files from Python with `encoding="utf-8"` (default cp1252 breaks on ₦).
 - The Firestore emulator needs Java 21; without it, API tests use the in-memory DocumentStore (same contract).
 - Postgres-only tests run when `TEST_DATABASE_URL` points to PostgreSQL (CI does this).
+- Servers that keep running (the local stack, the phone test) start as preview servers from `.claude/launch.json`
+  (the app allows five at once, so `phone-test` is four services in one), never in a background shell: a shell
+  that never exits keeps a `/goal` waiting, and each check-in costs the owner usage.

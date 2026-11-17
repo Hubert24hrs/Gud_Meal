@@ -34,6 +34,7 @@ npm install
 | Partner dashboard | `npm run dev:partner` | http://localhost:3001 |
 | Command Centre | `npm run dev:admin` | http://localhost:3002 |
 | Flutter customer app | `cd mobile/customer && flutter run` | Android emulator reaches the API at 10.0.2.2 |
+| Customer app in a browser | `flutter build web` in `mobile/customer`, then `node scripts/dev.mjs customer-web` | http://localhost:5050 (add `--port=5051` if that address stays blank: the browser holds broken site data for it) |
 
 Copy each `apps/*/.env.example` to `.env.local` (emulator mode is the default).
 
@@ -103,18 +104,22 @@ the real hours back when it finishes.
 Your phone and this computer must be on the same Wi-Fi. Use this only on a network you trust (home or office):
 while it runs, anyone on that Wi-Fi can reach the test servers.
 
-1. Start the stack in **LAN mode**, each in its own terminal (Windows may ask to let Python/Node through the
-   firewall: allow it):
+1. Start the stack in **LAN mode** (Windows may ask to let Python/Node through the firewall: allow it). In one
+   terminal:
    ```bash
-   node scripts/dev.mjs auth --lan
-   node scripts/dev.mjs api --lan
-   node scripts/dev.mjs agents --lan
+   node scripts/dev.mjs auth api agents downloads --lan --seed
    ```
-   Then seed the demo accounts (section 2), or run the end-to-end check once: it seeds them too.
+   That runs the sign-in emulator, the API, Gudy and the download page of step 3 together (when one stops, the
+   rest stop), and `--seed` creates the demo accounts of section 2 once the emulator is up. Or run them one by
+   one, each in its own terminal (`node scripts/dev.mjs auth --lan`, `... api --lan`, `... agents --lan`), then
+   seed the demo accounts (section 2) or run the end-to-end check once: it seeds them too.
+   In the Claude desktop app this is the preview server `phone-test` (`.claude/launch.json`). The app runs at
+   most five preview servers for a project, and they keep running between chat turns.
 2. Build the test APKs (needs the Android SDK; set `LAN_IP` to choose the address):
    `node scripts/build-test-apk.mjs` (or `... customer` / `... rider`). They go to `mobile/dist` (git-ignored).
-3. Serve them: `node scripts/dev.mjs downloads --lan`, then open `http://<this computer's address>:8090` on the
-   phone (or scan a QR code of that address), install, and sign in with a demo account.
+3. Serve them (`node scripts/dev.mjs downloads --lan`, unless step 1 already started it), then open
+   `http://<this computer's address>:8090` on the phone (or scan a QR code of that address), install, and sign in
+   with a demo account.
 
 Test builds talk plain http to this computer and use the Auth emulator and the payment sandbox, so never publish
 them; rebuild if the computer's address changes. After **Approve** on the sandbox payment page, the page says
