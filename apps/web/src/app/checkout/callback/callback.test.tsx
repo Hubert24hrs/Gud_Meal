@@ -4,10 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const auth = { user: null as null | { uid: string }, loading: false };
 const verify = vi.fn();
+const replace = vi.fn();
 vi.mock("@/lib/auth", () => ({ useAuth: () => auth }));
 vi.mock("@/lib/api", () => ({ useApi: () => ({ payments: { verify } }) }));
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("order_id=o1&reference=GM-ABC123"),
+  useRouter: () => ({ replace }),
 }));
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
@@ -23,6 +25,7 @@ function show() {
 afterEach(() => {
   cleanup();
   verify.mockReset();
+  replace.mockReset();
 });
 
 describe("payment return page", () => {
@@ -44,5 +47,22 @@ describe("payment return page", () => {
     show();
     await waitFor(() => expect(screen.getByRole("heading", { name: "Payment confirmed" })).toBeTruthy());
     expect(verify).toHaveBeenCalledWith("GM-ABC123");
+    // The order is paid for: the receipt printer comes next (ADR-0019).
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/orders/o1/receipt"));
+    expect(screen.getByRole("link", { name: "Print my receipt" }).getAttribute("href")).toBe("/orders/o1/receipt");
+  });
+
+  it("does not open the receipt printer for a membership payment or while a payment is unconfirmed", async () => {
+    auth.user = { uid: "cust-1" };
+    verify.mockResolvedValue({ status: "succeeded", order_id: null, purpose: "plus" });
+    show();
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Welcome to Gud Meal Plus" })).toBeTruthy());
+    expect(replace).not.toHaveBeenCalled();
+    cleanup();
+
+    verify.mockResolvedValue({ status: "failed", order_id: "o1", purpose: "order", failure_reason: "Declined" });
+    show();
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Payment not completed" })).toBeTruthy());
+    expect(replace).not.toHaveBeenCalled();
   });
 });

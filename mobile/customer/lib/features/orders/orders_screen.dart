@@ -120,7 +120,7 @@ class _SpendCard extends StatelessWidget {
   const _SpendCard({required this.summary});
   final OrderSummary summary;
 
-  static const _names = {'food': 'Food', 'beauty': 'Beauty & Skin care', 'parcel': 'Package Delivery', 'waybill': 'Interstate'};
+  static const _names = serviceNames;
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +162,7 @@ class _OrderRow extends StatelessWidget {
     final icon = switch (o.vertical) {
       'parcel' => Icons.local_shipping_rounded,
       'waybill' => Icons.alt_route_rounded,
-      'beauty' => Icons.spa_rounded,
-      _ => Icons.restaurant_rounded,
+      _ => serviceCopy(o.vertical).icon,
     };
     final title = o.vertical == 'waybill' && o.waybill != null
         ? 'Waybill to ${o.waybill!.recipient.name}'

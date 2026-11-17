@@ -84,7 +84,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 const Text('Balance', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
                 Text(formatNaira(w.balanceKobo),
                     style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
-                const Text('Pay for food, beauty and packages in one tap. Refunds land here instantly.',
+                const Text('Pay for food, groceries, pharmacy, market shopping, beauty and packages in one tap. Refunds land here instantly.',
                     style: TextStyle(color: Colors.white)),
               ]),
             ),

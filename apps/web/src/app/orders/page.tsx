@@ -3,19 +3,19 @@
 import { formatDateTime, formatNaira, type Order, type OrderSummary } from "@gudmeal/api-client";
 import { ErrorState, Price, Skeleton, StatusBadge, cn } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Package, Receipt, ShoppingBag, ShoppingCart, Sparkles, Truck, UtensilsCrossed } from "lucide-react";
+import { Package, Receipt, ShoppingBag, ShoppingCart, Truck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
 import { EmptyBlock } from "@/components/storefront";
 import { useApi } from "@/lib/api";
 import { useCart } from "@/lib/cart";
+import { SERVICE_NAMES as SERVICE, serviceCopy } from "@/lib/services";
 
 const ACTIVE = new Set([
   "pending_payment", "paid", "submitted_to_restaurant", "restaurant_accepted", "preparing", "ready_for_pickup",
   "rider_assigned", "picked_up", "in_transit", "delivered", "disputed", "refund_pending",
 ]);
-const SERVICE: Record<string, string> = { food: "Food", beauty: "Beauty & Skin care", parcel: "Package Delivery", waybill: "Interstate" };
 
 export default function OrdersPage() {
   return <RequireAuth reason="Sign in to track your orders and see what you’ve spent."><Orders /></RequireAuth>;
@@ -91,7 +91,7 @@ function SpendCard({ s }: { s: OrderSummary }) {
 function OrderRow({ o }: { o: Order }) {
   const parcel = o.vertical === "parcel" ? o.parcel : null;
   const waybill = o.waybill ?? null;
-  const Icon = waybill ? Truck : parcel ? Package : o.vertical === "beauty" ? Sparkles : UtensilsCrossed;
+  const Icon = waybill ? Truck : parcel ? Package : serviceCopy(o.vertical).icon;
   return (
     <li>
       <Link href={`/orders/${o.id}`} className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 hover:border-primary">

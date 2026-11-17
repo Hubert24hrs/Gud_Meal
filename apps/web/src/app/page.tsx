@@ -1,7 +1,7 @@
 import { Bike, ShieldCheck, Sparkles, Wallet } from "lucide-react";
 import Link from "next/link";
 import { AskBox } from "@/components/ask-box";
-import { BeautyArt, FoodArt, GudyArt, ParcelArt } from "@/components/illustrations";
+import { BeautyArt, FoodArt, GroceryArt, GudyArt, MarketArt, ParcelArt, PharmacyArt } from "@/components/illustrations";
 import { ServiceBubbles } from "@/components/service-bubbles";
 import { AddressPill, BrandTile, PromoTag, SectionTitle } from "@/components/storefront";
 import { safe, serverApi } from "@/lib/server-api";
@@ -11,16 +11,21 @@ export const dynamic = "force-dynamic";
 const IDEAS = [
   "I have ₦10,000. Best meal for two before 8pm?",
   "Find me a good sunscreen",
+  "I need paracetamol and a pack of water",
   "Send a package to Yaba",
   "Abeg, wetin una dey sell?",
 ];
 
 export default async function HomePage() {
-  const [{ data: food }, { data: beauty }] = await Promise.all([
+  const [{ data: food }, { data: grocery }, { data: pharmacy }, { data: market }, { data: beauty }] = await Promise.all([
     safe(serverApi.catalog.restaurants({ limit: 8, vertical: "food", city: "lagos" })),
+    safe(serverApi.catalog.restaurants({ limit: 2, vertical: "grocery", city: "lagos" })),
+    safe(serverApi.catalog.restaurants({ limit: 2, vertical: "pharmacy", city: "lagos" })),
+    safe(serverApi.catalog.restaurants({ limit: 2, vertical: "market", city: "lagos" })),
     safe(serverApi.catalog.restaurants({ limit: 4, vertical: "beauty", city: "lagos" })),
   ]);
-  const picks = [...(food ?? []), ...(beauty ?? [])].sort((a, b) => Number(b.is_featured) - Number(a.is_featured));
+  const picks = [...(food ?? []), ...(grocery ?? []), ...(pharmacy ?? []), ...(market ?? []), ...(beauty ?? [])]
+    .sort((a, b) => Number(b.is_featured) - Number(a.is_featured));
   const deal = picks.find((r) => r.promotions?.length);
 
   return (
@@ -29,22 +34,26 @@ export default async function HomePage() {
         <div className="container-page grid items-center gap-4 pt-4 md:grid-cols-[1fr_1.1fr] md:pt-10">
           <div className="hidden space-y-5 text-white md:block">
             <h1 className="font-display text-5xl leading-[1.05] tracking-tight lg:text-6xl">
-              Food, beauty and packages, delivered.
+              Food, groceries, pharmacy and more, delivered.
             </h1>
             <p className="max-w-lg text-lg text-white/90">
-              Lagos and Enugu’s favourite kitchens, partner beauty shops and bike couriers in one app. Drag a bubble
-              to play, tap one to start.
+              Restaurants, supermarkets, pharmacies, market shoppers, beauty shops and bike couriers in Lagos and
+              Enugu, in one app. Drag a bubble to play, tap one to start.
             </p>
             <div className="max-w-lg rounded-2xl bg-white/95 p-2 text-text"><AskBox /></div>
           </div>
           <div>
             <div className="flex justify-center"><AddressPill onDark /></div>
-            <h1 className="sr-only md:hidden">Gud Meal: food, beauty and package delivery in Lagos and Enugu</h1>
+            <h1 className="sr-only md:hidden">Gud Meal: food, groceries, pharmacy, market shopping, beauty and package delivery in Lagos and Enugu</h1>
             <ServiceBubbles
+              height={372}
               bubbles={[
-                { id: "food", label: "Food", href: "/food", art: <FoodArt />, size: 1.12 },
+                { id: "food", label: "Food", href: "/food", art: <FoodArt />, size: 1.1 },
+                { id: "grocery", label: "Groceries", href: "/groceries", art: <GroceryArt /> },
+                { id: "pharmacy", label: "Pharmacy", href: "/pharmacy", art: <PharmacyArt /> },
+                { id: "market", label: "Market Shopping", href: "/market", art: <MarketArt /> },
                 { id: "beauty", label: "Beauty & Skin care", href: "/beauty", art: <BeautyArt /> },
-                { id: "parcel", label: "Package Delivery", href: "/send", art: <ParcelArt />, size: 1.02 },
+                { id: "parcel", label: "Package Delivery", href: "/send", art: <ParcelArt /> },
               ]}
             />
           </div>
@@ -121,7 +130,7 @@ export default async function HomePage() {
         <div className="grid gap-4 rounded-xl bg-secondary p-8 text-on-secondary sm:grid-cols-2 sm:p-10">
           <div>
             <h2 className="font-display text-3xl">Sell on Gud Meal. Ride with Gud Meal.</h2>
-            <p className="mt-2 opacity-90">Restaurants and beauty shops get orders, insights and weekly settlements. Riders earn on their schedule.</p>
+            <p className="mt-2 opacity-90">Restaurants, supermarkets, pharmacies, market sellers and beauty shops get orders, insights and weekly settlements. Riders earn on their schedule.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:justify-end">
             <Link href="/partner-with-us" className="rounded-full bg-white px-5 py-3 font-semibold text-secondary">Add your business</Link>

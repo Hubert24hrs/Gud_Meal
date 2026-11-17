@@ -66,6 +66,9 @@ function Account() {
           <Link href="/orders" className="flex items-center justify-between p-4 hover:bg-surface-muted">
             <span className="font-medium">Order history</span><span className="rounded-full bg-surface-muted px-3 py-1 text-sm font-bold">View in Orders</span>
           </Link>
+          <Link href="/receipts" className="flex items-center justify-between p-4 hover:bg-surface-muted">
+            <span className="font-medium">My receipts</span><span aria-hidden="true">›</span>
+          </Link>
           <Link href="/wallet" className="flex items-center justify-between p-4 hover:bg-surface-muted">
             <span className="font-medium">Gud Meal wallet</span>
             <span className="rounded-full bg-secondary-soft px-3 py-1 text-sm font-bold text-secondary">

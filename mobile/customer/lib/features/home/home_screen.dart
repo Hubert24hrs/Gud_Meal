@@ -10,7 +10,7 @@ import '../../ui/gudy.dart';
 import '../../ui/illustrations.dart';
 import '../../widgets.dart';
 
-/// Home: Gud Meal's three services as animated, draggable bubbles on an orange header, then personal picks.
+/// Home: Gud Meal's six services as animated, draggable bubbles on an orange header, then personal picks.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -40,11 +40,15 @@ class HomeScreen extends ConsumerWidget {
                   const Center(child: AddressPill(onDark: true)),
                   const SizedBox(height: 8),
                   ServiceBubbleField(
-                    height: 340,
+                    height: 372,
+                    layout: sixBubbleLayout,
                     bubbles: [
-                      BubbleSpec(id: 'food', label: 'Food', art: const FoodIllustration(), relSize: 1.12, onTap: () => context.push('/food')),
+                      BubbleSpec(id: 'food', label: 'Food', art: const FoodIllustration(), relSize: 1.1, onTap: () => context.push('/food')),
+                      BubbleSpec(id: 'grocery', label: 'Groceries', art: const GroceryIllustration(), onTap: () => context.push('/groceries')),
+                      BubbleSpec(id: 'pharmacy', label: 'Pharmacy', art: const PharmacyIllustration(), onTap: () => context.push('/pharmacy')),
+                      BubbleSpec(id: 'market', label: 'Market Shopping', art: const MarketIllustration(), onTap: () => context.push('/market')),
                       BubbleSpec(id: 'beauty', label: 'Beauty & Skin care', art: const BeautyIllustration(), onTap: () => context.push('/beauty')),
-                      BubbleSpec(id: 'parcel', label: 'Package Delivery', art: const ParcelIllustration(), relSize: 1.02, onTap: () => context.push('/send')),
+                      BubbleSpec(id: 'parcel', label: 'Package Delivery', art: const ParcelIllustration(), onTap: () => context.push('/send')),
                     ],
                   ),
                 ]),

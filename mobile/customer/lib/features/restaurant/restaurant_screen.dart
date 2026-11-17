@@ -8,6 +8,7 @@ import '../../ui/components.dart';
 import '../../widgets.dart';
 import '../cart/cart_controller.dart';
 import '../group/group_screens.dart' show StartGroupSheet;
+import 'shop_view.dart';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   /// [initialItemId] opens that dish straight away (e.g. "Order food" on a Discover dish).
@@ -64,6 +65,10 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
           final r = d.restaurant;
           final canOrder = r.isOpen && r.isAcceptingOrders;
           _maybeOpenInitialItem(d);
+          // Supermarkets, pharmacies and markets are browsed by the aisle, not as a menu.
+          if (serviceCopy(r.vertical).isRetail) {
+            return ShopView(detail: d, canOrder: canOrder, onOpen: (item) => _openItem(item, d));
+          }
           return CustomScrollView(slivers: [
             SliverAppBar(
               expandedHeight: 180,
@@ -76,7 +81,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(r.description),
                   const SizedBox(height: 8),
-                  Text('${ratingPercent(r.rating)} positive (${r.ratingCount}) · ${r.vertical == 'beauty' ? 'packed in' : 'ready in'} ~${d.avgPrepMinutes} min · ${d.address}',
+                  Text('${ratingPercent(r.rating)} positive (${r.ratingCount}) · ${serviceCopy(r.vertical).readyIn} ~${d.avgPrepMinutes} min · ${d.address}',
                       style: Theme.of(context).textTheme.bodySmall),
                   if (canOrder)
                     Padding(

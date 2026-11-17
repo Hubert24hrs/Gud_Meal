@@ -33,6 +33,8 @@ abstract class RestaurantCard with _$RestaurantCard {
     @Default(true) bool supportsPickup,
     @Default(true) bool supportsDelivery,
     @Default(<PromoBadge>[]) List<PromoBadge> promotions,
+    /// e.g. "Shopper" on a market: someone buys the items for the customer.
+    String? badge,
   }) = _RestaurantCard;
   factory RestaurantCard.fromJson(Map<String, dynamic> json) => _$RestaurantCardFromJson(json);
 }
@@ -76,6 +78,10 @@ abstract class MenuItem with _$MenuItem {
     @Default(true) bool isAvailable,
     @Default(<String>[]) List<String> optionGroupIds,
     String? unitLabel,
+    /// Products (shops, pharmacies, markets): brand, a picture placeholder and how popular the product is.
+    String? brand,
+    String? emoji,
+    @Default(0) int popularity,
   }) = _MenuItem;
   factory MenuItem.fromJson(Map<String, dynamic> json) => _$MenuItemFromJson(json);
 }
@@ -816,7 +822,7 @@ abstract class PromoBadge with _$PromoBadge {
   factory PromoBadge.fromJson(Map<String, dynamic> json) => _$PromoBadgeFromJson(json);
 }
 
-/// A Gud Meal service: food, beauty or parcel (the home-screen bubbles).
+/// A Gud Meal service: food, grocery, pharmacy, market, beauty or parcel (the home-screen bubbles).
 @freezed
 abstract class ServiceInfo with _$ServiceInfo {
   const factory ServiceInfo({
@@ -928,4 +934,54 @@ abstract class SupportContacts with _$SupportContacts {
     @Default(true) bool placeholders,
   }) = _SupportContacts;
   factory SupportContacts.fromJson(Map<String, dynamic> json) => _$SupportContactsFromJson(json);
+}
+
+/// One thing bought, as a receipt prints it (ADR-0019).
+@freezed
+abstract class ReceiptLine with _$ReceiptLine {
+  const factory ReceiptLine({
+    required String name,
+    @Default(1) int quantity,
+    @Default(0) int amountKobo,
+    @Default([]) List<String> details,
+  }) = _ReceiptLine;
+  factory ReceiptLine.fromJson(Map<String, dynamic> json) => _$ReceiptLineFromJson(json);
+}
+
+/// A fee, tax or discount row of a receipt; a discount is negative.
+@freezed
+abstract class ReceiptCharge with _$ReceiptCharge {
+  const factory ReceiptCharge({required String label, @Default(0) int amountKobo}) = _ReceiptCharge;
+  factory ReceiptCharge.fromJson(Map<String, dynamic> json) => _$ReceiptChargeFromJson(json);
+}
+
+/// What the customer paid for one order. [saved] is true once they have printed it (kept under "My receipts").
+@freezed
+abstract class Receipt with _$Receipt {
+  const factory Receipt({
+    required String id,
+    required String number,
+    required String orderId,
+    @Default('') String orderCode,
+    String? customerName,
+    @Default('food') String service,
+    @Default('') String serviceName,
+    @Default('') String seller,
+    @Default('') String sellerAddress,
+    @Default([]) List<String> summary,
+    @Default([]) List<ReceiptLine> lines,
+    @Default([]) List<ReceiptCharge> charges,
+    @Default(0) int totalKobo,
+    @Default(0) int savingsKobo,
+    @Default(0) int refundedKobo,
+    @Default('') String paidWith,
+    String? paymentReference,
+    DateTime? paidAt,
+    DateTime? orderedAt,
+    DateTime? issuedAt,
+    DateTime? printedAt,
+    @Default(0) int printCount,
+    @Default(false) bool saved,
+  }) = _Receipt;
+  factory Receipt.fromJson(Map<String, dynamic> json) => _$ReceiptFromJson(json);
 }

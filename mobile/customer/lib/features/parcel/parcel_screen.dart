@@ -158,7 +158,7 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
       ref.invalidate(walletProvider);
       final url = checkout.authorizationUrl;
       if (url == null) {
-        if (mounted) context.go('/orders/${order.id}'); // paid from the wallet
+        if (mounted) context.go('/orders/${order.id}?paid=1'); // paid from the wallet: the receipt comes up
         return;
       }
       // Provider-hosted payment page: card details never touch the app.

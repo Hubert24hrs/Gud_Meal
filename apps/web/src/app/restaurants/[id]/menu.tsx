@@ -6,6 +6,7 @@ import { Flame, Leaf, Plus } from "lucide-react";
 import { useState } from "react";
 import { ItemDialog } from "@/components/item-dialog";
 import { useCart } from "@/lib/cart";
+import { serviceCopy } from "@/lib/services";
 
 /** `openItemId`: open that dish's options straight away (from the Discover carousel), if it can be ordered now. */
 export function Menu({ detail, openItemId }: { detail: RestaurantDetail; openItemId?: string }) {
@@ -17,6 +18,7 @@ export function Menu({ detail, openItemId }: { detail: RestaurantDetail; openIte
   });
   const { cart, count, subtotalKobo } = useCart();
   const inThisCart = cart.restaurant_id === detail.restaurant.id;
+  const service = serviceCopy(detail.restaurant.vertical);
 
   return (
     <div className="grid gap-8 py-8 lg:grid-cols-[200px_1fr]">
@@ -60,7 +62,7 @@ export function Menu({ detail, openItemId }: { detail: RestaurantDetail; openIte
       </div>
       {selected && (
         <ItemDialog item={selected} groups={detail.option_groups} restaurantId={detail.restaurant.id}
-          restaurantName={detail.restaurant.name} onClose={() => setSelected(null)} />
+          restaurantName={detail.restaurant.name} notesFor={service.notesFor} notesHint={service.notesHint} onClose={() => setSelected(null)} />
       )}
       {inThisCart && count > 0 && (
         <div className="fixed inset-x-0 bottom-4 z-20 px-4 lg:hidden">

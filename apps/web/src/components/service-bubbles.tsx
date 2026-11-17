@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { cn } from "@gudmeal/ui";
 import { useEffect, useRef, type ReactNode } from "react";
 
 export interface BubbleSpec {
@@ -30,6 +31,15 @@ const LAYOUT = [
   { x: 0.72, y: 0.36 },
   { x: 0.49, y: 0.75 },
 ];
+/** Five or more services share the field: two rows of three, as in the mobile app. */
+const LAYOUT_MANY = [
+  { x: 0.19, y: 0.19 },
+  { x: 0.5, y: 0.16 },
+  { x: 0.81, y: 0.19 },
+  { x: 0.19, y: 0.65 },
+  { x: 0.5, y: 0.62 },
+  { x: 0.81, y: 0.65 },
+];
 
 /**
  * Gud Meal's services as animated, draggable bubbles (home hero). Bubbles float, follow the pointer when
@@ -41,6 +51,7 @@ export function ServiceBubbles({ bubbles, height = 340 }: { bubbles: BubbleSpec[
   const field = useRef<HTMLDivElement>(null);
   const els = useRef<(HTMLAnchorElement | null)[]>([]);
   const bodies = useRef<Body[]>([]);
+  const many = bubbles.length > 4;
 
   useEffect(() => {
     const root = field.current;
@@ -58,10 +69,11 @@ export function ServiceBubbles({ bubbles, height = 340 }: { bubbles: BubbleSpec[
 
     const layout = () => {
       width = root.clientWidth;
-      const base = Math.min(width * 0.17, 76);
+      const spots = many ? LAYOUT_MANY : LAYOUT;
+      const base = many ? Math.min(width * 0.135, 62) : Math.min(width * 0.17, 76);
       bubbles.forEach((b, i) => {
         const r = base * (b.size ?? 1);
-        const rel = LAYOUT[i % LAYOUT.length];
+        const rel = spots[i % spots.length]!;
         const home = inBounds(rel.x * width, rel.y * height, r);
         const body = bodies.current[i];
         if (body) {
@@ -140,7 +152,7 @@ export function ServiceBubbles({ bubbles, height = 340 }: { bubbles: BubbleSpec[
       cancelAnimationFrame(raf);
       ro?.disconnect();
     };
-  }, [bubbles, height]);
+  }, [bubbles, height, many]);
 
   const down = (i: number) => (e: React.PointerEvent<HTMLAnchorElement>) => {
     const b = bodies.current[i];
@@ -193,7 +205,11 @@ export function ServiceBubbles({ bubbles, height = 340 }: { bubbles: BubbleSpec[
         >
           <span className="absolute inset-0 rounded-full bg-white/25 shadow-[0_10px_24px_rgba(0,0,0,.14)] transition-shadow group-data-[dragging=true]:shadow-[0_18px_34px_rgba(0,0,0,.24)]" />
           <span className="absolute inset-[6%] grid place-items-center rounded-full bg-white p-[14%]">{bubble.art}</span>
-          <span className="absolute left-1/2 top-[80%] -translate-x-1/2 whitespace-nowrap rounded-full border border-[#F3D9C9] bg-white px-3 py-1 text-[13px] font-bold text-[#202521] shadow-sm">
+          {/* Small bubbles sit close together: a long name wraps to two lines instead of covering a neighbour. */}
+          <span className={cn(
+            "absolute left-1/2 top-[80%] -translate-x-1/2 border border-[#F3D9C9] bg-white font-bold text-[#202521] shadow-sm",
+            many ? "w-max max-w-[108%] rounded-2xl px-2.5 py-1 text-center text-xs leading-tight" : "whitespace-nowrap rounded-full px-3 py-1 text-[13px]",
+          )}>
             {bubble.label}
           </span>
         </a>

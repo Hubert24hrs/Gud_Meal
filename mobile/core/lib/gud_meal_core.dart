@@ -8,5 +8,6 @@ export 'src/discover.dart';
 export 'src/format.dart';
 export 'src/models.dart';
 export 'src/places.dart';
+export 'src/services.dart';
 export 'src/theme/gm_tokens.dart';
 export 'src/theme/theme.dart';

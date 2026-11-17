@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Logo, Select } from "@gudmeal/ui";
+import { Button, Logo, Select, cn } from "@gudmeal/ui";
 import { MapPin, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -10,11 +10,15 @@ import { AREAS, CITY_NAMES, useLocation } from "@/lib/location";
 import { CartDrawer } from "./cart-drawer";
 import { GudyArt } from "./illustrations";
 
+/** Wider screens show more services; phones use the home bubbles and the bottom bar. */
 const LINKS = [
-  { href: "/food", label: "Food" },
-  { href: "/beauty", label: "Beauty & Skin care" },
-  { href: "/send", label: "Send a package" },
-  { href: "/discover", label: "Discover" },
+  { href: "/food", label: "Food", show: "md:block" },
+  { href: "/groceries", label: "Groceries", show: "md:block" },
+  { href: "/pharmacy", label: "Pharmacy", show: "md:block" },
+  { href: "/market", label: "Market", show: "lg:block" },
+  { href: "/beauty", label: "Beauty", show: "xl:block" },
+  { href: "/send", label: "Send a package", show: "xl:block" },
+  { href: "/discover", label: "Discover", show: "xl:block" },
 ];
 
 export function Header() {
@@ -42,7 +46,7 @@ export function Header() {
         </label>
         <nav className="ml-auto flex items-center gap-1 sm:gap-2" aria-label="Main">
           {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="hidden rounded-full px-3 py-2 text-sm font-semibold hover:bg-surface-muted md:block">
+            <Link key={l.href} href={l.href} className={cn("hidden whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold hover:bg-surface-muted", l.show)}>
               {l.label}
             </Link>
           ))}

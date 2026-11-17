@@ -10,7 +10,9 @@ export type OrderStatus =
 export type Fulfillment = "delivery" | "pickup";
 export type ItemKind = "main" | "combo" | "side" | "snack" | "drink" | "dessert" | "extra" | "product";
 /** Gud Meal services: food and beauty are sold by merchants; parcels are courier jobs. */
-export type Vertical = "food" | "beauty" | "parcel" | "waybill";
+/** A service that shops sell through: restaurants, supermarkets, pharmacies, market shoppers, beauty shops. */
+export type MerchantVertical = "food" | "beauty" | "grocery" | "pharmacy" | "market";
+export type Vertical = MerchantVertical | "parcel" | "waybill";
 
 export interface GeoPoint { lat: number; lng: number }
 
@@ -23,7 +25,7 @@ export interface OpeningHours {
 export interface PromoBadge { code: string; label: string }
 
 export interface RestaurantCard {
-  id: string; vertical: Exclude<Vertical, "parcel">; city: string; promotions: PromoBadge[]; name: string; slug: string; description: string; cuisines: string[]; tags: string[];
+  id: string; vertical: MerchantVertical; city: string; promotions: PromoBadge[]; name: string; slug: string; description: string; cuisines: string[]; tags: string[];
   image_url: string | null; cover_url: string | null; area: string; rating: number; rating_count: number;
   price_level: number; is_open: boolean; is_accepting_orders: boolean; is_featured: boolean;
   next_opening_at: string | null; distance_km: number | null; eta_minutes: number | null;
@@ -31,6 +33,8 @@ export interface RestaurantCard {
   delivers_to_location: boolean | null;
   /** The shop's public pin (for maps). */
   location?: GeoPoint | null;
+  /** A short label for the kind of shop, e.g. "Shopper" for market shopping. */
+  badge?: string | null;
 }
 
 /** One hero dish on the Discover carousel (GET /v1/discover/dishes). Prices and fees come from the API as set. */
@@ -62,7 +66,14 @@ export interface MenuItem {
   id: string; restaurant_id: string; category_id: string; name: string; description: string; price_kobo: Kobo;
   image_url: string | null; kind: ItemKind; tags: string[]; dietary: string[]; allergens: string[]; serves: number;
   spice_level: number; is_available: boolean; is_active: boolean; popularity: number; option_group_ids: string[];
-  prep_minutes: number | null; position: number; unit_label?: string | null;
+  prep_minutes: number | null; position: number;
+  /** Size or measure: "75 cl x 12", "derica", "12 tablets". */
+  unit_label?: string | null;
+  brand?: string | null;
+  /** A picture until the shop uploads a photo. */
+  emoji?: string | null;
+  /** Prescription-only: customers never see these and cannot order them online. */
+  requires_prescription?: boolean;
 }
 export interface MenuSection { category: MenuCategory; items: MenuItem[] }
 export interface RestaurantDetail {
@@ -71,7 +82,7 @@ export interface RestaurantDetail {
 }
 
 export interface Restaurant {
-  id: string; name: string; slug: string; description: string; cuisines: string[]; area: string; address: string;
+  id: string; vertical?: MerchantVertical; name: string; slug: string; description: string; cuisines: string[]; area: string; address: string;
   location: GeoPoint; rating: number; rating_count: number; avg_prep_minutes: number; opening_hours: OpeningHours;
   is_accepting_orders: boolean; status: "pending" | "active" | "suspended"; min_order_kobo: Kobo;
   supports_delivery: boolean; supports_pickup: boolean; image_url: string | null; cover_url: string | null;
@@ -552,4 +563,19 @@ export interface WhatsAppLinkCode {
   business_number: string;
   /** wa.me link that pre-fills "LINK <code>". */
   wa_link: string;
+}
+
+// ------------------------------------------------------------------------------------- receipts (ADR-0019)
+export interface ReceiptLine { name: string; quantity: number; amount_kobo: Kobo; details: string[] }
+/** A fee, tax or discount row; a discount is negative. */
+export interface ReceiptCharge { label: string; amount_kobo: Kobo }
+/** What the customer paid for one order. `saved` is true once they have printed it (kept under "My receipts"). */
+export interface Receipt {
+  id: string; number: string; order_id: string; order_code: string; customer_id: string; customer_name: string | null;
+  service: Vertical; service_name: string; seller: string; seller_address: string;
+  /** Packages: the route, the size and the tracking number. */
+  summary: string[];
+  lines: ReceiptLine[]; charges: ReceiptCharge[]; total_kobo: Kobo; savings_kobo: Kobo; refunded_kobo: Kobo;
+  paid_with: string; payment_reference: string | null; paid_at: string | null; ordered_at: string; issued_at: string;
+  printed_at: string | null; print_count: number; saved: boolean;
 }

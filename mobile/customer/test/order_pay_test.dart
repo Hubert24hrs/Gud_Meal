@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 import 'package:gud_meal_customer/features/orders/order_screen.dart';
 import 'package:gud_meal_customer/providers.dart';
@@ -35,7 +36,13 @@ void main() {
     final api = _UnpaidOrderApi();
     await tester.pumpWidget(ProviderScope(
       overrides: [authRepositoryProvider.overrideWithValue(FakeAuthRepository()), apiProvider.overrideWithValue(api)],
-      child: MaterialApp(theme: buildGudMealTheme(Brightness.light), home: const OrderScreen(id: 'o1')),
+      child: MaterialApp.router(
+        theme: buildGudMealTheme(Brightness.light),
+        routerConfig: GoRouter(routes: [
+          GoRoute(path: '/', builder: (_, _) => const OrderScreen(id: 'o1')),
+          GoRoute(path: '/orders/:id/receipt', builder: (_, s) => Scaffold(body: Text('RECEIPT ${s.pathParameters['id']}'))),
+        ]),
+      ),
     ));
     await tester.pumpAndSettle();
     expect(find.textContaining('Finish paying'), findsOneWidget);
@@ -45,6 +52,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(api.checkouts, ['wallet']);
     expect(find.textContaining('Finish paying'), findsNothing); // paid: the order goes ahead
+    expect(find.text('RECEIPT o1'), findsOneWidget); // and the receipt printer comes up (ADR-0019)
 
     await tester.pumpWidget(const SizedBox()); // dispose the screen and its refresh timer
   });

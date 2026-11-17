@@ -4,8 +4,8 @@ import { Button, Card, Spinner } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Smartphone, XCircle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 import { useApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
@@ -59,6 +59,13 @@ function Callback() {
   });
 
   const status = verify.data?.status;
+  // An order that has just been paid for: straight to the receipt printer (ADR-0019).
+  const router = useRouter();
+  const paidOrderId =
+    status === "succeeded" && !isTopUp && (verify.data?.purpose ?? "order") === "order" ? verify.data?.order_id : undefined;
+  useEffect(() => {
+    if (paidOrderId) router.replace(`/orders/${paidOrderId}/receipt`);
+  }, [paidOrderId, router]);
   return (
     <div className="container-page grid place-items-center py-20">
       <Card className="w-full max-w-md space-y-4 p-8 text-center">
@@ -94,8 +101,9 @@ function Callback() {
             ) : (
               <>
                 <h1 className="font-display text-2xl">Payment confirmed</h1>
-                <p className="text-sm text-muted">Your order has been sent to the restaurant.</p>
-                <Link href={`/orders/${verify.data!.order_id}`}><Button size="lg" block>Track my order</Button></Link>
+                <p className="text-sm text-muted">Your order has been sent. Opening your receipt…</p>
+                <Link href={`/orders/${verify.data!.order_id}/receipt`}><Button size="lg" block>Print my receipt</Button></Link>
+                <Link href={`/orders/${verify.data!.order_id}`}><Button variant="outline" block>Track my order</Button></Link>
               </>
             )}
           </>

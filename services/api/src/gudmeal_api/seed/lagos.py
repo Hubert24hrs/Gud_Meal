@@ -29,6 +29,7 @@ from ..domain.pricing import PricingConfig, ZoneConfig
 from ..repositories import Repositories
 from ..services.catalog import search_keywords
 from .expansion import ENUGU_ZONE, enugu_riders, seed_expansion
+from .retail import seed_retail
 
 DEMO_OWNER_UID = "demo-owner-1"
 DEMO_CUSTOMER_UID = "demo-customer-1"
@@ -952,6 +953,11 @@ async def seed(repos: Repositories) -> dict[str, int]:
     counts["items"] += extra["items"]
     counts["riders"] += extra["riders"]
     counts["vouchers"] += extra["vouchers"]
+    retail = await seed_retail(repos)  # supermarkets, pharmacies and market shoppers (ADR-0018)
+    counts["restaurants"] += retail["merchants"]
+    counts["items"] += retail["items"]
+    counts["groups"] += retail["groups"]
+    counts["vouchers"] += retail["vouchers"]
     return counts
 
 

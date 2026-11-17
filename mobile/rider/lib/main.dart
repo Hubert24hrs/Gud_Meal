@@ -19,7 +19,7 @@ Future<void> main() async {
     ),
   );
   if (config.useEmulators) {
-    await FirebaseAuth.instance.useAuthEmulator(config.emulatorHost, 9099);
+    await connectAuthEmulator(FirebaseAuth.instance, config.emulatorHost);
   }
   runApp(ProviderScope(
     overrides: [

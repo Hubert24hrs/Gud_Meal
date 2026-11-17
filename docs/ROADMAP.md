@@ -55,6 +55,13 @@ services, two launch cities and a set of stand-out features. Answers to the prod
 | Stand-out features | WhatsApp ordering with Gudy, group orders & split bill, Gud Meal Plus membership, referral & loyalty rewards |
 | Data | Original sample partners for Lagos and Enugu until real partners onboard |
 
+Added on 2026-11-17 at the owner's request, outside the numbered phases:
+
+- **Groceries, Pharmacy and Market Shopping** ([ADR-0018](adr/0018-groceries-pharmacy-market.md)): done and tested with demo shops.
+  To confirm: the Plus minimum basket for these services, their commission, and a legal review of selling
+  over-the-counter medicines online.
+- **Receipts and the receipt printer** ([ADR-0019](adr/0019-receipt-printer.md)): done and tested.
+
 Delivery phases (each tested, documented and pushed before the next):
 
 1. **Redesign + services** — API: verticals, cities, beauty shops, parcels (instant + scheduled), browse

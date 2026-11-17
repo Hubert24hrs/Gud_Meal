@@ -31,7 +31,8 @@ const _suggestions = [
 String? routeForScreen(String screen, Map<String, dynamic> params) => switch (screen) {
       'home' => '/',
       'food' => params['category'] != null ? '/food?category=${params['category']}' : '/food',
-      'beauty' => params['category'] != null ? '/beauty?category=${params['category']}' : '/beauty',
+      'beauty' || 'grocery' || 'pharmacy' || 'market' =>
+        '${serviceCopy(screen).route}${params['category'] != null ? '?category=${params['category']}' : ''}',
       'parcel' => '/send',
       'discover' => '/discover',
       'orders' => '/orders',
@@ -278,7 +279,7 @@ class _CardView extends StatelessWidget {
   final ValueChanged<String> onOpen;
   final ValueChanged<String> onSay;
 
-  static const _serviceRoutes = {'food': '/food', 'beauty': '/beauty', 'parcel': '/send'};
+  static final _serviceRoutes = {for (final s in merchantServices) s.id: s.route, 'parcel': '/send'};
 
   @override
   Widget build(BuildContext context) {
@@ -290,7 +291,7 @@ class _CardView extends StatelessWidget {
           child: Wrap(spacing: 8, runSpacing: 8, children: [
             for (final s in (card['services'] as List).cast<Map>())
               ActionChip(
-                avatar: Icon(switch (s['id']) { 'beauty' => Icons.spa_rounded, 'parcel' => Icons.local_shipping_rounded, _ => Icons.restaurant_rounded }, size: 18),
+                avatar: Icon(s['id'] == 'parcel' ? Icons.local_shipping_rounded : serviceCopy('${s['id']}').icon, size: 18),
                 label: Text('${s['name']}'),
                 onPressed: () => onOpen(_serviceRoutes['${s['id']}'] ?? '/'),
               ),
@@ -460,7 +461,7 @@ class _CardView extends StatelessWidget {
           for (final r in items.take(5))
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(r['service'] == 'beauty' ? Icons.spa_rounded : Icons.storefront_rounded, color: brandOrange),
+              leading: Icon(r['service'] == null || r['service'] == 'food' ? Icons.storefront_rounded : serviceCopy('${r['service']}').icon, color: brandOrange),
               title: Text('${r['name']}'),
               subtitle: Text([if (r['eta_minutes'] != null) '${r['eta_minutes']} min', if (r['delivery_fee'] != null) '${r['delivery_fee']} delivery'].join(' · ')),
               onTap: () => onOpen('/restaurants/${r['restaurant_id']}'),

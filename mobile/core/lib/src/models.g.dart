@@ -46,6 +46,7 @@ _RestaurantCard _$RestaurantCardFromJson(Map<String, dynamic> json) =>
               ?.map((e) => PromoBadge.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const <PromoBadge>[],
+      badge: json['badge'] as String?,
     );
 
 Map<String, dynamic> _$RestaurantCardToJson(_RestaurantCard instance) =>
@@ -70,6 +71,7 @@ Map<String, dynamic> _$RestaurantCardToJson(_RestaurantCard instance) =>
       'supports_pickup': instance.supportsPickup,
       'supports_delivery': instance.supportsDelivery,
       'promotions': instance.promotions.map((e) => e.toJson()).toList(),
+      'badge': ?instance.badge,
     };
 
 _OptionChoice _$OptionChoiceFromJson(Map<String, dynamic> json) =>
@@ -131,6 +133,9 @@ _MenuItem _$MenuItemFromJson(Map<String, dynamic> json) => _MenuItem(
           .toList() ??
       const <String>[],
   unitLabel: json['unit_label'] as String?,
+  brand: json['brand'] as String?,
+  emoji: json['emoji'] as String?,
+  popularity: (json['popularity'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$MenuItemToJson(_MenuItem instance) => <String, dynamic>{
@@ -147,6 +152,9 @@ Map<String, dynamic> _$MenuItemToJson(_MenuItem instance) => <String, dynamic>{
   'is_available': instance.isAvailable,
   'option_group_ids': instance.optionGroupIds,
   'unit_label': ?instance.unitLabel,
+  'brand': ?instance.brand,
+  'emoji': ?instance.emoji,
+  'popularity': instance.popularity,
 };
 
 _MenuCategory _$MenuCategoryFromJson(Map<String, dynamic> json) =>
@@ -1653,3 +1661,102 @@ Map<String, dynamic> _$SupportContactsToJson(_SupportContacts instance) =>
       'hours': instance.hours,
       'placeholders': instance.placeholders,
     };
+
+_ReceiptLine _$ReceiptLineFromJson(Map<String, dynamic> json) => _ReceiptLine(
+  name: json['name'] as String,
+  quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+  amountKobo: (json['amount_kobo'] as num?)?.toInt() ?? 0,
+  details:
+      (json['details'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+);
+
+Map<String, dynamic> _$ReceiptLineToJson(_ReceiptLine instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'quantity': instance.quantity,
+      'amount_kobo': instance.amountKobo,
+      'details': instance.details,
+    };
+
+_ReceiptCharge _$ReceiptChargeFromJson(Map<String, dynamic> json) =>
+    _ReceiptCharge(
+      label: json['label'] as String,
+      amountKobo: (json['amount_kobo'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$ReceiptChargeToJson(_ReceiptCharge instance) =>
+    <String, dynamic>{
+      'label': instance.label,
+      'amount_kobo': instance.amountKobo,
+    };
+
+_Receipt _$ReceiptFromJson(Map<String, dynamic> json) => _Receipt(
+  id: json['id'] as String,
+  number: json['number'] as String,
+  orderId: json['order_id'] as String,
+  orderCode: json['order_code'] as String? ?? '',
+  customerName: json['customer_name'] as String?,
+  service: json['service'] as String? ?? 'food',
+  serviceName: json['service_name'] as String? ?? '',
+  seller: json['seller'] as String? ?? '',
+  sellerAddress: json['seller_address'] as String? ?? '',
+  summary:
+      (json['summary'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  lines:
+      (json['lines'] as List<dynamic>?)
+          ?.map((e) => ReceiptLine.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  charges:
+      (json['charges'] as List<dynamic>?)
+          ?.map((e) => ReceiptCharge.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  totalKobo: (json['total_kobo'] as num?)?.toInt() ?? 0,
+  savingsKobo: (json['savings_kobo'] as num?)?.toInt() ?? 0,
+  refundedKobo: (json['refunded_kobo'] as num?)?.toInt() ?? 0,
+  paidWith: json['paid_with'] as String? ?? '',
+  paymentReference: json['payment_reference'] as String?,
+  paidAt: json['paid_at'] == null
+      ? null
+      : DateTime.parse(json['paid_at'] as String),
+  orderedAt: json['ordered_at'] == null
+      ? null
+      : DateTime.parse(json['ordered_at'] as String),
+  issuedAt: json['issued_at'] == null
+      ? null
+      : DateTime.parse(json['issued_at'] as String),
+  printedAt: json['printed_at'] == null
+      ? null
+      : DateTime.parse(json['printed_at'] as String),
+  printCount: (json['print_count'] as num?)?.toInt() ?? 0,
+  saved: json['saved'] as bool? ?? false,
+);
+
+Map<String, dynamic> _$ReceiptToJson(_Receipt instance) => <String, dynamic>{
+  'id': instance.id,
+  'number': instance.number,
+  'order_id': instance.orderId,
+  'order_code': instance.orderCode,
+  'customer_name': ?instance.customerName,
+  'service': instance.service,
+  'service_name': instance.serviceName,
+  'seller': instance.seller,
+  'seller_address': instance.sellerAddress,
+  'summary': instance.summary,
+  'lines': instance.lines.map((e) => e.toJson()).toList(),
+  'charges': instance.charges.map((e) => e.toJson()).toList(),
+  'total_kobo': instance.totalKobo,
+  'savings_kobo': instance.savingsKobo,
+  'refunded_kobo': instance.refundedKobo,
+  'paid_with': instance.paidWith,
+  'payment_reference': ?instance.paymentReference,
+  'paid_at': ?instance.paidAt?.toIso8601String(),
+  'ordered_at': ?instance.orderedAt?.toIso8601String(),
+  'issued_at': ?instance.issuedAt?.toIso8601String(),
+  'printed_at': ?instance.printedAt?.toIso8601String(),
+  'print_count': instance.printCount,
+  'saved': instance.saved,
+};

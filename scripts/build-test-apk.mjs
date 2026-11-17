@@ -19,7 +19,7 @@ const wanted = args.filter((a) => !a.startsWith("-"));
 const arm64 = args.includes("--arm64");
 const pageOnly = args.includes("--page");
 const apps = [
-  { id: "customer", file: "gudmeal-customer.apk", title: "Gud Meal", note: "Order food, beauty products and send packages" },
+  { id: "customer", file: "gudmeal-customer.apk", title: "Gud Meal", note: "Order food, groceries, pharmacy items, market foodstuff and beauty products, and send packages" },
   { id: "rider", file: "gudmeal-rider.apk", title: "Gud Meal Rider", note: "Accept deliveries and confirm them with the customer's code" },
 ];
 

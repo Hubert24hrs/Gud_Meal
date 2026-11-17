@@ -67,7 +67,15 @@ async def test_offline_gudy_greets_in_the_customers_language_and_lists_services(
     assert "Beauty & Skin care" in services["reply"] and "Package Delivery" in services["reply"]
     assert "interstate" in services["reply"].lower()
     card = next(c for c in services["cards"] if c["type"] == "services")
-    assert [s["id"] for s in card["services"]] == ["food", "beauty", "parcel"]
+    assert [s["id"] for s in card["services"]] == [
+        "food",
+        "grocery",
+        "pharmacy",
+        "market",
+        "beauty",
+        "parcel",
+    ]
+    assert "Groceries" in services["reply"] and "Market Shopping" in services["reply"]
 
 
 async def test_offline_gudy_totals_beauty_search_parcels_and_support(offline_stack):
@@ -339,7 +347,7 @@ async def test_offline_gudy_explains_plus_points_referrals_and_group_orders(offl
     client, api = offline_stack["client"], offline_stack["api"]
     pitch = await chat(client, "Is Gud Meal Plus worth it? Am I a member?")
     assert "Gud Meal Plus costs ₦1,500 every 30 days (VAT included):" in pitch["reply"]
-    assert "Free delivery on Food and Beauty orders of ₦3,000 or more" in pitch["reply"]
+    assert "Free delivery on restaurant and shop orders of ₦3,000 or more" in pitch["reply"]
     assert next(c for c in pitch["cards"] if c["type"] == "plus")["member"] is False
 
     r = await api.post(
@@ -378,3 +386,25 @@ async def test_offline_gudy_explains_plus_points_referrals_and_group_orders(offl
     assert (
         next(c for c in groups["cards"] if c["type"] == "group_orders")["groups"][0]["you_are_host"] is True
     )
+
+
+async def test_offline_gudy_finds_shop_products_and_opens_the_new_services(offline_stack):
+    """Groceries, Pharmacy and Market Shopping (ADR-0018)."""
+    client = offline_stack["client"]
+    para = await chat(client, "I need paracetamol")
+    assert "Paracetamol 500 mg tablets" in para["reply"] and "₦300" in para["reply"]
+    garri = await chat(client, "abeg I wan buy garri")
+    assert "Ijebu garri" in garri["reply"]
+    milk = await chat(client, "do you have milk?")
+    assert "milk" in milk["reply"].lower() and "₦" in milk["reply"]
+
+    # Words that name a whole service open it instead of searching for the word.
+    for message, screen in (
+        ("I want to buy groceries", "grocery"),
+        ("do you sell medicine?", "pharmacy"),
+        ("open market", "market"),
+        ("take me to the pharmacy", "pharmacy"),
+    ):
+        reply = await chat(client, message)
+        nav = next(c for c in reply["cards"] if c["type"] == "navigate")
+        assert nav["screen"] == screen, message

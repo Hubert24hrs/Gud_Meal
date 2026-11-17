@@ -1,6 +1,7 @@
 """Demo shop autopilot: local testing only (DEMO_SHOP_AUTOPILOT, honoured only when ENVIRONMENT=local).
 
-A food or beauty order is only offered to a rider after the shop accepts it. Someone testing alone with the
+An order from a restaurant or shop (food, groceries, pharmacy, market, beauty) is only offered to a rider after the
+shop accepts it. Someone testing alone with the
 customer and rider apps on a phone has nobody at the shop's dashboard, so the order would sit at "Sent to
 restaurant" until it is cancelled. With the autopilot on, a demo shop accepts an order nobody has answered for a
 few seconds and marks it ready a little later, through the same service calls the partner dashboard makes.
@@ -12,13 +13,13 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from ..domain.models import Fulfillment, Order, Vertical
+from ..domain.models import MERCHANT_VERTICALS, Fulfillment, Order
 from ..domain.order_state import OrderStatus
 from ..errors import DomainError
 from ..security.rbac import Principal
 
 S = OrderStatus
-SHOP_VERTICALS = {Vertical.FOOD, Vertical.BEAUTY}
+SHOP_VERTICALS = set(MERCHANT_VERTICALS)
 ACCEPT_AFTER_SECONDS = 12.0
 READY_AFTER_SECONDS = 30.0
 PREP_MINUTES = 10

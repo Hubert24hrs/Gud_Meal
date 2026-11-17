@@ -261,7 +261,7 @@ class _Results extends ConsumerWidget {
             const SectionTitle('Dishes & products'),
             for (final hit in res.items.take(10))
               ListTile(
-                leading: Icon(hit['vertical'] == 'beauty' ? Icons.spa_rounded : Icons.restaurant_rounded, color: brandOrange),
+                leading: Icon(serviceCopy('${hit['vertical'] ?? 'food'}').icon, color: brandOrange),
                 title: Text('${(hit['item'] as Map)['name']}'),
                 subtitle: Text('${hit['restaurant_name']}'),
                 trailing: Text(formatNaira((hit['item'] as Map)['price_kobo'] as int), style: const TextStyle(fontWeight: FontWeight.w700)),

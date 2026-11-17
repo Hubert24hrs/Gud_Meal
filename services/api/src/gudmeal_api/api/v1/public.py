@@ -16,6 +16,9 @@ from ..deps import Ctr
 
 router = APIRouter(prefix="/v1", tags=["public"])
 
+#: Services sold by merchants (Package Delivery is a courier job, not a shop).
+MerchantVertical = Literal["food", "beauty", "grocery", "pharmacy", "market"]
+
 
 def _location(lat: float | None, lng: float | None) -> GeoPoint | None:
     if (lat is None) != (lng is None):
@@ -48,12 +51,13 @@ async def list_restaurants(
     open_now: bool = False,
     sort: Literal["recommended", "distance", "rating", "delivery_fee"] = "recommended",
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
-    vertical: Literal["food", "beauty", "all"] = "food",
+    vertical: Literal["food", "beauty", "grocery", "pharmacy", "market", "all"] = "food",
     city: Annotated[str | None, Query(max_length=30)] = None,
     category: Annotated[str | None, Query(max_length=30)] = None,
     pickup: bool = False,
 ) -> list[RestaurantCard]:
-    """Merchants for a service: restaurants (`vertical=food`, default) or beauty shops (`vertical=beauty`)."""
+    """Merchants for a service: restaurants (`vertical=food`, default), beauty shops, supermarkets
+    (`grocery`), pharmacies or market shoppers (`market`)."""
     return await c.catalog.list_restaurants(
         location=_location(lat, lng),
         cuisine=cuisine,
@@ -91,26 +95,27 @@ async def search(
     q: Annotated[str, Query(min_length=2, max_length=60)],
     lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
     lng: Annotated[float | None, Query(ge=-180, le=180)] = None,
-    vertical: Literal["food", "beauty"] | None = None,
+    vertical: MerchantVertical | None = None,
     city: Annotated[str | None, Query(max_length=30)] = None,
 ) -> dict[str, Any]:
     return await c.catalog.search(q, location=_location(lat, lng), vertical=vertical, city=city)
 
 
 @router.get("/cuisines")
-async def cuisines(c: Ctr, vertical: Literal["food", "beauty"] | None = None) -> list[dict[str, Any]]:
+async def cuisines(c: Ctr, vertical: MerchantVertical | None = None) -> list[dict[str, Any]]:
     return await c.catalog.cuisines(vertical)
 
 
 @router.get("/services")
 async def services(c: Ctr, city: Annotated[str | None, Query(max_length=30)] = None) -> list[dict[str, Any]]:
-    """Gud Meal's services (Food, Beauty & Skin care, Package Delivery) and their availability."""
+    """Gud Meal's services (Food, Groceries, Pharmacy, Market Shopping, Beauty & Skin care, Package Delivery)
+    and their availability."""
     return await c.catalog.services(city=city)
 
 
 @router.get("/services/{vertical}/categories")
 async def service_categories(
-    vertical: Literal["food", "beauty"], c: Ctr, city: Annotated[str | None, Query(max_length=30)] = None
+    vertical: MerchantVertical, c: Ctr, city: Annotated[str | None, Query(max_length=30)] = None
 ) -> list[dict[str, Any]]:
     return await c.catalog.browse_categories(vertical, city=city)
 

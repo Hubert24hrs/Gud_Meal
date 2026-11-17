@@ -17,6 +17,9 @@ from .registry import ToolArgs, ToolContext, ToolError, ToolOutput, ToolRegistry
 
 SERVICE_NAMES = {
     "food": "Food",
+    "grocery": "Groceries",
+    "pharmacy": "Pharmacy",
+    "market": "Market Shopping",
     "beauty": "Beauty & Skin care",
     "parcel": "Package Delivery",
     "waybill": "Interstate waybill",
@@ -35,6 +38,9 @@ TRACKING_CODE = re.compile(r"^GMW[2-9A-HJ-NP-Z]{8}$")
 Screen = Literal[
     "home",
     "food",
+    "grocery",
+    "pharmacy",
+    "market",
     "beauty",
     "parcel",
     "discover",
@@ -52,6 +58,9 @@ Screen = Literal[
 SCREEN_LABELS: dict[str, str] = {
     "home": "Go to Home",
     "food": "Open Food",
+    "grocery": "Open Groceries",
+    "pharmacy": "Open Pharmacy",
+    "market": "Open Market Shopping",
     "beauty": "Open Beauty & Skin care",
     "parcel": "Send a package",
     "discover": "Open Discover",
@@ -77,7 +86,9 @@ class OpenScreenArgs(ToolArgs):
     merchant_id: str | None = Field(default=None, max_length=64, description="For screen='merchant'")
     order_id: str | None = Field(default=None, max_length=64, description="For screen='order'")
     category: str | None = Field(
-        default=None, max_length=30, description="Optional browse category for food/beauty, e.g. 'local'"
+        default=None,
+        max_length=30,
+        description="Optional browse category for a shop service, e.g. 'local', 'drinks', 'pain'",
     )
 
 
@@ -622,7 +633,8 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "list_services",
-            "What Gud Meal offers (Food, Beauty & Skin care, Package Delivery), where, "
+            "What Gud Meal offers (Food, Groceries, Pharmacy, Market Shopping, Beauty & Skin care, Package "
+            "Delivery), where, "
             "and what is coming soon.",
             NoArgs,
             list_services,
@@ -642,7 +654,8 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "open_screen",
-            "Show the customer a button that opens a part of the app (Food, Beauty, "
+            "Show the customer a button that opens a part of the app (Food, Groceries, Pharmacy, Market "
+            "Shopping, Beauty, "
             "Package Delivery, Orders, Support, Profile, a store or an order).",
             OpenScreenArgs,
             open_screen,

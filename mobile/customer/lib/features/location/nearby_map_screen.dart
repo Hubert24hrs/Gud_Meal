@@ -31,7 +31,7 @@ class _NearbyMapScreenState extends ConsumerState<NearbyMapScreen> {
     final area = ref.watch(areaProvider);
     final places = ref.watch(nearbyPlacesProvider(widget.vertical));
     final theme = Theme.of(context);
-    final noun = widget.vertical == 'beauty' ? 'shops' : 'restaurants';
+    final noun = serviceCopy(widget.vertical).shops;
     return Scaffold(
       appBar: AppBar(title: Text('${noun[0].toUpperCase()}${noun.substring(1)} near ${area.name}')),
       body: places.when(

@@ -67,9 +67,11 @@ ENGLISH_NOTE = " (I'll reply in English for now.)"
 
 T: dict[str, dict[str, str]] = {
     "intro": {
-        "en": "I can find food and beauty products, plan a meal within your budget, send packages across Lagos and "
+        "en": "I can find food, groceries, pharmacy items, market foodstuff and beauty products, plan a meal within "
+        "your budget, send packages across Lagos and "
         "Enugu, track your orders and tell you how much you've spent. What would you like?",
-        "pcm": "I fit find better food and beauty things for you, plan food wey go fit your budget, send package for "
+        "pcm": "I fit find better food, groceries, pharmacy things, market foodstuff and beauty things for you, plan "
+        "food wey go fit your budget, send package for "
         "Lagos and Enugu, track your order, and tell you how much you don spend. Wetin you wan do?",
     },
     "services": {
@@ -114,8 +116,10 @@ T: dict[str, dict[str, str]] = {
     "declined": {"en": "No problem, I haven't done it.", "pcm": "No wahala, I no do am."},
     "found": {"en": "Here's what I found:", "pcm": "See wetin I find:"},
     "found_none": {
-        "en": "I couldn't find that. Try another name, or browse Food or Beauty & Skin care.",
-        "pcm": "I no see am o. Try another name, or check Food or Beauty & Skin care.",
+        "en": "I couldn't find that. Try another name, or browse Food, Groceries, Pharmacy, Market Shopping or "
+        "Beauty & Skin care.",
+        "pcm": "I no see am o. Try another name, or check Food, Groceries, Pharmacy, Market Shopping or Beauty & "
+        "Skin care.",
     },
     "found_next": {
         "en": "Open the store to add items to your cart.",
@@ -173,10 +177,10 @@ T: dict[str, dict[str, str]] = {
         "pcm": "To top up, open your wallet (Profile → Gud Meal wallet). I no fit move money by myself.",
     },
     "pod": {
-        "en": "Yes: pay on delivery lets you pay the rider in cash for food and beauty orders once you've completed "
+        "en": "Yes: pay on delivery lets you pay the rider in cash for restaurant and shop orders once you've completed "
         "your first order (limits apply). Choose 'Pay on delivery' at checkout and Gud Meal checks if your order "
         "qualifies.",
-        "pcm": "Yes o: you fit pay the rider cash for food and beauty orders once you don complete your first order "
+        "pcm": "Yes o: you fit pay the rider cash for restaurant and shop orders once you don complete your first order "
         "(limit dey). Choose 'Pay on delivery' for checkout, Gud Meal go check if your order qualify.",
     },
     "cod": {
@@ -242,9 +246,11 @@ T: dict[str, dict[str, str]] = {
     },
     "group_list": {"en": "Your group orders:", "pcm": "Your group orders:"},
     "unknown": {
-        "en": "I didn't quite get that. You can ask me for food, beauty products, package delivery, your order status "
+        "en": "I didn't quite get that. You can ask me for food, groceries, pharmacy items, market foodstuff, beauty "
+        "products, package delivery, your order status "
         "or how much you've spent.",
-        "pcm": "I no too understand. You fit ask me for food, beauty things, package delivery, your order status or "
+        "pcm": "I no too understand. You fit ask me for food, groceries, pharmacy things, market foodstuff, beauty "
+        "things, package delivery, your order status or "
         "how much you don spend.",
     },
     "error": {"en": "{message}", "pcm": "{message}"},
@@ -284,7 +290,8 @@ _SUPPORT = re.compile(
     r"person)|help me with my order)\b"
 )
 _OPEN = re.compile(
-    r"\b(open|go to|take me to|show me)\s+(the\s+|my\s+)?(food|beauty|packages?|parcel|orders?|support|profile|"
+    r"\b(open|go to|take me to|show me)\s+(the\s+|my\s+)?(food|groceries|grocery|pharmacy|market|beauty|packages?|"
+    r"parcel|orders?|support|profile|"
     r"discover|home|wallet|rewards|plus)\b"
 )
 _WALLET = re.compile(r"\b(wallet|my balance|top ?up|fund my account)\b")
@@ -352,7 +359,7 @@ def nearby_args(text: str) -> dict[str, Any] | None:
         return None
     if parse_budget(text):  # an amount means a meal plan within that budget
         return None
-    args: dict[str, Any] = {"service": "beauty" if _BEAUTY.search(p) else "food"}
+    args: dict[str, Any] = {"service": _nearby_service(p)}
     args["sort_by"] = next((sort for sort, rx in _SORTS if rx.search(p)), "closest")
     within = _WITHIN.search(p)
     if within:
@@ -373,6 +380,53 @@ _BEAUTY = re.compile(
     r"fragrance|body mist|edge control|conditioner|shampoo|beard|toner|skincare|skin care|make ?up|cosmetics|"
     r"body butter|body oil|hair oil|scalp|curl|bonnet|chebe|castor oil)\b"
 )
+# Shop products (ADR-0018). Only words that are clearly a product: "rice" or "yam" alone still means a meal.
+_PHARMACY = re.compile(
+    r"\b(paracetamol|panadol|ibuprofen|vitamin c|multivitamins?|vitamins?|cough syrup|antacid|plasters?|bandages?|"
+    r"antiseptic|thermometer|condoms?|sanitary pads?|lozenges?|nasal spray|eye drops|rehydration salts?|"
+    r"first aid|mosquito repellent|pharmacy|chemist|medicines?)\b"
+)
+_GROCERY = re.compile(
+    r"\b(bottled water|pack of water|milk|bread|eggs?|sugar|indomie|corn ?flakes|cereal|toilet (paper|rolls?)|"
+    r"tissue|detergent|bleach|diapers?|baby wipes|toothpaste|soft drinks?|malt|juice|butter|margarine|mayonnaise|"
+    r"ketchup|vegetable oil|groundnut oil|semovita|seasoning cubes?|tin(ned)? tomato(es)?|sardines?|corned beef|"
+    r"biscuits?|groceries|grocery|supermarket)\b"
+)
+_MARKET = re.compile(
+    r"\b(derica|garri|tatashe|rodo|fresh tomato(es)?|fresh pepper|ugwu|ugu|waterleaf|bitter ?leaf|crayfish|"
+    r"stockfish|okporoko|iru|palm oil|raw (beef|chicken|goat meat|meat|fish)|tubers? of yam|soup combo|"
+    r"foodstuffs?|market shopping|market)\b"
+)
+# Words that name a whole service, not a product: open the service instead of searching for the word.
+_GENERIC_SHOP = {
+    "pharmacy": "pharmacy",
+    "chemist": "pharmacy",
+    "medicine": "pharmacy",
+    "medicines": "pharmacy",
+    "first aid": "pharmacy",
+    "groceries": "grocery",
+    "grocery": "grocery",
+    "supermarket": "grocery",
+    "foodstuff": "market",
+    "foodstuffs": "market",
+    "market shopping": "market",
+    "market": "market",
+}
+_SHOPS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("pharmacy", _PHARMACY),
+    ("grocery", _GROCERY),
+    ("market", _MARKET),
+)
+
+
+def _nearby_service(p: str) -> str:
+    """Which kind of place a 'near me' question is about."""
+    for service, rx in _SHOPS:
+        if rx.search(p):
+            return service
+    return "beauty" if _BEAUTY.search(p) else "food"
+
+
 _FOOD = re.compile(
     r"\b(jollof|fried rice|ofada|rice|suya|shawarma|pizza|burger|chicken|amala|egusi|efo|soup|pepper ?soup|swallow|"
     r"pounded yam|fufu|eba|small chops|puff ?puff|moi ?moi|plantain|dodo|beans|yam|chapman|zobo|smoothie|abacha|"
@@ -402,6 +456,10 @@ _PARTY = re.compile(
 _ORDINAL = {"first": 1, "second": 2, "third": 3}
 _SCREEN_WORDS = {
     "food": "food",
+    "groceries": "grocery",
+    "grocery": "grocery",
+    "pharmacy": "pharmacy",
+    "market": "market",
     "beauty": "beauty",
     "package": "parcel",
     "packages": "parcel",
@@ -608,6 +666,15 @@ class _OfflineAgent:
         beauty = _keyword(text, _BEAUTY)
         if beauty and self._can("search_food_items"):
             return _call("search_food_items", {"query": beauty, "service": "beauty"})
+        for service, rx in _SHOPS:
+            word = _keyword(text, rx)
+            if not word:
+                continue
+            if word in _GENERIC_SHOP:
+                if self._can("open_screen"):
+                    return _call("open_screen", {"screen": _GENERIC_SHOP[word]})
+            elif self._can("search_food_items"):
+                return _call("search_food_items", {"query": word, "service": service})
         food = _keyword(text, _FOOD)
         if food and food not in _GENERIC_FOOD and self._can("search_food_items"):
             return _call("search_food_items", {"query": food, "service": "food"})

@@ -96,7 +96,7 @@ export function RewardsSummary({ data, onRedeem, redeeming = false }: {
               </Button>
             ))}
           </div>
-          <p className="text-xs text-muted">Vouchers work on Food and Beauty orders from {formatNaira(redeem.min_subtotal_kobo)} and last {redeem.valid_days} days.</p>
+          <p className="text-xs text-muted">Vouchers work on restaurant and shop orders from {formatNaira(redeem.min_subtotal_kobo)} and last {redeem.valid_days} days.</p>
         </Card>
       )}
 

@@ -12,7 +12,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from ..domain.growth import Membership, PlusConfig, membership_active
-from ..domain.models import OrderStatus
+from ..domain.models import MERCHANT_VERTICALS, OrderStatus
 from ..domain.money import format_naira
 from ..domain.pricing import vat_inclusive_split
 from ..errors import NotFound, ValidationFailed
@@ -36,8 +36,28 @@ def lagos_day(dt: datetime) -> str:
     return (dt + timedelta(hours=1)).strftime("%a %d %b %Y")
 
 
+SERVICE_WORDS = {
+    "food": "Food",
+    "beauty": "Beauty",
+    "grocery": "Groceries",
+    "pharmacy": "Pharmacy",
+    "market": "Market",
+}
+
+
+def services_text(verticals: list[str]) -> str:
+    """How a benefit names the services it covers: "Food and Beauty"; every shop service reads
+    "restaurant and shop"."""
+    if {v.value for v in MERCHANT_VERTICALS} <= set(verticals):
+        return "restaurant and shop"
+    names = [SERVICE_WORDS.get(v, v.capitalize()) for v in verticals]
+    if not names:
+        return "eligible"
+    return names[0] if len(names) == 1 else f"{', '.join(names[:-1])} and {names[-1]}"
+
+
 def benefits_text(plan: PlusConfig) -> list[str]:
-    services = " and ".join(v.capitalize() for v in plan.verticals) or "eligible"
+    services = services_text(plan.verticals)
     out = []
     if plan.free_delivery_min_subtotal_kobo:
         out.append(

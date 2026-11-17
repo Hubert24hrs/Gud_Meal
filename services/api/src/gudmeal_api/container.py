@@ -58,6 +58,7 @@ from .services.orders import OrderService
 from .services.parcels import ParcelService
 from .services.payments import PaymentService
 from .services.quotes import QuoteService
+from .services.receipts import ReceiptService
 from .services.rewards import RewardsService
 from .services.wallet import WalletService
 from .services.waybills import WaybillService
@@ -102,6 +103,7 @@ class Container:
     waybills: WaybillService
     membership: MembershipService
     rewards: RewardsService
+    receipts: ReceiptService
     groups: GroupOrderService
     whatsapp: WhatsAppService
     orders: OrderService
@@ -346,6 +348,7 @@ async def build_container(
         ),
         membership=MembershipService(repos, payments, db=db, ledger=ledger, notifier=notifier),
         rewards=RewardsService(repos, notifier=notifier, audit=audit),
+        receipts=ReceiptService(repos),
         whatsapp=WhatsAppService(
             repos,
             settings=settings,

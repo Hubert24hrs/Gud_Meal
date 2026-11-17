@@ -14,6 +14,7 @@ import 'features/home/home_screen.dart';
 import 'features/location/nearby_map_screen.dart';
 import 'features/orders/order_screen.dart';
 import 'features/orders/orders_screen.dart';
+import 'features/receipts/receipt_screen.dart';
 import 'features/parcel/parcel_screen.dart';
 import 'features/parcel/waybill_screen.dart';
 import 'features/plus/plus_screen.dart';
@@ -41,7 +42,7 @@ class _AuthListenable extends ChangeNotifier {
 }
 
 /// Screens that need an account. Tabs (Orders, Profile) show a sign-in prompt instead of redirecting.
-const _protected = ['/checkout', '/assistant', '/send', '/orders/', '/wallet', '/plus', '/rewards', '/group'];
+const _protected = ['/checkout', '/assistant', '/send', '/orders/', '/wallet', '/plus', '/rewards', '/group', '/receipts'];
 
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -73,7 +74,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                 GoRoute(
                   path: ':id',
                   parentNavigatorKey: _rootKey,
-                  builder: (_, s) => OrderScreen(id: s.pathParameters['id']!, paymentReference: s.uri.queryParameters['ref']),
+                  builder: (_, s) => OrderScreen(
+                    id: s.pathParameters['id']!,
+                    paymentReference: s.uri.queryParameters['ref'],
+                    justPaid: s.uri.queryParameters['paid'] == '1',
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: 'receipt',
+                      parentNavigatorKey: _rootKey,
+                      builder: (_, s) => ReceiptScreen(orderId: s.pathParameters['id']!),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -85,6 +97,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),
       GoRoute(path: '/food', builder: (_, s) => VerticalScreen(vertical: 'food', category: s.uri.queryParameters['category'])),
       GoRoute(path: '/beauty', builder: (_, s) => VerticalScreen(vertical: 'beauty', category: s.uri.queryParameters['category'])),
+      // Groceries, Pharmacy and Market Shopping (ADR-0018): the same service page, with their own shops.
+      for (final service in const [groceryService, pharmacyService, marketService])
+        GoRoute(
+          path: service.route,
+          builder: (_, s) => VerticalScreen(vertical: service.id, category: s.uri.queryParameters['category']),
+        ),
       GoRoute(
         path: '/send',
         builder: (_, s) => s.uri.queryParameters['mode'] == 'interstate' ? const WaybillScreen() : const ParcelScreen(),
@@ -96,6 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/checkout', builder: (_, _) => const CheckoutScreen()),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletScreen()),
+      GoRoute(path: '/receipts', builder: (_, _) => const ReceiptsScreen()),
       GoRoute(path: '/plus', builder: (_, _) => const PlusScreen()),
       GoRoute(path: '/rewards', builder: (_, _) => const RewardsScreen()),
       GoRoute(

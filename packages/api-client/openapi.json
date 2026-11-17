@@ -1370,6 +1370,18 @@
             "title": "Allergens",
             "type": "array"
           },
+          "brand": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
           "category_id": {
             "title": "Category Id",
             "type": "string"
@@ -1387,6 +1399,18 @@
             "maxItems": 10,
             "title": "Dietary",
             "type": "array"
+          },
+          "emoji": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emoji"
           },
           "image_url": {
             "anyOf": [
@@ -1447,6 +1471,11 @@
             "title": "Price Kobo",
             "type": "integer"
           },
+          "requires_prescription": {
+            "default": false,
+            "title": "Requires Prescription",
+            "type": "boolean"
+          },
           "serves": {
             "default": 1,
             "maximum": 20.0,
@@ -1468,6 +1497,18 @@
             "maxItems": 15,
             "title": "Tags",
             "type": "array"
+          },
+          "unit_label": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Label"
           }
         },
         "required": [
@@ -1601,6 +1642,18 @@
             "title": "Allergens",
             "type": "array"
           },
+          "brand": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
           "category_id": {
             "title": "Category Id",
             "type": "string"
@@ -1618,6 +1671,18 @@
             "maxItems": 10,
             "title": "Dietary",
             "type": "array"
+          },
+          "emoji": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emoji"
           },
           "id": {
             "title": "Id",
@@ -1691,6 +1756,11 @@
             "maximum": 100000000.0,
             "title": "Price Kobo",
             "type": "integer"
+          },
+          "requires_prescription": {
+            "default": false,
+            "title": "Requires Prescription",
+            "type": "boolean"
           },
           "restaurant_id": {
             "title": "Restaurant Id",
@@ -2914,6 +2984,17 @@
           "area": {
             "title": "Area",
             "type": "string"
+          },
+          "badge": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Badge"
           },
           "city": {
             "default": "lagos",
@@ -8861,7 +8942,10 @@
                 {
                   "enum": [
                     "food",
-                    "beauty"
+                    "beauty",
+                    "grocery",
+                    "pharmacy",
+                    "market"
                   ],
                   "type": "string"
                 },
@@ -12135,6 +12219,158 @@
         ]
       }
     },
+    "/v1/orders/{order_id}/receipt": {
+      "get": {
+        "description": "The receipt of an order the customer paid for. `saved` says whether it is kept under \"My receipts\"\n(it is once the customer has printed it).",
+        "operationId": "order_receipt_v1_orders__order_id__receipt_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Order Receipt V1 Orders  Order Id  Receipt Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Order Receipt",
+        "tags": [
+          "customer"
+        ]
+      },
+      "post": {
+        "description": "The customer pressed PRINT: keep the receipt under \"My receipts\" and count the print.",
+        "operationId": "print_receipt_v1_orders__order_id__receipt_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Print Receipt V1 Orders  Order Id  Receipt Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Print Receipt",
+        "tags": [
+          "customer"
+        ]
+      }
+    },
     "/v1/orders/{order_id}/reorder": {
       "post": {
         "operationId": "reorder_v1_orders__order_id__reorder_post",
@@ -15363,9 +15599,92 @@
         ]
       }
     },
+    "/v1/receipts": {
+      "get": {
+        "description": "The receipts the customer has printed, newest first.",
+        "operationId": "my_receipts_v1_receipts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-firebase-appcheck",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Firebase-Appcheck"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response My Receipts V1 Receipts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Receipts",
+        "tags": [
+          "customer"
+        ]
+      }
+    },
     "/v1/restaurants": {
       "get": {
-        "description": "Merchants for a service: restaurants (`vertical=food`, default) or beauty shops (`vertical=beauty`).",
+        "description": "Merchants for a service: restaurants (`vertical=food`, default), beauty shops, supermarkets\n(`grocery`), pharmacies or market shoppers (`market`).",
         "operationId": "list_restaurants_v1_restaurants_get",
         "parameters": [
           {
@@ -15485,6 +15804,9 @@
               "enum": [
                 "food",
                 "beauty",
+                "grocery",
+                "pharmacy",
+                "market",
                 "all"
               ],
               "title": "Vertical",
@@ -16686,6 +17008,7 @@
     },
     "/v1/rider/offers": {
       "get": {
+        "description": "Offers waiting for this rider. `expires_in_seconds` is how long each has left by the server's clock: apps\ncount down from it, so a phone (or server) whose clock is wrong still shows the right time to answer.",
         "operationId": "offers_v1_rider_offers_get",
         "parameters": [
           {
@@ -17114,7 +17437,10 @@
                 {
                   "enum": [
                     "food",
-                    "beauty"
+                    "beauty",
+                    "grocery",
+                    "pharmacy",
+                    "market"
                   ],
                   "type": "string"
                 },
@@ -17420,7 +17746,7 @@
     },
     "/v1/services": {
       "get": {
-        "description": "Gud Meal's services (Food, Beauty & Skin care, Package Delivery) and their availability.",
+        "description": "Gud Meal's services (Food, Groceries, Pharmacy, Market Shopping, Beauty & Skin care, Package Delivery)\nand their availability.",
         "operationId": "services_v1_services_get",
         "parameters": [
           {
@@ -17485,7 +17811,10 @@
             "schema": {
               "enum": [
                 "food",
-                "beauty"
+                "beauty",
+                "grocery",
+                "pharmacy",
+                "market"
               ],
               "title": "Vertical",
               "type": "string"

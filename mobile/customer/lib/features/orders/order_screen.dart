@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,11 +22,14 @@ const _onDelivery = {'rider_assigned', 'picked_up', 'in_transit'};
 
 /// Live order tracking. Polls the API every 5 s while the order is active (Firestore listener in production).
 class OrderScreen extends ConsumerStatefulWidget {
-  const OrderScreen({super.key, required this.id, this.paymentReference});
+  const OrderScreen({super.key, required this.id, this.paymentReference, this.justPaid = false});
   final String id;
 
   /// Set when returning from checkout; used to re-verify the payment server-side on resume.
   final String? paymentReference;
+
+  /// Opened straight after paying from the wallet: the receipt printer comes up once (ADR-0019).
+  final bool justPaid;
 
   @override
   ConsumerState<OrderScreen> createState() => _OrderScreenState();
@@ -37,6 +41,18 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
   String? _payReference;
   bool _paying = false;
   String? _payError;
+  // The receipt printer opens by itself once, right after this customer paid (not when an old order is opened).
+  bool _receiptOffered = false;
+
+  bool _paidHere = false;
+
+  bool get _cameFromPaying => widget.justPaid || _paidHere || widget.paymentReference != null || _payReference != null;
+
+  void _offerReceipt(Order? o) {
+    if (o == null || _receiptOffered || !_cameFromPaying || o.payment.status != 'paid' || !mounted) return;
+    _receiptOffered = true;
+    context.push('/orders/${o.id}/receipt');
+  }
 
   Future<void> _pay(Order o, PayMethod method) async {
     setState(() {
@@ -51,6 +67,8 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
       if (url != null) {
         _payReference = checkout.reference;
         await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);
+      } else if (checkout.provider == 'wallet') {
+        _paidHere = true; // paid on the spot: the receipt printer comes up
       }
       ref.invalidate(orderProvider(o.id));
     } on ApiException catch (e) {
@@ -89,6 +107,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
   @override
   Widget build(BuildContext context) {
     final order = ref.watch(orderProvider(widget.id));
+    ref.listen(orderProvider(widget.id), (_, next) => _offerReceipt(next.value));
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Order')),
@@ -100,7 +119,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
           final parcel = o.vertical == 'parcel' ? o.parcel : null;
           final steps = switch (o.vertical) {
             'parcel' => const ['Booked', 'Rider found', 'Heading to pickup', 'On the way', 'Delivered'],
-            'beauty' => const ['Placed', 'Accepted', 'Packing', 'On the way', 'Delivered'],
+            'beauty' || 'grocery' || 'pharmacy' || 'market' => serviceCopy(o.vertical).steps,
             'waybill' => (o.progress?.steps.isNotEmpty ?? false)
                 ? o.progress!.steps
                 : const ['Booked', 'At the hub', 'On the way', 'Arrived', 'Delivered'],
@@ -225,6 +244,15 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
               const Padding(padding: EdgeInsets.only(top: 4), child: Text('Paid from your Gud Meal wallet')),
             if (o.payment.provider == 'cash' && o.payment.status == 'paid')
               const Padding(padding: EdgeInsets.only(top: 4), child: Text('Paid in cash on delivery')),
+            if (const ['paid', 'partially_refunded', 'refunded'].contains(o.payment.status))
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push('/orders/${o.id}/receipt'),
+                  icon: const Icon(Icons.print_outlined),
+                  label: const Text('Print my receipt'),
+                ),
+              ),
             if (o.refundTotalKobo > 0)
               Padding(
                 padding: const EdgeInsets.only(top: 4),

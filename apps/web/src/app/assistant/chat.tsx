@@ -3,7 +3,7 @@
 import { ApiError, type ChatApproval, type ChatCard, type ChatResponse } from "@gudmeal/api-client";
 import { Badge, Button, Card, Spinner, cn } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
-import { CreditCard, Headset, Mic, Package, Send, ShieldCheck, Sparkles, Store, UtensilsCrossed } from "lucide-react";
+import { CreditCard, Headset, Mic, Package, Send, ShieldCheck, Store } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +11,7 @@ import { GudyArt } from "@/components/illustrations";
 import { RequireAuth } from "@/components/require-auth";
 import { useAgentsApi, useApi } from "@/lib/api";
 import { CITY_NAMES, useLocation } from "@/lib/location";
+import { SERVICES, serviceCopy } from "@/lib/services";
 
 interface Turn { role: "user" | "assistant"; text: string; cards?: ChatCard[]; approval?: ChatApproval | null }
 
@@ -116,7 +117,7 @@ function ChatInner() {
       <div className="flex-1 space-y-4" aria-live="polite">
         {turns.length === 0 && (
           <Card className="space-y-2 p-5 text-sm">
-            <p className="font-semibold">Hi! I’m Gudy. I can find food and beauty products, plan a meal within your budget, send packages across Lagos and Enugu, track orders and tell you how much you’ve spent. Write in English, Pidgin, Igbo, Yoruba or Hausa.</p>
+            <p className="font-semibold">Hi! I’m Gudy. I can find food, groceries, pharmacy items, market foodstuff and beauty products, plan a meal within your budget, send packages across Lagos and Enugu, track orders and tell you how much you’ve spent. Write in English, Pidgin, Igbo, Yoruba or Hausa.</p>
             <p className="pt-1 text-muted">Try asking:</p>
             {["I have ₦10,000. Find me the best meal for two people, order it, and deliver before 8pm.",
               "What do you offer?", "How much have I spent?", "Find me a good sunscreen", "Abeg, where my order dey?", "I want to talk to a person"].map((s) => (
@@ -155,7 +156,8 @@ function ChatInner() {
 }
 
 const SCREENS: Record<string, string> = {
-  home: "/", food: "/food", beauty: "/beauty", parcel: "/send", discover: "/discover", orders: "/orders",
+  home: "/", food: "/food", grocery: "/groceries", pharmacy: "/pharmacy", market: "/market", beauty: "/beauty", parcel: "/send",
+  discover: "/discover", orders: "/orders",
   support: "/support", profile: "/account", wallet: "/wallet", waybill: "/send?mode=interstate",
   plus: "/plus", rewards: "/rewards", group: "/group",
 };
@@ -166,10 +168,10 @@ export function routeForScreen(screen: string, params: Record<string, string | u
   if (screen === "order") return params.order_id ? `/orders/${params.order_id}` : "/orders";
   const base = SCREENS[screen];
   if (!base) return null;
-  return params.category && (screen === "food" || screen === "beauty") ? `${base}?category=${params.category}` : base;
+  return params.category && SERVICES.some((s) => s.id === screen) ? `${base}?category=${params.category}` : base;
 }
 
-const SERVICE_ROUTES: Record<string, string> = { food: "/food", beauty: "/beauty", parcel: "/send" };
+const SERVICE_ROUTES: Record<string, string> = { ...Object.fromEntries(SERVICES.map((s) => [s.id, s.href])), parcel: "/send" };
 
 function CardView({ card }: { card: ChatCard }) {
   if (card.type === "services") {
@@ -177,7 +179,7 @@ function CardView({ card }: { card: ChatCard }) {
     return (
       <div className="flex flex-wrap gap-2">
         {services.map((s) => {
-          const Icon = s.id === "parcel" ? Package : s.id === "beauty" ? Sparkles : UtensilsCrossed;
+          const Icon = s.id === "parcel" ? Package : serviceCopy(s.id).icon;
           return (
             <Link key={s.id} href={SERVICE_ROUTES[s.id] ?? "/"} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold hover:border-primary">
               <Icon className="size-4 text-primary" aria-hidden="true" /> {s.name}

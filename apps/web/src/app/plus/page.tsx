@@ -4,7 +4,7 @@ import { PlusView } from "./plus-view";
 
 export const metadata: Metadata = {
   title: "Gud Meal Plus",
-  description: "Free delivery on Food and Beauty orders, half-price service fees and double Gud points.",
+  description: "Free delivery on restaurant and shop orders, half-price service fees and double Gud points.",
   alternates: { canonical: "/plus" },
   robots: { index: false },
 };

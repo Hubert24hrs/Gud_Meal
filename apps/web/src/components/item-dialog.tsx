@@ -20,8 +20,10 @@ export function validateSelections(item: MenuItem, groups: Record<string, Option
   return null;
 }
 
-export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose, onAdd }: {
+export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose, onAdd, notesFor = "the kitchen", notesHint = "e.g. less pepper, no onions" }: {
   item: MenuItem; groups: Record<string, OptionGroup>; restaurantId: string; restaurantName: string; onClose: () => void;
+  /** Who reads the note ("the kitchen", "your shopper") and an example of one. */
+  notesFor?: string; notesHint?: string;
   /** Group orders: hand the chosen line to the caller instead of adding it to this device's cart. */
   onAdd?: (line: CartLine) => void;
 }) {
@@ -93,6 +95,9 @@ export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose
       </div>
     }>
       <div className="space-y-5">
+        {(item.brand || item.unit_label) && (
+          <p className="text-sm font-semibold">{[item.brand, item.unit_label].filter(Boolean).join(" · ")}</p>
+        )}
         {item.description && <p className="text-sm text-muted">{item.description}</p>}
         {item.allergens.length > 0 && <p className="text-xs text-muted">Contains: {item.allergens.join(", ")}</p>}
         {itemGroups.map((g) => (
@@ -120,8 +125,8 @@ export function ItemDialog({ item, groups, restaurantId, restaurantName, onClose
           </fieldset>
         ))}
         <label className="block space-y-1.5 text-sm font-semibold">
-          Notes for the kitchen (optional)
-          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={200} placeholder="e.g. less pepper, no onions" />
+          Notes for {notesFor} (optional)
+          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={200} placeholder={notesHint} />
         </label>
         {error && <p className="text-sm text-muted">{error}</p>}
       </div>

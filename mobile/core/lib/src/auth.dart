@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class GmUser {
   const GmUser({required this.uid, this.email, this.name, this.phone});
@@ -22,6 +23,21 @@ abstract class AuthRepository {
   Future<String> startPhoneSignIn(String phoneNumber);
   Future<void> confirmPhoneCode(String verificationId, String smsCode);
   Future<void> signOut();
+}
+
+/// Connects [auth] to the local Firebase Auth emulator (local testing only).
+///
+/// Browser builds: while the app starts, the Firebase web SDK checks a remembered session with Google's servers,
+/// and after that the emulator can no longer be attached. The app would then talk to production sign-in and
+/// every sign-in would fail (found in the owner's browser preview: "Sign-in failed" after a page reload). So with
+/// the emulator a browser build keeps its session for this page load only: reloading the page asks to sign in
+/// again. A session remembered by an older build is dropped, and works again after one more reload.
+Future<void> connectAuthEmulator(fb.FirebaseAuth auth, String host, {int port = 9099}) async {
+  if (kIsWeb) {
+    await auth.setPersistence(fb.Persistence.NONE);
+    if (auth.currentUser != null) await auth.signOut();
+  }
+  await auth.useAuthEmulator(host, port);
 }
 
 class FirebaseAuthRepository implements AuthRepository {

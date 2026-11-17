@@ -81,17 +81,17 @@ export function createApi(opts: ClientOptions) {
     catalog: {
       restaurants: (q: {
         lat?: number; lng?: number; cuisine?: string; q?: string; open_now?: boolean; sort?: string; limit?: number;
-        vertical?: "food" | "beauty" | "all"; city?: string; category?: string; pickup?: boolean;
+        vertical?: T.MerchantVertical | "all"; city?: string; category?: string; pickup?: boolean;
       } = {}) => get<T.RestaurantCard[]>("/v1/restaurants", q, false),
       services: (city?: string) => get<T.ServiceInfo[]>("/v1/services", city ? { city } : undefined, false),
-      categories: (vertical: "food" | "beauty", city?: string) =>
+      categories: (vertical: T.MerchantVertical, city?: string) =>
         get<T.BrowseCategory[]>(`/v1/services/${vertical}/categories`, city ? { city } : undefined, false),
       areas: (city?: string) => get<T.PlaceArea[]>("/v1/places/areas", city ? { city } : undefined, false),
       resolvePlace: (q: string, city?: string) => get<T.PlaceArea>("/v1/places/resolve", { q, ...(city ? { city } : {}) }, false),
       restaurant: (id: string, loc?: { lat: number; lng: number }) => get<T.RestaurantDetail>(`/v1/restaurants/${id}`, loc, false),
-      search: (q: string, loc?: { lat: number; lng: number }, vertical?: "food" | "beauty") =>
+      search: (q: string, loc?: { lat: number; lng: number }, vertical?: T.MerchantVertical) =>
         get<{
-          items: { item: T.MenuItem; restaurant_id: string; restaurant_name: string; vertical?: "food" | "beauty" }[];
+          items: { item: T.MenuItem; restaurant_id: string; restaurant_name: string; vertical?: T.MerchantVertical }[];
           restaurants: T.RestaurantCard[];
         }>("/v1/search", { q, ...loc, ...(vertical ? { vertical } : {}) }, false),
       cuisines: () => get<{ name: string; restaurants: number }[]>("/v1/cuisines", undefined, false),
@@ -121,6 +121,10 @@ export function createApi(opts: ClientOptions) {
       setFavourite: (rid: string, favourite: boolean) => put(`/v1/me/favourites/${rid}`, { favourite }),
       notifications: () => get<{ id: string; title: string; body: string; created_at: string }[]>("/v1/me/notifications"),
     },
+    receipts: {
+      /** The receipts the customer has printed, newest first. */
+      list: (limit = 50) => get<T.Receipt[]>("/v1/receipts", { limit }),
+    },
     orders: {
       quote: (req: T.QuoteRequest) => post<T.Quote>("/v1/quotes", req),
       create: (quoteId: string, key: string, channel: "web" | "app" = "web", contact_phone?: string) =>
@@ -129,6 +133,10 @@ export function createApi(opts: ClientOptions) {
         post<T.CheckoutResult>(`/v1/orders/${orderId}/checkout`, provider ? { provider } : {}, key),
       list: (limit = 20) => get<T.Order[]>("/v1/orders", { limit }),
       get: (id: string) => get<T.Order>(`/v1/orders/${id}`),
+      /** The receipt of a paid order; 409 `order_not_paid` until it is paid. */
+      receipt: (id: string) => get<T.Receipt>(`/v1/orders/${id}/receipt`),
+      /** The customer pressed PRINT: keeps the receipt under "My receipts" and counts the print. */
+      printReceipt: (id: string) => post<T.Receipt>(`/v1/orders/${id}/receipt`, {}),
       events: (id: string) => get<T.OrderEvent[]>(`/v1/orders/${id}/events`),
       codes: (id: string) => get<{ delivery_code: string | null; pickup_code: string | null }>(`/v1/orders/${id}/codes`),
       tracking: (id: string) => get<T.Tracking>(`/v1/orders/${id}/tracking`),

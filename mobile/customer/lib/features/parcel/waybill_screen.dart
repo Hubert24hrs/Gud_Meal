@@ -155,7 +155,7 @@ class _WaybillScreenState extends ConsumerState<WaybillScreen> {
       ref.invalidate(walletProvider);
       final url = checkout.authorizationUrl;
       if (url == null) {
-        if (mounted) context.go('/orders/${order.id}');
+        if (mounted) context.go('/orders/${order.id}?paid=1'); // paid from the wallet: the receipt comes up
         return;
       }
       await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);

@@ -101,8 +101,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ref.invalidate(walletProvider);
       final url = checkout.authorizationUrl;
       if (url == null) {
-        // Wallet and pay-on-delivery orders are placed already: go straight to tracking.
-        if (mounted) context.go('/orders/${order.id}');
+        // Wallet and pay-on-delivery orders are placed already: go straight to tracking. An order paid from
+        // the wallet is paid now, so its receipt printer comes up; cash is paid at the door.
+        if (mounted) context.go('/orders/${order.id}${checkout.provider == 'wallet' ? '?paid=1' : ''}');
         return;
       }
       // Provider-hosted payment page: card data never touches the app.

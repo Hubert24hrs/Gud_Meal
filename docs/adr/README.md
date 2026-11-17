@@ -19,3 +19,5 @@
 | [0015](0015-interstate-waybill.md) | Interstate waybill: hubs, rider legs, partner line haul, public tracking | Accepted (sample network) |
 | [0016](0016-plus-rewards-group-orders.md) | Gud Meal Plus, Gud points and referrals, group orders with split bill | Accepted (defaults to confirm) |
 | [0017](0017-gudy-on-whatsapp.md) | Gudy on WhatsApp: number linking, customer-only channel tokens, signed webhooks | Accepted (Meta account pending) |
+| [0018](0018-groceries-pharmacy-market.md) | Groceries, Pharmacy and Market Shopping: three more shop services, products by the aisle, over-the-counter only | Accepted (defaults and legal review pending) |
+| [0019](0019-receipt-printer.md) | Receipts: the receipt printer after payment, receipts kept under the customer's profile | Accepted |

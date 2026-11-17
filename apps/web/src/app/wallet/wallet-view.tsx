@@ -50,7 +50,7 @@ export function WalletView() {
         <div className="container-page max-w-3xl">
           <p className="flex items-center gap-2 text-sm font-semibold text-white/90"><Wallet className="size-4" aria-hidden="true" /> Gud Meal wallet</p>
           <p className="mt-1 text-5xl font-black tracking-tight" aria-live="polite">{formatNaira(w.balance_kobo)}</p>
-          <p className="mt-2 max-w-md text-sm text-white/90">Pay for food, beauty and package deliveries in one tap. Refunds come back here instantly.</p>
+          <p className="mt-2 max-w-md text-sm text-white/90">Pay for food, groceries, pharmacy, market shopping, beauty and package deliveries in one tap. Refunds come back here instantly.</p>
         </div>
       </div>
 

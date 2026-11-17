@@ -18,7 +18,9 @@ export function checkoutProvider(method: PayMethod): string | undefined {
 /** Card payments continue on the gateway's page; wallet and cash orders are already placed. */
 export function continueAfterCheckout(res: CheckoutResult, go: (path: string) => void): void {
   if (res.authorization_url) window.location.assign(res.authorization_url);
-  else go(`/orders/${res.order_id}`);
+  // Paid from the wallet: the money has moved, so the receipt printer comes next (ADR-0019). A
+  // pay-on-delivery order is paid at the door; its receipt is on the order page once the cash is in.
+  else go(res.provider === "wallet" ? `/orders/${res.order_id}/receipt` : `/orders/${res.order_id}`);
 }
 
 interface CashRules {

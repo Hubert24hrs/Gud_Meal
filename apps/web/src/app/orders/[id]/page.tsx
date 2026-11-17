@@ -3,7 +3,7 @@
 import { formatDateTime, formatTime, isMeasured, newIdempotencyKey, TRACKING_STEPS, type Order, type Tracking } from "@gudmeal/api-client";
 import { Badge, Button, Card, ErrorState, MapView, Price, Skeleton, StatusBadge, Textarea, cn, type MapPin } from "@gudmeal/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Banknote, Bike, KeyRound, MessageCircleWarning, Star, Wallet } from "lucide-react";
+import { Banknote, Bike, KeyRound, MessageCircleWarning, Printer, Star, Wallet } from "lucide-react";
 import Link from "next/link";
 import { use, useRef, useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
@@ -169,6 +169,11 @@ function OrderDetail({ id }: { id: string }) {
           <Button variant="outline" block onClick={() => cancel.mutate()} loading={cancel.isPending}>Cancel order</Button>
         )}
         {cancel.error && <ErrorState message={(cancel.error as Error).message} />}
+        {["paid", "partially_refunded", "refunded"].includes(o.payment.status) && (
+          <Link href={`/orders/${o.id}/receipt`} className="block">
+            <Button variant="outline" block><Printer className="size-4" aria-hidden="true" /> Print my receipt</Button>
+          </Link>
+        )}
         <Link href="/help" className="block text-center text-sm text-muted underline-offset-2 hover:underline">Need help with this order?</Link>
       </aside>
     </div>

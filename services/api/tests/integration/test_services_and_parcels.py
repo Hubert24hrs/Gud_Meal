@@ -59,7 +59,7 @@ async def paid_parcel(client, who: str = "customer", **body) -> dict:
 # ---------------------------------------------------------------------------------- catalogue
 async def test_services_categories_and_cities(client):
     services = {s["id"]: s for s in (await client.get("/v1/services")).json()}
-    assert list(services) == ["food", "beauty", "parcel"]
+    assert list(services) == ["food", "grocery", "pharmacy", "market", "beauty", "parcel"]
     assert services["food"]["merchants"] == 14 and services["beauty"]["merchants"] == 5
     assert services["parcel"]["cities"] == ["enugu", "lagos"] and services["parcel"]["available"]
     assert "interstate" in services["parcel"]["options"] and services["parcel"]["coming_soon"] == []
@@ -89,7 +89,7 @@ async def test_services_categories_and_cities(client):
     ).json()
     assert local and all(c["supports_pickup"] for c in local)
     everything = (await client.get("/v1/restaurants", params={"vertical": "all"})).json()
-    assert len(everything) == 19
+    assert len(everything) == 29  # 14 restaurants, 5 beauty shops, 4 supermarkets, 3 pharmacies, 3 markets
 
     assert (await client.get("/v1/restaurants", params={"category": "nope"})).status_code == 422
     assert (await client.get("/v1/restaurants", params={"city": "abuja"})).status_code == 422

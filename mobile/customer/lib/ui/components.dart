@@ -187,13 +187,39 @@ class MerchantArt extends StatelessWidget {
     [Color(0xFF6E4AA8), Color(0xFFE2C7F4)],
     [Color(0xFF1D754E), Color(0xFFBFE5CF)],
   ];
+  static const _grocery = [
+    [Color(0xFF1F7A4D), Color(0xFFBFE8CF)],
+    [Color(0xFF2B6CB0), Color(0xFFCFE3F7)],
+    [Color(0xFF8A6A1F), Color(0xFFF3E2A9)],
+  ];
+  static const _pharmacy = [
+    [Color(0xFF12746B), Color(0xFFBDEBE4)],
+    [Color(0xFF2B5FA8), Color(0xFFCADDF6)],
+  ];
+  static const _market = [
+    [Color(0xFF9A4A1B), Color(0xFFF4CF9C)],
+    [Color(0xFF3F7A2E), Color(0xFFD6ECB8)],
+  ];
 
   @override
   Widget build(BuildContext context) {
     if (merchant.coverUrl != null) {
       return Image.network(merchant.coverUrl!, height: height, width: double.infinity, fit: BoxFit.cover);
     }
-    final palette = merchant.vertical == 'beauty' ? _beauty : _food;
+    final palette = switch (merchant.vertical) {
+      'beauty' => _beauty,
+      'grocery' => _grocery,
+      'pharmacy' => _pharmacy,
+      'market' => _market,
+      _ => _food,
+    };
+    final CustomPainter art = switch (merchant.vertical) {
+      'beauty' => const BeautyIllustration(),
+      'grocery' => const GroceryIllustration(),
+      'pharmacy' => const PharmacyIllustration(),
+      'market' => const MarketIllustration(),
+      _ => const FoodIllustration(),
+    };
     final colors = palette[merchant.id.codeUnits.fold(0, (a, c) => a + c) % palette.length];
     final initials = merchant.name.split(RegExp(r'\s+')).where((w) => w.isNotEmpty && w != '&').take(2).map((w) => w[0]).join();
     return Container(
@@ -208,7 +234,7 @@ class MerchantArt extends StatelessWidget {
           height: height * (compact ? .9 : 1.05),
           child: Opacity(
             opacity: .9,
-            child: CustomPaint(painter: merchant.vertical == 'beauty' ? const BeautyIllustration() : const FoodIllustration()),
+            child: CustomPaint(painter: art),
           ),
         ),
         Positioned(
@@ -436,6 +462,26 @@ class FilterPill extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Something customers should know before they shop in a service (over-the-counter only, market measures).
+class ServiceNote extends StatelessWidget {
+  const ServiceNote(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(GmRadius.md)),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSecondaryContainer),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text, style: TextStyle(color: scheme.onSecondaryContainer, height: 1.3))),
+      ]),
     );
   }
 }

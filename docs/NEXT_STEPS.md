@@ -16,3 +16,7 @@ Saved on 17 Nov 2026 to do later. Tick each one off as you go.
   logo file (SVG, or a PNG at least 1024 pixels wide per symbol).
 - [ ] **WhatsApp ordering is still off.** When you're ready, it needs a Meta business account, verification and
   approval of Meta's message charges.
+- [ ] **Decide three things for Groceries, Pharmacy and Market Shopping** (added 17 Nov): the Plus minimum
+  basket for supermarkets and markets (now the same ₦3,000 as food), the commission for these shops (now the
+  platform default), and a legal review of selling over-the-counter medicines online before real pharmacies
+  join. See [ADR-0018](adr/0018-groceries-pharmacy-market.md).

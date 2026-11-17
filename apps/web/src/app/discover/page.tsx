@@ -3,13 +3,14 @@
 import { formatNaira, type RestaurantCard } from "@gudmeal/api-client";
 import { Skeleton } from "@gudmeal/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Bike, Search, Sparkles, ThumbsUp, UtensilsCrossed } from "lucide-react";
+import { Bike, Search, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { useDeferredValue, useState } from "react";
 import { DishFeed } from "@/components/dish-feed";
 import { deliveryLabel, EmptyBlock, MerchantArt, PromoTag, ratingPercent, SectionTitle } from "@/components/storefront";
 import { publicApi } from "@/lib/api";
 import { useLocation } from "@/lib/location";
+import { SERVICES, serviceCopy } from "@/lib/services";
 
 function DemandRow({ card }: { card: RestaurantCard }) {
   const fee = deliveryLabel(card);
@@ -23,10 +24,16 @@ function DemandRow({ card }: { card: RestaurantCard }) {
           {fee && <span className="flex items-center gap-1">· <Bike className="size-4" aria-hidden="true" /> {fee}</span>}
         </p>
         {card.promotions?.[0] && <div className="mt-1.5"><PromoTag>{card.promotions[0].label}</PromoTag></div>}
-        {card.vertical === "beauty" && <p className="mt-1 text-xs font-bold text-secondary">Beauty & Skin care</p>}
+        {card.vertical !== "food" && <p className="mt-1 text-xs font-bold text-secondary">{serviceCopy(card.vertical).title}</p>}
       </div>
     </Link>
   );
+}
+
+/** The icon of the service a search hit belongs to. */
+function HitIcon({ vertical }: { vertical?: string }) {
+  const Icon = (SERVICES.find((s) => s.id === vertical) ?? SERVICES[0]!).icon;
+  return <Icon className="size-5 text-primary" aria-hidden="true" />;
 }
 
 export default function DiscoverPage() {
@@ -34,10 +41,10 @@ export default function DiscoverPage() {
   const [q, setQ] = useState("");
   const query = useDeferredValue(q.trim());
   const base = { ...area.location, city: area.city, sort: "rating" };
-  const food = useQuery({ queryKey: ["demand", "food", area.name], queryFn: () => publicApi.catalog.restaurants({ ...base, vertical: "food" }) });
-  const beauty = useQuery({ queryKey: ["demand", "beauty", area.name], queryFn: () => publicApi.catalog.restaurants({ ...base, vertical: "beauty" }) });
+  // Every kind of shop near the customer, in one request.
+  const shops = useQuery({ queryKey: ["demand", "all", area.name], queryFn: () => publicApi.catalog.restaurants({ ...base, vertical: "all", limit: 100 }) });
   const results = useQuery({ queryKey: ["discover", query, area.name], queryFn: () => publicApi.catalog.search(query, area.location), enabled: query.length >= 2 });
-  const demand = [...(food.data ?? []), ...(beauty.data ?? [])]
+  const demand = [...(shops.data ?? [])]
     .sort((a, b) => b.rating * Math.min(b.rating_count, 2000) - a.rating * Math.min(a.rating_count, 2000))
     .slice(0, 12);
 
@@ -74,7 +81,7 @@ export default function DiscoverPage() {
                     {results.data!.items.slice(0, 10).map((h) => (
                       <li key={h.item.id}>
                         <Link href={`/restaurants/${h.restaurant_id}`} className="flex items-center gap-3 p-3 hover:bg-surface-muted">
-                          {h.vertical === "beauty" ? <Sparkles className="size-5 text-primary" aria-hidden="true" /> : <UtensilsCrossed className="size-5 text-primary" aria-hidden="true" />}
+                          <HitIcon vertical={h.vertical} />
                           <span className="flex-1"><span className="block font-semibold">{h.item.name}</span><span className="text-sm text-muted">{h.restaurant_name}</span></span>
                           <span className="font-bold">{formatNaira(h.item.price_kobo)}</span>
                         </Link>
@@ -90,7 +97,7 @@ export default function DiscoverPage() {
             <DishFeed />
             <SectionTitle info="Where everyone is ordering, available now">Most in demand</SectionTitle>
             <p className="-mt-2 mb-4 text-muted">Where everyone’s ordering, available now</p>
-            {food.isLoading ? <Skeleton className="h-40" /> : (
+            {shops.isLoading ? <Skeleton className="h-40" /> : (
               <div className="grid gap-3 md:grid-cols-2">{demand.map((r) => <DemandRow key={r.id} card={r} />)}</div>
             )}
           </>

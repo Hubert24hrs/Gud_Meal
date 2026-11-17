@@ -90,6 +90,7 @@ class ProfileScreen extends ConsumerWidget {
                         : formatNaira(ref.watch(walletProvider).asData!.value.balanceKobo),
                     onTap: () => context.push('/wallet')),
               ],
+              if (user != null) _tile(context, Icons.receipt_long_outlined, 'My receipts', onTap: () => context.push('/receipts')),
               _tile(context, Icons.local_offer_outlined, 'Promo codes', onTap: () => _promos(context, ref)),
               _tile(context, Icons.credit_card_outlined, 'Payments', onTap: () => _payments(context)),
               _tile(context, Icons.workspace_premium_outlined, 'Gud Meal Plus', badge: 'Free delivery', onTap: () => context.push('/plus')),

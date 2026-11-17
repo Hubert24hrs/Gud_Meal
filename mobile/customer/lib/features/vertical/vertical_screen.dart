@@ -11,7 +11,8 @@ import '../../widgets.dart';
 
 const _sorts = {'recommended': 'Recommended', 'rating': 'Top rated', 'distance': 'Nearest', 'delivery_fee': 'Lowest delivery fee'};
 
-/// A service page (Food, or Beauty & Skin care): search, category bubbles, filters, popular brands, stores.
+/// A service page (Food, Groceries, Pharmacy, Market Shopping, Beauty & Skin care): search, category bubbles,
+/// filters, popular shops, all shops.
 class VerticalScreen extends ConsumerStatefulWidget {
   const VerticalScreen({super.key, required this.vertical, this.category});
   final String vertical;
@@ -30,7 +31,8 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
   Timer? _debounce;
 
   bool get _food => widget.vertical == 'food';
-  String get _title => _food ? 'Food' : 'Beauty & Skin care';
+  ServiceCopy get _service => serviceCopy(widget.vertical);
+  String get _title => _service.title;
 
   MerchantQuery get _q => (
         vertical: widget.vertical,
@@ -109,7 +111,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
                 IconButton(tooltip: 'Back', onPressed: () => context.canPop() ? context.pop() : context.go('/'), icon: const Icon(Icons.arrow_back_rounded)),
                 const Expanded(child: Center(child: AddressPill())),
                 IconButton(
-                  tooltip: 'Map of nearby ${_food ? 'restaurants' : 'shops'}',
+                  tooltip: 'Map of nearby ${_service.shops}',
                   onPressed: () => context.push('/map?vertical=${widget.vertical}'),
                   icon: const Icon(Icons.map_rounded),
                 ),
@@ -122,6 +124,13 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
               child: Text(_title, style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w900)),
             ),
           ),
+          if (_service.note != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: ServiceNote(_service.note!),
+              ),
+            ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -130,7 +139,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search_rounded),
-                  hintText: 'Search in ${_food ? 'Food' : 'Beauty'}',
+                  hintText: 'Search in ${widget.vertical == 'beauty' ? 'Beauty' : _service.title}',
                   filled: true,
                   fillColor: theme.colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(999), borderSide: BorderSide.none),
@@ -166,7 +175,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
               height: 46,
               child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16), scrollDirection: Axis.horizontal, children: [
                 FilterPill(
-                  label: _cuisine ?? (_food ? 'Food type' : 'Product type'),
+                  label: _cuisine ?? _service.typeFilter,
                   dropdown: true,
                   selected: _cuisine != null,
                   onTap: () => _pickCuisine(cuisines),
@@ -177,7 +186,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
             ),
           ),
           if (_query.length < 2 && _category == null && popular.isNotEmpty) ...[
-            SliverToBoxAdapter(child: SectionTitle(_food ? 'Popular brands' : 'Popular shops', info: 'Highest-rated near you')),
+            SliverToBoxAdapter(child: SectionTitle(_service.popular, info: 'Highest-rated near you')),
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 168,
@@ -196,7 +205,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
             child: SectionTitle(
               _category != null
                   ? (cats.value?.where((c) => c.id == _category).firstOrNull?.name ?? 'Results')
-                  : (_food ? 'All restaurants' : 'All shops'),
+                  : _service.allShops,
             ),
           ),
           ...merchants.when(
@@ -206,7 +215,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
                 ? [
                     SliverToBoxAdapter(
                       child: EmptyState(
-                        icon: _food ? Icons.ramen_dining_outlined : Icons.spa_outlined,
+                        icon: _food ? Icons.ramen_dining_outlined : _service.icon,
                         title: 'No matches nearby',
                         body: 'Try another category, turn off filters, or change your area.',
                         action: OutlinedButton(
@@ -248,12 +257,12 @@ class _ItemHits extends ConsumerWidget {
         final items = found.value?.items ?? const [];
         if (items.isEmpty) return const SizedBox.shrink();
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SectionTitle(vertical == 'food' ? 'Dishes' : 'Products'),
+          SectionTitle(serviceCopy(vertical).items),
           for (final hit in items.take(6))
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: Icon(vertical == 'food' ? Icons.restaurant_rounded : Icons.spa_rounded, color: brandOrange),
+                child: Icon(serviceCopy(vertical).icon, color: brandOrange),
               ),
               title: Text('${(hit['item'] as Map)['name']}${(hit['item'] as Map)['unit_label'] != null ? ' · ${(hit['item'] as Map)['unit_label']}' : ''}'),
               subtitle: Text('${hit['restaurant_name']}'),

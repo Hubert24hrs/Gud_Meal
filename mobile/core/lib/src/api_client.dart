@@ -281,6 +281,18 @@ class GudMealApi {
 
   Future<List<Order>> myOrders() => _call(() => _dio.get('/v1/orders'), (d) => _list(d).map(Order.fromJson).toList());
   Future<Order> order(String id) => _call(() => _dio.get('/v1/orders/$id'), (d) => Order.fromJson(_map(d)));
+
+  /// The receipt of an order that has been paid for (ADR-0019); `order_not_paid` until then.
+  Future<Receipt> receipt(String orderId) =>
+      _call(() => _dio.get('/v1/orders/$orderId/receipt'), (d) => Receipt.fromJson(_map(d)));
+
+  /// The customer pressed PRINT: keeps the receipt under "My receipts" and counts the print.
+  Future<Receipt> printReceipt(String orderId) =>
+      _call(() => _dio.post('/v1/orders/$orderId/receipt'), (d) => Receipt.fromJson(_map(d)));
+
+  /// The receipts the customer has printed, newest first.
+  Future<List<Receipt>> receipts() => _call(() => _dio.get('/v1/receipts'), (d) => _list(d).map(Receipt.fromJson).toList());
+
   Future<Tracking> tracking(String id) => _call(() => _dio.get('/v1/orders/$id/tracking'), (d) => Tracking.fromJson(_map(d)));
   Future<String?> deliveryCode(String id) => _call(() => _dio.get('/v1/orders/$id/codes'), (d) => _map(d)['delivery_code'] as String?);
   /// Collection code for hub pickups (and pickup orders).

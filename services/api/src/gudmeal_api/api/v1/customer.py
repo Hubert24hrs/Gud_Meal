@@ -307,6 +307,27 @@ async def verify_payment(data: VerifyInput, c: Ctr, principal: CurrentPrincipal)
     return view
 
 
+@router.get("/orders/{order_id}/receipt")
+async def order_receipt(order_id: str, c: Ctr, principal: CurrentPrincipal) -> dict[str, Any]:
+    """The receipt of an order the customer paid for. `saved` says whether it is kept under "My receipts"
+    (it is once the customer has printed it)."""
+    return (await c.receipts.get(principal, order_id)).model_dump(mode="json")
+
+
+@router.post("/orders/{order_id}/receipt")
+async def print_receipt(order_id: str, c: Ctr, principal: CurrentPrincipal) -> dict[str, Any]:
+    """The customer pressed PRINT: keep the receipt under "My receipts" and count the print."""
+    return (await c.receipts.print(principal, order_id)).model_dump(mode="json")
+
+
+@router.get("/receipts")
+async def my_receipts(
+    c: Ctr, principal: CurrentPrincipal, limit_: Annotated[int, Query(alias="limit", ge=1, le=100)] = 50
+) -> list[dict[str, Any]]:
+    """The receipts the customer has printed, newest first."""
+    return [r.model_dump(mode="json") for r in await c.receipts.list(principal, limit_)]
+
+
 @router.get("/orders/{order_id}/payments")
 async def order_payments(order_id: str, c: Ctr, principal: CurrentPrincipal) -> list[dict[str, Any]]:
     order = await c.orders.get(order_id)

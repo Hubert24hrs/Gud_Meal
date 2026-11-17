@@ -31,6 +31,27 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   bool _busy = false;
 
   @override
+  void initState() {
+    super.initState();
+    // The router rebuilds its pages when the sign-in state changes. That can replace this screen with a fresh
+    // copy while the sign-in call is still returning, and the old copy can no longer close itself. A copy that
+    // opens when the customer is already signed in therefore leaves at once.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _leaveIfSignedIn());
+  }
+
+  /// Leave once signed in: back to the screen that opened sign-in (the Orders or Profile tab), or to `next`.
+  /// (Pushed routes don't change the web URL, so the router's redirect alone can't do this.)
+  void _leaveIfSignedIn() {
+    if (!mounted || ref.read(authRepositoryProvider).currentUser == null) return;
+    final next = GoRouterState.of(context).uri.queryParameters['next'];
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(next ?? '/');
+    }
+  }
+
+  @override
   void dispose() {
     for (final c in [_email, _password, _phone, _code]) {
       c.dispose();
@@ -45,16 +66,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     });
     try {
       await action();
-      // Leave once signed in: back to the screen that opened sign-in, or to `next`. (Pushed routes don't
-      // change the web URL, so the router's redirect alone can't do this.)
-      if (mounted && ref.read(authRepositoryProvider).currentUser != null) {
-        final next = GoRouterState.of(context).uri.queryParameters['next'];
-        if (context.canPop()) {
-          context.pop();
-        } else {
-          context.go(next ?? '/');
-        }
-      }
+      _leaveIfSignedIn();
     } catch (e) {
       setState(() => _error = 'Sign-in failed. Please check your details and try again.');
     } finally {
