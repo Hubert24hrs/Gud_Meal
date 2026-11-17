@@ -10,6 +10,9 @@ class AppConfig {
     required this.firebaseAppId,
     required this.firebaseProjectId,
     required this.firebaseMessagingSenderId,
+    this.findTestServer = false,
+    this.testServerHosts = const [],
+    this.foundHost,
   });
 
   final String apiUrl;
@@ -19,6 +22,17 @@ class AppConfig {
   final String firebaseAppId;
   final String firebaseProjectId;
   final String firebaseMessagingSenderId;
+
+  /// Phone test builds only (`scripts/build-test-apk.mjs`): at startup the app looks for the computer that runs the
+  /// test server on the phone's Wi-Fi, because that computer's address changes with the Wi-Fi it joins
+  /// (`test_server.dart`, docs/adr/0020-test-apps-find-the-test-server.md).
+  final bool findTestServer;
+
+  /// Addresses that computer had when earlier test builds were made: tried before the app searches the Wi-Fi.
+  final List<String> testServerHosts;
+
+  /// Where a phone test found the computer that runs the test server; null in every other build.
+  final String? foundHost;
 
   /// Android emulators reach the host machine at 10.0.2.2.
   static String get _host => !kIsWeb && defaultTargetPlatform == TargetPlatform.android ? '10.0.2.2' : 'localhost';
@@ -35,15 +49,48 @@ class AppConfig {
         firebaseAppId: const String.fromEnvironment('FIREBASE_APP_ID', defaultValue: '1:000000000000:android:demo'),
         firebaseProjectId: const String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: 'demo-gudmeal'),
         firebaseMessagingSenderId: const String.fromEnvironment('FIREBASE_SENDER_ID', defaultValue: '000000000000'),
+        // Never in a store build: the search needs the emulators, which only test builds use. Not in a browser either
+        // (a web page cannot open connections to the addresses around it).
+        findTestServer: !kIsWeb &&
+            const bool.fromEnvironment('FIND_TEST_SERVER') &&
+            const bool.fromEnvironment('USE_FIREBASE_EMULATORS', defaultValue: true),
+        testServerHosts: splitHosts(const String.fromEnvironment('TEST_SERVER_HOSTS')),
       );
 
-  /// Where the Firebase Auth emulator runs: AUTH_EMULATOR_HOST if given, else the API's host when API_URL is set
-  /// (a phone on the same Wi-Fi as the laptop running the stack), else the emulator/simulator default.
+  /// A list of hosts from one build setting: separated by `+`, commas, semicolons or spaces.
+  static List<String> splitHosts(String value) =>
+      value.split(RegExp(r'[+,;\s]+')).where((host) => host.isNotEmpty).toList();
+
+  /// The host of the API. In a local or phone test this is the computer that runs every local service.
+  String get serverHost => Uri.tryParse(apiUrl)?.host ?? '';
+
+  /// Where the Firebase Auth emulator runs: where a phone test found the computer, else AUTH_EMULATOR_HOST if given,
+  /// else the API's host when API_URL is set (a phone on the same Wi-Fi as the laptop running the stack), else the
+  /// emulator/simulator default.
   String get emulatorHost {
+    final found = foundHost;
+    if (found != null) return found;
     const explicit = String.fromEnvironment('AUTH_EMULATOR_HOST');
     if (explicit.isNotEmpty) return explicit;
     const api = String.fromEnvironment('API_URL');
     final apiHost = api.isEmpty ? '' : (Uri.tryParse(api)?.host ?? '');
     return apiHost.isNotEmpty ? apiHost : _host;
   }
+
+  /// The same settings with the API, Gudy and the sign-in emulator on [host]: where a phone test found the computer
+  /// that runs them.
+  AppConfig onHost(String host) => AppConfig(
+        apiUrl: _moved(apiUrl, host),
+        agentsUrl: _moved(agentsUrl, host),
+        useEmulators: useEmulators,
+        firebaseApiKey: firebaseApiKey,
+        firebaseAppId: firebaseAppId,
+        firebaseProjectId: firebaseProjectId,
+        firebaseMessagingSenderId: firebaseMessagingSenderId,
+        findTestServer: findTestServer,
+        testServerHosts: testServerHosts,
+        foundHost: host,
+      );
+
+  static String _moved(String url, String host) => Uri.parse(url).replace(host: host).toString();
 }

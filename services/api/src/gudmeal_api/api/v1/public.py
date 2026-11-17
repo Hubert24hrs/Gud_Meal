@@ -28,7 +28,9 @@ def _location(lat: float | None, lng: float | None) -> GeoPoint | None:
 
 @router.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "ok"}
+    # `service` lets a test app tell this API from anything else that answers on the same Wi-Fi
+    # (mobile/core/lib/src/test_server.dart looks for exactly this name).
+    return {"status": "ok", "service": "gudmeal-api"}
 
 
 @router.get("/ready")

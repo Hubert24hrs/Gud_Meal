@@ -122,9 +122,19 @@ while it runs, anyone on that Wi-Fi can reach the test servers.
    with a demo account.
 
 Test builds talk plain http to this computer and use the Auth emulator and the payment sandbox, so never publish
-them; rebuild if the computer's address changes. After **Approve** on the sandbox payment page, the page says
+them. After **Approve** on the sandbox payment page, the page says
 "Return to the Gud Meal app": go back to the app, which confirms the payment. An order whose payment page was
 closed shows **Finish paying** on its order screen.
+
+**When the computer changes Wi-Fi** its address changes, and the test apps find it again by themselves
+([ADR-0020](adr/0020-test-apps-find-the-test-server.md)): put the phone on the same Wi-Fi and open the app. At
+startup the app tries the address that worked last time, the address it was built for and the addresses of
+earlier builds, then asks every address on the phone's own Wi-Fi (port 8000, `GET /v1/health`). If it cannot
+find the computer it says so, tries again when asked and takes a typed address. If the server stops answering
+while the app is open, the app says so when you come back to it; a server found at a new address needs the app
+closed and opened again (the notice has the button). The payment page follows the computer too
+(`SANDBOX_FOLLOWS_LAN_ADDRESS`, which `--lan` sets), so the stack needs no restart. Only the download page keeps
+the old address: make it again (`node scripts/build-test-apk.mjs --page`) before installing on another phone.
 
 **Rider jobs:** locally only `rider@gudmeal.test` is online among the demo riders (the API starts the others
 offline), so every job is offered to the rider app. Keep the app open and online: an offer lasts 45 seconds and

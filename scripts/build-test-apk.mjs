@@ -3,11 +3,13 @@
 // and puts them in mobile/dist with a download page. Then: `node scripts/dev.mjs downloads --lan` and open
 // http://<this computer's Wi-Fi address>:8090 on the phone (see docs/LOCAL_DEVELOPMENT.md, "Test on your phone").
 // These builds use the Firebase Auth emulator and the payment sandbox: they are for testing, never for the store.
+// The apps find this computer on the phone's Wi-Fi by themselves, so a build keeps working after the computer
+// joins another Wi-Fi and gets a new address (docs/adr/0020-test-apps-find-the-test-server.md).
 //   node scripts/build-test-apk.mjs                  # both apps, for every Android phone
 //   node scripts/build-test-apk.mjs rider --arm64    # one app, 64-bit phones only (smaller; needs less disk to build)
 //   node scripts/build-test-apk.mjs --page           # only rewrite the download page for the APKs already built
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { lanIp } from "./lan.mjs";
@@ -25,6 +27,20 @@ const apps = [
 
 const dist = join(root, "mobile/dist");
 mkdirSync(dist, { recursive: true });
+
+// The apps try this computer's address of today first, then the addresses it had at earlier builds, and only
+// then search the phone's Wi-Fi (mobile/core/lib/src/test_server.dart). The earlier ones are kept here.
+const hostsFile = join(dist, "test-server-hosts.json");
+let earlier = [];
+try {
+  earlier = JSON.parse(readFileSync(hostsFile, "utf8"));
+} catch {
+  // the first build on this computer
+}
+const isAddress = (host) => typeof host === "string" && /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
+const hosts = [ip, ...(Array.isArray(earlier) ? earlier : []).filter((host) => isAddress(host) && host !== ip)].slice(0, 6);
+if (!pageOnly) writeFileSync(hostsFile, `${JSON.stringify(hosts, null, 2)}\n`);
+
 for (const app of pageOnly ? [] : apps.filter((a) => wanted.length === 0 || wanted.includes(a.id))) {
   console.log(`\n== Building ${app.title} for http://${ip} ...`);
   const result = spawnSync(
@@ -35,6 +51,8 @@ for (const app of pageOnly ? [] : apps.filter((a) => wanted.length === 0 || want
       `--dart-define=AGENTS_URL=http://${ip}:8100`,
       `--dart-define=AUTH_EMULATOR_HOST=${ip}`,
       "--dart-define=USE_FIREBASE_EMULATORS=true",
+      "--dart-define=FIND_TEST_SERVER=true",
+      `--dart-define=TEST_SERVER_HOSTS=${hosts.join("+")}`,
       ...(arm64 ? ["--target-platform", "android-arm64"] : []),
     ],
     // Plain http to this computer is allowed only in these test builds (see android/app/build.gradle.kts).
@@ -70,7 +88,7 @@ ${ready.map((a) => `<a class="app" href="${a.file}" download>${a.icon ? `<img sr
 <ol><li>Tap an app to download it, then open the download.</li>
 <li>If Android asks, allow your browser to <b>install unknown apps</b>, then tap <b>Install</b>.</li>
 <li>Keep this phone on the same Wi-Fi as the computer running Gud Meal.</li></ol>
-<p class="note">Test builds made ${built} for the server at ${ip}${arm64 ? " (64-bit Android phones)" : ""}. They use test accounts and a payment sandbox: no real money moves.</p>
+<p class="note">Test builds made ${built}${arm64 ? " for 64-bit Android phones" : ""}. They find the computer running Gud Meal on your Wi-Fi by themselves (it was at ${ip} when this page was made). They use test accounts and a payment sandbox: no real money moves.</p>
 </main></body></html>`);
 console.log(`\nReady: ${ready.map((a) => a.file).join(", ") || "no APKs yet"} in mobile/dist.`);
 console.log(`Serve them with: node scripts/dev.mjs downloads --lan   ->   http://${ip}:8090`);

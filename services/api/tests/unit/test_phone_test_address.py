@@ -1,0 +1,109 @@
+"""Phone tests: the payment sandbox page opens at the address this computer has on its Wi-Fi right now."""
+
+from __future__ import annotations
+
+import socket
+
+import httpx
+import pytest
+
+from gudmeal_api import container as container_mod
+from gudmeal_api import lan
+from gudmeal_api.config import Settings
+from gudmeal_api.payments.sandbox import LocalSandboxProvider
+
+
+class _FakeSocket:
+    """Stands in for the UDP socket: `connect` sends nothing, `getsockname` tells which address would be used."""
+
+    def __init__(self, address: str | None) -> None:
+        self._address = address
+        self.closed = False
+
+    def connect(self, _target: tuple[str, int]) -> None:
+        if self._address is None:
+            raise OSError("Network is unreachable")
+
+    def getsockname(self) -> tuple[str, int]:
+        return (self._address or "", 50000)
+
+    def close(self) -> None:
+        self.closed = True
+
+
+def _network(monkeypatch: pytest.MonkeyPatch, address: str | None) -> _FakeSocket:
+    fake = _FakeSocket(address)
+    monkeypatch.delenv("LAN_IP", raising=False)
+    monkeypatch.setattr(socket, "socket", lambda *_a, **_k: fake)
+    return fake
+
+
+async def _checkout_url(provider: LocalSandboxProvider, reference: str = "ref-1") -> str:
+    result = await provider.initialize(
+        reference=reference,
+        amount_kobo=150_000,
+        email="customer@gudmeal.test",
+        currency="NGN",
+        callback_url="http://web.test/checkout/callback",
+        metadata={},
+    )
+    return result.authorization_url
+
+
+class TestCurrentLanAddress:
+    def test_the_address_of_the_network_this_computer_is_on(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        fake = _network(monkeypatch, "192.168.100.8")
+        assert lan.current_lan_address() == "192.168.100.8"
+        assert fake.closed
+
+    def test_no_network_gives_nothing(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        fake = _network(monkeypatch, None)
+        assert lan.current_lan_address() is None
+        assert fake.closed
+
+    @pytest.mark.parametrize("address", ["127.0.0.1", "0.0.0.0"])  # noqa: S104 (an address to refuse, not to bind)
+    def test_an_address_no_phone_can_reach_gives_nothing(
+        self, monkeypatch: pytest.MonkeyPatch, address: str
+    ) -> None:
+        _network(monkeypatch, address)
+        assert lan.current_lan_address() is None
+
+    def test_lan_ip_overrides_the_guess(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        _network(monkeypatch, "192.168.100.8")
+        monkeypatch.setenv("LAN_IP", " 10.0.0.7 ")
+        assert lan.current_lan_address() == "10.0.0.7"
+
+
+class TestSandboxPageAddress:
+    async def test_a_fixed_address_stays_fixed(self) -> None:
+        provider = LocalSandboxProvider(public_base_url="http://localhost:8000/", signing_secret="s")
+        assert await _checkout_url(provider) == "http://localhost:8000/v1/dev/sandbox-checkout/ref-1"
+
+    async def test_the_link_follows_the_computer_to_another_wifi(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        where = {"address": "192.168.100.8"}
+        monkeypatch.setattr(container_mod, "current_lan_address", lambda: where["address"])
+        settings = Settings(
+            environment="test", public_base_url="http://192.168.100.8:8000", sandbox_follows_lan_address=True
+        )
+        async with httpx.AsyncClient() as http:
+            _providers, sandbox = container_mod._payment_providers(settings, http)
+        assert sandbox is not None
+        assert await _checkout_url(sandbox, "a") == "http://192.168.100.8:8000/v1/dev/sandbox-checkout/a"
+
+        where["address"] = "10.221.34.228"  # the computer joined another Wi-Fi; the server was not restarted
+        assert await _checkout_url(sandbox, "b") == "http://10.221.34.228:8000/v1/dev/sandbox-checkout/b"
+
+        where["address"] = None  # type: ignore[assignment]  # offline: fall back to the address it was started with
+        assert await _checkout_url(sandbox, "c") == "http://192.168.100.8:8000/v1/dev/sandbox-checkout/c"
+
+    async def test_without_the_switch_the_configured_address_is_used(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(container_mod, "current_lan_address", lambda: "10.221.34.228")
+        settings = Settings(environment="test", public_base_url="http://localhost:8000")
+        async with httpx.AsyncClient() as http:
+            _providers, sandbox = container_mod._payment_providers(settings, http)
+        assert sandbox is not None
+        assert await _checkout_url(sandbox) == "http://localhost:8000/v1/dev/sandbox-checkout/ref-1"

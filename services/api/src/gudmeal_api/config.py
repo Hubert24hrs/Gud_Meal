@@ -114,6 +114,10 @@ class Settings(BaseSettings):
     demo_shop_autopilot: bool = (
         False  # demo shops accept and pack orders by themselves (nobody at the dashboard)
     )
+    # Phone tests: the payment sandbox page opens at the address this computer has on its Wi-Fi right now,
+    # not at PUBLIC_BASE_URL (the address changes when the computer joins another Wi-Fi). The sandbox exists
+    # only when ENVIRONMENT is local or test, so the switch does nothing anywhere else.
+    sandbox_follows_lan_address: bool = False
     delivery_code_max_attempts: int = 5
     code_pepper: SecretStr = SecretStr("local-dev-pepper-change-me")
 

@@ -50,6 +50,8 @@ const targets = {
       DATA_BACKEND: "memory", SEED_DEMO_DATA: "true", DATABASE_URL: "sqlite+aiosqlite:///./gudmeal_local_v3.db",
       // With --lan the payment sandbox page is opened by the phone, so its links use the Wi-Fi address.
       PUBLIC_BASE_URL: `http://${ip ?? "localhost"}:8000`, PAYMENT_CALLBACK_URL: "http://localhost:3000/checkout/callback",
+      // ...and they follow this computer when it joins another Wi-Fi and gets a new address.
+      SANDBOX_FOLLOWS_LAN_ADDRESS: lan ? "true" : "false",
       INTERNAL_SHARED_SECRET: "local-dev-only", CHECK_TOKEN_REVOCATION: "false", CORS_ORIGINS: corsOrigins,
       // Testing at any hour, anywhere in the city: shops stay open, riders up to 40 km away get offers, and a
       // missed offer comes back within about a minute.

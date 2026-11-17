@@ -145,6 +145,8 @@ class GudMealApp extends ConsumerWidget {
       darkTheme: buildGudMealTheme(Brightness.dark),
       themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
+      // Phone test builds only: says so when the test server stops answering, and finds it again.
+      builder: (context, child) => TestServerWatch.wrap(ref.watch(configProvider), child),
     );
   }
 }

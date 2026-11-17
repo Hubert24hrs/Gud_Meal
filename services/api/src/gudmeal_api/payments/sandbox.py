@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
@@ -33,8 +33,12 @@ class _SandboxCharge:
 class LocalSandboxProvider:
     name = "local_sandbox"
 
-    def __init__(self, *, public_base_url: str, signing_secret: str) -> None:
-        self._base = public_base_url.rstrip("/")
+    def __init__(self, *, public_base_url: str | Callable[[], str], signing_secret: str) -> None:
+        # A function is asked again for every checkout: in a phone test this computer's address changes with
+        # the Wi-Fi it joins, and the page must open at the address the computer has now.
+        self._base_url: Callable[[], str] = (
+            public_base_url if callable(public_base_url) else lambda: public_base_url
+        )
         self._secret = signing_secret
         self.charges: dict[str, _SandboxCharge] = {}
         self.refunds: list[dict[str, Any]] = []
@@ -53,7 +57,8 @@ class LocalSandboxProvider:
     ) -> InitializeResult:
         self.charges[reference] = _SandboxCharge(reference, amount_kobo, currency, callback_url)
         return InitializeResult(
-            reference=reference, authorization_url=f"{self._base}/v1/dev/sandbox-checkout/{reference}"
+            reference=reference,
+            authorization_url=f"{self._base_url().rstrip('/')}/v1/dev/sandbox-checkout/{reference}",
         )
 
     def complete(self, reference: str, *, success: bool) -> tuple[bytes, str, str]:

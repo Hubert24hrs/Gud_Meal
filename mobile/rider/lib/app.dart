@@ -55,5 +55,7 @@ class RiderApp extends ConsumerWidget {
         theme: buildGudMealTheme(Brightness.light),
         darkTheme: buildGudMealTheme(Brightness.dark),
         routerConfig: ref.watch(routerProvider),
+        // Phone test builds only: says so when the test server stops answering, and finds it again.
+        builder: (context, child) => TestServerWatch.wrap(ref.watch(configProvider), child),
       );
 }

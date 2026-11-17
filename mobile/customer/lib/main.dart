@@ -12,7 +12,10 @@ import 'ui/gm_map.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final config = AppConfig.fromEnvironment();
+  var config = AppConfig.fromEnvironment();
+  // A phone test build first finds the computer that runs the test server: its address changes with the Wi-Fi it
+  // joins, and the sign-in emulator below can be given an address only once.
+  if (config.findTestServer) config = await locateTestServer(config, appName: 'Gud Meal');
   await Firebase.initializeApp(
     options: FirebaseOptions(
       apiKey: config.firebaseApiKey,

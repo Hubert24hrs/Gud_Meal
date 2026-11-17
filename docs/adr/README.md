@@ -21,3 +21,4 @@
 | [0017](0017-gudy-on-whatsapp.md) | Gudy on WhatsApp: number linking, customer-only channel tokens, signed webhooks | Accepted (Meta account pending) |
 | [0018](0018-groceries-pharmacy-market.md) | Groceries, Pharmacy and Market Shopping: three more shop services, products by the aisle, over-the-counter only | Accepted (defaults and legal review pending) |
 | [0019](0019-receipt-printer.md) | Receipts: the receipt printer after payment, receipts kept under the customer's profile | Accepted |
+| [0020](0020-test-apps-find-the-test-server.md) | Phone test apps find the test server on the Wi-Fi by themselves; the payment sandbox page follows the computer's address | Accepted (not yet run on a phone) |

@@ -10,5 +10,7 @@ export 'src/format.dart';
 export 'src/models.dart';
 export 'src/places.dart';
 export 'src/services.dart';
+export 'src/test_server.dart';
+export 'src/test_server_ui.dart';
 export 'src/theme/gm_tokens.dart';
 export 'src/theme/theme.dart';
