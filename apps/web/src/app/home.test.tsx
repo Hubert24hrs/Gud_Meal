@@ -43,7 +43,7 @@ describe("website home", () => {
     expect(screen.getByText("Ivie & Oak Wellness")).toBeTruthy();
     expect(screen.getByText("Promo")).toBeTruthy(); // the deal is a tag on the shop's tile
     for (const gone of ["Ask Gudy", "Send a package", "Gudy plans to your budget", "Transparent, safe payments",
-      "Live tracking to your door", "Sell on Gud Meal. Ride with Gud Meal.", "Groceries", "Pharmacy", "Market Shopping"]) {
+      "Live tracking to your door", "Sell on GudMeals. Ride with GudMeals.", "Groceries", "Pharmacy", "Market Shopping"]) {
       expect(screen.queryByText(gone), gone).toBeNull();
     }
   });

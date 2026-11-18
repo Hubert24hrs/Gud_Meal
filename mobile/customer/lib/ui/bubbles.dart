@@ -73,7 +73,7 @@ class _ServiceBubbleFieldState extends State<ServiceBubbleField> with SingleTick
     if (size == _size && _bodies.isNotEmpty) return;
     _size = size;
     final layout = widget.layout ?? _defaultLayout;
-    // Three services: big bubbles that fill the orange header, as on Glovo's home screen.
+    // Three services: big bubbles that fill the red header, as on Glovo's home screen.
     final base = math.min(size.width * .19, 82.0);
     if (_bodies.isEmpty) {
       for (var i = 0; i < widget.bubbles.length; i++) {
@@ -247,7 +247,7 @@ class _BubbleFace extends StatelessWidget {
   final CustomPainter art;
   final bool lifted;
 
-  static const _labelStyle = TextStyle(color: Color(0xFF202521), fontWeight: FontWeight.w700, fontSize: 13, height: 1.15);
+  static const _labelStyle = TextStyle(color: Color(0xFF2A0D06), fontWeight: FontWeight.w700, fontSize: 13, height: 1.15);
   static const _labelPadding = 26.0; // 12 on each side, and the border
 
   /// The width a label needs: one line when it fits under the bubble, otherwise the narrowest width that keeps
@@ -306,7 +306,7 @@ class _BubbleFace extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF3D9C9)),
+            border: Border.all(color: const Color(0xFFF1DCD3)),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .08), blurRadius: 6, offset: const Offset(0, 2))],
           ),
           child: Text(label, maxLines: 2, textAlign: TextAlign.center, style: style),

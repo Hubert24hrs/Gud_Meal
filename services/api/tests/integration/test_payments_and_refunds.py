@@ -284,7 +284,7 @@ async def test_sandbox_sends_a_phone_on_the_wifi_back_to_the_app(flow, container
             r = await http.post(f"/v1/dev/sandbox-checkout/{ref}/complete?outcome=success")
         assert r.status_code == expect, (client_ip, r.status_code)
         if expect == 200:
-            assert "Payment approved" in r.text and "Return to the Gud Meal app" in r.text
+            assert "Payment approved" in r.text and "Return to the GudMeals app" in r.text
         else:
             assert r.headers["location"].startswith("http://localhost:3000/checkout/callback?reference=")
         assert (await flow.get(order["id"]))["payment"]["status"] == "paid"

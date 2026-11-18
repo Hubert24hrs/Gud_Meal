@@ -35,7 +35,7 @@ export default function OrdersBoard({ params }: { params: Promise<{ rid: string 
       } catch { /* audio blocked until user interaction */ }
     }
     seen.current = new Set(fresh);
-    document.title = fresh.length ? `(${fresh.length}) New orders · Gud Meal Partner` : "Orders · Gud Meal Partner";
+    document.title = fresh.length ? `(${fresh.length}) New orders · GudMeals Partner` : "Orders · GudMeals Partner";
   }, [orders.data]);
 
   if (orders.isLoading) return <div className="grid gap-4 lg:grid-cols-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-80" />)}</div>;

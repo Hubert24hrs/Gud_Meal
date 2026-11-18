@@ -1,4 +1,4 @@
-"""Growth features (phase 4, ADR-0016): Gud Meal Plus, Gud points and referrals, group orders.
+"""Growth features (phase 4, ADR-0016): GudMeals Plus, Gud points and referrals, group orders.
 
 Pure models and helpers, no I/O. Money stays in integer kobo; prices, savings and bill shares come only from
 `pricing.py`. Points are not money: they turn into platform-funded personal vouchers when redeemed.
@@ -21,7 +21,7 @@ GROUP_CODE_PATTERN = r"^[2-9A-HJ-NP-Z]{6}$"
 
 # ------------------------------------------------------------------------------------------- settings
 class PlusConfig(BaseModel):
-    """Gud Meal Plus membership. Product defaults, to be confirmed by the owner (ADR-0016)."""
+    """GudMeals Plus membership. Product defaults, to be confirmed by the owner (ADR-0016)."""
 
     enabled: bool = True
     price_kobo: int = Field(default=150_000, gt=0, le=10_000_000)  # ₦1,500 per period, VAT included

@@ -199,15 +199,31 @@ export function Dialog({ open, onClose, title, children, footer }: { open: boole
 }
 
 // ------------------------------------------------------------------------------------- Brand
-export function Logo({ className, withWordmark = true }: { className?: string; withWordmark?: boolean }) {
+/**
+ * The GudMeals logo: the emblem (a chef's hat on a cloche) beside the name, both cut from the brand logo
+ * (assets/brand/gudmeals-logo.webp; scripts/make-brand-assets.py writes them to each website's public/brand).
+ * The name's dark-brown "Gud" turns cream wherever it sits on something dark: on the page in dark mode
+ * (`surface="page"`), or on a panel drawn in the text colour, which is dark in light mode (`surface="inverse"`).
+ */
+export function Logo({ className, withWordmark = true, surface = "page" }: {
+  className?: string; withWordmark?: boolean; surface?: "page" | "inverse";
+}) {
+  const darkGud = "/brand/gudmeals-wordmark.png";
+  const creamGud = "/brand/gudmeals-wordmark-light.png";
+  const [normal, inDarkMode] = surface === "inverse" ? [creamGud, darkGud] : [darkGud, creamGud];
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <svg viewBox="0 0 32 32" className="size-8" aria-hidden="true">
-        <circle cx="16" cy="16" r="15" fill="var(--gm-primary)" />
-        <path d="M8.5 15.5h15a7.5 7.5 0 0 1-15 0Z" fill="var(--gm-on-primary)" />
-        <path d="M11 12.5c1.2-2 3-3 5-3s3.8 1 5 3" stroke="var(--gm-accent)" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-      </svg>
-      {withWordmark && <span className="font-display text-xl font-semibold tracking-tight">Gud Meal</span>}
+    <span className={cn("inline-flex shrink-0 items-center gap-1.5", className)}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- small static brand files, no image optimisation needed */}
+      <img src="/brand/gudmeals-emblem.png" alt="" width={69} height={36} className="h-9 w-auto" />
+      {withWordmark ? (
+        <picture>
+          <source srcSet={inDarkMode} media="(prefers-color-scheme: dark)" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={normal} alt="GudMeals" width={123} height={28} className="h-7 w-auto" />
+        </picture>
+      ) : (
+        <span className="sr-only">GudMeals</span>
+      )}
     </span>
   );
 }

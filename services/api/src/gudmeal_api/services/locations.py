@@ -6,7 +6,7 @@ Rules (they protect customers' prices and riders' routes, which both depend on t
 * when Google can place the street address, the pin must be within ``PIN_TOLERANCE_KM`` of it unless the
   partner confirms the pin (e.g. a back entrance) - the mismatch is returned with Google's suggested point;
 * partners can correct their pin by up to ``SELF_SERVICE_MOVE_KM``; larger moves and delivery-radius changes
-  need Gud Meal staff (``restaurants:manage``);
+  need GudMeals staff (``restaurants:manage``);
 * every change is written to the audit log.
 """
 
@@ -87,7 +87,7 @@ class RestaurantLocationService:
         moved = haversine_km(r.location, point)
         if moved > SELF_SERVICE_MOVE_KM and not staff:
             raise PermissionDenied(
-                "Moving more than 2 km needs Gud Meal to verify the new address. Please contact partner support.",
+                "Moving more than 2 km needs GudMeals to verify the new address. Please contact partner support.",
                 details={"moved_km": round(moved, 2)},
             )
         changes: dict[str, Any] = {
@@ -98,7 +98,7 @@ class RestaurantLocationService:
         }
         if data.delivery_radius_km is not None and data.delivery_radius_km != r.delivery_radius_km:
             if not staff:
-                raise PermissionDenied("Delivery coverage is set by Gud Meal operations")
+                raise PermissionDenied("Delivery coverage is set by GudMeals operations")
             changes["delivery_radius_km"] = data.delivery_radius_km
         await self.repos.restaurants.save(r.model_copy(update=changes))
         await self.audit.record(

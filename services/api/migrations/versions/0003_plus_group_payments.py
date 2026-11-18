@@ -1,4 +1,4 @@
-"""Gud Meal Plus and group-order share payments
+"""GudMeals Plus and group-order share payments
 
 Revision ID: 0003
 Revises: 0002

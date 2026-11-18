@@ -50,19 +50,19 @@ export function PlusView() {
         {data.member && m && (
           <Card className="space-y-2 p-5">
             <Toggle checked={m.auto_renew} disabled={renew.isPending} onChange={(on) => renew.mutate(on)}
-              label="Renew automatically from my Gud Meal wallet" />
+              label="Renew automatically from my GudMeals wallet" />
             {!m.auto_renew && <p className="text-sm text-muted">Auto-renew is off: your benefits stay until {m.paid_through_text}. Turn it back on any time.</p>}
             {renew.error && <p className="text-sm text-danger" role="alert">{errorText(renew.error)}</p>}
           </Card>
         )}
-        {!data.plan.enabled && <ErrorState message="Joining Gud Meal Plus is paused right now." />}
+        {!data.plan.enabled && <ErrorState message="Joining GudMeals Plus is paused right now." />}
         {canJoin && (
           <Card className="space-y-4 p-5">
-            <h2 className="text-lg font-extrabold">{data.member ? "Renew early" : "Join Gud Meal Plus"}</h2>
+            <h2 className="text-lg font-extrabold">{data.member ? "Renew early" : "Join GudMeals Plus"}</h2>
             <PaymentMethodPicker totalKobo={data.plan.price_kobo} value={method} onChange={setMethod} cash={{ offered: false }} />
             <label className="flex items-start gap-2 text-sm">
               <input type="checkbox" checked={autoRenew} onChange={(e) => setAutoRenew(e.target.checked)} className="mt-1 accent-[var(--gm-primary)]" />
-              <span>Renew automatically from my Gud Meal wallet every {data.plan.period_days} days. I can turn this off at any time.</span>
+              <span>Renew automatically from my GudMeals wallet every {data.plan.period_days} days. I can turn this off at any time.</span>
             </label>
             <Button size="lg" block loading={join.isPending} onClick={() => join.mutate()}>
               {data.member ? "Renew" : "Join"} for {formatNaira(data.plan.price_kobo)}{method === "wallet" ? " from wallet" : ""}

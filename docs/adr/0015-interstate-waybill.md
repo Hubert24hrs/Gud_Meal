@@ -7,7 +7,7 @@
 ## Context
 
 Package Delivery must also send packages **between cities** (Lagos ↔ Enugu ↔ other states) through partner
-logistics companies and hubs. Gud Meal has riders only inside its launch cities (Lagos, Enugu). The trip between
+logistics companies and hubs. GudMeals has riders only inside its launch cities (Lagos, Enugu). The trip between
 cities is done by a line-haul carrier (an inter-city bus or truck company) on fixed departures. There are no real
 carrier contracts or hub addresses yet, so the feature ships with an original **sample network** that is labelled
 “(sample)” everywhere. Waybills move money, so the platform rules still apply:
@@ -73,7 +73,7 @@ The network lives in `platform_configuration/logistics`:
 | Element | Fields |
 |---|---|
 | Cities | Door service yes/no |
-| Hubs | Gud Meal hubs and partner terminals; drop-off and collection flags; address and hours; `is_sample` |
+| Hubs | GudMeals hubs and partner terminals; drop-off and collection flags; address and hours; `is_sample` |
 | Carriers | Name and id |
 | Lanes | Carrier; transit days; departure weekdays; cut-off hour; base price by size; included kg; price per extra kg; carrier share |
 | Global | Booking fee; maximum weight by size |
@@ -93,10 +93,10 @@ Every lane departs Monday to Saturday with a 15:00 cut-off. The price includes 2
 
 Hubs:
 
-- **Gud Meal hubs:** Lagos (Ikeja, Lekki) and Enugu (Independence Layout). They take drop-offs and hand
+- **GudMeals hubs:** Lagos (Ikeja, Lekki) and Enugu (Independence Layout). They take drop-offs and hand
   packages over to recipients.
 - **Partner terminals:** Abuja (Utako) and Port Harcourt (GRA Phase 2). They offer collection only, because Gud
-  Meal has no riders there yet. Door pickup and delivery exist only where Gud Meal has riders.
+  Meal has no riders there yet. Door pickup and delivery exist only where GudMeals has riders.
 
 ### Pricing and dates (deterministic, `pricing.py` / `logistics.py`)
 

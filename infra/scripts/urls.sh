@@ -1,4 +1,4 @@
-# Public URLs of Gud Meal's Cloud Run services. Sourced (not run) by deploy.sh and the deploy workflow, with
+# Public URLs of GudMeals' Cloud Run services. Sourced (not run) by deploy.sh and the deploy workflow, with
 # PROJECT and REGION set.
 #
 # Cloud Run's deterministic URLs (https://SERVICE-PROJECT_NUMBER.REGION.run.app) are known before the first deploy,

@@ -54,7 +54,7 @@ const group: GroupOrder = {
   paid_kobo: 1_723_077, remaining_kobo: 676_923, pay_by: "2026-11-15T13:30:00Z", can_pay: false, can_cover_rest: false, cancel_reason: null,
 };
 
-describe("Gud Meal Plus, rewards and group orders", () => {
+describe("GudMeals Plus, rewards and group orders", () => {
   afterEach(cleanup);
 
   it("shows the Plus price and benefits, and the member's status", () => {

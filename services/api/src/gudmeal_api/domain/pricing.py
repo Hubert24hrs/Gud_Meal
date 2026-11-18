@@ -99,7 +99,7 @@ class PricingConfig(BaseModel):
     delivery: DeliveryFeeConfig = Field(default_factory=DeliveryFeeConfig)
     rider_pay: RiderPayConfig = Field(default_factory=RiderPayConfig)
     parcel: ParcelFeeConfig = Field(default_factory=ParcelFeeConfig)
-    plus: PlusConfig = Field(default_factory=PlusConfig)  # Gud Meal Plus plan and member benefits
+    plus: PlusConfig = Field(default_factory=PlusConfig)  # GudMeals Plus plan and member benefits
     avg_speed_kmh: Decimal = Decimal("18")
     dispatch_buffer_minutes: int = 8
     zones: list[ZoneConfig] = Field(default_factory=list)
@@ -314,7 +314,7 @@ def compute_price(
     delivery_discount = 0
     if voucher is not None:
         if voucher.target == "delivery_fee" and d_full > 0 and d_fee == 0:
-            raise VoucherInvalid("Delivery is already free with Gud Meal Plus")
+            raise VoucherInvalid("Delivery is already free with GudMeals Plus")
         discount = voucher_discount(
             voucher, subtotal_kobo=subtotal, delivery_fee_kobo=d_fee, restaurant_id=restaurant.id, now=now
         )
@@ -519,7 +519,7 @@ def compute_waybill_price(
 
 
 # ---------------------------------------------------------------------------------------------
-# Gud Meal Plus and group orders (ADR-0016)
+# GudMeals Plus and group orders (ADR-0016)
 # ---------------------------------------------------------------------------------------------
 
 

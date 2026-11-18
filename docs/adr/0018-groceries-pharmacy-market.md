@@ -9,7 +9,7 @@
 
 ## Context
 
-Gud Meal sold Food and Beauty & Skin care through one order pipeline (ADR-0012) and carried packages. The owner
+GudMeals sold Food and Beauty & Skin care through one order pipeline (ADR-0012) and carried packages. The owner
 asked for three more services and named a reference app. What that reference does, as far as public pages and
 its vendor help show:
 
@@ -86,7 +86,7 @@ only through `OrderService.transition`; every seeded business is invented.
 
 ### 5. Benefits and limits
 
-- Gud Meal Plus covers all five merchant services with the same ₦3,000 minimum basket.
+- GudMeals Plus covers all five merchant services with the same ₦3,000 minimum basket.
 - Group orders stay with restaurants and beauty shops.
 - The local demo shop autopilot accepts and packs orders at every kind of shop.
 

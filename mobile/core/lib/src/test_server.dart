@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-/// Asks one address a yes-or-no question (does the Gud Meal API answer there? does anything listen there?).
+/// Asks one address a yes-or-no question (does the GudMeals API answer there? does anything listen there?).
 typedef HostCheck = Future<bool> Function(String host);
 
-/// Looks for the computer that runs the Gud Meal test server, for phone test builds.
+/// Looks for the computer that runs the GudMeals test server, for phone test builds.
 ///
 /// A test build is made for the address the computer had on its Wi-Fi at that moment, and that address changes when
 /// the computer joins another Wi-Fi. So the app first tries the addresses it knows (the one that worked last time,
@@ -26,7 +26,7 @@ class TestServerFinder {
 
   final List<String> _builtIn;
 
-  /// The full check: the Gud Meal API answers on this host. Never throws.
+  /// The full check: the GudMeals API answers on this host. Never throws.
   final HostCheck isGudMeal;
 
   /// The quick check used on every address of a network: something listens on the API's port. Never throws.
@@ -51,7 +51,7 @@ class TestServerFinder {
     return <String>{if (last != null && last.isNotEmpty) last, ..._builtIn}.toList();
   }
 
-  /// The first known host where the Gud Meal API answers, or null. All are asked at once; the earlier one wins.
+  /// The first known host where the GudMeals API answers, or null. All are asked at once; the earlier one wins.
   Future<String?> findKnown() async {
     final hosts = await knownHosts();
     final answers = [for (final host in hosts) _ask(isGudMeal, host)];
@@ -92,7 +92,7 @@ class TestServerFinder {
   Future<String?> find({void Function(String network)? onNetwork}) async =>
       await findKnown() ?? await search(onNetwork: onNetwork);
 
-  /// An address the tester typed: accepted when the Gud Meal API answers there.
+  /// An address the tester typed: accepted when the GudMeals API answers there.
   Future<String?> tryTyped(String typed) async {
     final host = cleanHost(typed);
     if (host == null || !await _ask(isGudMeal, host)) return null;

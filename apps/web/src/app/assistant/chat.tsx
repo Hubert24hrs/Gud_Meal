@@ -197,8 +197,8 @@ function CardView({ card }: { card: ChatCard }) {
   if (card.type === "wallet") {
     const recent = (card.recent as { what: string; amount: string }[]) ?? [];
     return (
-      <Link href="/wallet" className="block rounded-md bg-gradient-to-b from-[#F7894F] to-primary p-3 text-white">
-        <p className="text-xs font-semibold">Gud Meal wallet</p>
+      <Link href="/wallet" className="block rounded-md bg-gradient-to-b from-[#F25C22] to-primary p-3 text-white">
+        <p className="text-xs font-semibold">GudMeals wallet</p>
         <p className="text-2xl font-black">{String(card.balance)}</p>
         {recent.slice(0, 3).map((t, i) => <p key={i} className="text-xs">{t.what}: {t.amount}</p>)}
         {card.cash_on_delivery_balance ? <p className="text-xs">Cash on delivery: {String(card.cash_on_delivery_balance)}</p> : null}
@@ -210,7 +210,7 @@ function CardView({ card }: { card: ChatCard }) {
     const benefits = (card.benefits as string[]) ?? [];
     return (
       <Link href="/plus" className="block rounded-md bg-gradient-to-br from-[#3A1A0C] to-primary p-3 text-white">
-        <p className="text-xs font-semibold">Gud Meal Plus · {String(card.price)}</p>
+        <p className="text-xs font-semibold">GudMeals Plus · {String(card.price)}</p>
         {card.member ? <p className="text-sm font-black">Member until {String(card.member_until)} · saved {String(card.saved)}</p>
           : benefits.map((b) => <p key={b} className="text-xs">✓ {b}</p>)}
         <p className="mt-1 text-xs font-bold underline">{card.member ? "Open Plus" : "Join Plus"}</p>
@@ -283,7 +283,7 @@ function CardView({ card }: { card: ChatCard }) {
   if (card.type === "order_totals") {
     const byService = (card.by_service as Record<string, { orders: number; spent: string }>) ?? {};
     return (
-      <div className="rounded-md bg-gradient-to-b from-[#F7894F] to-primary p-3 text-white">
+      <div className="rounded-md bg-gradient-to-b from-[#F25C22] to-primary p-3 text-white">
         <p className="text-2xl font-black">{String(card.total_spent)}</p>
         <p className="text-xs">{String(card.paid_orders)} paid order(s) · {String(card.spent_this_month)} this month</p>
         {Object.entries(byService).map(([k, v]) => <p key={k} className="text-xs">{k}: {v.spent} ({v.orders})</p>)}

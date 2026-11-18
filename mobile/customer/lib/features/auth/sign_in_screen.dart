@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../../providers.dart';
+import '../../ui/brand.dart';
 
 /// Accepts 0803…, 803… or +234803… and returns E.164 (+234…), or null if not a Nigerian mobile number.
 String? normaliseNigerianPhone(String input) {
@@ -96,6 +97,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         appBar: AppBar(title: const Text('Sign in'), bottom: const TabBar(tabs: [Tab(text: 'Phone'), Tab(text: 'Email')])),
         body: TabBarView(children: [
           ListView(padding: const EdgeInsets.all(20), children: [
+            const Center(child: GudMealsLogo()),
+            const SizedBox(height: 20),
             if (_verificationId == null) ...[
               TextField(
                 controller: _phone,
@@ -129,6 +132,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ],
           ]),
           ListView(padding: const EdgeInsets.all(20), children: [
+            const Center(child: GudMealsLogo()),
+            const SizedBox(height: 20),
             TextField(controller: _email, keyboardType: TextInputType.emailAddress, autofillHints: const [AutofillHints.email], decoration: const InputDecoration(labelText: 'Email')),
             const SizedBox(height: 12),
             TextField(controller: _password, obscureText: true, autofillHints: const [AutofillHints.password], decoration: const InputDecoration(labelText: 'Password')),
@@ -138,7 +143,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               child: const Text('Sign in'),
             ),
             TextButton(
-              onPressed: _busy ? null : () => _run(() => auth.signUpWithEmail('Gud Meal customer', _email.text.trim(), _password.text)),
+              onPressed: _busy ? null : () => _run(() => auth.signUpWithEmail('GudMeals customer', _email.text.trim(), _password.text)),
               child: const Text('Create an account'),
             ),
           ]),

@@ -40,7 +40,7 @@ class PlaceResult(BaseModel):
     location: GeoPoint
     area: str | None = None
     city: str | None = Field(
-        default=None, description="Gud Meal city id when the place is in a city we serve"
+        default=None, description="GudMeals city id when the place is in a city we serve"
     )
     precision: Precision
     source: PlaceSource
@@ -55,7 +55,7 @@ class RouteEstimate(BaseModel):
 
 
 def served_city(point: GeoPoint) -> str | None:
-    """The Gud Meal city a point belongs to (nearest centre within ``CITY_RADIUS_KM``), if any."""
+    """The GudMeals city a point belongs to (nearest centre within ``CITY_RADIUS_KM``), if any."""
     best: tuple[float, str] | None = None
     for city in CITIES.values():
         d = haversine_km(point, city.center)

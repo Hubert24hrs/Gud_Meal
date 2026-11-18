@@ -144,7 +144,7 @@ async def test_webhook_verification_signatures_and_deduplication(client, contain
     assert (await post(client, body)).json() == {"queued": 0}  # Meta re-delivered the same message
     await container.tasks.run_all(TASKS)
     replies = container.whatsapp.sender.outbox[ADA_PHONE]
-    assert len(replies) == 1 and "connect your Gud Meal account" in texts(replies)[0]
+    assert len(replies) == 1 and "connect your GudMeals account" in texts(replies)[0]
     assert "Profile → Connect WhatsApp" in texts(replies)[0]
 
     media = await say(client, container, ADA_PHONE, kind="image")
@@ -176,7 +176,7 @@ async def test_linking_by_code_and_disconnecting(client, container):
     assert "disconnected" in texts(stop)[0]
     assert (await client.get("/v1/me/whatsapp", headers=auth("customer"))).json()["linked"] is False
     after = await say(client, container, ADA_PHONE, text="jollof please")
-    assert "connect your Gud Meal account" in texts(after)[0]
+    assert "connect your GudMeals account" in texts(after)[0]
     audit = (await client.get("/v1/admin/audit?resource_type=customer", headers=auth("admin"))).json()
     assert [a["action"] for a in audit][:2] == ["whatsapp.unlinked", "whatsapp.linked"]
     assert all("2348011111111" not in json.dumps(a) for a in audit)  # numbers are masked in the audit log
@@ -188,7 +188,7 @@ async def test_linking_by_code_and_disconnecting(client, container):
         "number"
     ] == "+234 803 ••• 3333"
     old = await say(client, container, ADA_PHONE, text="hi")
-    assert "connect your Gud Meal account" in texts(old)[0]
+    assert "connect your GudMeals account" in texts(old)[0]
     r = await client.delete("/v1/me/whatsapp", headers=auth("customer"))
     assert r.status_code == 200 and r.json()["linked"] is False
 
@@ -199,12 +199,12 @@ async def test_conversations_use_customer_only_tokens_and_approvals(client, cont
     agents.results.append(
         {
             "reply": "Here are 2 plans under ₦10,000.",
-            "cards": [{"type": "navigate", "screen": "plus", "params": {}, "label": "Open Gud Meal Plus"}],
+            "cards": [{"type": "navigate", "screen": "plus", "params": {}, "label": "Open GudMeals Plus"}],
         }
     )
     replies = await say(client, container, ADA_PHONE, text="jollof for 2 under 10k")
     assert texts(replies) == [
-        "Here are 2 plans under ₦10,000.\n\nOpen Gud Meal Plus: http://localhost:3000/plus"
+        "Here are 2 plans under ₦10,000.\n\nOpen GudMeals Plus: http://localhost:3000/plus"
     ]
     kind, token, call = agents.calls[-1]
     assert kind == "chat" and call == {"message": "jollof for 2 under 10k", "thread_id": None}
@@ -375,7 +375,7 @@ async def test_cloud_api_sender_and_the_local_simulator(client, container):
     await container.tasks.run_all(TASKS)
     convo = (await client.get(f"/v1/dev/whatsapp/{ADA_PHONE}/messages")).json()
     assert convo[0] == {"direction": "in", "type": "text", "text": {"body": "hello"}}
-    assert "connect your Gud Meal account" in convo[1]["text"]["body"]
+    assert "connect your GudMeals account" in convo[1]["text"]["body"]
 
 
 async def test_shared_locations_become_the_delivery_address(client, container):

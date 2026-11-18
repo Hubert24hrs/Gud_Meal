@@ -56,7 +56,7 @@ export function createApi(opts: ClientOptions) {
     try {
       res = await doFetch(url, { method, headers, body: init.body === undefined ? undefined : JSON.stringify(init.body) });
     } catch {
-      throw new ApiError(0, "network_error", "We couldn't reach Gud Meal. Check your connection and try again.");
+      throw new ApiError(0, "network_error", "We couldn't reach GudMeals. Check your connection and try again.");
     }
     if (res.status === 204) return undefined as R;
     const text = await res.text();

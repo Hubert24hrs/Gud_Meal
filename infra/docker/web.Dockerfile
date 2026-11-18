@@ -1,4 +1,4 @@
-# Gud Meal websites for Cloud Run: the customer site (APP=web), the partner dashboard (APP=partner) and the
+# GudMeals websites for Cloud Run: the customer site (APP=web), the partner dashboard (APP=partner) and the
 # Command Centre (APP=admin). Build from the repository root, one image per app:
 #
 #   docker build -f infra/docker/web.Dockerfile --build-arg APP=web \

@@ -37,7 +37,7 @@ export function PlusSummary({ data, children }: { data: PlusOverview; children?:
     <div className="space-y-5">
       <div className="rounded-3xl bg-gradient-to-br from-[#3A1A0C] via-[#7A2E12] to-primary p-6 text-white shadow-card">
         <p className="flex items-center gap-2 text-sm font-semibold text-white/90">
-          <Crown className="size-4" aria-hidden="true" /> Gud Meal Plus
+          <Crown className="size-4" aria-hidden="true" /> GudMeals Plus
         </p>
         <p className="mt-1 text-4xl font-black tracking-tight">
           {formatNaira(plan.price_kobo)}<span className="text-lg font-bold"> / {plan.period_days} days</span>
@@ -73,11 +73,11 @@ export function RewardsSummary({ data, onRedeem, redeeming = false }: {
   const progress = Math.max(0, Math.min(100, ((redeem.step_points - redeem.points_to_next) / redeem.step_points) * 100));
   return (
     <div className="space-y-5">
-      <div className="rounded-3xl bg-gradient-to-br from-[#2B5D4A] to-[#1D754E] p-6 text-white shadow-card">
+      <div className="rounded-3xl bg-gradient-to-br from-[#6B2410] to-[#3A0D05] p-6 text-white shadow-card">
         <p className="flex items-center gap-2 text-sm font-semibold text-white/90"><Gift className="size-4" aria-hidden="true" /> Gud points</p>
         <p className="mt-1 text-5xl font-black tracking-tight" aria-live="polite">{data.points.toLocaleString()}</p>
         <p className="text-sm text-white/90">Worth {formatNaira(data.points_value_kobo)} · {data.earn.points_per_100_naira} point per ₦100 on completed orders
-          {data.earn.plus_multiplier > 1 && ` (${data.earn.plus_multiplier}× with Gud Meal Plus${data.earn.member ? ", that's you" : ""})`}</p>
+          {data.earn.plus_multiplier > 1 && ` (${data.earn.plus_multiplier}× with GudMeals Plus${data.earn.member ? ", that's you" : ""})`}</p>
         {steps === 0 && redeem.enabled && (
           <div className="mt-4">
             <div className="h-2 overflow-hidden rounded-full bg-white/25"><div className="h-full rounded-full bg-white" style={{ width: `${progress}%` }} /></div>

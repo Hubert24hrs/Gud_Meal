@@ -39,7 +39,7 @@
 - **App Check**: enforced on Firestore/Storage; the API verifies App Check tokens (`X-Firebase-AppCheck`)
   when `APP_CHECK_ENFORCED=true`. The websites send tokens from reCAPTCHA Enterprise once
   `APP_CHECK_SITE_KEY` is set; the mobile apps do not send them yet, which blocks production for them.
-  Gud Meal's own agents service proves itself instead with a Google-signed OIDC
+  GudMeals' own agents service proves itself instead with a Google-signed OIDC
   token (`X-Service-Authorization`, audience and service account checked; the shared internal secret locally),
   and still needs the user's own token on every call.
 - **Secrets**: Secret Manager only; `.env` files are git-ignored; the repo is public.
@@ -62,5 +62,5 @@
   location shared on WhatsApp is kept on the number's link and deleted when the customer disconnects.
 - WhatsApp: Meta processes the chat. The privacy notice must say so and explain how to disconnect (`STOP` or the
   app). Message ids used for de-duplication expire after 7 days.
-- Payment data: card data never touches Gud Meal systems (provider-hosted checkout) — PCI DSS scope stays SAQ-A.
+- Payment data: card data never touches GudMeals systems (provider-hosted checkout) — PCI DSS scope stays SAQ-A.
 - These are engineering notes, not legal advice; a Nigerian data-protection counsel review is a launch gate.

@@ -31,7 +31,7 @@ async def test_whatsapp_chat_runs_as_the_linked_customer_end_to_end(offline_stac
     token = channel_token("cust-1")  # minted by the API, verified by Gudy, accepted again by the API's tools
     r = await client.post(
         "/v1/chat",
-        json={"message": "How much have I spent on Gud Meal?", "channel": "whatsapp"},
+        json={"message": "How much have I spent on GudMeals?", "channel": "whatsapp"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 200, r.text

@@ -1,4 +1,4 @@
-"""Gud Meal Plus end to end: joining by wallet or card, member prices, renewals, cancelling, staff view."""
+"""GudMeals Plus end to end: joining by wallet or card, member prices, renewals, cancelling, staff view."""
 
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ async def test_join_from_the_wallet_and_get_member_prices(flow, client, containe
     assert (await client.get("/v1/wallet", headers=auth("customer"))).json()["balance_kobo"] == 50_000
     accounts = await ledger(client)
     assert accounts["revenue:plus"] == PRICE - VAT and accounts["liability:vat"] >= VAT
-    assert "Welcome to Gud Meal Plus" in await notes(container, "cust-1")
+    assert "Welcome to GudMeals Plus" in await notes(container, "cust-1")
 
     member = await flow.quote()
     b, n = member["breakdown"], normal["breakdown"]
@@ -83,7 +83,7 @@ async def test_join_from_the_wallet_and_get_member_prices(flow, client, containe
         "/v1/plus/subscribe", json={"provider": "wallet"}, headers={**auth("customer"), **idem()}
     )
     assert r.status_code == 422  # one paid period ahead at most
-    assert "already a Gud Meal Plus member" in r.json()["error"]["message"]
+    assert "already a GudMeals Plus member" in r.json()["error"]["message"]
 
     config = (await client.get("/v1/config/public")).json()["plus"]
     assert config["price_kobo"] == PRICE and config["free_delivery_min_subtotal_kobo"] == 300_000
@@ -102,7 +102,7 @@ async def test_join_by_card_and_renew_early(client, container):
 
     assert now["membership"]["can_renew"] is False
     r = await client.post("/v1/plus/subscribe", json={}, headers={**auth("customer"), **idem()})
-    assert r.status_code == 422 and "already a Gud Meal Plus member" in r.json()["error"]["message"]
+    assert r.status_code == 422 and "already a GudMeals Plus member" in r.json()["error"]["message"]
 
     # In the last week of a period, paying again extends from the current end date.
     five_days = datetime.now(UTC) + timedelta(days=5)
@@ -114,7 +114,7 @@ async def test_join_by_card_and_renew_early(client, container):
     assert later["membership"]["periods"] == 2
     assert datetime.fromisoformat(later["membership"]["paid_through"]) == five_days + timedelta(days=30)
     assert first_end > datetime.now(UTC) + timedelta(days=29)
-    assert "Gud Meal Plus renewed" in await notes(container, "cust-1")
+    assert "GudMeals Plus renewed" in await notes(container, "cust-1")
 
 
 async def test_wallet_auto_renewal_reminders_and_cancelling(client, container):
@@ -127,7 +127,7 @@ async def test_wallet_auto_renewal_reminders_and_cancelling(client, container):
     # Empty wallet: one reminder, however often the job runs.
     assert await container.membership.renew_due() == {"renewed": 0, "reminded": 1}
     assert await container.membership.renew_due() == {"renewed": 0, "reminded": 0}
-    assert (await notes(container, "cust-1")).count("Keep Gud Meal Plus") == 1
+    assert (await notes(container, "cust-1")).count("Keep GudMeals Plus") == 1
 
     await top_up(client, PRICE)
     assert (await client.post("/internal/jobs/renew-plus")).status_code == 403  # Cloud Scheduler only

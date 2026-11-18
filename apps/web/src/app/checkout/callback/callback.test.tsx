@@ -32,7 +32,7 @@ describe("payment return page", () => {
   it("sends app payments (no website session) back to the app instead of asking to sign in", () => {
     auth.user = null;
     show();
-    expect(screen.getByRole("heading", { name: "Return to the Gud Meal app" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Return to the GudMeals app" })).toBeTruthy();
     const signIn = screen.getByRole("link", { name: /Paid on the website\? Sign in/ });
     // Signing in on the website comes back here with the payment reference intact.
     expect(signIn.getAttribute("href")).toBe(
@@ -56,7 +56,7 @@ describe("payment return page", () => {
     auth.user = { uid: "cust-1" };
     verify.mockResolvedValue({ status: "succeeded", order_id: null, purpose: "plus" });
     show();
-    await waitFor(() => expect(screen.getByRole("heading", { name: "Welcome to Gud Meal Plus" })).toBeTruthy());
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Welcome to GudMeals Plus" })).toBeTruthy());
     expect(replace).not.toHaveBeenCalled();
     cleanup();
 

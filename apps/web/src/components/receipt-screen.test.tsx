@@ -50,9 +50,9 @@ afterEach(() => {
 });
 
 describe("receipt printer", () => {
-  it("is a Gud Meal printer that says what to do, in plain sight", () => {
+  it("is a GudMeals printer that says what to do, in plain sight", () => {
     render(<ReceiptPrinter receipt={receipt()} />);
-    expect(screen.getByText("Gud Meal")).toBeTruthy(); // the maker's mark; nothing is printed yet
+    expect(screen.getByText("GudMeals")).toBeTruthy(); // the maker's mark; nothing is printed yet
     expect(screen.queryByText("Total paid")).toBeNull();
     const hint = screen.getByText("Press the red PRINT button to print your receipt");
     expect(hint.className).toContain("font-bold");
@@ -89,16 +89,16 @@ describe("receipt printer", () => {
 
   it("prints a package receipt, refunds and Plus savings", async () => {
     render(<ReceiptPrinter receipt={receipt({
-      seller: "Gud Meal", seller_address: "Package Delivery", service_name: "Package Delivery", lines: [],
+      seller: "GudMeals", seller_address: "Package Delivery", service_name: "Package Delivery", lines: [],
       summary: ["From Lekki Phase 1 to Victoria Island", "Small package: documents"], charges: [{ label: "Delivery fee", amount_kobo: 150_000 }],
-      total_kobo: 150_000, paid_with: "Gud Meal wallet", payment_reference: null, refunded_kobo: 150_000, savings_kobo: 20_000,
+      total_kobo: 150_000, paid_with: "GudMeals wallet", payment_reference: null, refunded_kobo: 150_000, savings_kobo: 20_000,
     })} />);
     fireEvent.click(screen.getByRole("button", { name: "Print receipt" }));
     const paper = await screen.findByRole("button", { name: /Pull it/ });
     expect(within(paper).getByText("From Lekki Phase 1 to Victoria Island")).toBeTruthy();
-    expect(within(paper).getByText("Gud Meal wallet")).toBeTruthy();
+    expect(within(paper).getByText("GudMeals wallet")).toBeTruthy();
     expect(within(paper).getByText("Refunded")).toBeTruthy();
-    expect(within(paper).getByText("Saved with Gud Meal Plus")).toBeTruthy();
+    expect(within(paper).getByText("Saved with GudMeals Plus")).toBeTruthy();
     expect(within(paper).queryByText(/^Ref /)).toBeNull();
   });
 });

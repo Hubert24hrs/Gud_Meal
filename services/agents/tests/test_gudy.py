@@ -73,7 +73,7 @@ async def test_offline_gudy_greets_in_the_customers_language_and_lists_services(
 
 async def test_offline_gudy_totals_beauty_search_parcels_and_support(offline_stack):
     client, api = offline_stack["client"], offline_stack["api"]
-    none = await chat(client, "How much have I spent on Gud Meal?")
+    none = await chat(client, "How much have I spent on GudMeals?")
     assert "haven't placed any orders" in none["reply"]
 
     # Pay for one order, then the totals come straight from the API (net of refunds).
@@ -143,7 +143,7 @@ async def test_offline_gudy_vision_flow_ends_on_an_approval_screen(offline_stack
     local = datetime.now(UTC).astimezone(LAGOS)
     when = " and have it delivered before 11:59pm" if local.hour < 22 else ""
     body = await chat(
-        client, f"Gud Meal, I have ₦10,000. Find me the best meal for two people, order it{when}."
+        client, f"GudMeals, I have ₦10,000. Find me the best meal for two people, order it{when}."
     )
     assert body["status"] == "approval_required", body
     approval = body["approval"]
@@ -319,7 +319,7 @@ async def test_offline_gudy_quotes_waybill_routes_and_tracks_a_waybill(offline_s
     assert "Collect it at Partner terminal, Utako" in tracked["reply"]
     latest = await chat(client, "where is my waybill?")
     assert code in latest["reply"]
-    totals = await chat(client, "How much have I spent on Gud Meal?")
+    totals = await chat(client, "How much have I spent on GudMeals?")
     assert "Interstate waybill: 1 order(s)" in totals["reply"]
 
 
@@ -338,8 +338,8 @@ def test_offline_waybill_reply_drops_the_eta_once_delivered():
 
 async def test_offline_gudy_explains_plus_points_referrals_and_group_orders(offline_stack):
     client, api = offline_stack["client"], offline_stack["api"]
-    pitch = await chat(client, "Is Gud Meal Plus worth it? Am I a member?")
-    assert "Gud Meal Plus costs ₦1,500 every 30 days (VAT included):" in pitch["reply"]
+    pitch = await chat(client, "Is GudMeals Plus worth it? Am I a member?")
+    assert "GudMeals Plus costs ₦1,500 every 30 days (VAT included):" in pitch["reply"]
     assert "Free delivery on restaurant and shop orders of ₦3,000 or more" in pitch["reply"]
     assert next(c for c in pitch["cards"] if c["type"] == "plus")["member"] is False
 
@@ -356,7 +356,7 @@ async def test_offline_gudy_explains_plus_points_referrals_and_group_orders(offl
     )
     assert r.status_code == 201, r.text
     member = await chat(client, "my plus membership")
-    assert "You're a Gud Meal Plus member until" in member["reply"] and "is on" in member["reply"]
+    assert "You're a GudMeals Plus member until" in member["reply"] and "is on" in member["reply"]
 
     points = await chat(client, "How many points do I have?")
     assert "You have 0 Gud points (worth ₦0)" in points["reply"]

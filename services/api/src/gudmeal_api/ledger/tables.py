@@ -87,13 +87,13 @@ class LedgerEntry(Base):
     )
 
 
-# Providers that are not payment gateways: the customer's Gud Meal wallet and cash paid to the rider.
+# Providers that are not payment gateways: the customer's GudMeals wallet and cash paid to the rider.
 INTERNAL_PROVIDERS = ("wallet", "cash")
 
 
 class PaymentRecord(Base):
     """Money a customer pays: for an order (gateway, wallet or cash on delivery), a share of a group order,
-    a Gud Meal Plus membership, or to top up their wallet."""
+    a GudMeals Plus membership, or to top up their wallet."""
 
     __tablename__ = "payment_records"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
@@ -158,7 +158,7 @@ class RefundRecord(Base):
     decided_by: Mapped[str | None] = mapped_column(String(128))
     decision_note: Mapped[str | None] = mapped_column(Text)
     provider_refund_id: Mapped[str | None] = mapped_column(String(120))
-    # original = back to the card/bank/provider; wallet = instantly into the customer's Gud Meal wallet
+    # original = back to the card/bank/provider; wallet = instantly into the customer's GudMeals wallet
     destination: Mapped[str] = mapped_column(
         String(16), nullable=False, default="original", server_default="original"
     )

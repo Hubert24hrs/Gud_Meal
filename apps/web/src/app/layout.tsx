@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { Nunito, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/bottom-nav";
 import { Footer } from "@/components/footer";
@@ -8,22 +8,23 @@ import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const display = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", weight: ["500", "600", "700"] });
+// Headings: a heavy rounded face, like the lettering of the GudMeals logo.
+const display = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: "swap", weight: ["600", "700", "800", "900"] });
 const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 
 const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
-  title: { default: "Gud Meal: food, supplements & skin care and package delivery", template: "%s · Gud Meal" },
+  title: { default: "GudMeals: food, supplements & skin care and package delivery", template: "%s · GudMeals" },
   description:
     "Order food from the best restaurants, supplements and skin care from partner shops, and send packages across Lagos and Enugu. Ask Gudy, our AI assistant, in English, Pidgin, Igbo, Yoruba or Hausa.",
-  openGraph: { type: "website", siteName: "Gud Meal", locale: "en_NG" },
+  openGraph: { type: "website", siteName: "GudMeals", locale: "en_NG" },
   alternates: { canonical: "/" },
 };
 
 export const viewport: Viewport = {
-  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#FFF9F3" }, { media: "(prefers-color-scheme: dark)", color: "#121513" }],
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#FFFBF8" }, { media: "(prefers-color-scheme: dark)", color: "#121513" }],
   width: "device-width",
   initialScale: 1,
 };

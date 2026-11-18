@@ -69,7 +69,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF2B5D4A), Color(0xFF1D754E)]),
+                gradient: const LinearGradient(colors: [Color(0xFF6B2410), Color(0xFF3A0D05)]),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: DefaultTextStyle(

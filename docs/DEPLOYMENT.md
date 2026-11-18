@@ -84,7 +84,7 @@ bounds, the Cloud SQL connector, Secret Manager bindings and the five Cloud Run 
 
 Run the follow-up commands printed by the bootstrap script: Cloud Run invoker for `gudmeal-tasks`, the
 Pub/Sub push subscription to `/internal/events` (with dead-letter topic) and Cloud Scheduler jobs for
-`relay-outbox`, `reconcile-payments`, `sweep` and `renew-plus` (daily, Gud Meal Plus wallet renewals). Then set the Paystack webhook URL to
+`relay-outbox`, `reconcile-payments`, `sweep` and `renew-plus` (daily, GudMeals Plus wallet renewals). Then set the Paystack webhook URL to
 `https://<api-url>/v1/webhooks/paystack` and (optionally) restrict by Paystack's source IPs via
 `PAYSTACK_WEBHOOK_IP_ALLOWLIST`.
 

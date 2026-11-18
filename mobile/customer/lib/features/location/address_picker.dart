@@ -55,7 +55,7 @@ class PickedAddress {
   final String? placeId;
 }
 
-/// Opens the address picker. Search goes through the Gud Meal API (Google Places behind it when configured,
+/// Opens the address picker. Search goes through the GudMeals API (Google Places behind it when configured,
 /// the neighbourhood list otherwise), so no Google key is in the app for this.
 Future<PickedAddress?> pickDeliveryAddress(BuildContext context, {String title = 'Delivery address'}) =>
     // Root navigator: a focused full-screen step above the tab bar and the assistant button.
@@ -237,7 +237,7 @@ class _AddressPickerScreenState extends ConsumerState<AddressPickerScreen> {
         contentPadding: EdgeInsets.zero,
         leading: _locating ? const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2.5)) : Icon(Icons.my_location_rounded, color: theme.colorScheme.primary),
         title: const Text('Use my current location', style: TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: const Text('Asked once to find your address; Gud Meal does not track you'),
+        subtitle: const Text('Asked once to find your address; GudMeals does not track you'),
         onTap: _locating ? null : _useMyLocation,
       ),
       if (_error != null) Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text(_error!, style: TextStyle(color: theme.colorScheme.error))),
@@ -286,7 +286,7 @@ class _AddressPickerScreenState extends ConsumerState<AddressPickerScreen> {
         color: chosen.serviceable ? theme.colorScheme.secondaryContainer : theme.colorScheme.errorContainer,
         child: ListTile(
           leading: Icon(chosen.serviceable ? Icons.check_circle_rounded : Icons.block_rounded),
-          title: Text(chosen.serviceable ? 'Gud Meal delivers here' : 'Outside our delivery area for now',
+          title: Text(chosen.serviceable ? 'GudMeals delivers here' : 'Outside our delivery area for now',
               style: const TextStyle(fontWeight: FontWeight.w800)),
           subtitle: Text(place.formattedAddress),
         ),

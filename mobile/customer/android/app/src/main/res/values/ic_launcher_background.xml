@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Made by scripts/make-app-icons.ps1: the launcher icon's background, read from the brand logo. -->
+<!-- Made by scripts/make-brand-assets.py: the launcher icon's background, a colour of the logo. -->
 <resources>
-    <color name="ic_launcher_background">#FEF6E9</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>

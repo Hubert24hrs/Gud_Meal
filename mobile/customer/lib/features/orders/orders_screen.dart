@@ -173,7 +173,7 @@ class _OrderRow extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
       child: ListTile(
         onTap: () => context.push('/orders/${o.id}'),
-        leading: CircleAvatar(backgroundColor: Theme.of(context).colorScheme.primaryContainer, child: Icon(icon, color: brandOrange)),
+        leading: CircleAvatar(backgroundColor: Theme.of(context).colorScheme.primaryContainer, child: Icon(icon, color: brandRed)),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
         // Parcels show their progress in the chip; avoid saying it twice.
         subtitle: Text([

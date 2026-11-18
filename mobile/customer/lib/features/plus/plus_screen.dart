@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../providers.dart';
 import '../../ui/payment_picker.dart';
 
-/// Gud Meal Plus: price and benefits, the customer's membership, joining (card or wallet) and auto-renew.
+/// GudMeals Plus: price and benefits, the customer's membership, joining (card or wallet) and auto-renew.
 class PlusScreen extends ConsumerStatefulWidget {
   const PlusScreen({super.key});
 
@@ -58,10 +58,10 @@ class _PlusScreenState extends ConsumerState<PlusScreen> {
     final plus = ref.watch(plusProvider);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Gud Meal Plus')),
+      appBar: AppBar(title: const Text('GudMeals Plus')),
       body: plus.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e is ApiException ? e.message : 'Could not load Gud Meal Plus')),
+        error: (e, _) => Center(child: Text(e is ApiException ? e.message : 'Could not load GudMeals Plus')),
         data: (p) {
           final m = p.membership;
           final canJoin = p.plan.enabled && (!p.member || (m?.canRenew ?? false));
@@ -69,7 +69,7 @@ class _PlusScreenState extends ConsumerState<PlusScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF3A1A0C), Color(0xFF7A2E12), Color(0xFFE85D32)]),
+                gradient: const LinearGradient(colors: [Color(0xFF3A1A0C), Color(0xFF7A2E12), Color(0xFFE0040B)]),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: DefaultTextStyle(
@@ -78,7 +78,7 @@ class _PlusScreenState extends ConsumerState<PlusScreen> {
                   const Row(children: [
                     Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 18),
                     SizedBox(width: 6),
-                    Text('Gud Meal Plus', style: TextStyle(fontWeight: FontWeight.w700)),
+                    Text('GudMeals Plus', style: TextStyle(fontWeight: FontWeight.w700)),
                   ]),
                   const SizedBox(height: 4),
                   Text.rich(TextSpan(children: [
@@ -111,7 +111,7 @@ class _PlusScreenState extends ConsumerState<PlusScreen> {
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       value: m.autoRenew,
-                      title: const Text('Renew automatically from my Gud Meal wallet'),
+                      title: const Text('Renew automatically from my GudMeals wallet'),
                       subtitle: m.autoRenew ? null : Text('Your benefits stay until ${m.paidThroughText}.'),
                       onChanged: _setAutoRenew,
                     ),
@@ -123,7 +123,7 @@ class _PlusScreenState extends ConsumerState<PlusScreen> {
               const Padding(padding: EdgeInsets.only(top: 12), child: Text('Your membership ended. Join again to get your benefits back.')),
             if (canJoin) ...[
               const SizedBox(height: 20),
-              Text(p.member ? 'Renew early' : 'Join Gud Meal Plus', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+              Text(p.member ? 'Renew early' : 'Join GudMeals Plus', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: 8),
               PaymentMethodPicker(totalKobo: p.plan.priceKobo, value: _method, onChanged: (v) => setState(() => _method = v), offerCash: false),
               CheckboxListTile(
@@ -131,7 +131,7 @@ class _PlusScreenState extends ConsumerState<PlusScreen> {
                 controlAffinity: ListTileControlAffinity.leading,
                 value: _autoRenew,
                 onChanged: (v) => setState(() => _autoRenew = v ?? false),
-                title: Text('Renew automatically from my Gud Meal wallet every ${p.plan.periodDays} days. I can turn this off any time.'),
+                title: Text('Renew automatically from my GudMeals wallet every ${p.plan.periodDays} days. I can turn this off any time.'),
               ),
               FilledButton(
                 key: const ValueKey('plus-join'),

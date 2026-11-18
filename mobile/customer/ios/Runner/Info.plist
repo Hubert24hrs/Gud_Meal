@@ -3,19 +3,19 @@
 <plist version="1.0">
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Gud Meal uses your location once, when you ask, to find your delivery address.</string>
+	<string>GudMeals uses your location once, when you ask, to find your delivery address.</string>
 	<key>GMSApiKey</key>
 	<string>$(MAPS_API_KEY)</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Gud Meal uses the microphone so you can ask the assistant for food by voice.</string>
+	<string>GudMeals uses the microphone so you can ask the assistant for food by voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Gud Meal converts your voice requests to text for the assistant.</string>
+	<string>GudMeals converts your voice requests to text for the assistant.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Gud Meal Customer</string>
+	<string>GudMeals Customer</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

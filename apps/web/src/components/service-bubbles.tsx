@@ -33,7 +33,7 @@ const LAYOUT = [
 ];
 
 /**
- * Gud Meal's services as animated, draggable bubbles (home hero). Bubbles float, follow the pointer when
+ * GudMeals' services as animated, draggable bubbles (home hero). Bubbles float, follow the pointer when
  * dragged (pushing neighbours aside) and spring back when released; a click or Enter opens the service.
  * Floating is off when the user prefers reduced motion.
  */
@@ -196,7 +196,7 @@ export function ServiceBubbles({ bubbles, height = 340 }: { bubbles: BubbleSpec[
           <span className="absolute inset-[6%] grid place-items-center rounded-full bg-white p-[14%]">{bubble.art}</span>
           {/* A long name wraps to two even lines ("Supplements &" / "Skin Care") instead of running past the bubble;
               the link's aria-label keeps the plain name. */}
-          <span aria-hidden="true" className="absolute left-1/2 top-[80%] w-max max-w-[118%] -translate-x-1/2 text-balance rounded-2xl border border-[#F3D9C9] bg-white px-3 py-1 text-center text-[13px] font-bold leading-tight text-[#202521] shadow-sm">
+          <span aria-hidden="true" className="absolute left-1/2 top-[80%] w-max max-w-[118%] -translate-x-1/2 text-balance rounded-2xl border border-[#F1DCD3] bg-white px-3 py-1 text-center text-[13px] font-bold leading-tight text-[#2A0D06] shadow-sm">
             {bubble.label.replace(/ &/g, "\u00a0&")}
           </span>
         </a>

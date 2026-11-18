@@ -33,7 +33,7 @@ class ProfileScreen extends ConsumerWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: FilledButton.tonalIcon(
-                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1D754E), foregroundColor: Colors.white),
+                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFF3A0D05), foregroundColor: Colors.white),
                     onPressed: () => context.go('/support'),
                     icon: const Icon(Icons.help_outline_rounded, size: 18),
                     label: const Text('Help'),
@@ -44,12 +44,12 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     CircleAvatar(
                       radius: 34,
-                      backgroundColor: const Color(0xFFFDE7DE),
+                      backgroundColor: const Color(0xFFFDE7E6),
                       child: name == null
-                          ? const Icon(Icons.person_rounded, size: 36, color: Color(0xFFC9471F))
+                          ? const Icon(Icons.person_rounded, size: 36, color: Color(0xFFB3050B))
                           : Text(
                               name[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFFC9471F)),
+                              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFFB3050B)),
                             ),
                     ),
                     const SizedBox(width: 14),
@@ -58,7 +58,7 @@ class ProfileScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            name ?? 'Welcome to Gud Meal',
+                            name ?? 'Welcome to GudMeals',
                             style: theme.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
@@ -73,7 +73,7 @@ class ProfileScreen extends ConsumerWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: brandOrange),
+                      style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: brandRed),
                       onPressed: () => context.push('/sign-in?next=/profile'),
                       child: const Text('Sign in or create account'),
                     ),
@@ -109,7 +109,7 @@ class ProfileScreen extends ConsumerWidget {
                       _tile(
                         context,
                         Icons.account_balance_wallet_outlined,
-                        'Gud Meal wallet',
+                        'GudMeals wallet',
                         badge: ref.watch(walletProvider).asData?.value.balanceKobo == null ? null : formatNaira(ref.watch(walletProvider).asData!.value.balanceKobo),
                         onTap: () => context.push('/wallet'),
                       ),
@@ -118,7 +118,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (user != null) _tile(context, Icons.restaurant_menu_outlined, 'Food preferences', onTap: () => showFoodPreferences(context)),
                     _tile(context, Icons.local_offer_outlined, 'Promo codes', onTap: () => _promos(context, ref)),
                     _tile(context, Icons.credit_card_outlined, 'Payments', onTap: () => _payments(context)),
-                    _tile(context, Icons.workspace_premium_outlined, 'Gud Meal Plus', badge: 'Free delivery', onTap: () => context.push('/plus')),
+                    _tile(context, Icons.workspace_premium_outlined, 'GudMeals Plus', badge: 'Free delivery', onTap: () => context.push('/plus')),
                     _tile(context, Icons.card_giftcard_rounded, 'Gud points and invite friends', onTap: () => context.push('/rewards')),
                     _tile(context, Icons.groups_outlined, 'Group orders', onTap: () => context.push('/group')),
                     _tile(
@@ -130,7 +130,7 @@ class ProfileScreen extends ConsumerWidget {
                     _tile(context, Icons.settings_outlined, 'App settings', onTap: () => _settings(context, ref)),
                     _tile(context, Icons.local_shipping_outlined, 'Track a package', onTap: () => context.push('/track')),
                     _tile(context, Icons.storefront_outlined, 'Add your business', onTap: () => context.push('/partner-with-us')),
-                    _tile(context, Icons.pedal_bike_rounded, 'Ride with Gud Meal', onTap: () => context.push('/ride')),
+                    _tile(context, Icons.pedal_bike_rounded, 'Ride with GudMeals', onTap: () => context.push('/ride')),
                     _tile(context, Icons.quiz_outlined, 'FAQ, privacy and terms', onTap: () => context.push('/help')),
                     if (user != null) _tile(context, Icons.download_outlined, 'Download my data', onTap: () => showMyData(context, ref)),
                     if (user != null) _tile(context, Icons.logout_rounded, 'Sign out', danger: true, onTap: () => ref.read(authRepositoryProvider).signOut()),
@@ -160,10 +160,10 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(color: const Color(0xFFDDF0E6), borderRadius: BorderRadius.circular(6)),
+                  decoration: BoxDecoration(color: const Color(0xFFF4E8E3), borderRadius: BorderRadius.circular(6)),
                   child: Text(
                     badge,
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF1D754E)),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF3A0D05)),
                   ),
                 ),
               ],
@@ -208,12 +208,12 @@ class ProfileScreen extends ConsumerWidget {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.lock_outline_rounded),
               title: Text('Card, bank transfer or USSD'),
-              subtitle: Text('Paid on a secure payment page. Gud Meal never stores your card.'),
+              subtitle: Text('Paid on a secure payment page. GudMeals never stores your card.'),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.account_balance_wallet_outlined),
-              title: Text('Gud Meal wallet'),
+              title: Text('GudMeals wallet'),
               subtitle: Text('Top up once, pay in one tap, and get refunds instantly. Open it from your profile.'),
             ),
             ListTile(
@@ -533,7 +533,7 @@ class _FoodPreferencesState extends ConsumerState<_FoodPreferencesSheet> {
   }
 }
 
-/// "Download my data" (the website's account page): everything Gud Meal holds about the customer, to read and copy.
+/// "Download my data" (the website's account page): everything GudMeals holds about the customer, to read and copy.
 Future<void> showMyData(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
   try {
@@ -555,7 +555,7 @@ Future<void> showMyData(BuildContext context, WidgetRef ref) async {
             children: [
               const Text('Your data', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
-              Text('Everything Gud Meal holds about you: ${data.keys.join(', ')}.'),
+              Text('Everything GudMeals holds about you: ${data.keys.join(', ')}.'),
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: () async {

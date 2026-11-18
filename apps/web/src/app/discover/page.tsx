@@ -59,8 +59,8 @@ export default function DiscoverPage() {
       <div className="container-page">
         <label className="-mt-2 flex items-center gap-2 rounded-full bg-surface-muted px-4 py-3">
           <Search className="size-5 text-muted" aria-hidden="true" />
-          <span className="sr-only">Search Gud Meal</span>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search Gud Meal" className="w-full bg-transparent outline-none placeholder:text-muted" />
+          <span className="sr-only">Search GudMeals</span>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search GudMeals" className="w-full bg-transparent outline-none placeholder:text-muted" />
         </label>
 
         {query.length >= 2 ? (

@@ -12,7 +12,7 @@ from conftest import LEKKI_ADDRESS, TOKENS, bearer, last_tool_data, tool_call
 from gudmeal_agents.agents import RouteDecision
 from gudmeal_agents.graph import FALLBACK_REPLY
 
-VISION = "Gud Meal, I have ₦10,000. Find me the best meal for two people, order it, and have it delivered before 8pm."
+VISION = "GudMeals, I have ₦10,000. Find me the best meal for two people, order it, and have it delivered before 8pm."
 
 
 def dump_saver(saver) -> bytes:

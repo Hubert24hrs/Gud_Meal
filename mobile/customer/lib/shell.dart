@@ -53,7 +53,7 @@ class _ProfileIcon extends StatelessWidget {
     if (initial == null) return Icon(selected ? Icons.person_rounded : Icons.person_outline_rounded);
     return CircleAvatar(
       radius: 13,
-      backgroundColor: selected ? brandOrange : const Color(0xFFF7B48F),
+      backgroundColor: selected ? brandRed : const Color(0xFFF2A39C),
       child: Text(initial!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
     );
   }

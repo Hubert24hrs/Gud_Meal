@@ -1,4 +1,4 @@
-"""Gud Meal Command Centre endpoints (staff only; every mutation is audited by the service layer)."""
+"""GudMeals Command Centre endpoints (staff only; every mutation is audited by the service layer)."""
 
 from __future__ import annotations
 

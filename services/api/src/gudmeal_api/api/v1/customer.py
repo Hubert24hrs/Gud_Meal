@@ -43,7 +43,7 @@ def parcel_quote_view(quote: ParcelQuote) -> dict[str, Any]:
 
 
 class CheckoutInput(BaseModel):
-    # None = card/transfer/USSD through the default gateway (with failover); "wallet" pays from the Gud Meal
+    # None = card/transfer/USSD through the default gateway (with failover); "wallet" pays from the GudMeals
     # wallet; "cash" = pay on delivery (eligibility is checked by the server).
     provider: Literal["paystack", "flutterwave", "local_sandbox", "wallet", "cash"] | None = None
 

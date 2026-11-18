@@ -147,7 +147,7 @@ def create_app(
         app.state.ai_mode = "offline" if isinstance(model_factory, OfflineModels) else "llm"
 
     app = FastAPI(
-        title="Gud Meal Agents",
+        title="GudMeals Agents",
         version="0.1.0",
         lifespan=lifespan,
         docs_url=None if settings.environment == "production" else "/docs",

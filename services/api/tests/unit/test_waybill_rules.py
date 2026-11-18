@@ -134,8 +134,8 @@ def _details(stage: WaybillStage | None = None) -> WaybillDetails:
         destination_city_name="Enugu",
         origin_hub_id="lagos-lekki",
         destination_hub_id="enugu-independence",
-        origin_hub_name="Gud Meal Hub, Lekki (sample)",
-        destination_hub_name="Gud Meal Hub, Independence Layout (sample)",
+        origin_hub_name="GudMeals Hub, Lekki (sample)",
+        destination_hub_name="GudMeals Hub, Independence Layout (sample)",
         first_mile="dropoff",
         last_mile="collect",
         sender=party,
@@ -247,6 +247,6 @@ def test_stage_labels_and_steps():
     assert stage_label(_details(WaybillStage.DEPARTED)) == "On the way to Enugu"
     assert stage_step(_details(WaybillStage.DEPARTED)) == 2
     assert stage_label(_details(WaybillStage.READY_FOR_COLLECTION)).startswith(
-        "Ready for collection at Gud Meal Hub"
+        "Ready for collection at GudMeals Hub"
     )
     assert stage_step(_details(WaybillStage.DELIVERED)) == 4

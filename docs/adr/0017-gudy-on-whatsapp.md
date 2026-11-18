@@ -73,7 +73,7 @@ For a linked number, the API mints a **channel token**:
     the pending tool call, and typing "yes" or "no" also answers. The approval summary, including the exact total,
     comes from the server's preview, never from the model.
   - **Payment links** become a "Pay now" button that opens the provider's hosted checkout. Card details never pass
-    through WhatsApp or Gud Meal.
+    through WhatsApp or GudMeals.
   - **Screen buttons** (Plus, Rewards, an order, tracking) become links to the website.
 - **Locations.** A location shared in the chat (📎 → Location) is kept on the link and sent to Gudy as the
   `delivery_address`, so plans, quotes and drafts use it instead of the first saved address. It is matched to
@@ -84,7 +84,7 @@ For a linked number, the API mints a **channel token**:
   server's preview and is kept out of the order summaries the model reads.
 - **Order channel.** Orders and support tickets Gudy creates in a WhatsApp chat are saved with channel
   `whatsapp` (from the app and website they stay `ai_agent`), so WhatsApp orders can be counted.
-- **Timing.** Gud Meal only replies to messages, inside WhatsApp's 24-hour customer-service window. Proactive
+- **Timing.** GudMeals only replies to messages, inside WhatsApp's 24-hour customer-service window. Proactive
   updates (order status, Plus reminders) need Meta-approved templates and are left for later.
 
 ### 5. Sending

@@ -123,7 +123,7 @@ while it runs, anyone on that Wi-Fi can reach the test servers.
 
 Test builds talk plain http to this computer and use the Auth emulator and the payment sandbox, so never publish
 them. After **Approve** on the sandbox payment page, the page says
-"Return to the Gud Meal app": go back to the app, which confirms the payment. An order whose payment page was
+"Return to the GudMeals app": go back to the app, which confirms the payment. An order whose payment page was
 closed shows **Finish paying** on its order screen.
 
 **When the computer changes Wi-Fi** its address changes, and the test apps find it again by themselves

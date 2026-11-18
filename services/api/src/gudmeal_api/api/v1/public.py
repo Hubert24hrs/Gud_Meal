@@ -110,7 +110,7 @@ async def cuisines(c: Ctr, vertical: MerchantVertical | None = None) -> list[dic
 
 @router.get("/services")
 async def services(c: Ctr, city: Annotated[str | None, Query(max_length=30)] = None) -> list[dict[str, Any]]:
-    """Gud Meal's services (Food, Supplements & Skin Care, Package Delivery) and their availability."""
+    """GudMeals' services (Food, Supplements & Skin Care, Package Delivery) and their availability."""
     return await c.catalog.services(city=city)
 
 

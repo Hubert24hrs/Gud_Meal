@@ -190,7 +190,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
                         constraints: const BoxConstraints(maxWidth: 320),
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(color: brandOrange, borderRadius: BorderRadius.circular(18).copyWith(bottomRight: const Radius.circular(4))),
+                        decoration: BoxDecoration(color: brandRed, borderRadius: BorderRadius.circular(18).copyWith(bottomRight: const Radius.circular(4))),
                         child: Text(t.text, style: const TextStyle(color: Colors.white)),
                       ),
                     )
@@ -228,7 +228,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
               const SizedBox(width: 6),
               IconButton.filled(
                 tooltip: 'Send',
-                style: IconButton.styleFrom(backgroundColor: RobotPainter.blue),
+                style: IconButton.styleFrom(backgroundColor: RobotPainter.body),
                 onPressed: _busy ? null : () => _send(_input.text),
                 icon: const Icon(Icons.send_rounded),
               ),
@@ -315,7 +315,7 @@ class _CardView extends StatelessWidget {
             child: DefaultTextStyle(
               style: const TextStyle(color: Colors.white),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('Gud Meal wallet', style: TextStyle(fontWeight: FontWeight.w600)),
+                const Text('GudMeals wallet', style: TextStyle(fontWeight: FontWeight.w600)),
                 Text('${card['balance']}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
                 for (final t in recent.take(3)) Text('${t['what']}: ${t['amount']}'),
                 if (card['cash_on_delivery_balance'] != null) Text('Cash on delivery: ${card['cash_on_delivery_balance']}'),
@@ -356,7 +356,7 @@ class _CardView extends StatelessWidget {
           margin: const EdgeInsets.only(top: 8),
           child: ListTile(
             leading: const Icon(Icons.workspace_premium_rounded),
-            title: Text(card['member'] == true ? 'Plus member until ${card['member_until']}' : 'Gud Meal Plus · ${card['price']}',
+            title: Text(card['member'] == true ? 'Plus member until ${card['member_until']}' : 'GudMeals Plus · ${card['price']}',
                 style: const TextStyle(fontWeight: FontWeight.w800)),
             subtitle: Text(card['member'] == true ? 'Saved ${card['saved']} so far' : benefits.join('\n')),
             onTap: () => onOpen('/plus'),
@@ -404,7 +404,7 @@ class _CardView extends StatelessWidget {
               ListTile(
                 dense: true,
                 leading: Icon(m['available'] == true ? Icons.check_circle_rounded : Icons.block_rounded,
-                    color: m['available'] == true ? const Color(0xFF1D754E) : null),
+                    color: m['available'] == true ? const Color(0xFF2E8B1E) : null),
                 title: Text('${m['method']}'),
                 subtitle: m['why_not'] == null ? null : Text('${m['why_not']}'),
               ),
@@ -461,7 +461,7 @@ class _CardView extends StatelessWidget {
           for (final r in items.take(5))
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(r['service'] == null || r['service'] == 'food' ? Icons.storefront_rounded : serviceCopy('${r['service']}').icon, color: brandOrange),
+              leading: Icon(r['service'] == null || r['service'] == 'food' ? Icons.storefront_rounded : serviceCopy('${r['service']}').icon, color: brandRed),
               title: Text('${r['name']}'),
               subtitle: Text([if (r['eta_minutes'] != null) '${r['eta_minutes']} min', if (r['delivery_fee'] != null) '${r['delivery_fee']} delivery'].join(' · ')),
               onTap: () => onOpen('/restaurants/${r['restaurant_id']}'),
@@ -517,7 +517,7 @@ class _ApprovalView extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(border: Border.all(color: brandOrange, width: 2), borderRadius: BorderRadius.circular(GmRadius.md)),
+      decoration: BoxDecoration(border: Border.all(color: brandRed, width: 2), borderRadius: BorderRadius.circular(GmRadius.md)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('${preview['title'] ?? 'Approve this action?'}', style: const TextStyle(fontWeight: FontWeight.w800)),
         if (order != null) ...[

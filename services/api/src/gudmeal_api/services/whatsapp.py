@@ -259,9 +259,9 @@ class WhatsAppService:
             name = _first(payload.get("name"))
             return await self._say(
                 wa_id,
-                f"Hi{' ' + name if name else ''}! I'm Gudy from Gud Meal. To order food, supplements, skin care or send "
-                f"packages here, connect your Gud Meal account: in the app open Profile → Connect WhatsApp (or "
-                f"{self.web_url}/account), then send me the code it shows.\nNew to Gud Meal? Sign up at "
+                f"Hi{' ' + name if name else ''}! I'm Gudy from GudMeals. To order food, supplements, skin care or send "
+                f"packages here, connect your GudMeals account: in the app open Profile → Connect WhatsApp (or "
+                f"{self.web_url}/account), then send me the code it shows.\nNew to GudMeals? Sign up at "
                 f"{self.web_url}.\n{self._support_line()}",
             )
         if payload.get("kind") == "location":
@@ -277,7 +277,7 @@ class WhatsAppService:
             f"I'm Gudy{', ' + _first(name) if name else ''}. Ask me in English, Pidgin, Igbo, Yoruba or Hausa:\n"
             "• food, supplements or skin care, e.g. 'jollof rice for 2 under ₦10,000'\n"
             "• 'send a package to Yaba' or 'send to Abuja'\n"
-            "• 'where is my order', 'my points', 'Gud Meal Plus'\n"
+            "• 'where is my order', 'my points', 'GudMeals Plus'\n"
             "Share your location (📎 → Location) and I'll find stores that deliver to you; otherwise I use the "
             "first address saved in your app.\n"
             "You approve every order with a Yes button and pay on the secure payment page.\n"
@@ -382,7 +382,7 @@ class WhatsAppService:
             self.rate_limiter.check(f"whatsapp_link:{wa_id}", capacity=5, refill_per_second=5 / 3600)
         except RateLimited:
             return await self._say(
-                wa_id, "Too many tries. Get a fresh code in the Gud Meal app and try again later."
+                wa_id, "Too many tries. Get a fresh code in the GudMeals app and try again later."
             )
         now = utcnow()
 
@@ -417,7 +417,7 @@ class WhatsAppService:
         if linked is None:
             return await self._say(
                 wa_id,
-                "That code isn't valid or has expired. Get a new one in the Gud Meal app: Profile → Connect WhatsApp.",
+                "That code isn't valid or has expired. Get a new one in the GudMeals app: Profile → Connect WhatsApp.",
             )
         uid, name = linked
         await self.audit.record(
@@ -431,7 +431,7 @@ class WhatsAppService:
         await self._say(
             wa_id,
             f"You're connected{', ' + _first(name) if name else ''}! I'm Gudy. Ask me for food, supplements or skin care, a "
-            "package delivery, your order status, your points or Gud Meal Plus, for example: 'jollof rice for 2 "
+            "package delivery, your order status, your points or GudMeals Plus, for example: 'jollof rice for 2 "
             "under ₦10,000'. Share your location (📎 → Location) so I can find stores that deliver to you. You approve every order with a Yes button. Send HELP for tips or STOP to disconnect.",
         )
 
@@ -439,7 +439,7 @@ class WhatsAppService:
         await self._remove(wa_id, str(link["uid"]))
         await self._say(
             wa_id,
-            "WhatsApp is disconnected from your Gud Meal account. You can connect again from the app any time.",
+            "WhatsApp is disconnected from your GudMeals account. You can connect again from the app any time.",
         )
 
     async def _remove(self, wa_id: str, uid: str) -> None:

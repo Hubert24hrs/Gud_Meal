@@ -1,4 +1,4 @@
-"""Gudy's multi-service tools: what Gud Meal offers, order totals, Package Delivery, navigation, support contacts.
+"""Gudy's multi-service tools: what GudMeals offers, order totals, Package Delivery, navigation, support contacts.
 
 As everywhere else, tools never take identity or amount arguments: prices and totals come from the API.
 """
@@ -62,7 +62,7 @@ SCREEN_LABELS: dict[str, str] = {
     "order": "Track this order",
     "wallet": "Open my wallet",
     "waybill": "Send to another city",
-    "plus": "Open Gud Meal Plus",
+    "plus": "Open GudMeals Plus",
     "rewards": "Open Rewards",
     "group": "Open group orders",
 }
@@ -155,7 +155,7 @@ async def get_order_totals(args: NoArgs, ctx: ToolContext) -> ToolOutput:
         "refunded": naira(s["refunded_kobo"]) if s["refunded_kobo"] else None,
         "by_service": by_service,
         "favourite": s["favourite_merchant"]["name"] if s.get("favourite_merchant") else None,
-        "note": "Totals are net of refunds and computed by Gud Meal; quote them exactly.",
+        "note": "Totals are net of refunds and computed by GudMeals; quote them exactly.",
     }
     return ToolOutput(data, card={"type": "order_totals", **{k: v for k, v in data.items() if k != "note"}})
 
@@ -487,7 +487,7 @@ async def book_parcel(args: QuoteIdArgs, ctx: ToolContext) -> ToolOutput:
         "short_code": order["short_code"],
         "amount": naira(res["amount_kobo"]),
         "payment_url": res["authorization_url"],
-        "instruction": "Share the payment link. Gud Meal finds a rider as soon as the payment is verified. "
+        "instruction": "Share the payment link. GudMeals finds a rider as soon as the payment is verified. "
         "The recipient must give the rider the delivery code shown in the order.",
     }
     return ToolOutput(
@@ -552,7 +552,7 @@ async def get_rewards(args: NoArgs, ctx: ToolContext) -> ToolOutput:
     ]
     rate = f"{earn['points_per_100_naira']} point for every ₦100 spent on completed orders"
     if earn["plus_multiplier"] > 1:
-        rate += f" ({earn['plus_multiplier']}x for Gud Meal Plus members)"
+        rate += f" ({earn['plus_multiplier']}x for GudMeals Plus members)"
     data: dict[str, Any] = {
         "points": r["points"],
         "points_worth": naira(r["points_value_kobo"]),
@@ -625,7 +625,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "list_services",
-            "What Gud Meal offers (Food, Supplements & Skin Care, Package Delivery), where, "
+            "What GudMeals offers (Food, Supplements & Skin Care, Package Delivery), where, "
             "and what is coming soon.",
             NoArgs,
             list_services,
@@ -675,7 +675,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_wallet",
-            "The customer's Gud Meal wallet: balance, recent activity, refund setting and any cash-on-delivery "
+            "The customer's GudMeals wallet: balance, recent activity, refund setting and any cash-on-delivery "
             "money collected for them as a seller. Read-only.",
             NoArgs,
             get_wallet,
@@ -685,8 +685,8 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_payment_options",
-            "How the customer can pay an order (card/transfer/USSD, Gud Meal wallet, pay on delivery in cash) and "
-            "why an option is unavailable. Gud Meal decides eligibility; quote the reasons exactly.",
+            "How the customer can pay an order (card/transfer/USSD, GudMeals wallet, pay on delivery in cash) and "
+            "why an option is unavailable. GudMeals decides eligibility; quote the reasons exactly.",
             OptionalOrderArgs,
             get_payment_options,
             EVERYONE,
@@ -695,7 +695,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_plus_membership",
-            "Gud Meal Plus: price, member benefits, and the customer's membership (until when, auto-renew, "
+            "GudMeals Plus: price, member benefits, and the customer's membership (until when, auto-renew, "
             "savings). Read-only; customers join or cancel on the Plus screen.",
             NoArgs,
             get_plus_membership,
@@ -725,7 +725,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_support_contacts",
-            "Gud Meal support contacts (WhatsApp, phone, email) and hours.",
+            "GudMeals support contacts (WhatsApp, phone, email) and hours.",
             NoArgs,
             get_support_contacts,
             EVERYONE,

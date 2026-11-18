@@ -382,7 +382,7 @@ class CatalogService:
         return out
 
     async def services(self, *, city: str | None = None) -> list[dict[str, Any]]:
-        """What Gud Meal offers: the home-screen bubbles and the assistant's knowledge of services."""
+        """What GudMeals offers: the home-screen bubbles and the assistant's knowledge of services."""
         merchants = [
             r
             for r in await self.repos.restaurants.find(where=[("status", "==", "active")])

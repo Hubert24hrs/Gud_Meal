@@ -32,7 +32,7 @@ class RestaurantStatus(StrEnum):
 
 
 class Vertical(StrEnum):
-    """Gud Meal services. Food and supplements & skin care products are sold by merchants; parcels are
+    """GudMeals services. Food and supplements & skin care products are sold by merchants; parcels are
     courier jobs."""
 
     FOOD = "food"
@@ -291,7 +291,7 @@ class WaybillQuoteRequest(Model):
     declared_value_kobo: int | None = Field(default=None, ge=0, le=50_000_000)
     cod_amount_kobo: int | None = Field(
         default=None, ge=0, le=50_000_000
-    )  # door delivery in Gud Meal cities only
+    )  # door delivery in GudMeals cities only
 
 
 class WaybillMilestone(Model):
@@ -358,7 +358,7 @@ class PriceBreakdown(Model):
     cod_fee_kobo: int = 0  # cash-on-delivery collection fee (parcels)
     linehaul_fee_kobo: int = 0  # waybill: carrying the package between cities
     pickup_fee_kobo: int = 0  # waybill: rider collects from the sender's address
-    plus_savings_kobo: int = 0  # Gud Meal Plus: fees and VAT the member did not pay (informational)
+    plus_savings_kobo: int = 0  # GudMeals Plus: fees and VAT the member did not pay (informational)
     total_kobo: int
     discount_funded_by: Literal["platform", "restaurant"] | None = None
     voucher_code: str | None = None
@@ -617,7 +617,7 @@ class CustomerProfile(Model):
     personalisation_consent: bool = True
     marketing_consent: bool = False
     loyalty_points: int = 0
-    refund_to_wallet: bool = False  # card refunds go instantly into the Gud Meal wallet instead
+    refund_to_wallet: bool = False  # card refunds go instantly into the GudMeals wallet instead
     pay_on_delivery_blocked: bool = False  # set by support after a refused or failed cash delivery
     created_at: datetime | None = None
     updated_at: datetime | None = None

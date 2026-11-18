@@ -24,8 +24,8 @@
    symptom, no claims that a product treats, cures or prevents anything; health worries, medicines, pregnancy and
    children go to a pharmacist or a doctor. This replaces the pharmacy rule.
 5. **The home page is minimal, in the app and on the website:** the address, three big floating bubbles on the
-   orange header (two on top, one below), and the places picked for the customer. The promo card, "Send a package" card, Ask Gudy card,
-   the three "why Gud Meal" cards and the "Sell on Gud Meal. Ride with Gud Meal." banner are gone from it. Nothing
+   red header (two on top, one below), and the places picked for the customer. The promo card, "Send a package" card, Ask Gudy card,
+   the three "why GudMeals" cards and the "Sell on GudMeals. Ride with GudMeals." banner are gone from it. Nothing
    was lost: deals show as a "Promo" tag on the shop tiles, Gudy floats over every tab and page, and the
    business and rider sign-ups are in the app's Profile and the website's footer.
 6. **The website followed the same day.** At first its home kept the explanation sections (for visitors without

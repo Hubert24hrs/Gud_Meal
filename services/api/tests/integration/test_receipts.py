@@ -121,7 +121,7 @@ async def test_a_package_delivery_has_a_receipt_too(client):
     r = await receipt(client, order["id"], method="post")
     assert r.status_code == 200, r.text
     shown = r.json()
-    assert shown["seller"] == "Gud Meal" and shown["service_name"] == "Package Delivery"
+    assert shown["seller"] == "GudMeals" and shown["service_name"] == "Package Delivery"
     assert shown["lines"] == []
     assert (
         shown["summary"][0] == "From Lekki Phase 1 to Victoria Island"
@@ -144,7 +144,7 @@ async def test_receipt_wording_for_wallet_and_cash_and_rows_that_must_add_up(flo
         payment = order.payment.model_copy(update={"provider": provider})
         return build_receipt(order.model_copy(update={"payment": payment}), now).paid_with
 
-    assert paid_with("wallet") == "Gud Meal wallet"
+    assert paid_with("wallet") == "GudMeals wallet"
     assert paid_with("cash") == "Cash on delivery"
     assert paid_with("paystack") == "Card, bank transfer or USSD"
 

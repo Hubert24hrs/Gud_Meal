@@ -9,7 +9,7 @@ import '../../ui/components.dart';
 import '../../ui/illustrations.dart';
 import '../../widgets.dart';
 
-/// Home, kept minimal like Glovo's: the three services as big floating bubbles on the orange header, then the
+/// Home, kept minimal like Glovo's: the three services as big floating bubbles on the red header, then the
 /// places picked for the customer. No banners or explanations (the website and Profile have those); deals show as
 /// a "Promo" tag on the shop tiles, and Gudy floats over every tab.
 class HomeScreen extends ConsumerWidget {

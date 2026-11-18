@@ -31,7 +31,7 @@ export default function LoginPage() {
           {error && <p role="alert" className="text-sm text-danger">{error}</p>}
           <Button type="submit" block size="lg" loading={busy}>Sign in</Button>
         </form>
-        <p className="text-center text-xs text-muted">New restaurant? Apply on the Gud Meal website under “Add your restaurant”.</p>
+        <p className="text-center text-xs text-muted">New restaurant? Apply on the GudMeals website under “Add your restaurant”.</p>
       </Card>
     </div>
   );

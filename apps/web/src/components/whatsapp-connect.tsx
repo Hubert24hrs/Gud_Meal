@@ -33,7 +33,7 @@ export function WhatsAppConnectView({ status, code, onConnect, onDisconnect, bus
         </>
       ) : code ? (
         <div className="space-y-2" role="status">
-          <p className="text-sm">Send this code to Gud Meal on WhatsApp ({code.business_number}) before {formatTime(code.expires_at)}:</p>
+          <p className="text-sm">Send this code to GudMeals on WhatsApp ({code.business_number}) before {formatTime(code.expires_at)}:</p>
           <p className="font-mono text-3xl font-black tracking-[0.3em]" aria-label="Your WhatsApp code">{code.code}</p>
           <a href={code.wa_link} target="_blank" rel="noreferrer"><Button>Open WhatsApp</Button></a>
           <p className="text-xs text-muted">WhatsApp opens with the message ready: just tap send. This page updates once you&apos;re connected.</p>

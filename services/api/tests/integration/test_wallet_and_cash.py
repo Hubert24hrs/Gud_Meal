@@ -1,4 +1,4 @@
-"""Phase 2 money features end to end: Gud Meal wallet, pay on delivery, vendor cash-on-delivery, failover."""
+"""Phase 2 money features end to end: GudMeals wallet, pay on delivery, vendor cash-on-delivery, failover."""
 
 from __future__ import annotations
 

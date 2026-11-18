@@ -191,7 +191,7 @@ class OptionalOrderArgs(ToolArgs):
 
 class CancelArgs(ToolArgs):
     order_id: str = Field(min_length=6, max_length=64)
-    reason: str = Field(default="Cancelled via Gud Meal assistant", max_length=300)
+    reason: str = Field(default="Cancelled via GudMeals assistant", max_length=300)
 
 
 class ListOrdersArgs(ToolArgs):
@@ -357,7 +357,7 @@ async def compare_delivery_times(args: CompareDeliveryArgs, ctx: ToolContext) ->
         unknown.append(name)
     if not ids:
         raise ToolError(
-            "not_found", "None of those places are on Gud Meal near this address. Ask for the names again."
+            "not_found", "None of those places are on GudMeals near this address. Ask for the names again."
         )
     data = await ctx.api.get(
         "/v1/delivery/estimates", restaurant_ids=",".join(dict.fromkeys(ids)), lat=loc["lat"], lng=loc["lng"]
@@ -617,7 +617,7 @@ async def confirm_order(args: OrderIdArgs, ctx: ToolContext) -> ToolOutput:
         "payment_url": res["authorization_url"],
         "provider": res["provider"],
         "instruction": "Share the payment link. The order is sent to the restaurant automatically once the "
-        "payment is verified by Gud Meal.",
+        "payment is verified by GudMeals.",
     }
     return ToolOutput(
         data,
@@ -787,7 +787,7 @@ def register(reg: ToolRegistry) -> None:
         ToolSpec(
             "plan_meal_within_budget",
             "Build complete meal plans that fit a total budget (including all fees) for a party size and an "
-            "optional delivery deadline. Totals are computed by Gud Meal's pricing engine.",
+            "optional delivery deadline. Totals are computed by GudMeals' pricing engine.",
             MealPlanArgs,
             plan_meal_within_budget,
             EVERYONE,

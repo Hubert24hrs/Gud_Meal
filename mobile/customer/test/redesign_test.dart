@@ -63,13 +63,13 @@ class FakeApi extends GudMealApi {
 
   @override
   Future<List<WaybillOrigin>> waybillOrigins() async => const [
-        WaybillOrigin(id: 'lagos', name: 'Lagos', homePickup: true, dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'Gud Meal Hub, Lekki', city: 'lagos')]),
+        WaybillOrigin(id: 'lagos', name: 'Lagos', homePickup: true, dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'GudMeals Hub, Lekki', city: 'lagos')]),
         WaybillOrigin(id: 'enugu', name: 'Enugu', homePickup: true),
       ];
 
   @override
   Future<WaybillDestinations> waybillDestinations(String origin) async => const WaybillDestinations(
-        dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'Gud Meal Hub, Lekki', city: 'lagos')],
+        dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'GudMeals Hub, Lekki', city: 'lagos')],
         destinations: [
           WaybillDestination(city: 'enugu', name: 'Enugu', doorDelivery: true, fromKobo: 505300),
           WaybillDestination(
@@ -317,7 +317,7 @@ void main() {
     expect(find.text('₦380'), findsOneWidget);
     expect(find.text('The rider collects ₦25,000 from Ngozi for you.'), findsOneWidget);
     // Packages are prepaid: card or wallet, never cash at the door.
-    expect(find.text('Gud Meal wallet'), findsOneWidget);
+    expect(find.text('GudMeals wallet'), findsOneWidget);
     expect(find.text('Pay on delivery'), findsNothing);
   });
 
@@ -342,7 +342,7 @@ void main() {
     expect(find.text('Balance ₦5,000 · top up ₦2,500 more'), findsOneWidget);
     expect(find.text('Unlocks after your first order'), findsOneWidget);
     expect(find.text('Top up your wallet'), findsOneWidget);
-    await tester.tap(find.text('Gud Meal wallet'));
+    await tester.tap(find.text('GudMeals wallet'));
     await tester.pumpAndSettle();
     expect(chosen, PayMethod.card); // disabled options can't be picked
     expect(PayMethod.wallet.provider, 'wallet');

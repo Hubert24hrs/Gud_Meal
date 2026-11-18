@@ -553,7 +553,7 @@ def naira(kobo: int) -> str:
 def food_one_payment_covers_everything() -> None:
     """Food in one checkout: the customer pays food + delivery fee + service fee (+VAT) once; a rider is then found"""
     riders_online()
-    who = "friend"  # not a Gud Meal Plus member, so the full delivery and service fees are charged
+    who = "friend"  # not a GudMeals Plus member, so the full delivery and service fees are charged
     check("this customer pays full fees (no Plus membership)", not call("GET", "/v1/plus", who).get("member"))
     q = quote(who)
     b = q["breakdown"]
@@ -618,13 +618,13 @@ def food_one_payment_covers_everything() -> None:
     print(
         f"    split of the one payment: kitchen {naira(s['restaurant_earning_kobo'])}"
         f" (food minus {s['commission_bps'] / 100:g}% commission), rider {naira(s['rider_pay_kobo'])},"
-        f" Gud Meal {naira(platform)} (commission + fees, including {naira(b['vat_kobo'])} VAT held for the tax office)",
+        f" GudMeals {naira(platform)} (commission + fees, including {naira(b['vat_kobo'])} VAT held for the tax office)",
         flush=True,
     )
     check("the kitchen gets the food minus commission", s["restaurant_earning_kobo"] == kitchen, s)
     check("the rider is paid from the delivery fee", 0 < s["rider_pay_kobo"] <= b["delivery_fee_kobo"], s)
     check(
-        "kitchen + rider + Gud Meal = exactly what the customer paid",
+        "kitchen + rider + GudMeals = exactly what the customer paid",
         platform == s["commission_kobo"] + fees - s["platform_funded_discount_kobo"] - s["rider_pay_kobo"],
         (platform, s, b),
     )
@@ -934,7 +934,7 @@ def group_order_split_bill() -> None:
 
 @flow
 def plus_and_rewards() -> None:
-    """Gud Meal Plus and rewards: subscribe, member benefit on a quote, referral code, points"""
+    """GudMeals Plus and rewards: subscribe, member benefit on a quote, referral code, points"""
     plus = call("GET", "/v1/plus", "customer")
     if not plus.get("member"):
         complete_sandbox(call("POST", "/v1/plus/subscribe", "customer", {}, idem=True))

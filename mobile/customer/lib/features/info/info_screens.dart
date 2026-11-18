@@ -7,8 +7,8 @@ import 'package:gud_meal_core/gud_meal_core.dart';
 import '../../providers.dart';
 import '../../ui/components.dart';
 
-// Screens the website already had and the app did not: the help centre, the two sign-ups (sell on Gud Meal,
-// ride with Gud Meal) and tracking a package by its number. The words match the website's pages.
+// Screens the website already had and the app did not: the help centre, the two sign-ups (sell on GudMeals,
+// ride with GudMeals) and tracking a package by its number. The words match the website's pages.
 
 /// Help centre: common questions, privacy and terms (the website's /help).
 const helpFaqs = [
@@ -20,7 +20,7 @@ const helpFaqs = [
   ),
   (
     'Is my payment safe?',
-    'Payments are processed on a secure page by our payment partners. Gud Meal never sees your card details and '
+    'Payments are processed on a secure page by our payment partners. GudMeals never sees your card details and '
         'will never ask for your PIN or OTP.'
   ),
   (
@@ -141,7 +141,7 @@ class _Received extends StatelessWidget {
   }
 }
 
-/// "Add your business": a restaurant or shop applies to sell on Gud Meal (the website's /partner-with-us).
+/// "Add your business": a restaurant or shop applies to sell on GudMeals (the website's /partner-with-us).
 class BusinessApplyScreen extends ConsumerStatefulWidget {
   const BusinessApplyScreen({super.key});
 
@@ -216,7 +216,7 @@ class _BusinessApplyState extends ConsumerState<BusinessApplyScreen> {
           : Form(
               key: _form,
               child: ListView(padding: const EdgeInsets.all(16), children: [
-                Text('Grow your business with Gud Meal', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
+                Text('Grow your business with GudMeals', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
                 const SizedBox(height: 8),
                 const Text('• Reach customers across Lagos and Enugu, including through Gudy, our AI assistant.'),
                 const Text('• Live order board, product tools, sales insights and demand forecasts.'),
@@ -321,7 +321,7 @@ class _RiderApplyState extends ConsumerState<RiderApplyScreen> {
           : Form(
               key: _form,
               child: ListView(padding: const EdgeInsets.all(16), children: [
-                Text('Ride with Gud Meal', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
+                Text('Ride with GudMeals', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
                 const SizedBox(height: 8),
                 const Text('Flexible hours, transparent earnings per delivery, and withdrawals to your bank.'),
                 const SizedBox(height: 16),

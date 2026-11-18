@@ -172,7 +172,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
                     const SizedBox(height: 8),
                     OutlinedButton(
                       onPressed: _paying ? null : () => _pay(o, PayMethod.wallet),
-                      child: const Text('Pay from my Gud Meal wallet'),
+                      child: const Text('Pay from my GudMeals wallet'),
                     ),
                     if (_payError != null)
                       Padding(
@@ -241,7 +241,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> with WidgetsBindingOb
               Text(formatNaira(o.breakdown?.totalKobo), style: const TextStyle(fontWeight: FontWeight.w800)),
             ]),
             if (o.payment.provider == 'wallet' && o.payment.status != 'unpaid')
-              const Padding(padding: EdgeInsets.only(top: 4), child: Text('Paid from your Gud Meal wallet')),
+              const Padding(padding: EdgeInsets.only(top: 4), child: Text('Paid from your GudMeals wallet')),
             if (o.payment.provider == 'cash' && o.payment.status == 'paid')
               const Padding(padding: EdgeInsets.only(top: 4), child: Text('Paid in cash on delivery')),
             if (const ['paid', 'partially_refunded', 'refunded'].contains(o.payment.status))

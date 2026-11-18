@@ -19,7 +19,7 @@ class _UnpaidOrderApi extends GudMealApi {
         shortCode: 'MZGBBZ',
         vertical: 'waybill',
         status: paid ? 'paid' : 'pending_payment',
-        restaurantName: 'Gud Meal Waybill',
+        restaurantName: 'GudMeals Waybill',
         payment: OrderPayment(provider: 'local_sandbox', status: paid ? 'paid' : 'pending'),
       );
 
@@ -48,7 +48,7 @@ void main() {
     expect(find.textContaining('Finish paying'), findsOneWidget);
     expect(find.text('Pay by card, transfer or USSD'), findsOneWidget);
 
-    await tester.tap(find.text('Pay from my Gud Meal wallet'));
+    await tester.tap(find.text('Pay from my GudMeals wallet'));
     await tester.pumpAndSettle();
     expect(api.checkouts, ['wallet']);
     expect(find.textContaining('Finish paying'), findsNothing); // paid: the order goes ahead

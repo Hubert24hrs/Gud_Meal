@@ -26,9 +26,9 @@ const base: WaybillTracking = {
   last_mile: "collect",
   collection_point: { name: "Partner terminal, Utako (sample)", address: "Utako District, Abuja", hours: "Mon–Sat, 8am–7pm" },
   milestones: [
-    { stage: "awaiting_dropoff", label: "Drop off at the hub", at: "2026-11-16T09:00:00Z", place: "Gud Meal Hub, Lekki (sample)" },
-    { stage: "at_origin_hub", label: "At the Lagos hub", at: "2026-11-16T10:00:00Z", place: "Gud Meal Hub, Lekki (sample)" },
-    { stage: "departed", label: "On the way to Abuja", at: "2026-11-16T18:00:00Z", place: "Gud Meal Hub, Lekki (sample)" },
+    { stage: "awaiting_dropoff", label: "Drop off at the hub", at: "2026-11-16T09:00:00Z", place: "GudMeals Hub, Lekki (sample)" },
+    { stage: "at_origin_hub", label: "At the Lagos hub", at: "2026-11-16T10:00:00Z", place: "GudMeals Hub, Lekki (sample)" },
+    { stage: "departed", label: "On the way to Abuja", at: "2026-11-16T18:00:00Z", place: "GudMeals Hub, Lekki (sample)" },
   ],
   delivered: false,
 };

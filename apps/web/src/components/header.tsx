@@ -27,7 +27,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="container-page flex h-16 items-center gap-3">
-        <Link href="/" aria-label="Gud Meal home" className="shrink-0">
+        <Link href="/" aria-label="GudMeals home" className="shrink-0">
           <Logo />
         </Link>
         <label className="ml-2 hidden items-center gap-1.5 rounded-full border border-border bg-surface pl-3 lg:flex">
@@ -47,7 +47,7 @@ export function Header() {
               {l.label}
             </Link>
           ))}
-          <Link href="/assistant" className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-[#1546C9] hover:bg-[#EAF0FF] sm:flex">
+          <Link href="/assistant" className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-[#3A0D05] hover:bg-[#FEF1DA] sm:flex">
             <GudyArt className="size-6" /> Ask Gudy
           </Link>
           {user ? (

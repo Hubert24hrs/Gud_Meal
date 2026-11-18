@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers.dart';
 
-/// Gud Meal wallet: balance, top-up, instant refunds setting, history, and cash-on-delivery money for sellers.
+/// GudMeals wallet: balance, top-up, instant refunds setting, history, and cash-on-delivery money for sellers.
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
 
@@ -67,7 +67,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final wallet = ref.watch(walletProvider);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Gud Meal wallet')),
+      appBar: AppBar(title: const Text('GudMeals wallet')),
       body: wallet.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(e is ApiException ? e.message : 'Could not load your wallet')),
@@ -77,7 +77,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFFF7894F), Color(0xFFE85D32)]),
+                gradient: const LinearGradient(colors: [Color(0xFFF25C22), Color(0xFFE0040B)]),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -122,7 +122,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'You pay by card, bank transfer or USSD on a secure page. Wallet money is for Gud Meal orders and '
+              'You pay by card, bank transfer or USSD on a secure page. Wallet money is for GudMeals orders and '
               "deliveries; it can't be withdrawn as cash.",
               style: theme.textTheme.bodySmall,
             ),
@@ -149,7 +149,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                  backgroundColor: t.direction == 'in' ? const Color(0xFFDDF0E6) : theme.colorScheme.surfaceContainerHighest,
+                  backgroundColor: t.direction == 'in' ? const Color(0xFFE5F3E0) : theme.colorScheme.surfaceContainerHighest,
                   child: Icon(t.direction == 'in' ? Icons.south_west_rounded : Icons.north_east_rounded, size: 18),
                 ),
                 title: Text(t.description),
@@ -158,7 +158,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   '${t.direction == 'in' ? '+' : '−'}${formatNaira(t.amountKobo)}',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: t.direction == 'in' ? const Color(0xFF1D754E) : null,
+                    color: t.direction == 'in' ? const Color(0xFF2E8B1E) : null,
                   ),
                 ),
               ),
@@ -220,7 +220,7 @@ class _SellerCardState extends ConsumerState<_SellerCard> {
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.payments_rounded, color: Color(0xFF1D754E)),
+            const Icon(Icons.payments_rounded, color: Color(0xFF2E8B1E)),
             const SizedBox(width: 8),
             const Expanded(child: Text('Cash-on-delivery money', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
             Text(formatNaira(s.availableKobo), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),

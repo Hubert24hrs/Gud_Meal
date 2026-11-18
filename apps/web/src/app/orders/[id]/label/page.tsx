@@ -36,7 +36,7 @@ function WaybillLabel({ id }: { id: string }) {
       <article className="print-area space-y-4 rounded-xl border-2 border-text bg-white p-5 text-black">
         <header className="flex items-start justify-between gap-3 border-b-2 border-black pb-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider">Gud Meal · Interstate waybill</p>
+            <p className="text-xs font-bold uppercase tracking-wider">GudMeals · Interstate waybill</p>
             <p className="font-mono text-3xl font-black tracking-[0.15em] sm:text-4xl">{w.tracking_code}</p>
           </div>
           <p className="text-right text-sm font-bold">{w.origin_city_name}<br />→ {w.destination_city_name}</p>

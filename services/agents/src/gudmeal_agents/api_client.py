@@ -90,7 +90,7 @@ class GudMealApi:
                 method, f"{self._base}{path}", json=json, params=params, headers=headers
             )
         except httpx.HTTPError as exc:
-            raise ApiError(503, "api_unreachable", "Gud Meal service is temporarily unreachable") from exc
+            raise ApiError(503, "api_unreachable", "GudMeals service is temporarily unreachable") from exc
         if resp.status_code == 204:
             return None
         try:

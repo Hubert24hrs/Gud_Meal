@@ -516,7 +516,7 @@ class _Draw {
       }
       // wrapper paper with a stripe
       c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(8, -9.6, 17, 19.2), const Radius.circular(4)), _fill(const Color(0xFFFAFAFA)));
-      c.drawRect(const Rect.fromLTWH(14, -9.6, 3, 19.2), _fill(const Color(0xFFE85D32)));
+      c.drawRect(const Rect.fromLTWH(14, -9.6, 3, 19.2), _fill(const Color(0xFFE0040B)));
       // the cut end: chicken, cabbage, carrot, sauce
       const end = Offset(-22, 0);
       c.drawCircle(end, 8, _fill(const Color(0xFFF3E1BE)));

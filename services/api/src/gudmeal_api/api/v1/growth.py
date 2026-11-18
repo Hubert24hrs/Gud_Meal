@@ -1,4 +1,4 @@
-"""Growth (ADR-0016): Gud Meal Plus, Gud points and referrals, group orders."""
+"""Growth (ADR-0016): GudMeals Plus, Gud points and referrals, group orders."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ IdemKey = Annotated[str | None, Header(alias="Idempotency-Key")]
 # ------------------------------------------------------------------------------------------- Plus
 class SubscribeInput(BaseModel):
     provider: Literal["wallet", "paystack", "flutterwave", "local_sandbox"] | None = None
-    auto_renew: bool = True  # renew from the Gud Meal wallet at the end of each period
+    auto_renew: bool = True  # renew from the GudMeals wallet at the end of each period
 
 
 class AutoRenewInput(BaseModel):

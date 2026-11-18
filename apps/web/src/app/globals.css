@@ -29,7 +29,7 @@
 .gm-pulse { animation: gm-pulse 2.4s infinite; }
 
 .gm-hero {
-  background: linear-gradient(180deg, #f7894f 0%, #e85d32 100%);
+  background: linear-gradient(180deg, #f25c22 0%, #e0040b 100%);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), 75% calc(100% - 2px), 50% calc(100% - 26px), 25% calc(100% - 40px), 0 calc(100% - 22px));
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy Gud Meal to Cloud Run: gudmeal-api, gudmeal-agents and the three websites (gudmeal-web, gudmeal-partner,
+# Deploy GudMeals to Cloud Run: gudmeal-api, gudmeal-agents and the three websites (gudmeal-web, gudmeal-partner,
 # gudmeal-admin), from the images built with infra/cloudbuild/cloudbuild.yaml.
 # Usage: infra/scripts/deploy.sh <environment> <project> <region> <artifact-repo> <tag>
 # Secrets are referenced from Secret Manager (never passed on the command line).

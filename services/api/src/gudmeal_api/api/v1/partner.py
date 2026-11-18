@@ -1,4 +1,4 @@
-"""Gud Meal Partner (restaurant dashboard) endpoints."""
+"""GudMeals Partner (restaurant dashboard) endpoints."""
 
 from __future__ import annotations
 

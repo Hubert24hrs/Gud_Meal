@@ -19,7 +19,7 @@ class ApiException implements Exception {
   factory ApiException.fromDio(DioException e) {
     final res = e.response;
     if (res == null) {
-      return ApiException(0, 'network_error', "We couldn't reach Gud Meal. Check your connection and try again.");
+      return ApiException(0, 'network_error', "We couldn't reach GudMeals. Check your connection and try again.");
     }
     final data = res.data;
     if (data is Map && data['error'] is Map) {
@@ -152,7 +152,7 @@ class GudMealApi {
           }),
       (d) => _list(_map(d)['suggestions']).map(PlaceSuggestion.fromJson).toList());
 
-  /// The chosen suggestion: address, pin and whether Gud Meal delivers there. Ends the search [session].
+  /// The chosen suggestion: address, pin and whether GudMeals delivers there. Ends the search [session].
   Future<PlaceLookup> placeDetails(String placeId, {String? session}) => _call(
       () => _dio.get('/v1/places/details', queryParameters: {'place_id': placeId, 'session': ?session}),
       (d) => PlaceLookup.fromJson(_map(d)));
@@ -353,7 +353,7 @@ class GudMealApi {
   Future<WhatsAppStatus> disconnectWhatsApp() =>
       _call(() => _dio.delete('/v1/me/whatsapp'), (d) => WhatsAppStatus.fromJson(_map(d)));
 
-  // ------------------------------------------------------------------- Gud Meal Plus
+  // ------------------------------------------------------------------- GudMeals Plus
   Future<PlusOverview> plus() => _call(() => _dio.get('/v1/plus'), (d) => PlusOverview.fromJson(_map(d)));
 
   /// Card payments return an authorization URL to open; wallet payments start the membership at once.
@@ -428,10 +428,10 @@ class GudMealApi {
   Future<FoodPreferences> saveFoodPreferences(FoodPreferences preferences) =>
       _call(() => _dio.patch('/v1/me/profile', data: preferences.toJson()), (d) => FoodPreferences.fromJson(_map(d)));
 
-  /// Everything Gud Meal holds about the signed-in customer (their right under the NDPA).
+  /// Everything GudMeals holds about the signed-in customer (their right under the NDPA).
   Future<Map<String, dynamic>> exportMyData() => _call(() => _dio.get('/v1/me/export'), (d) => _map(d));
 
-  /// Applications to sell on Gud Meal or to ride with it; the Gud Meal team reviews them.
+  /// Applications to sell on GudMeals or to ride with it; the GudMeals team reviews them.
   Future<void> applyAsBusiness(Map<String, dynamic> application) =>
       _call(() => _dio.post('/v1/applications/restaurant', data: application), (_) {});
   Future<void> applyAsRider(Map<String, dynamic> application) =>

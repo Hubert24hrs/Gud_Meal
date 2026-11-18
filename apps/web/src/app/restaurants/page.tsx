@@ -4,7 +4,7 @@ import { RestaurantBrowser } from "./restaurant-browser";
 
 export const metadata: Metadata = {
   title: "Restaurants in Lagos",
-  description: "Browse Lagos restaurants on Gud Meal — jollof, suya, swallow, small chops, grills and healthy bowls.",
+  description: "Browse Lagos restaurants on GudMeals — jollof, suya, swallow, small chops, grills and healthy bowls.",
   alternates: { canonical: "/restaurants" },
 };
 

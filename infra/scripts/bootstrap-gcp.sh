@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time bootstrap of a Gud Meal environment in an EXISTING Google Cloud project that already has
+# One-time bootstrap of a GudMeals environment in an EXISTING Google Cloud project that already has
 # Firebase added and billing enabled. Run it yourself, per environment (dev → staging → prod):
 #
 #   infra/scripts/bootstrap-gcp.sh gud-meal-dev europe-west1
@@ -46,7 +46,7 @@ gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudb
 say "Artifact Registry"
 exists gcloud artifacts repositories describe gudmeal --location "$REGION" ||
   gcloud artifacts repositories create gudmeal --repository-format docker --location "$REGION" \
-    --description "Gud Meal service images"
+    --description "GudMeals service images"
 
 say "Service accounts (least privilege)"
 # gudmeal-web runs the three websites and gets no roles: they only call the public API.

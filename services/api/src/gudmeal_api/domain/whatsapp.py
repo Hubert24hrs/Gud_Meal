@@ -237,7 +237,7 @@ def render_result(result: dict[str, Any], web_url: str) -> list[dict[str, Any]]:
         elif card.get("type") == "navigate":
             route = web_route(str(card.get("screen")), dict(card.get("params") or {}))
             if route:
-                links.append(f"{card.get('label') or 'Open Gud Meal'}: {web_url.rstrip('/')}{route}")
+                links.append(f"{card.get('label') or 'Open GudMeals'}: {web_url.rstrip('/')}{route}")
     text = (result.get("reply") or "").strip()
     if links:
         text = (text + "\n\n" if text else "") + "\n".join(dict.fromkeys(links))

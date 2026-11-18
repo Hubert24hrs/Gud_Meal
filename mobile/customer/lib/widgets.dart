@@ -34,10 +34,10 @@ class RestaurantArt extends StatelessWidget {
   final double height;
 
   static const _palettes = [
-    [Color(0xFFE85D32), Color(0xFFF5B942)],
-    [Color(0xFF1D754E), Color(0xFF9BD2A7)],
+    [Color(0xFFE0040B), Color(0xFFF5A21A)],
+    [Color(0xFF2E8B1E), Color(0xFFA8D98E)],
     [Color(0xFFB4442A), Color(0xFFF28C5B)],
-    [Color(0xFF2B5D4A), Color(0xFFE8C468)],
+    [Color(0xFF6B2410), Color(0xFFE8C468)],
   ];
 
   @override

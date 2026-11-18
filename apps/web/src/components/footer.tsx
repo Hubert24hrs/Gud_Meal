@@ -10,11 +10,11 @@ export function Footer() {
           <p className="max-w-xs text-sm text-muted">Food, supplements & skin care and package delivery in Lagos and Enugu, with Gudy, an AI assistant that plans to your budget.</p>
         </div>
         <FooterCol title="Order" links={[["Food", "/food"], ["Supplements & Skin Care", "/beauty"], ["Send a package", "/send"], ["Track a package", "/track"], ["Ask Gudy", "/assistant"], ["My orders", "/orders"]]} />
-        <FooterCol title="Partner" links={[["Add your business", "/partner-with-us"], ["Ride with Gud Meal", "/ride"]]} />
+        <FooterCol title="Partner" links={[["Add your business", "/partner-with-us"], ["Ride with GudMeals", "/ride"]]} />
         <FooterCol title="Help" links={[["Support", "/support"], ["Help centre", "/help"], ["Privacy", "/help#privacy"], ["Terms", "/help#terms"]]} />
       </div>
       <div className="container-page border-t border-border py-4 text-xs text-muted">
-        © {new Date().getFullYear()} Gud Meal. Prices in Naira (₦) include VAT where applicable.
+        © {new Date().getFullYear()} GudMeals. Prices in Naira (₦) include VAT where applicable.
       </div>
     </footer>
   );

@@ -15,7 +15,7 @@ Future<void> main() async {
   var config = AppConfig.fromEnvironment();
   // A phone test build first finds the computer that runs the test server: its address changes with the Wi-Fi it
   // joins, and the sign-in emulator below can be given an address only once.
-  if (config.findTestServer) config = await locateTestServer(config, appName: 'Gud Meal');
+  if (config.findTestServer) config = await locateTestServer(config, appName: 'GudMeals');
   await Firebase.initializeApp(
     options: FirebaseOptions(
       apiKey: config.firebaseApiKey,

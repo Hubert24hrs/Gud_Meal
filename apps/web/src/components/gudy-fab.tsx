@@ -34,7 +34,7 @@ export function GudyFab() {
     <div className="fixed z-40" style={{ left: pos.x, top: pos.y, width: SIZE, height: SIZE, transition: dragging ? "none" : "left .35s cubic-bezier(.34,1.56,.64,1)" }}>
       {hint && !dragging && (
         <span
-          className={`pointer-events-none absolute top-3 whitespace-nowrap rounded-xl bg-white px-3 py-2 text-sm font-bold text-[#202521] shadow-lg ${onRight ? "right-[70px]" : "left-[70px]"}`}
+          className={`pointer-events-none absolute top-3 whitespace-nowrap rounded-xl bg-white px-3 py-2 text-sm font-bold text-[#2A0D06] shadow-lg ${onRight ? "right-[70px]" : "left-[70px]"}`}
         >
           Hi, I’m Gudy!
         </span>
@@ -43,7 +43,7 @@ export function GudyFab() {
         type="button"
         aria-label="Chat with Gudy, your AI assistant"
         title="Chat with Gudy"
-        className="gm-pulse block size-full touch-none rounded-full shadow-[0_6px_16px_rgba(31,94,255,.35)] outline-none transition-transform focus-visible:ring-4 focus-visible:ring-[#1F5EFF]/40 data-[dragging=true]:scale-110"
+        className="gm-pulse block size-full touch-none rounded-full shadow-[0_6px_16px_rgba(58,13,5,.35)] outline-none transition-transform focus-visible:ring-4 focus-visible:ring-[#6B2410]/40 data-[dragging=true]:scale-110"
         data-dragging={dragging}
         onPointerDown={(e) => {
           e.currentTarget.setPointerCapture(e.pointerId);

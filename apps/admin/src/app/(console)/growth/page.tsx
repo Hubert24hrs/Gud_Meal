@@ -37,7 +37,7 @@ export default function GrowthPage() {
       <div>
         <h1 className="font-display text-3xl">Growth</h1>
         <p className="text-sm text-muted">
-          Gud Meal Plus, Gud points, referrals and group orders. Amounts are product defaults until the owner confirms them;
+          GudMeals Plus, Gud points, referrals and group orders. Amounts are product defaults until the owner confirms them;
           rewards are platform-funded vouchers that settle through promotions.
         </p>
       </div>
@@ -70,7 +70,7 @@ export default function GrowthPage() {
       {plus && pricing.data && (
         <Card className="space-y-4 p-5">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-semibold">Gud Meal Plus plan</h2>
+            <h2 className="font-semibold">GudMeals Plus plan</h2>
             <Toggle checked={plus.enabled} label={plus.enabled ? "Open for new members" : "Paused"} onChange={(v) => setPlus({ ...plus, enabled: v })} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

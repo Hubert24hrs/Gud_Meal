@@ -1,13 +1,13 @@
-# Gud Meal — Discover. Order. Eat.
+# GudMeals — Discover. Order. Eat.
 
 AI-native delivery for Nigeria (Lagos and Enugu): **Food**, **Supplements & Skin Care** from partner shops and **Package
 Delivery** by bike and by **interstate waybill** (Lagos, Enugu, Abuja, Port Harcourt), with **Gudy**, an AI
 assistant that speaks English, Nigerian Pidgin, Igbo, Yoruba and Hausa, in the app and on WhatsApp. A customer app and website (Glovo-style, in
-Gud Meal orange, with animated draggable service bubbles), a partner dashboard, a rider app, a super-admin Command
+the colours of the GudMeals logo, with animated draggable service bubbles), a partner dashboard, a rider app, a super-admin Command
 Centre, a FastAPI core API and a LangGraph multi-agent service — one ecosystem sharing identity (Firebase Auth),
 data (Firestore + PostgreSQL) and business rules.
 
-> “Gud Meal, I have ₦10,000. Find me the best meal for two people, order it, and have it delivered before 8pm.”
+> “GudMeals, I have ₦10,000. Find me the best meal for two people, order it, and have it delivered before 8pm.”
 > — the assistant plans options with exact totals, drafts the order, asks you to approve, and hands you a
 > secure payment link. This flow is covered end-to-end by `services/agents/tests/test_agent_flows.py`.
 
@@ -15,11 +15,11 @@ data (Firestore + PostgreSQL) and business rules.
 
 | Path | What | Stack |
 |---|---|---|
-| `services/api` | Core API: merchants (food, beauty), parcels, interstate waybills and hubs, Gud Meal Plus, points and referrals, group orders with split bill, pricing, quotes, orders, payments (gateways with failover, wallet, pay on delivery, vendor COD), ledger, dispatch, admin | Python 3.13, FastAPI, SQLAlchemy, Firestore |
+| `services/api` | Core API: merchants (food, beauty), parcels, interstate waybills and hubs, GudMeals Plus, points and referrals, group orders with split bill, pricing, quotes, orders, payments (gateways with failover, wallet, pay on delivery, vendor COD), ledger, dispatch, admin | Python 3.13, FastAPI, SQLAlchemy, Firestore |
 | `services/agents` | Gudy: LangGraph orchestrator + 8 specialist agents, 43 approval-gated tools, offline mode, WhatsApp channel | LangGraph, Gemini |
 | `apps/web` | Customer website (service bubbles, Food, Beauty, Send a package, interstate waybill and tracking, Plus, Rewards, group orders, Discover, Support, Gudy) | Next.js 16, Tailwind 4 |
-| `apps/partner` | Gud Meal Partner — restaurant dashboard | Next.js 16 |
-| `apps/admin` | Gud Meal Command Centre — super admin, hub console, cash and carrier payouts, growth | Next.js 16 |
+| `apps/partner` | GudMeals Partner — restaurant dashboard | Next.js 16 |
+| `apps/admin` | GudMeals Command Centre — super admin, hub console, cash and carrier payouts, growth | Next.js 16 |
 | `mobile/customer` · `mobile/rider` · `mobile/core` | Customer & rider apps + shared package | Flutter, Riverpod, GoRouter, Dio, Freezed |
 | `packages/*` | Design tokens (→ CSS/TS/Dart), typed API client, React UI kit | TypeScript |
 | `firebase/` | Firestore/Storage rules, indexes, emulator config, rules tests | Firebase |

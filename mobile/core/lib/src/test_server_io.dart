@@ -8,10 +8,10 @@ import 'test_server.dart';
 
 const _apiPort = 8000;
 
-/// What `GET /v1/health` of the Gud Meal API says about itself (services/api/.../api/v1/public.py).
+/// What `GET /v1/health` of the GudMeals API says about itself (services/api/.../api/v1/public.py).
 const _service = 'gudmeal-api';
 
-/// True when the Gud Meal API answers on [host]: its health answer names the service.
+/// True when the GudMeals API answers on [host]: its health answer names the service.
 Future<bool> answersAsGudMeal(
   String host, {
   int port = _apiPort,

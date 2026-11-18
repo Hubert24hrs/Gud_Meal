@@ -74,7 +74,7 @@ function Orders() {
 
 function SpendCard({ s }: { s: OrderSummary }) {
   return (
-    <div className="rounded-2xl bg-gradient-to-b from-[#F7894F] to-primary p-5 text-white">
+    <div className="rounded-2xl bg-gradient-to-b from-[#F25C22] to-primary p-5 text-white">
       <p className="font-semibold">You’ve spent</p>
       <p className="text-4xl font-black">{formatNaira(s.total_spent_kobo)}</p>
       <p className="text-sm">{s.orders_count} paid order(s) · {formatNaira(s.this_month_spent_kobo)} this month</p>

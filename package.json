@@ -2,7 +2,7 @@
   "name": "gud-meal",
   "private": true,
   "version": "0.1.0",
-  "description": "Gud Meal — AI-native food delivery for Nigeria (web apps, shared packages, Firebase rules)",
+  "description": "GudMeals — AI-native food delivery for Nigeria (web apps, shared packages, Firebase rules)",
   "workspaces": [
     "packages/tokens",
     "packages/api-client",

@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Gud Meal — Cloud Storage rules. Deny by default; strict size and content-type limits.
+// GudMeals — Cloud Storage rules. Deny by default; strict size and content-type limits.
 service firebase.storage {
   match /b/{bucket}/o {
     function signedIn() { return request.auth != null; }

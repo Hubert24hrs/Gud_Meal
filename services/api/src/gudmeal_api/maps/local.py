@@ -1,4 +1,4 @@
-"""Keyless fallback: Gud Meal's own neighbourhood table and straight-line estimates.
+"""Keyless fallback: GudMeals' own neighbourhood table and straight-line estimates.
 
 Used when no Google Maps key is configured, when Google is unreachable, or when the daily request cap
 is reached. Results are labelled ``source="local"`` / ``"estimate"`` with ``precision="area"`` so the

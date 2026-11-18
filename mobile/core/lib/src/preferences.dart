@@ -1,4 +1,4 @@
-/// What a customer told Gud Meal about how they eat (the "Food preferences" part of the profile).
+/// What a customer told GudMeals about how they eat (the "Food preferences" part of the profile).
 class FoodPreferences {
   const FoodPreferences({this.allergens = const [], this.dietary = const [], this.personalise = false});
 

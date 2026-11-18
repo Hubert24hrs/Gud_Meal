@@ -72,7 +72,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               },
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search_rounded),
-                hintText: 'Search Gud Meal',
+                hintText: 'Search GudMeals',
                 filled: true,
                 fillColor: theme.colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(999), borderSide: BorderSide.none),
@@ -212,7 +212,7 @@ class _DemandRow extends StatelessWidget {
                   Text(r.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                   const SizedBox(height: 4),
                   Row(children: [
-                    const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Color(0xFF1D754E)),
+                    const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Color(0xFF2E8B1E)),
                     const SizedBox(width: 4),
                     Text(ratingPercent(r.rating)),
                     if (deliveryLabel(r).isNotEmpty) ...[
@@ -261,7 +261,7 @@ class _Results extends ConsumerWidget {
             const SectionTitle('Dishes & products'),
             for (final hit in res.items.take(10))
               ListTile(
-                leading: Icon(serviceCopy('${hit['vertical'] ?? 'food'}').icon, color: brandOrange),
+                leading: Icon(serviceCopy('${hit['vertical'] ?? 'food'}').icon, color: brandRed),
                 title: Text('${(hit['item'] as Map)['name']}'),
                 subtitle: Text('${hit['restaurant_name']}'),
                 trailing: Text(formatNaira((hit['item'] as Map)['price_kobo'] as int), style: const TextStyle(fontWeight: FontWeight.w700)),

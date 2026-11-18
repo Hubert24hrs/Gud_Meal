@@ -104,10 +104,10 @@ final printButton = find.byKey(const ValueKey('receipt-print'));
 final strip = find.byKey(const ValueKey('receipt-strip'));
 
 void main() {
-  testWidgets('a Gud Meal printer that says what to do, then prints what was paid for', (tester) async {
+  testWidgets('a GudMeals printer that says what to do, then prints what was paid for', (tester) async {
     var prints = 0;
     await _pump(tester, Scaffold(body: ReceiptPrinter(receipt: sample, onPrint: () => prints++)));
-    expect(find.text('Gud Meal'), findsNWidgets(2)); // the maker's mark (drawn twice for its engraved look)
+    expect(find.text('GudMeals'), findsNWidgets(2)); // the maker's mark (drawn twice for its engraved look)
     expect(find.text('PRINT'), findsOneWidget);
     expect(find.text('Press the red PRINT button to print your receipt'), findsOneWidget);
     expect(find.text('Total paid'), findsNothing);
@@ -164,19 +164,19 @@ void main() {
           child: ReceiptPaper(
             receipt: Receipt(
               id: 'p1', number: 'GM-PKG001', orderId: 'p1', orderCode: 'PKG001', service: 'parcel', serviceName: 'Package Delivery',
-              seller: 'Gud Meal', sellerAddress: 'Package Delivery', summary: ['From Lekki Phase 1 to Victoria Island', 'Small package: documents'],
-              charges: [ReceiptCharge(label: 'Delivery fee', amountKobo: 150000)], totalKobo: 150000, paidWith: 'Gud Meal wallet',
+              seller: 'GudMeals', sellerAddress: 'Package Delivery', summary: ['From Lekki Phase 1 to Victoria Island', 'Small package: documents'],
+              charges: [ReceiptCharge(label: 'Delivery fee', amountKobo: 150000)], totalKobo: 150000, paidWith: 'GudMeals wallet',
               refundedKobo: 150000, savingsKobo: 20000,
             ),
           ),
         ),
       ),
     );
-    expect(find.text('GUD MEAL'), findsOneWidget);
+    expect(find.text('GUDMEALS'), findsOneWidget);
     expect(find.text('From Lekki Phase 1 to Victoria Island'), findsOneWidget);
-    expect(find.text('Gud Meal wallet'), findsOneWidget);
+    expect(find.text('GudMeals wallet'), findsOneWidget);
     expect(find.text('Refunded'), findsOneWidget);
-    expect(find.text('Saved with Gud Meal Plus'), findsOneWidget);
+    expect(find.text('Saved with GudMeals Plus'), findsOneWidget);
     expect(find.textContaining('Ref '), findsNothing);
   });
 
@@ -253,7 +253,7 @@ void main() {
     await _pump(tester, const OrderScreen(id: 'o1'), api: api, still: true);
     await tester.pumpAndSettle();
     expect(find.text('Print my receipt'), findsNothing);
-    await tester.tap(find.text('Pay from my Gud Meal wallet'));
+    await tester.tap(find.text('Pay from my GudMeals wallet'));
     await tester.pumpAndSettle();
     expect(find.text('RECEIPT o1'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());

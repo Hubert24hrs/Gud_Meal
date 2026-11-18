@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const r = data.restaurant;
   return {
     title: `${r.name} — order online in ${r.area}`,
-    description: `${r.description} Order ${r.cuisines.length ? `${r.cuisines.join(", ")} from` : "from"} ${r.name} on Gud Meal.`,
+    description: `${r.description} Order ${r.cuisines.length ? `${r.cuisines.join(", ")} from` : "from"} ${r.name} on GudMeals.`,
     alternates: { canonical: `/restaurants/${id}` },
   };
 }

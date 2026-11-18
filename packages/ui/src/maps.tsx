@@ -227,7 +227,7 @@ function GoogleCanvas({ apiKey, pins, route, label, onFail, onPinClick }: {
       bounds.extend(p.point);
     }
     if (rt.length >= 2) {
-      const line = new m.g.maps.Polyline({ path: rt, map: m.map, strokeColor: "#E85D32", strokeWeight: 5 });
+      const line = new m.g.maps.Polyline({ path: rt, map: m.map, strokeColor: "#E0040B", strokeWeight: 5 });
       cleanup.push(() => line.setMap(null));
       rt.forEach((p) => bounds.extend(p));
     }
@@ -246,7 +246,7 @@ function GoogleCanvas({ apiKey, pins, route, label, onFail, onPinClick }: {
 
 // ------------------------------------------------------------------------------------- AddressSearch
 export interface AddressSearchProps {
-  /** Calls the Gud Meal API (Google Places behind it when configured); never Google directly. */
+  /** Calls the GudMeals API (Google Places behind it when configured); never Google directly. */
   search: (query: string, session: string) => Promise<PlaceSuggestion[]>;
   details: (placeId: string, session: string) => Promise<PlaceLookup>;
   /** "Use my current location": the browser's fix is sent once to find the address. */

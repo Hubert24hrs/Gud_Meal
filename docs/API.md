@@ -13,7 +13,7 @@
 | Topic | Rule |
 |---|---|
 | Auth | `Authorization: Bearer <Firebase ID token>`; optional `X-Firebase-AppCheck` (required when enforced). Gudy's WhatsApp chats use a channel token (`gmc1.…`, customer role only, 10 minutes) that the API issues itself |
-| Service calls | Gud Meal's agents service sends `X-Service-Authorization: Bearer <Google OIDC token>` (shared `X-Internal-Token` locally) and is then exempt from App Check; the user's own token is still required |
+| Service calls | GudMeals' agents service sends `X-Service-Authorization: Bearer <Google OIDC token>` (shared `X-Internal-Token` locally) and is then exempt from App Check; the user's own token is still required |
 | Money | integer kobo, fields end in `_kobo` |
 | Idempotency | `Idempotency-Key` header (8–200 chars) required on `POST /v1/orders`, `POST /v1/orders/{id}/checkout`, `POST /v1/rider/payouts`; replays return the stored response with `Idempotent-Replayed: true` |
 | Errors | `{"error": {"code", "message", "details", "request_id"}}` with stable codes (`price_changed`, `quote_expired`, `invalid_transition`, `voucher_invalid`, `out_of_delivery_area`, `rate_limited`, …) |

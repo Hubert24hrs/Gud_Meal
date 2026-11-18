@@ -553,7 +553,7 @@ class Draw {
         for (let i = 0; i < 5; i++) this.c.line([-16 + i * 8, -8], [-20 + i * 8, 8], line(0x66704214, 1.4));
         // wrapper paper with a stripe
         this.c.rect(ltwh(8, -9.6, 17, 19.2), fill(0xfffafafa), 4);
-        this.c.rect(ltwh(14, -9.6, 3, 19.2), fill(0xffe85d32));
+        this.c.rect(ltwh(14, -9.6, 3, 19.2), fill(0xffe0040b));
         // the cut end: chicken, cabbage, carrot, sauce
         const end: Pt = [-22, 0];
         this.c.circle(end, 8, fill(0xfff3e1be));

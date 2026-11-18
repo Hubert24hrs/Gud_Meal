@@ -1,4 +1,4 @@
-# Gud Meal: what to do next so we can start
+# GudMeals: what to do next so we can start
 
 Saved on 17 Nov 2026 to do later. Tick each one off as you go.
 
@@ -11,7 +11,7 @@ Saved on 17 Nov 2026 to do later. Tick each one off as you go.
 - [ ] **Line up a pilot:** 3–5 restaurants and 5 riders in one area, for example Lekki.
 - [ ] **Confirm the prices set as defaults** (Plus at ₦1,500 for 30 days, fees, points), and arrange the legal
   reviews (privacy notice, wallet, terms).
-- [ ] **Open Google Play and Apple developer accounts.** The Android apps now use the Gud Meal pin from your
+- [ ] **Open Google Play and Apple developer accounts.** The Android apps now use the GudMeals pin from your
   logo as their icon (17 Nov). The store listings and the iPhone app need a bigger picture: send the original
   logo file (SVG, or a PNG at least 1024 pixels wide per symbol).
 - [ ] **WhatsApp ordering is still off.** When you're ready, it needs a Meta business account, verification and

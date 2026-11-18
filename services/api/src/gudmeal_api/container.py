@@ -424,7 +424,7 @@ def register_handlers(c: Container) -> None:
         await c.notifier.notify_user(
             str(payload["customer_id"]),
             "Wallet topped up",
-            f"{format_naira(int(payload['amount_kobo']))} was added to your Gud Meal wallet",
+            f"{format_naira(int(payload['amount_kobo']))} was added to your GudMeals wallet",
             {"screen": "wallet"},
         )
 
@@ -433,7 +433,7 @@ def register_handlers(c: Container) -> None:
             await c.notifier.notify_user(
                 str(payload["customer_id"]),
                 "Refund in your wallet",
-                f"{format_naira(int(payload['amount_kobo']))} is back in your Gud Meal wallet",
+                f"{format_naira(int(payload['amount_kobo']))} is back in your GudMeals wallet",
                 {"order_id": str(payload["order_id"]), "screen": "wallet"},
             )
 

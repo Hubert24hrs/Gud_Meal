@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Original Gud Meal illustrations drawn in code (no image assets, no third-party artwork).
+/// Original GudMeals illustrations drawn in code (no image assets, no third-party artwork).
 /// Each painter draws in a 100×100 design space scaled to the widget size.
 abstract class _Illustration extends CustomPainter {
   const _Illustration();
@@ -70,7 +70,7 @@ class FoodIllustration extends _Illustration {
       c.translate(dx, dy);
       c.rotate(a);
       final r = Rect.fromCenter(center: Offset.zero, width: 11, height: 7);
-      c.drawOval(r, _fill(const Color(0xFFF5B942)));
+      c.drawOval(r, _fill(const Color(0xFFF5A21A)));
       c.drawOval(r, _stroke(const Color(0xFFB8741C), 1.4));
       c.restore();
     }
@@ -99,8 +99,8 @@ class FoodIllustration extends _Illustration {
       ..cubicTo(86, 74, 70, 86, 50, 86)
       ..cubicTo(30, 86, 14, 74, 12, 55)
       ..close();
-    c.drawPath(bowl, Paint()..shader = const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFEF6E3E), Color(0xFFC9471F)]).createShader(const Rect.fromLTWH(12, 55, 76, 31)));
-    c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(10, 52, 80, 7), const Radius.circular(4)), _fill(const Color(0xFFF5B942)));
+    c.drawPath(bowl, Paint()..shader = const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFEF6E3E), Color(0xFFB3050B)]).createShader(const Rect.fromLTWH(12, 55, 76, 31)));
+    c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(10, 52, 80, 7), const Radius.circular(4)), _fill(const Color(0xFFF5A21A)));
     final pattern = _stroke(const Color(0x66FFFFFF), 2);
     for (final x in [30.0, 50.0, 70.0]) {
       c.drawCircle(Offset(x, 70), 3.2, pattern);
@@ -120,7 +120,7 @@ class BeautyIllustration extends _Illustration {
       ..quadraticBezierTo(o.dx, o.dy, o.dx - r, o.dy)
       ..quadraticBezierTo(o.dx, o.dy, o.dx, o.dy - r)
       ..close();
-    c.drawPath(p, _fill(const Color(0xFFF5B942)));
+    c.drawPath(p, _fill(const Color(0xFFF5A21A)));
   }
 
   @override
@@ -141,8 +141,8 @@ class BeautyIllustration extends _Illustration {
     c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(10, 56, 36, 30), const Radius.circular(8)), _stroke(const Color(0xFFEBD8C8), 1.6));
     c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(8, 47, 40, 12), const Radius.circular(5)),
         Paint()..shader = const LinearGradient(colors: [Color(0xFFF59AA8), Color(0xFFE06A7E)]).createShader(const Rect.fromLTWH(8, 47, 40, 12)));
-    c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(14, 66, 28, 10), const Radius.circular(3)), _fill(const Color(0xFFFDE7DE)));
-    c.drawCircle(const Offset(28, 71), 3, _fill(const Color(0xFFE85D32)));
+    c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(14, 66, 28, 10), const Radius.circular(3)), _fill(const Color(0xFFFDE7E6)));
+    c.drawCircle(const Offset(28, 71), 3, _fill(const Color(0xFFE0040B)));
     // tub of supplements (front right)
     const tub = Rect.fromLTWH(66, 50, 24, 36);
     c.drawRRect(RRect.fromRectAndRadius(tub, const Radius.circular(6)),
@@ -164,14 +164,14 @@ class BeautyIllustration extends _Illustration {
     c.drawRRect(RRect.fromRectAndRadius(capsule, const Radius.circular(3.5)), _fill(const Color(0xFFFFF7F0)));
     c.save();
     c.clipRect(const Rect.fromLTWH(-8, -3.5, 8, 7));
-    c.drawRRect(RRect.fromRectAndRadius(capsule, const Radius.circular(3.5)), _fill(const Color(0xFFE85D32)));
+    c.drawRRect(RRect.fromRectAndRadius(capsule, const Radius.circular(3.5)), _fill(const Color(0xFFE0040B)));
     c.restore();
     c.drawRRect(RRect.fromRectAndRadius(capsule, const Radius.circular(3.5)), _stroke(const Color(0x33000000), .8));
     c.restore();
   }
 }
 
-/// A delivery scooter carrying a Gud Meal parcel box.
+/// A delivery scooter carrying a GudMeals parcel box.
 class ParcelIllustration extends _Illustration {
   const ParcelIllustration();
 
@@ -186,7 +186,7 @@ class ParcelIllustration extends _Illustration {
     c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(16, 24, 34, 32), const Radius.circular(4)), _fill(const Color(0xFFE4AB6E)));
     c.drawRect(const Rect.fromLTWH(30, 24, 6, 32), _fill(const Color(0xFFC98A4B)));
     c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(16, 24, 34, 32), const Radius.circular(4)), _stroke(const Color(0xFFB4743A), 1.4));
-    c.drawCircle(const Offset(23, 47), 3.4, _fill(const Color(0xFFE85D32)));
+    c.drawCircle(const Offset(23, 47), 3.4, _fill(const Color(0xFFE0040B)));
     // scooter body
     final body = Path()
       ..moveTo(14, 62)
@@ -196,12 +196,12 @@ class ParcelIllustration extends _Illustration {
       ..lineTo(18, 72)
       ..quadraticBezierTo(12, 70, 14, 62)
       ..close();
-    c.drawPath(body, Paint()..shader = const LinearGradient(colors: [Color(0xFF2E9465), Color(0xFF1D754E)]).createShader(const Rect.fromLTWH(12, 60, 70, 14)));
+    c.drawPath(body, Paint()..shader = const LinearGradient(colors: [Color(0xFFF0262B), Color(0xFF3A0D05)]).createShader(const Rect.fromLTWH(12, 60, 70, 14)));
     c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(34, 54, 24, 7), const Radius.circular(3.5)), _fill(const Color(0xFF2B2B2B)));
     // steering column + handlebar
-    c.drawLine(const Offset(70, 66), const Offset(80, 32), _stroke(const Color(0xFF1D754E), 5));
+    c.drawLine(const Offset(70, 66), const Offset(80, 32), _stroke(const Color(0xFF3A0D05), 5));
     c.drawLine(const Offset(74, 31), const Offset(88, 31), _stroke(const Color(0xFF2B2B2B), 4));
-    c.drawCircle(const Offset(84, 40), 3, _fill(const Color(0xFFF5B942)));
+    c.drawCircle(const Offset(84, 40), 3, _fill(const Color(0xFFF5A21A)));
     // wheels
     for (final x in [26.0, 76.0]) {
       c.drawCircle(Offset(x, 78), 10, _fill(const Color(0xFF2B2B2B)));
@@ -210,7 +210,8 @@ class ParcelIllustration extends _Illustration {
   }
 }
 
-/// Gudy, the Gud Meal AI assistant: a friendly robot face in a blue disc with a chat-bubble tail.
+/// Gudy, the GudMeals AI assistant: a friendly robot face in a disc of the logo's chocolate brown (the cloche),
+/// with a gold antenna and a chat-bubble tail.
 class RobotPainter extends CustomPainter {
   const RobotPainter({this.eyeOpen = 1, this.ring = 0});
 
@@ -220,8 +221,8 @@ class RobotPainter extends CustomPainter {
   /// 0..1 pulse ring around the disc.
   final double ring;
 
-  static const blue = Color(0xFF1F5EFF);
-  static const blueDark = Color(0xFF1546C9);
+  static const body = Color(0xFF6B2410);
+  static const bodyDark = Color(0xFF3A0D05);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -229,20 +230,20 @@ class RobotPainter extends CustomPainter {
     canvas.save();
     canvas.scale(s);
     if (ring > 0) {
-      canvas.drawCircle(const Offset(50, 50), 50 + 8 * ring, _fill(blue.withValues(alpha: .25 * (1 - ring))));
+      canvas.drawCircle(const Offset(50, 50), 50 + 8 * ring, _fill(body.withValues(alpha: .25 * (1 - ring))));
     }
     canvas.drawCircle(
       const Offset(50, 50),
       50,
-      Paint()..shader = const RadialGradient(center: Alignment(-.3, -.4), radius: 1.1, colors: [Color(0xFF4D82FF), blue, blueDark]).createShader(const Rect.fromLTWH(0, 0, 100, 100)),
+      Paint()..shader = const RadialGradient(center: Alignment(-.3, -.4), radius: 1.1, colors: [Color(0xFFB4561F), body, bodyDark]).createShader(const Rect.fromLTWH(0, 0, 100, 100)),
     );
     final white = _fill(Colors.white);
     // antenna
     canvas.drawLine(const Offset(50, 31), const Offset(50, 21), _stroke(Colors.white, 3.4));
-    canvas.drawCircle(const Offset(50, 18.5), 4.6, white);
+    canvas.drawCircle(const Offset(50, 18.5), 4.6, _fill(const Color(0xFFF5A21A))); // gold, like the cloche's rim
     // ears
-    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(19, 44, 8, 15), const Radius.circular(4)), _fill(const Color(0xFFDCE6FF)));
-    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(73, 44, 8, 15), const Radius.circular(4)), _fill(const Color(0xFFDCE6FF)));
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(19, 44, 8, 15), const Radius.circular(4)), _fill(const Color(0xFFF6DCC6)));
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(73, 44, 8, 15), const Radius.circular(4)), _fill(const Color(0xFFF6DCC6)));
     // head with chat tail
     final head = Path()
       ..addRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(25, 31, 50, 38), const Radius.circular(17)))
@@ -252,7 +253,7 @@ class RobotPainter extends CustomPainter {
       ..close();
     canvas.drawPath(head, white);
     // visor
-    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(32, 40, 36, 19), const Radius.circular(9.5)), _fill(blue));
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(32, 40, 36, 19), const Radius.circular(9.5)), _fill(body));
     // eyes (blink by squashing vertically)
     final eyeH = 8.4 * eyeOpen.clamp(0.08, 1);
     for (final x in [42.0, 58.0]) {

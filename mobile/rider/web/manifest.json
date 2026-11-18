@@ -1,10 +1,10 @@
 {
-    "name": "Gud Meal Rider",
+    "name": "GudMeals Rider",
     "short_name": "GM Rider",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFF9F3",
-    "theme_color": "#E85D32",
+    "background_color": "#FFFBF8",
+    "theme_color": "#E0040B",
     "description": "Accept deliveries and confirm them with the customer's code.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,

@@ -3,7 +3,7 @@
 **Status:** Accepted · **Date:** 2026-11-15
 
 ## Context
-The owner decided (2026-11-15) that Gud Meal offers three services in Lagos and Enugu: Food (restaurants),
+The owner decided (2026-11-15) that GudMeals offers three services in Lagos and Enugu: Food (restaurants),
 Beauty & Skin care (products from partner shops) and Package Delivery (bike courier; scheduled pickups now,
 cash-on-delivery for vendors and interstate waybill later), with a Glovo-style customer experience and an AI
 assistant, Gudy, that speaks English, Nigerian Pidgin, Igbo, Yoruba and Hausa.

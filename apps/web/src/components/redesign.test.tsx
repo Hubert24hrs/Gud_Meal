@@ -69,7 +69,7 @@ describe("Gudy navigation and store labels", () => {
     expect(routeForScreen("wallet")).toBe("/wallet");
     expect(routeForScreen("food", { category: "local" })).toBe("/food?category=local");
     expect(routeForScreen("beauty", { category: "supplements" })).toBe("/beauty?category=supplements");
-    // Groceries, Pharmacy and Market Shopping are no longer Gud Meal services.
+    // Groceries, Pharmacy and Market Shopping are no longer GudMeals services.
     expect(routeForScreen("pharmacy")).toBeNull();
     expect(routeForScreen("merchant", { merchant_id: "b-shea" })).toBe("/restaurants/b-shea");
     expect(routeForScreen("order", { order_id: "o1" })).toBe("/orders/o1");

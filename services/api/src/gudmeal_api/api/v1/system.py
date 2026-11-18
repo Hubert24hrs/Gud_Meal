@@ -79,7 +79,7 @@ async def reconcile_payments(c: Ctr, _caller: InternalCaller) -> dict[str, int]:
 
 @internal.post("/jobs/renew-plus")
 async def renew_plus(c: Ctr, _caller: InternalCaller) -> dict[str, int]:
-    """Daily (Cloud Scheduler): renew Gud Meal Plus from wallets; remind members who can't be charged."""
+    """Daily (Cloud Scheduler): renew GudMeals Plus from wallets; remind members who can't be charged."""
     return await c.membership.renew_due()
 
 
@@ -106,12 +106,12 @@ async def sandbox_checkout(reference: str, c: Ctr) -> HTMLResponse:
     charge = c.sandbox.charges[reference]
     ref = html.escape(reference)
     return HTMLResponse(f"""<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Gud Meal · Sandbox checkout</title>
-<style>body{{font-family:system-ui,sans-serif;background:#FFF9F3;color:#202521;display:grid;place-items:center;
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>GudMeals · Sandbox checkout</title>
+<style>body{{font-family:system-ui,sans-serif;background:#FFFBF8;color:#2A0D06;display:grid;place-items:center;
 min-height:100vh;margin:0}}.card{{background:#fff;border-radius:16px;padding:32px;max-width:380px;width:90%;
 box-shadow:0 8px 30px rgba(0,0,0,.08)}}.amt{{font-size:32px;font-weight:700;margin:8px 0 24px}}
 button{{width:100%;padding:14px;border-radius:12px;border:0;font-size:16px;font-weight:600;margin-top:10px;cursor:pointer}}
-.pay{{background:#E85D32;color:#fff}}.fail{{background:#f1f1f1;color:#202521}}.note{{font-size:12px;color:#777F79;margin-top:18px}}</style>
+.pay{{background:#E0040B;color:#fff}}.fail{{background:#f1f1f1;color:#2A0D06}}.note{{font-size:12px;color:#7A625A;margin-top:18px}}</style>
 </head><body><div class="card"><div>Local payment sandbox</div><div class="amt">{format_naira(charge.amount_kobo)}</div>
 <div>Reference <code>{ref}</code></div>
 <form method="post" action="/v1/dev/sandbox-checkout/{ref}/complete?outcome=success"><button class="pay">Approve payment</button></form>
@@ -134,11 +134,11 @@ async def sandbox_complete(
         # the app verifies the payment itself, so send the tester back to it.
         title = "Payment approved" if success else "Payment declined"
         return HTMLResponse(f"""<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Gud Meal · {title}</title>
-<style>body{{font-family:system-ui,sans-serif;background:#FFF9F3;color:#202521;display:grid;place-items:center;
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>GudMeals · {title}</title>
+<style>body{{font-family:system-ui,sans-serif;background:#FFFBF8;color:#2A0D06;display:grid;place-items:center;
 min-height:100vh;margin:0}}.card{{background:#fff;border-radius:16px;padding:32px;max-width:380px;width:90%;
 box-shadow:0 8px 30px rgba(0,0,0,.08);text-align:center}}h1{{font-size:24px;margin:0 0 12px}}</style>
-</head><body><div class="card"><h1>{title}</h1><p>Return to the Gud Meal app: it confirms the payment and
+</head><body><div class="card"><h1>{title}</h1><p>Return to the GudMeals app: it confirms the payment and
 updates your order. You can close this page.</p></div></body></html>""")
     sep = "&" if "?" in callback else "?"
     return RedirectResponse(f"{callback}{sep}reference={reference}", status_code=303)
@@ -232,7 +232,7 @@ async def whatsapp_simulator() -> HTMLResponse:
 
 
 SIMULATOR_PAGE = """<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Gud Meal · WhatsApp simulator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>GudMeals · WhatsApp simulator</title>
 <style>body{font-family:system-ui,sans-serif;margin:0;background:#efeae2;color:#111}header{background:#075e54;color:#fff;
 padding:12px 16px}header input{width:12em}main{max-width:640px;margin:0 auto;padding:12px 12px 90px}
 .m{max-width:80%;margin:6px 0;padding:8px 10px;border-radius:8px;white-space:pre-wrap;box-shadow:0 1px 1px rgba(0,0,0,.1)}

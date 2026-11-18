@@ -1,4 +1,4 @@
-"""Customers connect their WhatsApp number to Gud Meal (ADR-0017)."""
+"""Customers connect their WhatsApp number to GudMeals (ADR-0017)."""
 
 from __future__ import annotations
 

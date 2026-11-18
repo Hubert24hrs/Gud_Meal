@@ -44,7 +44,7 @@ keys to be visible. Each is restricted:
 
 - the Android key to the app's package name and signing certificate;
 - the iOS key to the bundle ID;
-- the browser key to Gud Meal's web domains.
+- the browser key to GudMeals' web domains.
 
 Each key is limited to its display API only. Keys come from build configuration or environment variables, never
 source code. Without them, apps draw a simple schematic map from the same API data.

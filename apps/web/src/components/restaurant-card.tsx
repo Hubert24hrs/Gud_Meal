@@ -6,8 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 const PALETTES = [
-  ["#E85D32", "#F5B942"], ["#1D754E", "#9BD2A7"], ["#B4442A", "#F28C5B"], ["#2B5D4A", "#E8C468"],
-  ["#7A3E2C", "#E9A46A"], ["#145C43", "#F5B942"],
+  ["#E0040B", "#F5A21A"], ["#2E8B1E", "#A8D98E"], ["#B4442A", "#F28C5B"], ["#6B2410", "#E8C468"],
+  ["#7A3E2C", "#E9A46A"], ["#3A0D05", "#F5A21A"],
 ];
 
 /** Restaurant artwork: uploaded cover photo when present, otherwise a branded duotone tile. */

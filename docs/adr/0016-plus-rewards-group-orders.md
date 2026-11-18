@@ -1,4 +1,4 @@
-# ADR-0016: Gud Meal Plus, Gud points and referrals, group orders with split bill
+# ADR-0016: GudMeals Plus, Gud points and referrals, group orders with split bill
 
 - **Status:** Accepted (product defaults to be confirmed by the owner; legal review of subscription terms pending)
 - **Date:** 2026-11-15
@@ -8,7 +8,7 @@
 
 The owner wants three growth features:
 
-- a **Gud Meal Plus** membership
+- a **GudMeals Plus** membership
 - **referral and loyalty rewards**
 - **group orders with split bill**
 
@@ -29,7 +29,7 @@ They must also avoid two regulatory traps:
 
 ## Decision
 
-### 1. Gud Meal Plus (membership)
+### 1. GudMeals Plus (membership)
 
 **Plan.** The plan lives in `PricingConfig.plus` and is edited through the existing versioned, audited pricing
 endpoint. Defaults:
@@ -59,7 +59,7 @@ endpoint. Defaults:
   `liability:vat`, then emits `plus.paid`.
 - `MembershipService` activates the membership, or extends it from the current end date. Activation is idempotent
   per payment: one period per payment, recorded in `memberships/{uid}/periods/{n}`.
-- **Auto-renew uses the wallet only.** Gud Meal stores no card authorisations. A daily job,
+- **Auto-renew uses the wallet only.** GudMeals stores no card authorisations. A daily job,
   `/internal/jobs/renew-plus`, charges the wallet in the last 24 hours of a period, with the idempotency key
   `plus:{uid}:period:{n}`. When the balance is too low, the member gets one reminder and the membership lapses at
   the end of the period.

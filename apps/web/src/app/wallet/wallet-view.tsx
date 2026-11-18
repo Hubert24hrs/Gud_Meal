@@ -46,9 +46,9 @@ export function WalletView() {
 
   return (
     <div className="pb-28 md:pb-12">
-      <div className="bg-gradient-to-b from-[#F7894F] to-primary pb-12 pt-8 text-white">
+      <div className="bg-gradient-to-b from-[#F25C22] to-primary pb-12 pt-8 text-white">
         <div className="container-page max-w-3xl">
-          <p className="flex items-center gap-2 text-sm font-semibold text-white/90"><Wallet className="size-4" aria-hidden="true" /> Gud Meal wallet</p>
+          <p className="flex items-center gap-2 text-sm font-semibold text-white/90"><Wallet className="size-4" aria-hidden="true" /> GudMeals wallet</p>
           <p className="mt-1 text-5xl font-black tracking-tight" aria-live="polite">{formatNaira(w.balance_kobo)}</p>
           <p className="mt-2 max-w-md text-sm text-white/90">Pay for food, supplements & skin care and package deliveries in one tap. Refunds come back here instantly.</p>
         </div>
@@ -81,7 +81,7 @@ export function WalletView() {
           <p className="flex items-start gap-2 text-xs text-muted">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" aria-hidden="true" />
             You pay by card, bank transfer or USSD on a secure payment page. The money is added once the payment is confirmed.
-            Wallet money is for Gud Meal orders and deliveries; it can&apos;t be withdrawn as cash.
+            Wallet money is for GudMeals orders and deliveries; it can&apos;t be withdrawn as cash.
           </p>
         </Card>
 

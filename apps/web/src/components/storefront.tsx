@@ -54,8 +54,8 @@ export function SectionTitle({ children, info, action }: { children: ReactNode; 
   );
 }
 
-const FOOD = [["#E85D32", "#F5B942"], ["#B4442A", "#F28C5B"], ["#7A2E12", "#E2762E"], ["#2B5D4A", "#E8C468"]];
-const BEAUTY = [["#C2557A", "#F6B9C6"], ["#6E4AA8", "#E2C7F4"], ["#1D754E", "#BFE5CF"]];
+const FOOD = [["#E0040B", "#F5A21A"], ["#B4442A", "#F28C5B"], ["#7A2E12", "#E2762E"], ["#6B2410", "#E8C468"]];
+const BEAUTY = [["#C2557A", "#F6B9C6"], ["#6E4AA8", "#E2C7F4"], ["#2E8B1E", "#BFE5B0"]];
 /** Colours and artwork per kind of shop, the same as the mobile app's. */
 const ART: Record<string, { palette: string[][]; Art: typeof FoodArt }> = {
   food: { palette: FOOD, Art: FoodArt },
@@ -88,7 +88,7 @@ export function deliveryLabel(card: RestaurantCard): string {
 }
 
 export function PromoTag({ children }: { children: ReactNode }) {
-  return <span className="inline-block max-w-[240px] truncate rounded-md bg-[#D7263D] px-2 py-1 text-xs font-bold text-white">{children}</span>;
+  return <span className="inline-block max-w-[240px] truncate rounded-md bg-[#E0040B] px-2 py-1 text-xs font-bold text-white">{children}</span>;
 }
 
 /** Square logo tile ("Popular brands", "These are for you"). */
@@ -99,7 +99,7 @@ export function BrandTile({ card }: { card: RestaurantCard }) {
       <MerchantArt card={card} compact className="size-[104px] rounded-2xl transition-transform hover:-translate-y-0.5" />
       <p className="mt-1.5 truncate text-sm font-semibold">{card.name}</p>
       {(promo || card.delivery_fee_kobo !== null) && (
-        <span className={cn("mt-1 inline-block rounded-md px-1.5 py-0.5 text-[11px] font-bold", promo ? "bg-[#D7263D] text-white" : "bg-secondary-soft text-secondary")}>
+        <span className={cn("mt-1 inline-block rounded-md px-1.5 py-0.5 text-[11px] font-bold", promo ? "bg-[#E0040B] text-white" : "bg-secondary-soft text-secondary")}>
           {promo ? "Promo" : card.delivery_fee_kobo === 0 ? "Free" : formatNaira(card.delivery_fee_kobo)}
         </span>
       )}
@@ -166,9 +166,9 @@ export function MerchantCard({ card }: { card: RestaurantCard }) {
         onClick={toggle}
         aria-pressed={fav}
         aria-label={fav ? `Remove ${card.name} from favourites` : `Add ${card.name} to favourites`}
-        className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-white text-[#202521] shadow"
+        className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-white text-[#2A0D06] shadow"
       >
-        <Heart className={cn("size-5", fav && "fill-[#D23B4E] text-[#D23B4E]")} aria-hidden="true" />
+        <Heart className={cn("size-5", fav && "fill-[#E0040B] text-[#E0040B]")} aria-hidden="true" />
       </button>
     </article>
   );

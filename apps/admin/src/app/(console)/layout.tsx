@@ -36,7 +36,7 @@ function Shell({ children }: { children: ReactNode }) {
     <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] lg:grid-cols-[232px_1fr] lg:grid-rows-1">
       <aside className="min-w-0 border-b border-border bg-text text-background lg:border-b-0">
         <div className="flex items-center justify-between p-4">
-          <span className="[&_*]:text-background"><Logo /></span>
+          <Logo surface="inverse" />
           {/* Small screens hide the sidebar footer, so sign-out lives in the header there. */}
           <button className="text-xs font-semibold text-accent lg:hidden" onClick={() => signOut()}>Sign out</button>
         </div>

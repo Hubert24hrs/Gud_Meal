@@ -63,7 +63,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
           for (final e in _sorts.entries)
             ListTile(
               title: Text(e.value),
-              trailing: e.key == _sort ? Icon(Icons.check_rounded, color: brandOrange) : null,
+              trailing: e.key == _sort ? Icon(Icons.check_rounded, color: brandRed) : null,
               onTap: () => Navigator.pop(context, e.key),
             ),
         ]),
@@ -82,7 +82,7 @@ class _VerticalScreenState extends ConsumerState<VerticalScreen> {
           for (final c in options)
             ListTile(
               title: Text(c),
-              trailing: c == _cuisine ? Icon(Icons.check_rounded, color: brandOrange) : null,
+              trailing: c == _cuisine ? Icon(Icons.check_rounded, color: brandRed) : null,
               onTap: () => Navigator.pop(context, c),
             ),
         ]),
@@ -255,7 +255,7 @@ class _ItemHits extends ConsumerWidget {
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: Icon(serviceCopy(vertical).icon, color: brandOrange),
+                child: Icon(serviceCopy(vertical).icon, color: brandRed),
               ),
               title: Text('${(hit['item'] as Map)['name']}${(hit['item'] as Map)['unit_label'] != null ? ' · ${(hit['item'] as Map)['unit_label']}' : ''}'),
               subtitle: Text('${hit['restaurant_name']}'),

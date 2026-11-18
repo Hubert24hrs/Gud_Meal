@@ -103,7 +103,7 @@ class _TestServerSearchState extends State<TestServerSearch> {
       _checkingTyped = false;
       _typedProblem = cleanHost(_typed.text) == null
           ? 'Type an address like 192.168.100.8'
-          : 'Gud Meal did not answer at that address';
+          : 'GudMeals did not answer at that address';
     });
   }
 
@@ -138,7 +138,7 @@ class _TestServerSearchState extends State<TestServerSearch> {
       children: [
         const CircularProgressIndicator(),
         const SizedBox(height: 24),
-        Text('Looking for the Gud Meal test server', style: text.titleLarge, textAlign: TextAlign.center),
+        Text('Looking for the GudMeals test server', style: text.titleLarge, textAlign: TextAlign.center),
         const SizedBox(height: 8),
         Text(
           network == null ? 'Checking the addresses this app already knows' : 'Searching this Wi-Fi ($network.1 to $network.254)',
@@ -160,7 +160,7 @@ class _TestServerSearchState extends State<TestServerSearch> {
         Text("Can't find the test server", style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
         const SizedBox(height: 8),
         Text(
-          'Put this phone on the same Wi-Fi as the computer that runs Gud Meal, and check that Gud Meal is running '
+          'Put this phone on the same Wi-Fi as the computer that runs GudMeals, and check that GudMeals is running '
           'there. Then try again.',
           style: theme.textTheme.bodyMedium,
           textAlign: TextAlign.center,
@@ -332,13 +332,13 @@ class _TestServerWatchState extends State<TestServerWatch> with WidgetsBindingOb
     final (String title, String body) = switch (notice) {
       _Notice.lost => (
           "Can't reach the test server",
-          'The computer that runs Gud Meal may have joined another Wi-Fi or gone to sleep. Put this phone on the '
+          'The computer that runs GudMeals may have joined another Wi-Fi or gone to sleep. Put this phone on the '
               'same Wi-Fi as the computer, then look for it.',
         ),
-      _Notice.looking => ('Looking for the test server', 'Searching this Wi-Fi for the computer that runs Gud Meal.'),
+      _Notice.looking => ('Looking for the test server', 'Searching this Wi-Fi for the computer that runs GudMeals.'),
       _Notice.stillMissing => (
           "Still can't find it",
-          'Check that the computer is on, that Gud Meal is running there, and that this phone is on the same Wi-Fi.',
+          'Check that the computer is on, that GudMeals is running there, and that this phone is on the same Wi-Fi.',
         ),
       _Notice.moved => (
           'Found the computer at a new address',

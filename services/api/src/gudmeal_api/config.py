@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     # Backup gateway tried when the default one fails to start a checkout (only if it is configured).
     payment_failover_provider: str | None = "flutterwave"
 
-    # --- Gud Meal wallet (closed-loop stored value: spend on Gud Meal only, no cash withdrawal) ---------
+    # --- GudMeals wallet (closed-loop stored value: spend on GudMeals only, no cash withdrawal) ---------
     # Limits are product defaults pending legal/CBN review (see docs/adr/0013-wallet-and-cash.md).
     wallet_enabled: bool = True
     wallet_min_topup_kobo: int = 50_000  # ₦500
@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     internal_shared_secret: SecretStr | None = None
     internal_oidc_audience: str | None = None
     internal_oidc_service_accounts: list[str] = Field(default_factory=list)
-    # Gud Meal's own services (the agents service) that may call user endpoints without App Check. They still
+    # GudMeals' own services (the agents service) that may call user endpoints without App Check. They still
     # need the user's token, and this list does not open /internal/* (that is INTERNAL_OIDC_SERVICE_ACCOUNTS).
     trusted_service_accounts: list[str] = Field(default_factory=list)
 

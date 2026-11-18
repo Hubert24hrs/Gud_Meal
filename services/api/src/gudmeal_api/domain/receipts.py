@@ -20,7 +20,7 @@ SERVICE_NAMES = {
 }
 #: Payment states in which money has been taken for the order (a refund later does not unmake the receipt).
 PAID_STATES = frozenset({"paid", "partially_refunded", "refunded"})
-PAID_WITH = {"wallet": "Gud Meal wallet", "cash": "Cash on delivery"}
+PAID_WITH = {"wallet": "GudMeals wallet", "cash": "Cash on delivery"}
 PAID_ONLINE = "Card, bank transfer or USSD"
 #: The receipt's rows for fees and taxes, in the order they are printed: (breakdown field, label, sign).
 CHARGE_ROWS: tuple[tuple[str, str, int], ...] = (
@@ -65,7 +65,7 @@ class Receipt(Model):
     lines: list[ReceiptLine] = Field(default_factory=list)
     charges: list[ReceiptCharge] = Field(default_factory=list)
     total_kobo: int
-    savings_kobo: int = 0  # Gud Meal Plus savings on this order (information only)
+    savings_kobo: int = 0  # GudMeals Plus savings on this order (information only)
     refunded_kobo: int = 0
     paid_with: str
     payment_reference: str | None = None
@@ -132,7 +132,7 @@ def build_receipt(order: Order, now: datetime) -> Receipt:
         customer_name=order.customer_name,
         service=order.vertical.value,
         service_name=SERVICE_NAMES.get(order.vertical, order.vertical.value.capitalize()),
-        seller=order.restaurant_name if shop_order else "Gud Meal",
+        seller=order.restaurant_name if shop_order else "GudMeals",
         seller_address=order.restaurant_address if shop_order else SERVICE_NAMES[order.vertical],
         summary=_summary(order),
         lines=[

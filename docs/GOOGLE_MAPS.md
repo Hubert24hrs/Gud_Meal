@@ -1,6 +1,6 @@
 # Google Maps Platform: setup, keys, costs and privacy
 
-Gud Meal uses Google Maps Platform for:
+GudMeals uses Google Maps Platform for:
 
 - address search;
 - distances and road-based arrival times;
@@ -43,7 +43,7 @@ Navigation for riders opens the Google Maps app with a link and needs no key.
 
 ## 1. Enable the APIs (owner, in the Google Cloud console or gcloud)
 
-Use the same GCP project as the rest of Gud Meal. Billing must be enabled.
+Use the same GCP project as the rest of GudMeals. Billing must be enabled.
 
 ```bash
 gcloud services enable places.googleapis.com geocoding-backend.googleapis.com routes.googleapis.com --project <PROJECT_ID>
@@ -158,7 +158,7 @@ Each SKU has a free monthly allowance:
 | Quote route, live arrival time | Compute Routes Essentials / **Pro** (traffic-aware) | about $5 / **$10** per 1,000 |
 | Kitchen comparison | Compute Route Matrix (per element = kitchens × addresses) | Essentials or Pro per element; see the pricing page |
 
-What Gud Meal does per action, with the defaults:
+What GudMeals does per action, with the defaults:
 
 | Action | Google calls |
 |---|---|

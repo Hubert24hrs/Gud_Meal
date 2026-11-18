@@ -32,3 +32,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # The GudMeals logo files, made by scripts/make-brand-assets.py.
+  assets:
+    - assets/brand/

@@ -2291,7 +2291,7 @@
         "type": "object"
       },
       "PlusConfig": {
-        "description": "Gud Meal Plus membership. Product defaults, to be confirmed by the owner (ADR-0016).",
+        "description": "GudMeals Plus membership. Product defaults, to be confirmed by the owner (ADR-0016).",
         "properties": {
           "enabled": {
             "default": true,
@@ -4663,8 +4663,8 @@
     }
   },
   "info": {
-    "description": "Core API for the Gud Meal food delivery platform (catalog, pricing, orders, payments, ledger, dispatch). All money values are integer kobo.",
-    "title": "Gud Meal API",
+    "description": "Core API for the GudMeals food delivery platform (catalog, pricing, orders, payments, ledger, dispatch). All money values are integer kobo.",
+    "title": "GudMeals API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
@@ -17668,7 +17668,7 @@
     },
     "/v1/services": {
       "get": {
-        "description": "Gud Meal's services (Food, Supplements & Skin Care, Package Delivery) and their availability.",
+        "description": "GudMeals' services (Food, Supplements & Skin Care, Package Delivery) and their availability.",
         "operationId": "services_v1_services_get",
         "parameters": [
           {

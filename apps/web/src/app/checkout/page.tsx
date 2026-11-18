@@ -147,7 +147,7 @@ function Checkout() {
                   <div className="space-y-2">
                     <MapView height={180} pins={[{ point: picked.place.location, kind: "home", label: picked.place.area ?? "Your address" }]} googleKey={GOOGLE_MAPS_BROWSER_KEY} />
                     <p className={cn("text-sm font-semibold", picked.serviceable ? "text-secondary" : "text-danger")} role="status">
-                      {picked.serviceable ? "Gud Meal delivers here." : "This address is outside our delivery area for now."}
+                      {picked.serviceable ? "GudMeals delivers here." : "This address is outside our delivery area for now."}
                       {picked.place.precision !== "rooftop" && picked.place.precision !== "street" && (
                         <span className="block font-normal text-muted">Add your street, house number and a landmark below so the rider can find you.</span>
                       )}
@@ -243,7 +243,7 @@ function Checkout() {
           <p className="flex items-start gap-2 text-xs text-muted">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" aria-hidden="true" />
             {method === "card" && "You'll pay on a secure payment page. Your order is sent to the kitchen once we verify the payment."}
-            {method === "wallet" && "Paid instantly from your Gud Meal wallet. If the order is cancelled, the money goes straight back."}
+            {method === "wallet" && "Paid instantly from your GudMeals wallet. If the order is cancelled, the money goes straight back."}
             {method === "cash" && "Your order goes to the kitchen now. Pay the rider in cash when it arrives, then share your delivery code."}
           </p>
         </Card>
@@ -270,7 +270,7 @@ function Breakdown({ quote }: { quote: Quote }) {
         <div className="flex justify-between text-secondary"><dt>Discount</dt><dd>-<Price kobo={b.discount_kobo} /></dd></div>
       )}
       {(b.plus_savings_kobo ?? 0) > 0 && (
-        <div className="flex justify-between font-semibold text-secondary"><dt>Gud Meal Plus saved you</dt><dd><Price kobo={b.plus_savings_kobo} /></dd></div>
+        <div className="flex justify-between font-semibold text-secondary"><dt>GudMeals Plus saved you</dt><dd><Price kobo={b.plus_savings_kobo} /></dd></div>
       )}
       <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
         <dt>Total</dt><dd><Price kobo={b.total_kobo} /></dd>
@@ -285,7 +285,7 @@ function Breakdown({ quote }: { quote: Quote }) {
         {" · "}price held until {formatTime(quote.expires_at)}
       </p>
       {!b.plus_savings_kobo && b.delivery_fee_kobo > 0 && (
-        <Link href="/plus" className="block pt-1 text-xs font-bold text-primary underline-offset-2 hover:underline">Get free delivery with Gud Meal Plus →</Link>
+        <Link href="/plus" className="block pt-1 text-xs font-bold text-primary underline-offset-2 hover:underline">Get free delivery with GudMeals Plus →</Link>
       )}
     </dl>
   );

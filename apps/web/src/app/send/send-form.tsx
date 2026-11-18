@@ -115,7 +115,7 @@ export function SendForm() {
       const order = await api.parcels.book(quote.id, orderKey.current);
       const key = (checkoutKeys.current[method] ??= newIdempotencyKey("checkout"));
       const res = await api.orders.checkout(order.id, key, checkoutProvider(method));
-      continueAfterCheckout(res, router.push); // card: provider-hosted page; card data never touches Gud Meal
+      continueAfterCheckout(res, router.push); // card: provider-hosted page; card data never touches GudMeals
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Couldn’t book the delivery. Please try again.");
       setBusy(false);

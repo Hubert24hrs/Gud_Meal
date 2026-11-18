@@ -111,7 +111,7 @@ class RewardsService:
                 and account.referred_by is None
                 and not await self._has_ordered(principal.uid),
                 "share_text": (
-                    f"Get {format_naira(cfg.referee_reward_kobo)} off your first Gud Meal order with my code "
+                    f"Get {format_naira(cfg.referee_reward_kobo)} off your first GudMeals order with my code "
                     f"{account.referral_code}."
                 ),
             },
@@ -168,7 +168,7 @@ class RewardsService:
             raise ValidationFailed("Referral rewards are not available right now")
         code = normalise_code(raw_code)
         if not re.match(REFERRAL_PATTERN, code):
-            raise ValidationFailed("That doesn't look like a Gud Meal referral code")
+            raise ValidationFailed("That doesn't look like a GudMeals referral code")
         owner = await self.repos.store.get(f"referral_codes/{code}")
         if owner is None:
             raise ValidationFailed("We don't recognise that referral code")
@@ -279,7 +279,7 @@ class RewardsService:
             await self.notifier.notify_user(
                 friend_uid,
                 "Your friend's first order is done",
-                f"Here's {format_naira(cfg.referrer_reward_kobo)} off your next order. Thanks for sharing Gud Meal!",
+                f"Here's {format_naira(cfg.referrer_reward_kobo)} off your next order. Thanks for sharing GudMeals!",
                 {"screen": "rewards"},
             )
 

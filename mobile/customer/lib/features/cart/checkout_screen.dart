@@ -45,7 +45,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       final lookup = await ref.read(apiProvider).reverseGeocode(here);
       if (!mounted) return;
       if (!lookup.serviceable) {
-        setState(() => _error = 'Gud Meal does not deliver to where you are yet. Search for the address to deliver to.');
+        setState(() => _error = 'GudMeals does not deliver to where you are yet. Search for the address to deliver to.');
         return;
       }
       setState(() {
@@ -242,7 +242,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           _row('Service fee', b.serviceFeeKobo + b.smallOrderFeeKobo),
           _row('VAT (7.5% on fees)', b.vatKobo),
           if (b.discountKobo > 0) _row('Discount', -b.discountKobo),
-          if (b.plusSavingsKobo > 0) _row('Gud Meal Plus saved you', b.plusSavingsKobo),
+          if (b.plusSavingsKobo > 0) _row('GudMeals Plus saved you', b.plusSavingsKobo),
           const Divider(),
           _row('Total', b.totalKobo, bold: true),
           Text('Arrives around ${formatLagosTime(_quote!.estimatedDeliveryAt)} · price held until ${formatLagosTime(_quote!.expiresAt)}',

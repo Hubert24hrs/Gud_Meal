@@ -3,7 +3,7 @@ import { TrackForm } from "./track-form";
 
 export const metadata: Metadata = {
   title: "Track a package",
-  description: "Track an interstate Gud Meal waybill with its tracking number.",
+  description: "Track an interstate GudMeals waybill with its tracking number.",
   alternates: { canonical: "/track" },
 };
 

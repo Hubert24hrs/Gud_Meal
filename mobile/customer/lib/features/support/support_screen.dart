@@ -12,13 +12,13 @@ const _faqs = [
   ('How do refunds work?',
       'If a store rejects your order, or you cancel before it is accepted (or before a rider is assigned to your package), you get a full refund automatically. For anything else, open a ticket and our team reviews it within 24 hours.'),
   ('How do I pay?',
-      'Card, bank transfer or USSD on a secure payment page (Gud Meal never sees your card details), from your Gud Meal wallet in one tap, or in cash on delivery once you have completed an order.'),
+      'Card, bank transfer or USSD on a secure payment page (GudMeals never sees your card details), from your GudMeals wallet in one tap, or in cash on delivery once you have completed an order.'),
   ('What is the delivery code?',
       'A 4-digit code in your order. Only give it to the rider once you have your order. For packages, share it with the person receiving it.'),
   ('Where do you deliver?', 'Lagos and Enugu for now. Choose your area at the top of Home; more cities are coming.'),
   ('Can I schedule a delivery?', 'Package pickups can be scheduled up to 7 days ahead, between 7am and 9pm.'),
   ('Is Gudy a real person?',
-      'Gudy is Gud Meal’s AI assistant. It always asks you to approve before placing an order or creating a payment, and you can ask for a person at any time.'),
+      'Gudy is GudMeals’ AI assistant. It always asks you to approve before placing an order or creating a payment, and you can ask for a person at any time.'),
 ];
 
 const _ticketCategories = {
@@ -49,7 +49,7 @@ class SupportScreen extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Material(
-            color: const Color(0xFFEAF0FF),
+            color: const Color(0xFFFEF1DA),
             borderRadius: BorderRadius.circular(GmRadius.lg),
             child: InkWell(
               borderRadius: BorderRadius.circular(GmRadius.lg),
@@ -61,12 +61,12 @@ class SupportScreen extends ConsumerWidget {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Chat with Gudy', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: const Color(0xFF1546C9))),
+                      Text('Chat with Gudy', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: const Color(0xFF3A0D05))),
                       const SizedBox(height: 2),
-                      const Text('Instant answers in English, Pidgin, Igbo, Yoruba or Hausa', style: TextStyle(color: Color(0xFF3B4A6B))),
+                      const Text('Instant answers in English, Pidgin, Igbo, Yoruba or Hausa', style: TextStyle(color: Color(0xFF6B4A3A))),
                     ]),
                   ),
-                  const Icon(Icons.chevron_right_rounded, color: Color(0xFF1546C9)),
+                  const Icon(Icons.chevron_right_rounded, color: Color(0xFF3A0D05)),
                 ]),
               ),
             ),
@@ -74,7 +74,7 @@ class SupportScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         ListTile(
-          leading: CircleAvatar(backgroundColor: theme.colorScheme.primaryContainer, child: Icon(Icons.support_agent_rounded, color: brandOrange)),
+          leading: CircleAvatar(backgroundColor: theme.colorScheme.primaryContainer, child: Icon(Icons.support_agent_rounded, color: brandRed)),
           title: const Text('Talk to a person', style: TextStyle(fontWeight: FontWeight.w700)),
           subtitle: const Text('Open a ticket; our team replies in the app'),
           trailing: const Icon(Icons.chevron_right_rounded),
@@ -83,7 +83,7 @@ class SupportScreen extends ConsumerWidget {
         const Divider(indent: 16, endIndent: 16),
         _ContactTile(
           icon: Icons.chat_rounded,
-          color: const Color(0xFF1D754E),
+          color: const Color(0xFF2E8B1E),
           title: 'WhatsApp',
           value: contacts?.whatsapp,
           placeholder: contacts?.placeholders ?? true,
@@ -91,7 +91,7 @@ class SupportScreen extends ConsumerWidget {
         ),
         _ContactTile(
           icon: Icons.call_rounded,
-          color: brandOrange,
+          color: brandRed,
           title: 'Call us',
           value: contacts?.phone,
           placeholder: contacts?.placeholders ?? true,
@@ -130,7 +130,7 @@ class SupportScreen extends ConsumerWidget {
       builder: (_) => const _TicketForm(),
     );
     if (sent == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ticket opened. A Gud Meal support agent will reply in the app.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ticket opened. A GudMeals support agent will reply in the app.')));
     }
   }
 }

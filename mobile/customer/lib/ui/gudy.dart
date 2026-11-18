@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'illustrations.dart';
 
-/// Gudy's face: the blue robot, blinking every few seconds (static when reduced motion is requested).
+/// Gudy's face: the brown robot, blinking every few seconds (static when reduced motion is requested).
 class GudyAvatar extends StatefulWidget {
   const GudyAvatar({super.key, this.size = 56, this.pulse = false});
   final double size;
@@ -40,7 +40,7 @@ class _GudyAvatarState extends State<GudyAvatar> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Gudy, your Gud Meal assistant',
+      label: 'Gudy, your GudMeals assistant',
       image: true,
       child: AnimatedBuilder(
         animation: _c,
@@ -123,7 +123,7 @@ class _GudyFabState extends State<GudyFab> with SingleTickerProviderStateMixin {
       borderRadius: BorderRadius.circular(14),
       child: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text('Hi, I’m Gudy!', maxLines: 1, softWrap: false, style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF202521))),
+        child: Text('Hi, I’m Gudy!', maxLines: 1, softWrap: false, style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF2A0D06))),
       ),
     );
     // The button stays exactly at [pos]; the greeting floats beside it (towards the middle of the screen).
@@ -166,7 +166,7 @@ class _GudyFabState extends State<GudyFab> with SingleTickerProviderStateMixin {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: RobotPainter.blue.withValues(alpha: .35), blurRadius: 16, offset: const Offset(0, 6))],
+                  boxShadow: [BoxShadow(color: RobotPainter.body.withValues(alpha: .35), blurRadius: 16, offset: const Offset(0, 6))],
                 ),
                 child: const GudyAvatar(size: _size, pulse: true),
               ),

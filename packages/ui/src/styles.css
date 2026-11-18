@@ -1,4 +1,4 @@
-/* Gud Meal shared theme for Tailwind v4. Apps import: tailwindcss, then this file. */
+/* GudMeals shared theme for Tailwind v4. Apps import: tailwindcss, then this file. */
 @import "@gudmeal/tokens/tokens.css";
 
 @theme inline {
@@ -27,7 +27,7 @@
   --radius-xl: var(--gm-radius-xl);
   --shadow-card: var(--gm-shadow-card);
   --shadow-raised: var(--gm-shadow-raised);
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-nunito), ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 

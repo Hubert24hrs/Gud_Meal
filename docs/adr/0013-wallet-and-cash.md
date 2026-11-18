@@ -1,4 +1,4 @@
-# ADR-0013: Gud Meal wallet, pay on delivery and vendor cash-on-delivery
+# ADR-0013: GudMeals wallet, pay on delivery and vendor cash-on-delivery
 
 - **Status:** Accepted (product), legal review pending before launch
 - **Date:** 2026-11-15
@@ -6,7 +6,7 @@
 
 ## Context
 
-The owner chose four payment methods: Paystack (card/transfer/USSD), a **Gud Meal wallet**, **pay on delivery**
+The owner chose four payment methods: Paystack (card/transfer/USSD), a **GudMeals wallet**, **pay on delivery**
 and Flutterwave as a backup, plus **cash-on-delivery collection for vendors** sending packages. Nigerian
 customers often prefer cash; small online sellers depend on COD; instant refunds build trust. All of this touches
 money, so it must keep the platform's rules: integer kobo, prices only from `pricing.py`, append-only balanced

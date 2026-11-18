@@ -16,7 +16,7 @@ extension PayMethodCheckout on PayMethod {
       };
 }
 
-/// Card / Gud Meal wallet / pay on delivery. The hints (balance, first order) come from the API so customers see
+/// Card / GudMeals wallet / pay on delivery. The hints (balance, first order) come from the API so customers see
 /// why an option is off; the server checks everything again at checkout.
 class PaymentMethodPicker extends ConsumerWidget {
   const PaymentMethodPicker({
@@ -74,7 +74,7 @@ class PaymentMethodPicker extends ConsumerWidget {
       },
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _option(PayMethod.card, Icons.credit_card_rounded, 'Card, bank transfer or USSD', 'On a secure payment page', true),
-        _option(PayMethod.wallet, Icons.account_balance_wallet_rounded, 'Gud Meal wallet', walletNote, walletOk),
+        _option(PayMethod.wallet, Icons.account_balance_wallet_rounded, 'GudMeals wallet', walletNote, walletOk),
         if (offerCash)
           _option(PayMethod.cash, Icons.payments_rounded, 'Pay on delivery',
               cashOk ? 'Pay the rider in cash when it arrives' : cashWhyNot!, cashOk),

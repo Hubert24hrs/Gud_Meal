@@ -31,7 +31,7 @@ interface CashRules {
 }
 
 /**
- * Card / Gud Meal wallet / pay on delivery. The hints here (balance, first order, limits) come from the API so
+ * Card / GudMeals wallet / pay on delivery. The hints here (balance, first order, limits) come from the API so
  * customers see why an option is off, but the server re-checks everything at checkout.
  */
 export function PaymentMethodPicker({ totalKobo, value, onChange, cash }: {
@@ -65,7 +65,7 @@ export function PaymentMethodPicker({ totalKobo, value, onChange, cash }: {
   const options: { id: PayMethod; Icon: typeof Wallet; title: string; note: string; ok: boolean }[] = [
     { id: "card", Icon: CreditCard, title: "Card, bank transfer or USSD", note: "On a secure payment page", ok: true },
     {
-      id: "wallet", Icon: Wallet, title: "Gud Meal wallet",
+      id: "wallet", Icon: Wallet, title: "GudMeals wallet",
       note: wallet.isLoading ? "Checking your balance…"
         : !enabled ? "Not available right now"
           : walletOk ? `Balance ${formatNaira(balance)} · pays in one tap`

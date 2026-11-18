@@ -212,13 +212,13 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
               color: _size == id ? theme.colorScheme.primaryContainer : theme.colorScheme.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(GmRadius.md),
-                side: BorderSide(color: _size == id ? brandOrange : theme.colorScheme.outline, width: _size == id ? 2 : 1),
+                side: BorderSide(color: _size == id ? brandRed : theme.colorScheme.outline, width: _size == id ? 2 : 1),
               ),
               child: ListTile(
                 leading: Icon(icon),
                 title: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
                 subtitle: Text(hint),
-                trailing: _size == id ? Icon(Icons.check_circle_rounded, color: brandOrange) : null,
+                trailing: _size == id ? Icon(Icons.check_circle_rounded, color: brandRed) : null,
                 onTap: () => setState(() {
                   _size = id;
                   _quote = null;
@@ -395,7 +395,7 @@ class _ParcelScreenState extends ConsumerState<ParcelScreen> {
   Widget _section(BuildContext context, String title, IconData icon) => Padding(
         padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
         child: Row(children: [
-          Icon(icon, size: 20, color: brandOrange),
+          Icon(icon, size: 20, color: brandRed),
           const SizedBox(width: 8),
           Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
         ]),

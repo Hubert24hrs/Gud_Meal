@@ -88,7 +88,7 @@ class FlutterwaveProvider:
                 **({"phonenumber": customer_phone} if customer_phone else {}),
             },
             "meta": dict(metadata),
-            "customizations": {"title": "Gud Meal", "description": "Food order payment"},
+            "customizations": {"title": "GudMeals", "description": "Food order payment"},
         }
         body = await self._request("POST", "/payments", json=payload)
         link = (body.get("data") or {}).get("link")

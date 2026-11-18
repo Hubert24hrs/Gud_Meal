@@ -8,10 +8,10 @@ import '../features/location/address_picker.dart' show LocationUnavailable, cust
 import '../providers.dart';
 import 'illustrations.dart';
 
-/// Gud Meal orange, from the design tokens.
-const brandOrange = GmLight.primary;
-const brandOrangeLight = Color(0xFFF7894F);
-const brandGradient = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [brandOrangeLight, brandOrange]);
+/// The red of the GudMeals logo (design tokens), and the warm orange-red the header gradient starts from.
+const brandRed = GmLight.primary;
+const brandWarm = Color(0xFFF25C22);
+const brandGradient = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [brandWarm, brandRed]);
 
 /// Bottom edge shaped like a soft wave (home and discover headers).
 class WaveClipper extends CustomClipper<Path> {
@@ -52,7 +52,7 @@ class AddressPill extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.location_on_rounded, size: 18, color: brandOrange),
+              Icon(Icons.location_on_rounded, size: 18, color: brandRed),
               const SizedBox(width: 6),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 210),
@@ -69,7 +69,7 @@ class AddressPill extends ConsumerWidget {
 }
 
 /// The delivery area nearest to [here], or null when even the nearest is more than [withinKm] away
-/// (Gud Meal does not deliver there).
+/// (GudMeals does not deliver there).
 Area? nearestArea(GeoPoint here, List<Area> areas, {double withinKm = 25}) {
   Area? nearest;
   var best = double.infinity;
@@ -125,7 +125,7 @@ class _AreaPickerState extends ConsumerState<_AreaPicker> {
       final nearest = nearestArea(here, all);
       if (!mounted) return;
       if (nearest == null) {
-        setState(() => _gpsNote = 'Gud Meal does not deliver where you are yet. Choose the area to deliver to.');
+        setState(() => _gpsNote = 'GudMeals does not deliver where you are yet. Choose the area to deliver to.');
       } else {
         Navigator.of(context).pop(nearest);
       }
@@ -148,7 +148,7 @@ class _AreaPickerState extends ConsumerState<_AreaPicker> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Where should we deliver?', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 4),
-            Text('Gud Meal delivers in Lagos and Enugu.', style: Theme.of(context).textTheme.bodySmall),
+            Text('GudMeals delivers in Lagos and Enugu.', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 12),
             TextField(
               autofocus: false,
@@ -160,7 +160,7 @@ class _AreaPickerState extends ConsumerState<_AreaPicker> {
               contentPadding: EdgeInsets.zero,
               leading: _locating
                   ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Icon(Icons.my_location_rounded, color: brandOrange),
+                  : Icon(Icons.my_location_rounded, color: brandRed),
               title: const Text('Use my current location', style: TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Text(_gpsNote ?? 'Finds the delivery area nearest to you'),
               onTap: _locating ? null : () => _useMyLocation(areas.value ?? const []),
@@ -187,7 +187,7 @@ class _AreaPickerState extends ConsumerState<_AreaPicker> {
                     ListTile(
                       leading: const Icon(Icons.place_outlined),
                       title: Text(a.name),
-                      trailing: a == current ? Icon(Icons.check_circle_rounded, color: brandOrange) : null,
+                      trailing: a == current ? Icon(Icons.check_circle_rounded, color: brandRed) : null,
                       onTap: () => Navigator.of(context).pop(a),
                     ),
                 ],
@@ -238,15 +238,15 @@ class MerchantArt extends StatelessWidget {
   final bool compact;
 
   static const _food = [
-    [Color(0xFFE85D32), Color(0xFFF5B942)],
+    [Color(0xFFE0040B), Color(0xFFF5A21A)],
     [Color(0xFFB4442A), Color(0xFFF28C5B)],
     [Color(0xFF7A2E12), Color(0xFFE2762E)],
-    [Color(0xFF2B5D4A), Color(0xFFE8C468)],
+    [Color(0xFF6B2410), Color(0xFFE8C468)],
   ];
   static const _beauty = [
     [Color(0xFFC2557A), Color(0xFFF6B9C6)],
     [Color(0xFF6E4AA8), Color(0xFFE2C7F4)],
-    [Color(0xFF1D754E), Color(0xFFBFE5CF)],
+    [Color(0xFF2E8B1E), Color(0xFFBFE5B0)],
   ];
 
   @override
@@ -348,7 +348,7 @@ class MerchantCard extends ConsumerWidget {
                     child: IconButton(
                       tooltip: fav ? 'Remove from favourites' : 'Add to favourites',
                       onPressed: () => ref.read(favouritesProvider.notifier).toggle(r.id),
-                      icon: Icon(fav ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: fav ? const Color(0xFFD23B4E) : const Color(0xFF202521)),
+                      icon: Icon(fav ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: fav ? const Color(0xFFE0040B) : const Color(0xFF2A0D06)),
                     ),
                   ),
                 ),
@@ -360,7 +360,7 @@ class MerchantCard extends ConsumerWidget {
             DefaultTextStyle(
               style: theme.textTheme.bodyMedium!.copyWith(color: theme.colorScheme.onSurfaceVariant),
               child: Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 6, children: [
-                const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Color(0xFF1D754E)),
+                const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Color(0xFF2E8B1E)),
                 Text(ratingPercent(r.rating)),
                 if (r.etaMinutes != null) Text('·  ${r.etaMinutes} min'),
                 if (deliveryLabel(r).isNotEmpty) ...[
@@ -386,7 +386,7 @@ class PromoTag extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         constraints: const BoxConstraints(maxWidth: 230),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(color: const Color(0xFFD7263D), borderRadius: BorderRadius.circular(6)),
+        decoration: BoxDecoration(color: const Color(0xFFE0040B), borderRadius: BorderRadius.circular(6)),
         child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
       );
 }
@@ -419,10 +419,10 @@ class BrandTile extends StatelessWidget {
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: promo ? const Color(0xFFD7263D) : const Color(0xFFDDF0E6), borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(color: promo ? const Color(0xFFE0040B) : const Color(0xFFF4E8E3), borderRadius: BorderRadius.circular(6)),
               child: Text(
                 promo ? 'Promo' : (fee == 0 ? 'Free' : formatNaira(fee)),
-                style: TextStyle(color: promo ? Colors.white : const Color(0xFF1D754E), fontWeight: FontWeight.w700, fontSize: 11),
+                style: TextStyle(color: promo ? Colors.white : const Color(0xFF3A0D05), fontWeight: FontWeight.w700, fontSize: 11),
               ),
             ),
           ],
@@ -460,7 +460,7 @@ class CategoryBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: selected ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-                border: Border.all(color: selected ? brandOrange : Colors.transparent, width: 2),
+                border: Border.all(color: selected ? brandRed : Colors.transparent, width: 2),
               ),
               alignment: Alignment.center,
               child: ExcludeSemantics(child: Text(emoji, style: const TextStyle(fontSize: 32))),
@@ -490,7 +490,7 @@ class FilterPill extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8),
       child: Material(
         color: selected ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-        shape: StadiumBorder(side: BorderSide(color: selected ? brandOrange : Colors.transparent)),
+        shape: StadiumBorder(side: BorderSide(color: selected ? brandRed : Colors.transparent)),
         child: InkWell(
           customBorder: const StadiumBorder(),
           onTap: onTap,
