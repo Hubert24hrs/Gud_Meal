@@ -1,6 +1,6 @@
 # Gud Meal — Discover. Order. Eat.
 
-AI-native delivery for Nigeria (Lagos and Enugu): **Food**, **Beauty & Skin care** from partner shops and **Package
+AI-native delivery for Nigeria (Lagos and Enugu): **Food**, **Supplements & Skin Care** from partner shops and **Package
 Delivery** by bike and by **interstate waybill** (Lagos, Enugu, Abuja, Port Harcourt), with **Gudy**, an AI
 assistant that speaks English, Nigerian Pidgin, Igbo, Yoruba and Hausa, in the app and on WhatsApp. A customer app and website (Glovo-style, in
 Gud Meal orange, with animated draggable service bubbles), a partner dashboard, a rider app, a super-admin Command

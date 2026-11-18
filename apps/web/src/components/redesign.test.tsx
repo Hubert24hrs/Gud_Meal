@@ -26,32 +26,24 @@ describe("service bubbles", () => {
   afterEach(cleanup);
   const bubbles = [
     { id: "food", label: "Food", href: "/food", art: <svg /> },
-    { id: "beauty", label: "Beauty & Skin care", href: "/beauty", art: <svg /> },
+    { id: "beauty", label: "Supplements & Skin Care", href: "/beauty", art: <svg /> },
     { id: "parcel", label: "Package Delivery", href: "/send", art: <svg /> },
   ];
 
   it("renders each service as a real link (keyboard and search-engine friendly)", () => {
     render(<ServiceBubbles bubbles={bubbles} />);
     expect(screen.getByRole("link", { name: "Food" }).getAttribute("href")).toBe("/food");
-    expect(screen.getByRole("link", { name: "Beauty & Skin care" }).getAttribute("href")).toBe("/beauty");
+    expect(screen.getByRole("link", { name: "Supplements & Skin Care" }).getAttribute("href")).toBe("/beauty");
     expect(screen.getByRole("link", { name: "Package Delivery" }).getAttribute("href")).toBe("/send");
   });
 
-  it("shows six services in two rows, each a link to its page", () => {
-    const six = [
-      { id: "food", label: "Food", href: "/food", art: <svg /> },
-      { id: "grocery", label: "Groceries", href: "/groceries", art: <svg /> },
-      { id: "pharmacy", label: "Pharmacy", href: "/pharmacy", art: <svg /> },
-      { id: "market", label: "Market Shopping", href: "/market", art: <svg /> },
-      { id: "beauty", label: "Beauty & Skin care", href: "/beauty", art: <svg /> },
-      { id: "parcel", label: "Package Delivery", href: "/send", art: <svg /> },
-    ];
-    render(<ServiceBubbles bubbles={six} height={372} />);
-    expect(screen.getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/food", "/groceries", "/pharmacy", "/market", "/beauty", "/send"]);
-    fireEvent.click(screen.getByRole("link", { name: "Market Shopping" }));
-    expect(push).toHaveBeenCalledWith("/market");
-    // Long names wrap instead of covering the next bubble.
-    expect(screen.getByText("Beauty & Skin care").className).not.toContain("whitespace-nowrap");
+  it("shows the three services, each a link to its page", () => {
+    render(<ServiceBubbles bubbles={bubbles} />);
+    expect(screen.getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/food", "/beauty", "/send"]);
+    fireEvent.click(screen.getByRole("link", { name: "Supplements & Skin Care" }));
+    expect(push).toHaveBeenCalledWith("/beauty");
+    // A long name wraps instead of running past its bubble.
+    expect(screen.getByText("Supplements & Skin Care").className).not.toContain("whitespace-nowrap");
   });
 
   it("a tap opens the service, a drag does not", () => {
@@ -76,9 +68,9 @@ describe("Gudy navigation and store labels", () => {
     expect(routeForScreen("parcel")).toBe("/send");
     expect(routeForScreen("wallet")).toBe("/wallet");
     expect(routeForScreen("food", { category: "local" })).toBe("/food?category=local");
-    expect(routeForScreen("grocery")).toBe("/groceries");
-    expect(routeForScreen("pharmacy", { category: "pain" })).toBe("/pharmacy?category=pain");
-    expect(routeForScreen("market", { category: "combos" })).toBe("/market?category=combos");
+    expect(routeForScreen("beauty", { category: "supplements" })).toBe("/beauty?category=supplements");
+    // Groceries, Pharmacy and Market Shopping are no longer Gud Meal services.
+    expect(routeForScreen("pharmacy")).toBeNull();
     expect(routeForScreen("merchant", { merchant_id: "b-shea" })).toBe("/restaurants/b-shea");
     expect(routeForScreen("order", { order_id: "o1" })).toBe("/orders/o1");
     expect(routeForScreen("profile")).toBe("/account");

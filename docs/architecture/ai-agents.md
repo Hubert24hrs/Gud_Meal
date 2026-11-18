@@ -78,7 +78,8 @@ flowchart TD
 
 ## Gudy: persona, languages and offline mode (2026-11-15)
 
-- **Persona.** Gudy is Gud Meal's assistant for Food, Beauty & Skin care and Package Delivery in Lagos and Enugu.
+- **Persona.** Gudy is Gud Meal's assistant for Food, Supplements & Skin Care and Package Delivery in Lagos and
+  Enugu. It never gives health advice about supplements (no diagnosis, doses or health claims).
   It replies in the customer's language (English, Nigerian Pidgin, Igbo, Yoruba, Hausa), mirroring code-mixing,
   and keeps dish, product and store names exactly as tools return them.
 - **New tools** (`tools/services.py`): `list_services`, `get_order_totals` (exact totals from

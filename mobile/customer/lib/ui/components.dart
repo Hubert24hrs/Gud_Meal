@@ -31,7 +31,7 @@ class WaveClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
-/// The address pill at the top of Home, Food and Beauty: shows the delivery area, opens the area picker.
+/// The address pill at the top of Home and the service pages: shows the delivery area, opens the area picker.
 class AddressPill extends ConsumerWidget {
   const AddressPill({super.key, this.onDark = false});
   final bool onDark;
@@ -248,19 +248,6 @@ class MerchantArt extends StatelessWidget {
     [Color(0xFF6E4AA8), Color(0xFFE2C7F4)],
     [Color(0xFF1D754E), Color(0xFFBFE5CF)],
   ];
-  static const _grocery = [
-    [Color(0xFF1F7A4D), Color(0xFFBFE8CF)],
-    [Color(0xFF2B6CB0), Color(0xFFCFE3F7)],
-    [Color(0xFF8A6A1F), Color(0xFFF3E2A9)],
-  ];
-  static const _pharmacy = [
-    [Color(0xFF12746B), Color(0xFFBDEBE4)],
-    [Color(0xFF2B5FA8), Color(0xFFCADDF6)],
-  ];
-  static const _market = [
-    [Color(0xFF9A4A1B), Color(0xFFF4CF9C)],
-    [Color(0xFF3F7A2E), Color(0xFFD6ECB8)],
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -269,16 +256,10 @@ class MerchantArt extends StatelessWidget {
     }
     final palette = switch (merchant.vertical) {
       'beauty' => _beauty,
-      'grocery' => _grocery,
-      'pharmacy' => _pharmacy,
-      'market' => _market,
       _ => _food,
     };
     final CustomPainter art = switch (merchant.vertical) {
       'beauty' => const BeautyIllustration(),
-      'grocery' => const GroceryIllustration(),
-      'pharmacy' => const PharmacyIllustration(),
-      'market' => const MarketIllustration(),
       _ => const FoodIllustration(),
     };
     final colors = palette[merchant.id.codeUnits.fold(0, (a, c) => a + c) % palette.length];
@@ -527,26 +508,6 @@ class FilterPill extends StatelessWidget {
   }
 }
 
-/// Something customers should know before they shop in a service (over-the-counter only, market measures).
-class ServiceNote extends StatelessWidget {
-  const ServiceNote(this.text, {super.key});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(GmRadius.md)),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSecondaryContainer),
-        const SizedBox(width: 8),
-        Expanded(child: Text(text, style: TextStyle(color: scheme.onSecondaryContainer, height: 1.3))),
-      ]),
-    );
-  }
-}
-
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key, required this.icon, required this.title, required this.body, this.action});
   final IconData icon;
@@ -574,59 +535,6 @@ class EmptyState extends StatelessWidget {
         Text(body, textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
         if (action != null) ...[const SizedBox(height: 14), action!],
       ]),
-    );
-  }
-}
-
-/// Promo banner on Home ("Up to 20% off…").
-class PromoBanner extends StatelessWidget {
-  const PromoBanner({super.key, required this.title, required this.body, required this.onTap, this.badge});
-  final String title;
-  final String body;
-  final String? badge;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Material(
-        color: scheme.surface,
-        elevation: 1,
-        borderRadius: BorderRadius.circular(GmRadius.lg),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: IntrinsicHeight(
-            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text(title, maxLines: 3, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 6),
-                    Text(body, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: scheme.onSurfaceVariant)),
-                  ]),
-                ),
-              ),
-              Container(
-                width: 130,
-                decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFD7263D), brandOrange])),
-                child: Stack(children: [
-                  const Positioned(right: -10, bottom: -14, width: 120, height: 120, child: CustomPaint(painter: FoodIllustration())),
-                  if (badge != null)
-                    Positioned(
-                      left: 10,
-                      top: 12,
-                      child: Text(badge!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20, height: 1)),
-                    ),
-                ]),
-              ),
-            ]),
-          ),
-        ),
-      ),
     );
   }
 }

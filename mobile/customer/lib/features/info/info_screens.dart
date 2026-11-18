@@ -225,7 +225,7 @@ class _BusinessApplyState extends ConsumerState<BusinessApplyScreen> {
                 Text('We verify every partner (CAC registration and bank details) before going live.', style: theme.textTheme.bodySmall),
                 const SizedBox(height: 16),
                 _Field(_name, 'Business name', validator: (v) => _atLeast(v, 2, 'Enter the name of your restaurant or shop'), maxLength: 80),
-                _Field(_sells, 'What you sell', hint: 'Comma separated, e.g. Nigerian, grills or groceries', validator: (v) => _atLeast(v, 2, 'List at least one')),
+                _Field(_sells, 'What you sell', hint: 'Comma separated, e.g. Nigerian, grills or skin care', validator: (v) => _atLeast(v, 2, 'List at least one')),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: DropdownButtonFormField<Area>(

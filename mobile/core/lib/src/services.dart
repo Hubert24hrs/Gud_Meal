@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// How the apps name a merchant service and its shops (ADR-0018). The API calls a service a "vertical".
+/// How the apps name a merchant service and its shops. The API calls a service a "vertical".
 class ServiceCopy {
   const ServiceCopy({
     required this.id,
@@ -14,10 +14,9 @@ class ServiceCopy {
     required this.typeFilter,
     required this.readyIn,
     required this.steps,
-    this.note,
   });
 
-  /// The API's id: food, grocery, pharmacy, market or beauty.
+  /// The API's id: food, or beauty (Supplements & Skin Care).
   final String id;
   final String title;
 
@@ -25,35 +24,27 @@ class ServiceCopy {
   final String route;
   final IconData icon;
 
-  /// "restaurants", "stores", "pharmacies", "markets", "shops".
+  /// "restaurants", "shops".
   final String shops;
 
-  /// "All restaurants", "All stores" ...
+  /// "All restaurants", "All shops".
   final String allShops;
 
-  /// "Popular brands", "Popular stores" ...
+  /// "Popular brands", "Popular shops".
   final String popular;
 
-  /// What the shop sells, for search results: "Dishes", "Products", "Foodstuff".
+  /// What the shop sells, for search results: "Dishes", "Products".
   final String items;
 
-  /// The label of the filter by what a shop carries: "Food type", "Department" ...
+  /// The label of the filter by what a shop carries: "Food type", "Product type".
   final String typeFilter;
 
-  /// "ready in", "packed in", "bought in" (before "~12 min").
+  /// "ready in", "packed in" (before "~12 min").
   final String readyIn;
 
   /// The five steps of an order's timeline.
   final List<String> steps;
-
-  /// Something customers should know before they shop, shown on the shop's page.
-  final String? note;
-
-  /// Shops that sell products by the aisle: their pages show aisles, sizes and stock instead of a menu.
-  bool get isRetail => const {'grocery', 'pharmacy', 'market'}.contains(id);
 }
-
-const _packing = ['Placed', 'Accepted', 'Packing', 'On the way', 'Delivered'];
 
 const foodService = ServiceCopy(
   id: 'food',
@@ -69,53 +60,10 @@ const foodService = ServiceCopy(
   steps: ['Placed', 'Accepted', 'Preparing', 'On the way', 'Delivered'],
 );
 
-const groceryService = ServiceCopy(
-  id: 'grocery',
-  title: 'Groceries',
-  route: '/groceries',
-  icon: Icons.local_grocery_store_rounded,
-  shops: 'stores',
-  allShops: 'All stores',
-  popular: 'Popular stores',
-  items: 'Products',
-  typeFilter: 'Department',
-  readyIn: 'packed in',
-  steps: _packing,
-);
-
-const pharmacyService = ServiceCopy(
-  id: 'pharmacy',
-  title: 'Pharmacy',
-  route: '/pharmacy',
-  icon: Icons.local_pharmacy_rounded,
-  shops: 'pharmacies',
-  allShops: 'All pharmacies',
-  popular: 'Popular pharmacies',
-  items: 'Products',
-  typeFilter: 'Health need',
-  readyIn: 'packed in',
-  steps: _packing,
-  note: 'Over-the-counter products only. For prescription medicines, take your prescription to a pharmacy.',
-);
-
-const marketService = ServiceCopy(
-  id: 'market',
-  title: 'Market Shopping',
-  route: '/market',
-  icon: Icons.shopping_basket_rounded,
-  shops: 'markets',
-  allShops: 'All markets',
-  popular: 'Popular markets',
-  items: 'Foodstuff',
-  typeFilter: 'Foodstuff type',
-  readyIn: 'bought in',
-  steps: ['Placed', 'Accepted', 'Buying', 'On the way', 'Delivered'],
-  note: 'A shopper buys these fresh for you at the market. Sizes are market measures: derica, paint, bunch.',
-);
-
+/// Vitamins, supplements and skin care from partner shops. The API still calls it `beauty`.
 const beautyService = ServiceCopy(
   id: 'beauty',
-  title: 'Beauty & Skin care',
+  title: 'Supplements & Skin Care',
   route: '/beauty',
   icon: Icons.spa_rounded,
   shops: 'shops',
@@ -124,11 +72,11 @@ const beautyService = ServiceCopy(
   items: 'Products',
   typeFilter: 'Product type',
   readyIn: 'packed in',
-  steps: _packing,
+  steps: ['Placed', 'Accepted', 'Packing', 'On the way', 'Delivered'],
 );
 
 /// The merchant services in the order the home screen shows them (Package Delivery is a courier job, not a shop).
-const merchantServices = [foodService, groceryService, pharmacyService, marketService, beautyService];
+const merchantServices = [foodService, beautyService];
 
 /// The copy for [vertical]; unknown services read like Food, so an older app still shows something sensible.
 ServiceCopy serviceCopy(String vertical) =>
@@ -137,24 +85,7 @@ ServiceCopy serviceCopy(String vertical) =>
 /// Names of every kind of order, for spending summaries and order lists.
 const serviceNames = {
   'food': 'Food',
-  'grocery': 'Groceries',
-  'pharmacy': 'Pharmacy',
-  'market': 'Market Shopping',
-  'beauty': 'Beauty & Skin care',
+  'beauty': 'Supplements & Skin Care',
   'parcel': 'Package Delivery',
   'waybill': 'Interstate',
 };
-
-/// The price to show on a product: its lowest real price, and whether it starts "From" because a choice the
-/// customer must make can cost more (beef by weight, eggs by the crate). Mirrors how the server prices a line.
-({int kobo, bool from}) listPrice(int priceKobo, Iterable<({int minSelect, List<int> deltas})> groups) {
-  var lowest = priceKobo;
-  var from = false;
-  for (final g in groups) {
-    if (g.minSelect <= 0 || g.deltas.isEmpty) continue;
-    final sorted = [...g.deltas]..sort();
-    lowest += sorted.take(g.minSelect).fold(0, (a, b) => a + b);
-    if (sorted.last > sorted.first) from = true;
-  }
-  return (kobo: lowest, from: from);
-}

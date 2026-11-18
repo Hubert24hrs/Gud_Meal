@@ -98,12 +98,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),
       GoRoute(path: '/food', builder: (_, s) => VerticalScreen(vertical: 'food', category: s.uri.queryParameters['category'])),
       GoRoute(path: '/beauty', builder: (_, s) => VerticalScreen(vertical: 'beauty', category: s.uri.queryParameters['category'])),
-      // Groceries, Pharmacy and Market Shopping (ADR-0018): the same service page, with their own shops.
-      for (final service in const [groceryService, pharmacyService, marketService])
-        GoRoute(
-          path: service.route,
-          builder: (_, s) => VerticalScreen(vertical: service.id, category: s.uri.queryParameters['category']),
-        ),
       GoRoute(
         path: '/send',
         builder: (_, s) => s.uri.queryParameters['mode'] == 'interstate' ? const WaybillScreen() : const ParcelScreen(),

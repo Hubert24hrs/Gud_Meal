@@ -14,10 +14,7 @@ from .models import Model, Order, Vertical
 
 SERVICE_NAMES = {
     Vertical.FOOD: "Food",
-    Vertical.GROCERY: "Groceries",
-    Vertical.PHARMACY: "Pharmacy",
-    Vertical.MARKET: "Market Shopping",
-    Vertical.BEAUTY: "Beauty & Skin care",
+    Vertical.BEAUTY: "Supplements & Skin Care",
     Vertical.PARCEL: "Package Delivery",
     Vertical.WAYBILL: "Interstate waybill",
 }

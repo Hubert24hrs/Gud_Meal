@@ -123,22 +123,16 @@ void main() {
     expect(nearestArea(const GeoPoint(lat: 6.45, lng: 3.47), const []), isNull);
   });
 
-  testWidgets('home ends with the website sections: why Gud Meal, and selling or riding with it', (tester) async {
-    for (final (button, route) in [('Add your business', '/partner-with-us'), ('Become a rider', '/ride')]) {
-      await _pump(tester, const HomeScreen(), overrides: [forYouProvider.overrideWith((ref) async => const <RestaurantCard>[])]);
-      await tester.scrollUntilVisible(find.text('Sell on Gud Meal. Ride with Gud Meal.'), 400, scrollable: page);
-      for (final title in ['Gudy plans to your budget', 'Transparent, safe payments', 'Live tracking to your door']) {
-        expect(find.text(title), findsOneWidget, reason: title);
-      }
-      await tester.scrollUntilVisible(find.text('You approve every order before you pay.'), 200, scrollable: page);
-      await tester.ensureVisible(find.text(button));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(button));
-      await tester.pumpAndSettle();
-      expect(find.text('PAGE $route'), findsOneWidget);
+  testWidgets('home is minimal: the three services and the picks, no banners or explanations', (tester) async {
+    await _pump(tester, const HomeScreen(), overrides: [forYouProvider.overrideWith((ref) async => const <RestaurantCard>[])]);
+    for (final service in ['Food', 'Supplements & Skin Care', 'Package Delivery']) {
+      expect(find.text(service), findsOneWidget, reason: service);
+    }
+    for (final gone in ['Groceries', 'Pharmacy', 'Market Shopping', 'Ask Gudy', 'Send a package', 'Gudy plans to your budget',
+        'Transparent, safe payments', 'Live tracking to your door', 'Sell on Gud Meal. Ride with Gud Meal.']) {
+      expect(find.text(gone), findsNothing, reason: gone);
     }
     // "See all" beside the picks opens Discover.
-    await _pump(tester, const HomeScreen(), overrides: [forYouProvider.overrideWith((ref) async => const <RestaurantCard>[])]);
     await tester.tap(find.byTooltip('See all'));
     await tester.pumpAndSettle();
     expect(find.text('PAGE /discover'), findsOneWidget);
@@ -350,15 +344,12 @@ void main() {
         asked = q.vertical;
         return const [
           RestaurantCard(id: 'r-jollof', name: 'Jollof Junction', rating: 4.7, ratingCount: 900, isOpen: true),
-          RestaurantCard(id: 'g-fresh', vertical: 'grocery', name: 'FreshBasket Supermarket', rating: 4.6, ratingCount: 700, isOpen: true),
-          RestaurantCard(id: 'm-lekki', vertical: 'market', name: 'Lekki Market Shopper', rating: 4.5, ratingCount: 600, isOpen: true),
+          RestaurantCard(id: 'b-ivie', vertical: 'beauty', name: 'Ivie & Oak Wellness', rating: 4.6, ratingCount: 700, isOpen: true),
         ];
       }),
     ]);
     expect(asked, 'all');
-    await tester.scrollUntilVisible(find.text('Lekki Market Shopper'), 300, scrollable: page);
-    expect(find.text('FreshBasket Supermarket'), findsOneWidget);
-    expect(find.text('Groceries'), findsOneWidget);
-    expect(find.text('Market Shopping'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Ivie & Oak Wellness'), 300, scrollable: page);
+    expect(find.text('Supplements & Skin Care'), findsOneWidget);
   });
 }

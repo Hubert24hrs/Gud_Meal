@@ -11,11 +11,11 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { publicApi } from "@/lib/api";
 import { useLocation } from "@/lib/location";
 import { serviceCopy } from "@/lib/services";
-import { AddressPill, BrandTile, CategoryBubble, EmptyBlock, FilterPill, MerchantCard, SectionTitle, ServiceNote } from "./storefront";
+import { AddressPill, BrandTile, CategoryBubble, EmptyBlock, FilterPill, MerchantCard, SectionTitle } from "./storefront";
 
 const SORTS: Record<string, string> = { recommended: "Recommended", rating: "Top rated", distance: "Nearest", delivery_fee: "Lowest delivery fee" };
 
-/** A service page: Food, Groceries, Pharmacy, Market Shopping, or Beauty & Skin care. */
+/** A service page: Food, or Supplements & Skin Care. */
 export function VerticalPage({ vertical, initialCategory }: { vertical: MerchantVertical; initialCategory?: string }) {
   const router = useRouter();
   const { area } = useLocation();
@@ -54,7 +54,6 @@ export function VerticalPage({ vertical, initialCategory }: { vertical: Merchant
         <span className="size-10" aria-hidden="true" />
       </div>
       <h1 className="mt-4 text-4xl font-black tracking-tight">{title}</h1>
-      {service.note && <ServiceNote className="mt-3">{service.note}</ServiceNote>}
 
       <label className="mt-4 flex items-center gap-2 rounded-full bg-surface-muted px-4 py-3">
         <Search className="size-5 text-muted" aria-hidden="true" />

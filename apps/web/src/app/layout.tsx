@@ -15,9 +15,9 @@ const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
-  title: { default: "Gud Meal: food, groceries, pharmacy and package delivery", template: "%s · Gud Meal" },
+  title: { default: "Gud Meal: food, supplements & skin care and package delivery", template: "%s · Gud Meal" },
   description:
-    "Order food from the best restaurants, groceries from supermarkets, pharmacy items, fresh foodstuff bought for you at the market and beauty products, and send packages across Lagos and Enugu. Ask Gudy, our AI assistant, in English, Pidgin, Igbo, Yoruba or Hausa.",
+    "Order food from the best restaurants, supplements and skin care from partner shops, and send packages across Lagos and Enugu. Ask Gudy, our AI assistant, in English, Pidgin, Igbo, Yoruba or Hausa.",
   openGraph: { type: "website", siteName: "Gud Meal", locale: "en_NG" },
   alternates: { canonical: "/" },
 };

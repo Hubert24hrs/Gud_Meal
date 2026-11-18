@@ -33,8 +33,6 @@ abstract class RestaurantCard with _$RestaurantCard {
     @Default(true) bool supportsPickup,
     @Default(true) bool supportsDelivery,
     @Default(<PromoBadge>[]) List<PromoBadge> promotions,
-    /// e.g. "Shopper" on a market: someone buys the items for the customer.
-    String? badge,
   }) = _RestaurantCard;
   factory RestaurantCard.fromJson(Map<String, dynamic> json) => _$RestaurantCardFromJson(json);
 }
@@ -78,10 +76,6 @@ abstract class MenuItem with _$MenuItem {
     @Default(true) bool isAvailable,
     @Default(<String>[]) List<String> optionGroupIds,
     String? unitLabel,
-    /// Products (shops, pharmacies, markets): brand, a picture placeholder and how popular the product is.
-    String? brand,
-    String? emoji,
-    @Default(0) int popularity,
   }) = _MenuItem;
   factory MenuItem.fromJson(Map<String, dynamic> json) => _$MenuItemFromJson(json);
 }
@@ -822,7 +816,7 @@ abstract class PromoBadge with _$PromoBadge {
   factory PromoBadge.fromJson(Map<String, dynamic> json) => _$PromoBadgeFromJson(json);
 }
 
-/// A Gud Meal service: food, grocery, pharmacy, market, beauty or parcel (the home-screen bubbles).
+/// A Gud Meal service: food, beauty (Supplements & Skin Care) or parcel (the home-screen bubbles).
 @freezed
 abstract class ServiceInfo with _$ServiceInfo {
   const factory ServiceInfo({

@@ -146,11 +146,11 @@ void main() {
   testWidgets('home shows the three service bubbles and personal picks; tapping a bubble opens the service', (tester) async {
     await pumpRouted(tester, const HomeScreen(), overrides: [forYouProvider.overrideWith((ref) async => [jollof, shea])]);
     expect(find.text('Food'), findsOneWidget);
-    expect(find.text('Beauty & Skin care'), findsOneWidget);
+    expect(find.text('Supplements & Skin Care'), findsOneWidget);
     expect(find.text('Package Delivery'), findsOneWidget);
     expect(find.text('Ada, these are for you'), findsOneWidget);
     expect(find.text('Jollof Junction'), findsWidgets);
-    expect(find.text('20% off at Jollof Junction'), findsOneWidget); // promo banner from the merchant's voucher
+    expect(find.text('Promo'), findsOneWidget); // the deal shows as a tag on the shop's tile
 
     await tester.tap(find.byKey(const ValueKey('bubble-beauty')));
     await tester.pumpAndSettle();

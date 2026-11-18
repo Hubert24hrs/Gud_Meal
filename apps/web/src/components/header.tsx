@@ -13,12 +13,9 @@ import { GudyArt } from "./illustrations";
 /** Wider screens show more services; phones use the home bubbles and the bottom bar. */
 const LINKS = [
   { href: "/food", label: "Food", show: "md:block" },
-  { href: "/groceries", label: "Groceries", show: "md:block" },
-  { href: "/pharmacy", label: "Pharmacy", show: "md:block" },
-  { href: "/market", label: "Market", show: "lg:block" },
-  { href: "/beauty", label: "Beauty", show: "xl:block" },
+  { href: "/beauty", label: "Supplements & Skin Care", show: "md:block" },
   { href: "/send", label: "Send a package", show: "xl:block" },
-  { href: "/discover", label: "Discover", show: "xl:block" },
+  { href: "/discover", label: "Discover", show: "2xl:block" },
 ];
 
 export function Header() {

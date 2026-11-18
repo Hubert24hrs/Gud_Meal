@@ -259,7 +259,7 @@ class WhatsAppService:
             name = _first(payload.get("name"))
             return await self._say(
                 wa_id,
-                f"Hi{' ' + name if name else ''}! I'm Gudy from Gud Meal. To order food, beauty products or send "
+                f"Hi{' ' + name if name else ''}! I'm Gudy from Gud Meal. To order food, supplements, skin care or send "
                 f"packages here, connect your Gud Meal account: in the app open Profile → Connect WhatsApp (or "
                 f"{self.web_url}/account), then send me the code it shows.\nNew to Gud Meal? Sign up at "
                 f"{self.web_url}.\n{self._support_line()}",
@@ -275,7 +275,7 @@ class WhatsAppService:
     def _help(self, name: str | None) -> str:
         return (
             f"I'm Gudy{', ' + _first(name) if name else ''}. Ask me in English, Pidgin, Igbo, Yoruba or Hausa:\n"
-            "• food or beauty products, e.g. 'jollof rice for 2 under ₦10,000'\n"
+            "• food, supplements or skin care, e.g. 'jollof rice for 2 under ₦10,000'\n"
             "• 'send a package to Yaba' or 'send to Abuja'\n"
             "• 'where is my order', 'my points', 'Gud Meal Plus'\n"
             "Share your location (📎 → Location) and I'll find stores that deliver to you; otherwise I use the "
@@ -430,7 +430,7 @@ class WhatsAppService:
         )
         await self._say(
             wa_id,
-            f"You're connected{', ' + _first(name) if name else ''}! I'm Gudy. Ask me for food or beauty products, a "
+            f"You're connected{', ' + _first(name) if name else ''}! I'm Gudy. Ask me for food, supplements or skin care, a "
             "package delivery, your order status, your points or Gud Meal Plus, for example: 'jollof rice for 2 "
             "under ₦10,000'. Share your location (📎 → Location) so I can find stores that deliver to you. You approve every order with a Yes button. Send HELP for tips or STOP to disconnect.",
         )

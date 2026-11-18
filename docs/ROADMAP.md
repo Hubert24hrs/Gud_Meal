@@ -47,7 +47,7 @@ services, two launch cities and a set of stand-out features. Answers to the prod
 | Topic | Decision |
 |---|---|
 | Design | Animated, finger-draggable service bubbles; Food page with category bubbles, filters, popular brands; bottom bar Home · Discover · Orders · Support · Profile; Gudy robot button everywhere |
-| Services | Food; **Beauty & Skin care** (partner shops' products); **Package Delivery** (instant bike, scheduled pickups, cash-on-delivery for vendors, interstate waybill) |
+| Services | Food; **Supplements & Skin Care** (partner shops' products; named Beauty & Skin care until 2026-11-18); **Package Delivery** (instant bike, scheduled pickups, cash-on-delivery for vendors, interstate waybill) |
 | Cities | **Lagos and Enugu** first |
 | Payments | Paystack (card/transfer/USSD), **Gud Meal wallet**, **pay on delivery**, Flutterwave backup |
 | AI assistant | **Gudy**; English, Nigerian Pidgin, Igbo, Yoruba, Hausa |
@@ -57,9 +57,8 @@ services, two launch cities and a set of stand-out features. Answers to the prod
 
 Added on 2026-11-17 at the owner's request, outside the numbered phases:
 
-- **Groceries, Pharmacy and Market Shopping** ([ADR-0018](adr/0018-groceries-pharmacy-market.md)): done and tested with demo shops.
-  To confirm: the Plus minimum basket for these services, their commission, and a legal review of selling
-  over-the-counter medicines online.
+- **Groceries, Pharmacy and Market Shopping** ([ADR-0018](adr/0018-groceries-pharmacy-market.md)): built on 17 Nov
+  and removed on 18 Nov at the owner's request ([ADR-0021](adr/0021-supplements-and-skin-care-minimal-home.md)).
 - **Receipts and the receipt printer** ([ADR-0019](adr/0019-receipt-printer.md)): done and tested.
 
 Delivery phases (each tested, documented and pushed before the next):

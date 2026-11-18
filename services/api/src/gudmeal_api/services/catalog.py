@@ -1,4 +1,5 @@
-"""Merchant discovery (restaurants, shops, pharmacies, markets), menus, search and partner menu management."""
+"""Merchant discovery (restaurants and supplements & skin care shops), menus, search and partner menu
+management."""
 
 from __future__ import annotations
 
@@ -54,12 +55,8 @@ def search_keywords(*texts: str) -> list[str]:
 #: The merchant services in the order the apps show them: id, name, one-line description.
 MERCHANT_SERVICES: tuple[tuple[Vertical, str, str], ...] = (
     (Vertical.FOOD, "Food", "Restaurants, local dishes, snacks and drinks"),
-    (Vertical.GROCERY, "Groceries", "Supermarkets and convenience stores: drinks, food cupboard, household"),
-    (Vertical.PHARMACY, "Pharmacy", "Over-the-counter medicines, vitamins, first aid and personal care"),
-    (Vertical.MARKET, "Market Shopping", "Fresh foodstuff from the market, bought for you by a shopper"),
-    (Vertical.BEAUTY, "Beauty & Skin care", "Skincare, hair care, make-up and fragrance from partner shops"),
+    (Vertical.BEAUTY, "Supplements & Skin Care", "Vitamins, supplements and skin care from partner shops"),
 )
-MERCHANT_BADGES: dict[Vertical, str] = {Vertical.MARKET: "Shopper"}
 
 
 class PromoBadge(BaseModel):
@@ -95,7 +92,6 @@ class RestaurantCard(BaseModel):
     delivers_to_location: bool | None = None
     promotions: list[PromoBadge] = Field(default_factory=list)
     location: GeoPoint | None = None  # the shop's public pin (for maps)
-    badge: str | None = None  # e.g. "Shopper" on a market: someone buys the items for the customer
 
 
 class MenuSection(BaseModel):
@@ -129,11 +125,7 @@ class ItemInput(BaseModel):
     prep_minutes: int | None = Field(default=None, ge=1, le=180)
     is_available: bool = True
     position: int = 0
-    # Products (shops, pharmacies, markets): the size or measure, the brand, and a picture placeholder.
-    unit_label: str | None = Field(default=None, max_length=30)
-    brand: str | None = Field(default=None, max_length=40)
-    emoji: str | None = Field(default=None, max_length=8)
-    requires_prescription: bool = False  # hidden from customers and never sold (over-the-counter only)
+    unit_label: str | None = Field(default=None, max_length=30)  # the size or measure, e.g. "60 tablets"
 
 
 class OptionGroupInput(BaseModel):
@@ -206,7 +198,6 @@ class CatalogService:
             supports_delivery=r.supports_delivery,
             supports_pickup=r.supports_pickup,
             promotions=promotions.get(r.id, []),
-            badge=MERCHANT_BADGES.get(r.vertical),
         )
         if location is not None:
             cfg = await self.repos.get_pricing_config()
@@ -305,8 +296,7 @@ class CatalogService:
         items = [
             i
             for i in await self.repos.list_items(r.id)
-            # Prescription-only medicines are never shown to customers (the partner's own menu lists them).
-            if i.is_active and not i.requires_prescription and (include_unavailable or i.is_available)
+            if i.is_active and (include_unavailable or i.is_available)
         ]
         groups = await self.repos.list_option_groups(r.id)
         by_cat: dict[str, list[MenuItem]] = {}
@@ -349,7 +339,7 @@ class CatalogService:
         q_tokens = set(_TOKEN.findall(query.lower()))
         scored: list[tuple[float, MenuItem]] = []
         for item in items:
-            if item.restaurant_id not in active or not item.is_active or item.requires_prescription:
+            if item.restaurant_id not in active or not item.is_active:
                 continue
             hits = len(q_tokens & set(item.search_keywords))
             name_bonus = 2 if query.lower() in item.name.lower() else 0

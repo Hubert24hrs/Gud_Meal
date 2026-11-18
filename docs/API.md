@@ -30,23 +30,18 @@
 
 | Method & path | Who | Purpose |
 |---|---|---|
-| `GET /v1/services?city=` | public | Food, Groceries, Pharmacy, Market Shopping, Beauty & Skin care, Package Delivery: availability, partner counts, coming-soon options |
-| `GET /v1/services/{food\|grocery\|pharmacy\|market\|beauty}/categories?city=` | public | Browse categories with merchant counts (Promotions, Local food, Drinks, Pain & fever, Skincare…) |
-| `GET /v1/restaurants?vertical=food\|grocery\|pharmacy\|market\|beauty\|all&city=&category=&pickup=` | public | Merchants for a service; cards carry `vertical`, `city`, `promotions` and, for market shoppers, `badge: "Shopper"` |
+| `GET /v1/services?city=` | public | Food, Supplements & Skin Care (id `beauty`), Package Delivery: availability, partner counts, coming-soon options |
+| `GET /v1/services/{food\|beauty}/categories?city=` | public | Browse categories with merchant counts (Promotions, Local food, Drinks, Supplements, Skincare…) |
+| `GET /v1/restaurants?vertical=food\|beauty\|all&city=&category=&pickup=` | public | Merchants for a service; cards carry `vertical`, `city` and `promotions` |
 | `GET /v1/search?q=&vertical=&city=` | public | Dishes/products and stores; each hit carries its `vertical` |
 | `GET /v1/cities` · `GET /v1/places/areas?city=` · `GET /v1/places/resolve?q=` | public | Launch cities and neighbourhood centres for addresses without a map pin |
 | `POST /v1/parcels/quotes` · `GET /v1/parcels/quotes/{id}` | customer | Price a package delivery (same city, size, contents, optional `scheduled_for`) |
 | `POST /v1/parcels` (Idempotency-Key) | customer | Create the parcel order from a quote; pay with `POST /v1/orders/{id}/checkout` |
 | `GET /v1/me/order-summary` | customer | Paid orders, total spent (net of refunds), per service, this month, favourite store |
 
-Shops that sell by the aisle ([ADR-0018](adr/0018-groceries-pharmacy-market.md)):
-
-- A supermarket, pharmacy or market shopper is a merchant with `vertical` `grocery`, `pharmacy` or `market`.
-  `GET /v1/restaurants/{id}` returns its aisles as `sections`.
-- Products carry `unit_label` (size or market measure), `brand`, `emoji` and `is_available` (stock).
-- Pharmacies are over-the-counter only. A product with `requires_prescription` is never returned to customers,
-  and a quote that names it gets `409 item_unavailable` with `details.reason = "prescription_required"`.
-- Partner item endpoints accept `unit_label`, `brand`, `emoji` and `requires_prescription`.
+Supplements & Skin Care keeps the service id `beauty` ([ADR-0021](adr/0021-supplements-and-skin-care-minimal-home.md)).
+Products carry `unit_label` (their size, e.g. "60 tablets"); partner item endpoints accept it. Groceries,
+Pharmacy and Market Shopping were removed on 2026-11-18: `vertical=grocery|pharmacy|market` gets 422.
 
 ## Receipts ([ADR-0019](adr/0019-receipt-printer.md))
 

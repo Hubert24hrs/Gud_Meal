@@ -16,16 +16,6 @@ class BubbleSpec {
   final double relSize;
 }
 
-/// Rest positions for six services: two rows of three.
-const sixBubbleLayout = [
-  Offset(.19, .19),
-  Offset(.5, .16),
-  Offset(.81, .19),
-  Offset(.19, .65),
-  Offset(.5, .62),
-  Offset(.81, .65),
-];
-
 class _Body {
   _Body(this.spec, this.home, this.radius, this.phase) : pos = home;
   final BubbleSpec spec;
@@ -64,7 +54,8 @@ class _ServiceBubbleFieldState extends State<ServiceBubbleField> with SingleTick
   double _t = 0;
   bool _reduceMotion = false;
 
-  static const _defaultLayout = [Offset(.29, .33), Offset(.72, .36), Offset(.49, .75)];
+  /// Two bubbles on top, one below: a two-line label under a top bubble clears the bubble underneath.
+  static const _defaultLayout = [Offset(.28, .29), Offset(.73, .32), Offset(.5, .8)];
 
   @override
   void didChangeDependencies() {
@@ -82,9 +73,8 @@ class _ServiceBubbleFieldState extends State<ServiceBubbleField> with SingleTick
     if (size == _size && _bodies.isNotEmpty) return;
     _size = size;
     final layout = widget.layout ?? _defaultLayout;
-    // Five or more services share the field: smaller bubbles, three to a row.
-    final many = widget.bubbles.length > 4;
-    final base = many ? math.min(size.width * .135, 58.0) : math.min(size.width * .17, 72.0);
+    // Three services: big bubbles that fill the orange header, as on Glovo's home screen.
+    final base = math.min(size.width * .19, 82.0);
     if (_bodies.isEmpty) {
       for (var i = 0; i < widget.bubbles.length; i++) {
         final spec = widget.bubbles[i];
@@ -257,8 +247,33 @@ class _BubbleFace extends StatelessWidget {
   final CustomPainter art;
   final bool lifted;
 
+  static const _labelStyle = TextStyle(color: Color(0xFF202521), fontWeight: FontWeight.w700, fontSize: 13, height: 1.15);
+  static const _labelPadding = 26.0; // 12 on each side, and the border
+
+  /// The width a label needs: one line when it fits under the bubble, otherwise the narrowest width that keeps
+  /// it to two lines of about the same length ("Supplements &" / "Skin Care"), never starting a line with "&".
+  /// [style] must be the style the label is drawn with (the app's font), or the widths will not match.
+  static double labelWidth(String label, double maxWidth, TextStyle style, TextScaler scaler) {
+    double widthOf(String text) =>
+        (TextPainter(text: TextSpan(text: text, style: style), textDirection: TextDirection.ltr, textScaler: scaler, maxLines: 1)
+              ..layout())
+            .width;
+    final words = label.split(' ');
+    if (words.length < 2 || widthOf(label) <= maxWidth) return maxWidth;
+    var best = maxWidth;
+    for (var i = 1; i < words.length; i++) {
+      if (words[i] == '&') continue;
+      final both = math.max(widthOf(words.take(i).join(' ')), widthOf(words.skip(i).join(' ')));
+      if (both < best) best = both;
+    }
+    return best.ceilToDouble() + 1;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final textMax = diameter * 1.08 - _labelPadding;
+    final style = DefaultTextStyle.of(context).style.merge(_labelStyle);
+    final textWidth = labelWidth(label, textMax, style, MediaQuery.textScalerOf(context));
     return Stack(clipBehavior: Clip.none, alignment: Alignment.topCenter, children: [
       // halo rings
       Container(
@@ -285,20 +300,16 @@ class _BubbleFace extends StatelessWidget {
       Positioned(
         top: diameter * .80,
         child: Container(
-          // Small bubbles sit close together: a long name wraps to two lines instead of covering a neighbour.
-          constraints: BoxConstraints(maxWidth: diameter < 120 ? diameter * 1.06 : double.infinity),
-          padding: EdgeInsets.symmetric(horizontal: diameter < 120 ? 9 : 12, vertical: 5),
+          // A long name (Supplements & Skin Care) wraps to two even lines instead of running past the bubble.
+          constraints: BoxConstraints(maxWidth: textWidth + _labelPadding),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(diameter < 120 ? 14 : 999),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFFF3D9C9)),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .08), blurRadius: 6, offset: const Offset(0, 2))],
           ),
-          child: Text(label,
-              maxLines: diameter < 120 ? 2 : 1,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: const Color(0xFF202521), fontWeight: FontWeight.w700, fontSize: diameter < 120 ? 12 : 13, height: 1.15)),
+          child: Text(label, maxLines: 2, textAlign: TextAlign.center, style: style),
         ),
       ),
     ]);

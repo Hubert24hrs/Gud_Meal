@@ -17,10 +17,7 @@ from .registry import ToolArgs, ToolContext, ToolError, ToolOutput, ToolRegistry
 
 SERVICE_NAMES = {
     "food": "Food",
-    "grocery": "Groceries",
-    "pharmacy": "Pharmacy",
-    "market": "Market Shopping",
-    "beauty": "Beauty & Skin care",
+    "beauty": "Supplements & Skin Care",
     "parcel": "Package Delivery",
     "waybill": "Interstate waybill",
 }
@@ -38,9 +35,6 @@ TRACKING_CODE = re.compile(r"^GMW[2-9A-HJ-NP-Z]{8}$")
 Screen = Literal[
     "home",
     "food",
-    "grocery",
-    "pharmacy",
-    "market",
     "beauty",
     "parcel",
     "discover",
@@ -58,10 +52,7 @@ Screen = Literal[
 SCREEN_LABELS: dict[str, str] = {
     "home": "Go to Home",
     "food": "Open Food",
-    "grocery": "Open Groceries",
-    "pharmacy": "Open Pharmacy",
-    "market": "Open Market Shopping",
-    "beauty": "Open Beauty & Skin care",
+    "beauty": "Open Supplements & Skin Care",
     "parcel": "Send a package",
     "discover": "Open Discover",
     "orders": "Open my orders",
@@ -622,7 +613,8 @@ async def get_group_orders(args: NoArgs, ctx: ToolContext) -> ToolOutput:
     data: dict[str, Any] = {"group_orders": rows}
     if not rows:
         data["how_to_start"] = (
-            "Open a Food or Beauty store and tap 'Order with friends', then share the 6-character code."
+            "Open a Food or Supplements & Skin Care store and tap 'Order with friends', then share the "
+            "6-character code."
         )
     data["note"] = "Gudy cannot join, change or pay a group order: open_screen('group')."
     return ToolOutput(data, card={"type": "group_orders", "groups": rows})
@@ -633,8 +625,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "list_services",
-            "What Gud Meal offers (Food, Groceries, Pharmacy, Market Shopping, Beauty & Skin care, Package "
-            "Delivery), where, "
+            "What Gud Meal offers (Food, Supplements & Skin Care, Package Delivery), where, "
             "and what is coming soon.",
             NoArgs,
             list_services,
@@ -654,8 +645,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "open_screen",
-            "Show the customer a button that opens a part of the app (Food, Groceries, Pharmacy, Market "
-            "Shopping, Beauty, "
+            "Show the customer a button that opens a part of the app (Food, Supplements & Skin Care, "
             "Package Delivery, Orders, Support, Profile, a store or an order).",
             OpenScreenArgs,
             open_screen,
