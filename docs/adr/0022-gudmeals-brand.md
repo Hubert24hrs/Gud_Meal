@@ -13,12 +13,18 @@
    `gudmeal.test` accounts): renaming them would touch every import and stored id for no visible gain.
 2. **One master logo**, `assets/brand/gudmeals-logo.webp` (1254 px square, from the owner). Everything else is
    cut from it by `scripts/make-brand-assets.py` (needs Pillow), never redrawn:
-   - the whole logo: app sign-in screens, the Android launch screen, the phone install page;
+   - the whole logo, as the owner asked: **both apps' icons** (Android launcher icons, the iOS icon sets, the
+     browser builds' install icons), the websites' home-screen icon, the sign-in screens of both apps and all
+     three websites (on a white tile, so it reads in dark mode too), the Android launch screen, the phone install
+     page and link previews. The customer app's icon is the logo on white; the rider
+     app's is the same logo on a white disc on chocolate brown, so the two apps are easy to tell apart on one
+     phone. The logo is sized so every drawn pixel stays inside the circle that every launcher keeps (66dp of
+     the 108dp adaptive layer; iOS rounds the corners; maskable web icons keep the middle 80%), so no mask cuts
+     off the hat, the name, the rider or the badges;
    - the emblem (chef's hat on the cloche, with the arc and the leaf) beside the name: website headers and
      footers, the partner dashboard and the Command Centre;
-   - the emblem alone: the customer app's icon and the websites' favicons;
-   - the rider on the scooter, on a white disc on chocolate brown: the rider app's icon, so the two apps are easy
-     to tell apart on one phone.
+   - the emblem alone: browser-tab icons (favicons), which are 16 to 32 pixels, too small for the whole logo;
+   - the rider on the scooter: the rider app's browser-tab icon.
    The cut-outs lose the white around the drawing and keep the white that is part of it (the hat). A second copy
    of the name has a cream "Gud" for dark backgrounds (dark mode, the Command Centre's sidebar).
 3. **Colours from the logo** (`packages/tokens/tokens.json`, regenerated to CSS, TypeScript and Dart):

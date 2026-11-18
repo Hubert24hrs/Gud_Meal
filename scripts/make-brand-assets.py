@@ -5,10 +5,12 @@
 The logo is the square master: a chef's hat on a cloche with a fork and spoon (the emblem), the name "GudMeals",
 the line "Good Food. Great Mood.", a rider on a scooter and three small badges. Each place uses the part that
 reads at its size:
-  - the whole logo: app sign-in screens, the app's launch screen, the install page, link previews;
+  - the whole logo: both apps' icons (the owner's choice: the customer app's on white, the rider app's on a white
+    disc on chocolate brown so the two tell apart on one phone), the websites' home-screen icon, the sign-in
+    screens of the apps and the websites, the app's launch screen, the install page, link previews;
   - the name (wordmark) with the emblem: website headers;
-  - the emblem: the customer app's icon, favicons;
-  - the rider on the scooter: the rider app's icon.
+  - the emblem: browser-tab icons (favicons), where the whole logo would be a blur of 16 to 32 pixels;
+  - the rider on the scooter: the rider app's browser-tab icon.
 Everything is cut from the logo itself; nothing is redrawn. The cut-outs keep the logo's own white where it is
 part of the drawing (the hat, the inside of letters) and lose the white around them, so they sit on any light
 background.
@@ -149,17 +151,24 @@ def on_dark(art: Image.Image) -> Image.Image:
     return out
 
 
+def shape_layer(size: int, fill, shape: str = "square") -> Image.Image:
+    """A `size` square holding `shape` ("square", "rounded" or "circle") in `fill`, with smooth edges: it is drawn
+    four times larger and shrunk."""
+    if shape == "square":
+        return Image.new("RGBA", (size, size), fill)
+    big = size * 4
+    layer = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(layer)
+    if shape == "rounded":
+        draw.rounded_rectangle((0, 0, big - 1, big - 1), radius=round(big * 16 / 72), fill=fill)
+    else:
+        draw.ellipse((0, 0, big - 1, big - 1), fill=fill)
+    return layer.resize((size, size), Image.LANCZOS)
+
+
 def fit(art: Image.Image, size: int, box: float, ground=None, shape: str = "square") -> Image.Image:
     """`art` scaled to fit `box` (a share of `size`) and centred on a `size` square of `ground` (None: clear)."""
-    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    if ground is not None:
-        draw = ImageDraw.Draw(canvas)
-        if shape == "rounded":
-            draw.rounded_rectangle((0, 0, size - 1, size - 1), radius=round(size * 16 / 72), fill=ground)
-        elif shape == "circle":
-            draw.ellipse((0, 0, size - 1, size - 1), fill=ground)
-        else:
-            draw.rectangle((0, 0, size, size), fill=ground)
+    canvas = shape_layer(size, ground if ground is not None else (0, 0, 0, 0), shape)
     limit = size * box
     scale = min(limit / art.width, limit / art.height)
     piece = art.resize((max(1, round(art.width * scale)), max(1, round(art.height * scale))), Image.LANCZOS)
@@ -167,13 +176,21 @@ def fit(art: Image.Image, size: int, box: float, ground=None, shape: str = "squa
     return canvas
 
 
+def reach(art: Image.Image) -> float:
+    """How far the drawing reaches from the middle of `art`, as a share of its side. The logo's corners are empty,
+    so it fits a circle only a little wider than itself: about 0.62 of its side from the middle."""
+    alpha = art.split()[3].load()
+    w, h = art.size
+    cx, cy = (w - 1) / 2, (h - 1) / 2
+    far = max(((x - cx) ** 2 + (y - cy) ** 2 for y in range(h) for x in range(w) if alpha[x, y] > 40), default=0)
+    return far**0.5 / max(w, h)
+
+
 def on_disc(art: Image.Image, size: int, ground, disc, disc_share: float, art_share: float, shape="square"):
     """The rider app's icon: the art on a light disc on a dark ground."""
-    canvas = fit(Image.new("RGBA", (1, 1), (0, 0, 0, 0)), size, 1, ground, shape)
+    canvas = shape_layer(size, ground, shape)
     d = round(size * disc_share)
-    disc_img = Image.new("RGBA", (d, d), (0, 0, 0, 0))
-    ImageDraw.Draw(disc_img).ellipse((0, 0, d - 1, d - 1), fill=disc)
-    canvas.alpha_composite(disc_img, ((size - d) // 2, (size - d) // 2))
+    canvas.alpha_composite(shape_layer(d, disc, "circle"), ((size - d) // 2, (size - d) // 2))
     canvas.alpha_composite(fit(art, size, art_share), (0, 0))
     return canvas
 
@@ -208,14 +225,31 @@ def main() -> None:
     print(f"emblem {mark.size}, wordmark {name.size}, rider {scooter.size}")
 
     # Websites: the files their pages show, and favicons (Next.js picks up app/icon.png and app/apple-icon.png).
+    # Icons show the whole logo. Every drawn pixel stays inside a centred circle (`radius`, a share of the icon's
+    # side), so no mask cuts any of it: Android launchers always show the middle 66dp of the 108dp adaptive layer
+    # (radius 33/108), iOS rounds the corners, and maskable web icons keep the middle 80% (radius 0.40).
+    far = reach(full)
+
+    def logo_icon(size: int, radius: float, ground=None, shape: str = "square") -> Image.Image:
+        """The customer app (and the websites): the whole logo, on white."""
+        return fit(full, size, radius / far, ground, shape)
+
+    def rider_icon(size: int, disc_radius: float, ground=CHOCOLATE, shape: str = "square") -> Image.Image:
+        """The rider app: the whole logo on a white disc, the disc on chocolate brown."""
+        return on_disc(full, size, ground, WHITE, 2 * disc_radius, 0.95 * disc_radius / far, shape)
+
+    print(f"the logo's drawing reaches {far:.3f} of its side from the middle")
+
     lockup_h = 112  # 2x of the header's 56 px
     for app in WEBSITES:
         public = ROOT / "apps" / app / "public" / "brand"
         save(mark.resize((round(mark.width * lockup_h / mark.height), lockup_h), Image.LANCZOS), public / "gudmeals-emblem.png")
         save(name.resize((round(name.width * 96 / name.height), 96), Image.LANCZOS), public / "gudmeals-wordmark.png")
         save(on_dark(name).resize((round(name.width * 96 / name.height), 96), Image.LANCZOS), public / "gudmeals-wordmark-light.png")
-        save(fit(mark, 192, 0.92), ROOT / "apps" / app / "src" / "app" / "icon.png")
-        save(fit(mark, 180, 0.78, WHITE), ROOT / "apps" / app / "src" / "app" / "apple-icon.png", opaque=True)
+        # Sign-in pages show the whole logo at 160 px; WebP is under half the size of PNG for this artwork.
+        full.resize((320, 320), Image.LANCZOS).save(public / "gudmeals-logo.webp", quality=90, method=6)
+        save(fit(mark, 192, 0.92), ROOT / "apps" / app / "src" / "app" / "icon.png")  # browser tab
+        save(logo_icon(180, 0.45, WHITE), ROOT / "apps" / app / "src" / "app" / "apple-icon.png", opaque=True)  # home screen
 
     # Link previews of the customer website (WhatsApp, X, Facebook): the whole logo on white, 1200x630.
     preview = Image.new("RGBA", (1200, 630), WHITE)
@@ -229,21 +263,19 @@ def main() -> None:
         base = ROOT / "mobile" / app
         save(full.resize((720, 720), Image.LANCZOS), base / "assets" / "brand" / "gudmeals-logo.png")
         save(name.resize((round(name.width * 144 / name.height), 144), Image.LANCZOS), base / "assets" / "brand" / "gudmeals-wordmark.png")
-        art = mark if app == "customer" else scooter
-        ground = WHITE if app == "customer" else CHOCOLATE
+        customer = app == "customer"
+        ground = WHITE if customer else CHOCOLATE
         res = base / "android" / "app" / "src" / "main" / "res"
         for density, k in densities.items():
             # Adaptive icon layer: 108dp, launchers show the middle 72dp (a 66dp circle is always visible).
             fg = round(108 * k)
-            if app == "customer":
-                save(fit(art, fg, 0.56), res / f"mipmap-{density}" / "ic_launcher_foreground.png")
-            else:
-                save(on_disc(art, fg, (0, 0, 0, 0), WHITE, 0.60, 0.46), res / f"mipmap-{density}" / "ic_launcher_foreground.png")
+            clear = (0, 0, 0, 0)
+            foreground = logo_icon(fg, 32 / 108) if customer else rider_icon(fg, 31 / 108, clear)
+            save(foreground, res / f"mipmap-{density}" / "ic_launcher_foreground.png")
+            # Older launchers (Android 7 and before) show this one as it is.
             legacy = round(48 * k)
-            if app == "customer":
-                save(fit(art, legacy, 0.80, ground, "rounded"), res / f"mipmap-{density}" / "ic_launcher.png")
-            else:
-                save(on_disc(art, legacy, ground, WHITE, 0.84, 0.64, "rounded"), res / f"mipmap-{density}" / "ic_launcher.png")
+            icon = logo_icon(legacy, 0.46, ground, "rounded") if customer else rider_icon(legacy, 0.43, ground, "rounded")
+            save(icon, res / f"mipmap-{density}" / "ic_launcher.png")
         hex_ground = "#{:02X}{:02X}{:02X}".format(*ground[:3])
         write_text(res / "values" / "ic_launcher_background.xml",
                    '<?xml version="1.0" encoding="utf-8"?>\n'
@@ -268,18 +300,15 @@ def main() -> None:
                   "</layer-list>\n")
         for folder in ("drawable", "drawable-v21"):
             write_text(res / folder / "launch_background.xml", launch)
-        # Browser builds (flutter build web).
+        # Browser builds (flutter build web): installed-app icons show the whole logo; the tab icon is a cut-out.
         web = base / "web"
         if web.exists():
-            save(fit(mark if app == "customer" else scooter, 32, 0.96), web / "favicon.png")
+            save(fit(mark if customer else scooter, 32, 0.96), web / "favicon.png")
             for n in (192, 512):
-                if app == "customer":
-                    save(fit(art, n, 0.78, ground), web / "icons" / f"Icon-{n}.png")
-                    save(fit(art, n, 0.62, ground), web / "icons" / f"Icon-maskable-{n}.png")
-                else:
-                    save(on_disc(art, n, ground, WHITE, 0.84, 0.62), web / "icons" / f"Icon-{n}.png")
-                    save(on_disc(art, n, ground, WHITE, 0.70, 0.50), web / "icons" / f"Icon-maskable-{n}.png")
-        # iOS: every size the asset catalogue lists (no transparency allowed).
+                save(logo_icon(n, 0.45, ground) if customer else rider_icon(n, 0.44), web / "icons" / f"Icon-{n}.png")
+                maskable = logo_icon(n, 0.38, ground) if customer else rider_icon(n, 0.38)
+                save(maskable, web / "icons" / f"Icon-maskable-{n}.png")
+        # iOS: every size the asset catalogue lists (no transparency allowed; iOS rounds the corners).
         appicon = base / "ios" / "Runner" / "Assets.xcassets" / "AppIcon.appiconset"
         contents = appicon / "Contents.json"
         if contents.exists():
@@ -288,7 +317,7 @@ def main() -> None:
                     continue
                 points = float(entry["size"].split("x")[0])
                 px = round(points * float(entry["scale"].rstrip("x")))
-                icon = fit(art, px, 0.74, ground) if app == "customer" else on_disc(art, px, ground, WHITE, 0.80, 0.60)
+                icon = logo_icon(px, 0.45, ground) if customer else rider_icon(px, 0.43)
                 save(icon, appicon / entry["filename"], opaque=True)
         print(f"made the {app} app's icons and launch screen")
 

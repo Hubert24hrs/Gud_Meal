@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Card, Field, Input, Logo } from "@gudmeal/ui";
+import { Button, Card, Field, FullLogo, Input } from "@gudmeal/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -45,7 +45,7 @@ function Login() {
     <div className="container-page grid place-items-center py-14">
       <Card className="w-full max-w-md space-y-6 p-8">
         <div className="space-y-2 text-center">
-          <Logo className="justify-center" />
+          <FullLogo />
           <h1 className="font-display text-2xl">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
         </div>
         <form onSubmit={onSubmit} className="space-y-4" noValidate>

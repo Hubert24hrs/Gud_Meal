@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Field, Input, Logo } from "@gudmeal/ui";
+import { Button, Card, Field, FullLogo, Input } from "@gudmeal/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authErrorMessage, useAuth } from "@/lib/auth";
@@ -17,7 +17,7 @@ export default function LoginPage() {
     <div className="grid min-h-dvh place-items-center bg-secondary-soft px-4">
       <Card className="w-full max-w-sm space-y-6 p-8">
         <div className="space-y-1 text-center">
-          <Logo className="justify-center" />
+          <FullLogo />
           <p className="text-sm font-semibold uppercase tracking-wide text-secondary">Partner</p>
         </div>
         <form className="space-y-4" onSubmit={async (e) => {

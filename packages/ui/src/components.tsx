@@ -228,6 +228,19 @@ export function Logo({ className, withWordmark = true, surface = "page" }: {
   );
 }
 
+/**
+ * The whole GudMeals logo as the owner drew it (hat, name, tagline, rider and badges), for sign-in pages like the
+ * apps' sign-in screens. It sits on white, as in the apps, so its dark brown still reads in dark mode.
+ */
+export function FullLogo({ className, size = 160 }: { className?: string; size?: number }) {
+  return (
+    <span className={cn("inline-block rounded-3xl bg-white p-2", className)}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- a small static brand file, no image optimisation needed */}
+      <img src="/brand/gudmeals-logo.webp" alt="GudMeals" width={size} height={size} className="block" />
+    </span>
+  );
+}
+
 // ------------------------------------------------------------------------------------- Table
 export interface Column<T> { key: string; header: string; render: (row: T) => ReactNode; className?: string }
 
