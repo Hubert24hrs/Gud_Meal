@@ -22,4 +22,4 @@
 | [0018](0018-groceries-pharmacy-market.md) | Groceries, Pharmacy and Market Shopping: three more shop services, products by the aisle, over-the-counter only | Withdrawn 2026-11-18 (see 0021) |
 | [0019](0019-receipt-printer.md) | Receipts: the receipt printer after payment, receipts kept under the customer's profile | Accepted |
 | [0020](0020-test-apps-find-the-test-server.md) | Phone test apps find the test server on the Wi-Fi by themselves; the payment sandbox page follows the computer's address | Accepted (not yet run on a phone) |
-| [0021](0021-supplements-and-skin-care-minimal-home.md) | Three services: Food, Supplements & Skin Care (was Beauty & Skin care), Package Delivery; a minimal app home page | Accepted |
+| [0021](0021-supplements-and-skin-care-minimal-home.md) | Three services: Food, Supplements & Skin Care (was Beauty & Skin care), Package Delivery; a minimal home page in the app and on the website | Accepted |

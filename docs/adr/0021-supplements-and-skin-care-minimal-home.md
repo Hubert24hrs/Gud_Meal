@@ -23,14 +23,14 @@
 4. **Gudy never gives health advice about supplements.** No diagnosis, no picking a supplement or a dose for a
    symptom, no claims that a product treats, cures or prevents anything; health worries, medicines, pregnancy and
    children go to a pharmacist or a doctor. This replaces the pharmacy rule.
-5. **The app's home page is minimal:** the address, three big floating bubbles on the orange header (two on top,
-   one below), and the places picked for the customer. The promo card, "Send a package" card, Ask Gudy card,
+5. **The home page is minimal, in the app and on the website:** the address, three big floating bubbles on the
+   orange header (two on top, one below), and the places picked for the customer. The promo card, "Send a package" card, Ask Gudy card,
    the three "why Gud Meal" cards and the "Sell on Gud Meal. Ride with Gud Meal." banner are gone from it. Nothing
-   was lost: deals show as a "Promo" tag on the shop tiles, Gudy floats over every tab, business and rider
-   sign-ups are in Profile.
-6. **The website's home page keeps its explanations for now** (they serve visitors who do not have the app yet,
-   and Glovo's website does the same); it lost only the three removed services. The owner decides whether it
-   should become as minimal as the app.
+   was lost: deals show as a "Promo" tag on the shop tiles, Gudy floats over every tab and page, and the
+   business and rider sign-ups are in the app's Profile and the website's footer.
+6. **The website followed the same day.** At first its home kept the explanation sections (for visitors without
+   the app); the owner chose to make it as minimal as the app. Its desktop headline and Gudy box went too: the
+   bubbles sit centred, the page title stays for search engines and screen readers.
 
 ## Consequences
 
@@ -44,5 +44,6 @@
 
 - API: `tests/integration/test_services_and_parcels.py` (three services, the new name, the categories, 19 shops).
 - Gudy: `tests/test_gudy.py` (supplements by name, the service opens by its name, removed services not offered).
-- Website: `src/components/redesign.test.tsx`. App: `test/parity_test.dart` (the minimal home),
+- Website: `src/app/home.test.tsx` (the minimal home), `src/components/redesign.test.tsx`. App:
+  `test/parity_test.dart` (the minimal home),
   `test/redesign_test.dart`.
