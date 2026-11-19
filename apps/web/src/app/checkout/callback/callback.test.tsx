@@ -8,7 +8,7 @@ const replace = vi.fn();
 vi.mock("@/lib/auth", () => ({ useAuth: () => auth }));
 vi.mock("@/lib/api", () => ({ useApi: () => ({ payments: { verify } }) }));
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams("order_id=o1&reference=GM-ABC123"),
+  useSearchParams: () => new URLSearchParams("order_id=o1&reference=YC-ABC123"),
   useRouter: () => ({ replace }),
 }));
 vi.mock("next/link", () => ({
@@ -32,11 +32,11 @@ describe("payment return page", () => {
   it("sends app payments (no website session) back to the app instead of asking to sign in", () => {
     auth.user = null;
     show();
-    expect(screen.getByRole("heading", { name: "Return to the GudMeals app" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Return to the Yummy Chops app" })).toBeTruthy();
     const signIn = screen.getByRole("link", { name: /Paid on the website\? Sign in/ });
     // Signing in on the website comes back here with the payment reference intact.
     expect(signIn.getAttribute("href")).toBe(
-      `/login?next=${encodeURIComponent("/checkout/callback?order_id=o1&reference=GM-ABC123")}`,
+      `/login?next=${encodeURIComponent("/checkout/callback?order_id=o1&reference=YC-ABC123")}`,
     );
     expect(verify).not.toHaveBeenCalled();
   });
@@ -46,7 +46,7 @@ describe("payment return page", () => {
     verify.mockResolvedValue({ status: "succeeded", order_id: "o1", purpose: "order" });
     show();
     await waitFor(() => expect(screen.getByRole("heading", { name: "Payment confirmed" })).toBeTruthy());
-    expect(verify).toHaveBeenCalledWith("GM-ABC123");
+    expect(verify).toHaveBeenCalledWith("YC-ABC123");
     // The order is paid for: the receipt printer comes next (ADR-0019).
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/orders/o1/receipt"));
     expect(screen.getByRole("link", { name: "Print my receipt" }).getAttribute("href")).toBe("/orders/o1/receipt");
@@ -56,7 +56,7 @@ describe("payment return page", () => {
     auth.user = { uid: "cust-1" };
     verify.mockResolvedValue({ status: "succeeded", order_id: null, purpose: "plus" });
     show();
-    await waitFor(() => expect(screen.getByRole("heading", { name: "Welcome to GudMeals Plus" })).toBeTruthy());
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Welcome to Yummy Chops Plus" })).toBeTruthy());
     expect(replace).not.toHaveBeenCalled();
     cleanup();
 

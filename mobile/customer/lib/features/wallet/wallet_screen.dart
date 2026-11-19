@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers.dart';
 
-/// GudMeals wallet: balance, top-up, instant refunds setting, history, and cash-on-delivery money for sellers.
+/// Yummy Chops wallet: balance, top-up, instant refunds setting, history, and cash-on-delivery money for sellers.
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
 
@@ -67,7 +67,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final wallet = ref.watch(walletProvider);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('GudMeals wallet')),
+      appBar: AppBar(title: const Text('Yummy Chops wallet')),
       body: wallet.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(e is ApiException ? e.message : 'Could not load your wallet')),
@@ -122,7 +122,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'You pay by card, bank transfer or USSD on a secure page. Wallet money is for GudMeals orders and '
+              'You pay by card, bank transfer or USSD on a secure page. Wallet money is for Yummy Chops orders and '
               "deliveries; it can't be withdrawn as cash.",
               style: theme.textTheme.bodySmall,
             ),

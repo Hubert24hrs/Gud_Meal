@@ -411,7 +411,7 @@ function Actions({ role, dish, orderHref, askHref }: {
     <div className="dsh-act" data-role={role} data-part="acts" inert={role === "out" || undefined}>
       {askHref && (
         <Link className="dsh-link" href={askHref(dish)}>
-          {Icon.gudy}Ask Gudy <span className="sr-only">about {dish.name}</span>
+          {Icon.gudy}Ask Yummy <span className="sr-only">about {dish.name}</span>
         </Link>
       )}
       <Link className="dsh-link" href={orderHref(dish)}>
@@ -465,7 +465,7 @@ export type DishOrbitCarouselProps = {
   dishes: DiscoverDish[];
   /** Where "Order food" (and the plate) goes. */
   orderHref: (dish: DiscoverDish) => string;
-  /** Where "Ask Gudy" goes; leave out to hide the button. */
+  /** Where "Ask Yummy" goes; leave out to hide the button. */
   askHref?: (dish: DiscoverDish) => string;
   /** Moves on to the next dish every so often (ms); 0 turns it off. */
   autoPlayMs?: number;

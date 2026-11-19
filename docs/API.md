@@ -12,8 +12,8 @@
 
 | Topic | Rule |
 |---|---|
-| Auth | `Authorization: Bearer <Firebase ID token>`; optional `X-Firebase-AppCheck` (required when enforced). Gudy's WhatsApp chats use a channel token (`gmc1.…`, customer role only, 10 minutes) that the API issues itself |
-| Service calls | GudMeals' agents service sends `X-Service-Authorization: Bearer <Google OIDC token>` (shared `X-Internal-Token` locally) and is then exempt from App Check; the user's own token is still required |
+| Auth | `Authorization: Bearer <Firebase ID token>`; optional `X-Firebase-AppCheck` (required when enforced). Yummy's WhatsApp chats use a channel token (`gmc1.…`, customer role only, 10 minutes) that the API issues itself |
+| Service calls | Yummy Chops' agents service sends `X-Service-Authorization: Bearer <Google OIDC token>` (shared `X-Internal-Token` locally) and is then exempt from App Check; the user's own token is still required |
 | Money | integer kobo, fields end in `_kobo` |
 | Idempotency | `Idempotency-Key` header (8–200 chars) required on `POST /v1/orders`, `POST /v1/orders/{id}/checkout`, `POST /v1/rider/payouts`; replays return the stored response with `Idempotent-Replayed: true` |
 | Errors | `{"error": {"code", "message", "details", "request_id"}}` with stable codes (`price_changed`, `quote_expired`, `invalid_transition`, `voucher_invalid`, `out_of_delivery_area`, `rate_limited`, …) |
@@ -130,7 +130,7 @@ Waybill fields in other responses:
 | `GET /v1/plus` | customer | The plan (price, benefits) and my membership (until when, auto-renew, savings, `can_renew`) |
 | `POST /v1/plus/subscribe` (Idempotency-Key) `{"provider", "auto_renew"}` | customer | Join or renew. `provider: "wallet"` is instant; otherwise it returns a hosted checkout. Paying again works only in the last 7 days of a period |
 | `PUT /v1/plus/auto-renew` `{"auto_renew"}` | customer | Renew from the wallet each period, or cancel at the end of it |
-| `GET /v1/rewards` · `GET /v1/rewards/vouchers` | customer | Gud points, redeem steps, personal vouchers, referral code, history |
+| `GET /v1/rewards` · `GET /v1/rewards/vouchers` | customer | Yummy points, redeem steps, personal vouchers, referral code, history |
 | `POST /v1/rewards/redeem` (Idempotency-Key) `{"points"}` | customer | Turn points into a personal voucher (in steps, e.g. 500 points = ₦500) |
 | `POST /v1/rewards/referral` `{"code"}` | customer | Apply a friend's code (new customers, once): a welcome voucher at once |
 | `GET /v1/group-orders` · `POST /v1/group-orders` | customer | My group orders · start one at a Food or Beauty store (delivery address, `split_mode` `each` or `host`) |
@@ -152,7 +152,7 @@ Related fields in other responses:
 - Split-bill orders refuse `POST /v1/orders/{id}/checkout` and pay on delivery: each member pays through
   `/group-orders/{id}/pay`.
 
-## Gudy on WhatsApp (phase 5, [ADR-0017](adr/0017-gudy-on-whatsapp.md))
+## Yummy on WhatsApp (phase 5, [ADR-0017](adr/0017-assistant-on-whatsapp.md))
 
 | Method & path | Who | Purpose |
 |---|---|---|
@@ -161,11 +161,11 @@ Related fields in other responses:
 | `DELETE /v1/me/whatsapp` | customer | Disconnect my number (sending `STOP` on WhatsApp does the same) |
 | `GET /v1/webhooks/whatsapp?hub.mode=&hub.verify_token=&hub.challenge=` | Meta | Webhook verification: echoes the challenge when the verify token matches; 404 while WhatsApp is off |
 | `POST /v1/webhooks/whatsapp` | Meta | Incoming messages. `X-Hub-Signature-256` must match (HMAC-SHA256 of the raw body with the app secret), else 401. De-duplicated by message id and queued |
-| `POST /internal/tasks/whatsapp-message` | Cloud Tasks | Handles one message: link codes, `STOP`, `HELP`, shared locations, and the chat with Gudy |
+| `POST /internal/tasks/whatsapp-message` | Cloud Tasks | Handles one message: link codes, `STOP`, `HELP`, shared locations, and the chat with Yummy |
 | `GET /v1/dev/whatsapp` · `POST /v1/dev/whatsapp/{number}/send` · `GET /v1/dev/whatsapp/{number}/messages` | local and test only | WhatsApp simulator: sends signed fake webhooks (text, button taps, locations) and shows the sandbox replies |
 
 Related fields in other responses:
 
-- Orders and support tickets that Gudy creates in a WhatsApp chat carry `channel: "whatsapp"`. Gudy in the app and
+- Orders and support tickets that Yummy creates in a WhatsApp chat carry `channel: "whatsapp"`. Yummy in the app and
   on the website still uses `ai_agent`. `POST /v1/orders`, `POST /v1/parcels`, `POST /v1/waybills` and
   `POST /v1/support/tickets` accept the new value.

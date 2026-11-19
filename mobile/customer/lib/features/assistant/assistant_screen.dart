@@ -27,7 +27,7 @@ const _suggestions = [
   'Talk to a person',
 ];
 
-/// Route for a screen Gudy points to (from an `open_screen` card).
+/// Route for a screen Yummy points to (from an `open_screen` card).
 String? routeForScreen(String screen, Map<String, dynamic> params) => switch (screen) {
       'home' => '/',
       'food' => params['category'] != null ? '/food?category=${params['category']}' : '/food',
@@ -48,7 +48,7 @@ String? routeForScreen(String screen, Map<String, dynamic> params) => switch (sc
       _ => null,
     };
 
-/// Gudy, the AI assistant (LangGraph agents service). Spending actions arrive as approval cards.
+/// Yummy, the AI assistant (LangGraph agents service). Spending actions arrive as approval cards.
 class AssistantScreen extends ConsumerStatefulWidget {
   const AssistantScreen({super.key, this.initial});
   final String? initial;
@@ -162,7 +162,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
           const GudyAvatar(size: 38),
           const SizedBox(width: 10),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Gudy', style: TextStyle(fontWeight: FontWeight.w800)),
+            const Text('Yummy', style: TextStyle(fontWeight: FontWeight.w800)),
             Text('AI assistant · replies in your language', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
           ]),
         ]),
@@ -171,7 +171,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
         Expanded(
           child: ListView(controller: _scroll, padding: const EdgeInsets.all(16), children: [
             _GudyBubble(
-              text: 'Hi${name == null ? '' : ' $name'}! I’m Gudy. I can find food, supplements and skin care, plan a meal within your budget, '
+              text: 'Hi${name == null ? '' : ' $name'}! I’m Yummy. I can find food, supplements and skin care, plan a meal within your budget, '
                   'send packages across Lagos and Enugu, track orders and tell you how much you’ve spent. '
                   'You can write in English, Pidgin, Igbo, Yoruba or Hausa.',
             ),
@@ -204,7 +204,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
             if (_busy)
               const Padding(
                 padding: EdgeInsets.only(left: 44, top: 8),
-                child: Row(children: [SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)), SizedBox(width: 8), Text('Gudy is thinking…')]),
+                child: Row(children: [SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)), SizedBox(width: 8), Text('Yummy is thinking…')]),
               ),
           ]),
         ),
@@ -219,7 +219,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
                   textInputAction: TextInputAction.send,
                   onSubmitted: _send,
                   decoration: InputDecoration(
-                    hintText: 'Ask Gudy anything…',
+                    hintText: 'Ask Yummy anything…',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(999)),
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(999), borderSide: BorderSide(color: scheme.outline)),
                   ),
@@ -315,7 +315,7 @@ class _CardView extends StatelessWidget {
             child: DefaultTextStyle(
               style: const TextStyle(color: Colors.white),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('GudMeals wallet', style: TextStyle(fontWeight: FontWeight.w600)),
+                const Text('Yummy Chops wallet', style: TextStyle(fontWeight: FontWeight.w600)),
                 Text('${card['balance']}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
                 for (final t in recent.take(3)) Text('${t['what']}: ${t['amount']}'),
                 if (card['cash_on_delivery_balance'] != null) Text('Cash on delivery: ${card['cash_on_delivery_balance']}'),
@@ -356,7 +356,7 @@ class _CardView extends StatelessWidget {
           margin: const EdgeInsets.only(top: 8),
           child: ListTile(
             leading: const Icon(Icons.workspace_premium_rounded),
-            title: Text(card['member'] == true ? 'Plus member until ${card['member_until']}' : 'GudMeals Plus · ${card['price']}',
+            title: Text(card['member'] == true ? 'Plus member until ${card['member_until']}' : 'Yummy Chops Plus · ${card['price']}',
                 style: const TextStyle(fontWeight: FontWeight.w800)),
             subtitle: Text(card['member'] == true ? 'Saved ${card['saved']} so far' : benefits.join('\n')),
             onTap: () => onOpen('/plus'),
@@ -368,7 +368,7 @@ class _CardView extends StatelessWidget {
           margin: const EdgeInsets.only(top: 8),
           child: ListTile(
             leading: const Icon(Icons.card_giftcard_rounded),
-            title: Text('${card['points']} Gud points', style: const TextStyle(fontWeight: FontWeight.w800)),
+            title: Text('${card['points']} Yummy points', style: const TextStyle(fontWeight: FontWeight.w800)),
             subtitle: Text([
               'Referral code ${card['referral_code']}',
               for (final v in vouchers) '${v['worth']} off · ${v['code']}',

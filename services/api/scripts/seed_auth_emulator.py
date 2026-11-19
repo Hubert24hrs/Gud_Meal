@@ -24,27 +24,27 @@ PROJECT = os.environ.get("FIREBASE_PROJECT_ID", "demo-gudmeal")
 PASSWORD = os.environ.get("DEMO_USER_PASSWORD", "gudmeal-demo-123")
 
 USERS = [
-    ("demo-customer-1", "customer@gudmeal.test", "Ada Customer", [], {}),
-    ("demo-customer-2", "friend@gudmeal.test", "Bayo Friend", [], {}),  # group orders need two people
+    ("demo-customer-1", "customer@yummychops.test", "Ada Customer", [], {}),
+    ("demo-customer-2", "friend@yummychops.test", "Bayo Friend", [], {}),  # group orders need two people
     (
         "demo-owner-1",
-        "owner@gudmeal.test",
+        "owner@yummychops.test",
         "Jollof Junction Owner",
         ["restaurant_owner"],
         {"r-jollof-junction": "owner"},
     ),
     (
         "demo-kitchen-1",
-        "kitchen@gudmeal.test",
+        "kitchen@yummychops.test",
         "Jollof Junction Kitchen",
         ["restaurant_staff"],
         {"r-jollof-junction": "staff"},
     ),
-    ("demo-rider-1", "rider@gudmeal.test", "Chidi Okafor", ["rider"], {}),
-    ("demo-support-1", "support@gudmeal.test", "Support Agent", ["support_agent"], {}),
-    ("demo-finance-1", "finance@gudmeal.test", "Finance Manager", ["finance_manager"], {}),
-    ("demo-hub-1", "hub@gudmeal.test", "Hub Agent", ["hub_agent"], {}),
-    ("demo-admin-1", "admin@gudmeal.test", "Super Admin", ["super_admin"], {}),
+    ("demo-rider-1", "rider@yummychops.test", "Chidi Okafor", ["rider"], {}),
+    ("demo-support-1", "support@yummychops.test", "Support Agent", ["support_agent"], {}),
+    ("demo-finance-1", "finance@yummychops.test", "Finance Manager", ["finance_manager"], {}),
+    ("demo-hub-1", "hub@yummychops.test", "Hub Agent", ["hub_agent"], {}),
+    ("demo-admin-1", "admin@yummychops.test", "Super Admin", ["super_admin"], {}),
 ]
 
 

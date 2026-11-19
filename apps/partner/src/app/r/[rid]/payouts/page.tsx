@@ -13,7 +13,7 @@ export default function PayoutsPage({ params }: { params: Promise<{ rid: string 
   return (
     <div className="space-y-4">
       <h2 className="font-display text-2xl">Settlements</h2>
-      <p className="text-sm text-muted">Statements are generated from GudMeals&apos;s double-entry ledger: your earnings minus commission and any refunds you were responsible for.</p>
+      <p className="text-sm text-muted">Statements are generated from Yummy Chops&apos;s double-entry ledger: your earnings minus commission and any refunds you were responsible for.</p>
       {s.isLoading ? <Skeleton className="h-48" /> : s.error ? (
         <ErrorState message={(s.error as Error).message} onRetry={() => s.refetch()} />
       ) : (

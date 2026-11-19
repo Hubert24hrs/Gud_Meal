@@ -1,7 +1,7 @@
-"""GudMeals wallet (closed-loop stored value) and sellers' cash-on-delivery balances.
+"""Yummy Chops wallet (closed-loop stored value) and sellers' cash-on-delivery balances.
 
 - Wallet: top up through a payment gateway, pay for orders in one tap, receive instant refunds. Money in the
-  wallet can only be spent on GudMeals; there is no cash withdrawal (see ADR-0013 for the legal notes).
+  wallet can only be spent on Yummy Chops; there is no cash withdrawal (see ADR-0013 for the legal notes).
 - Sellers: cash a rider collects for a package sender (vendor COD) is owed to the seller. They can move it into
   their wallet instantly or ask for a bank payout, which finance reviews and pays.
 
@@ -125,7 +125,7 @@ class WalletService:
         self, principal: Principal, amount_kobo: int, provider: str | None, idempotency_key: str
     ) -> dict[str, Any]:
         if not self.enabled:
-            raise ValidationFailed("The GudMeals wallet is not available right now")
+            raise ValidationFailed("The Yummy Chops wallet is not available right now")
         if amount_kobo < self.min_topup or amount_kobo > self.max_topup:
             raise ValidationFailed(
                 f"Top up between {format_naira(self.min_topup)} and {format_naira(self.max_topup)}",
@@ -175,7 +175,7 @@ class WalletService:
                 },
                 {
                     "id": "wallet",
-                    "label": "GudMeals wallet",
+                    "label": "Yummy Chops wallet",
                     "available": self.enabled and short == 0,
                     "balance_kobo": balance,
                     "short_by_kobo": short,
@@ -291,9 +291,9 @@ class WalletService:
     async def move_cod_to_wallet(
         self, principal: Principal, amount_kobo: int, idempotency_key: str
     ) -> dict[str, Any]:
-        """Instant: COD money a seller is owed becomes spendable GudMeals wallet credit."""
+        """Instant: COD money a seller is owed becomes spendable Yummy Chops wallet credit."""
         if not self.enabled:
-            raise ValidationFailed("The GudMeals wallet is not available right now")
+            raise ValidationFailed("The Yummy Chops wallet is not available right now")
         uid = principal.uid
         vendor, wallet = postings.vendor_account(uid), postings.wallet_account(uid)
         async with self.db.transaction() as s:

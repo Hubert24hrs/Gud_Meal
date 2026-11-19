@@ -28,7 +28,7 @@ export default function PartnerPage() {
   return (
     <div className="container-page grid gap-10 py-10 lg:grid-cols-2">
       <div className="space-y-4">
-        <h1 className="font-display text-4xl">Grow your restaurant with GudMeals</h1>
+        <h1 className="font-display text-4xl">Grow your restaurant with Yummy Chops</h1>
         <ul className="space-y-2 text-muted">
           <li>• Reach hungry customers across Lagos — including through our AI concierge.</li>
           <li>• Live order board, menu tools, sales insights and demand forecasts.</li>
@@ -37,7 +37,7 @@ export default function PartnerPage() {
         <p className="text-sm text-muted">We verify every partner (CAC registration and bank details) before going live.
           Full bank account numbers are collected securely by our payment provider, never on this form.</p>
       </div>
-      <RequireAuth reason="Create an account first — it becomes your GudMeals Partner login."><PartnerForm /></RequireAuth>
+      <RequireAuth reason="Create an account first — it becomes your Yummy Chops Partner login."><PartnerForm /></RequireAuth>
     </div>
   );
 }

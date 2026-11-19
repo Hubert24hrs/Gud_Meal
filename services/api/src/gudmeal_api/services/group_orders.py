@@ -9,7 +9,7 @@ own items; the host checks out ONE normal quote and order (host's address, vouch
   moves to `paid` only when the shares add up to its total; if the unpaid-order expiry cancels it first, every
   paid share is refunded automatically. Shares come from `pricing.split_bill` and always add up to the total.
 
-No money ever moves between users: each share is an ordinary payment to GudMeals for the order.
+No money ever moves between users: each share is an ordinary payment to Yummy Chops for the order.
 """
 
 from __future__ import annotations

@@ -125,7 +125,7 @@ function OrderDetail({ id }: { id: string }) {
                   ? waybill.last_mile === "door"
                     ? `Send it to ${waybill.recipient.name}: they give it to the rider when the package arrives.`
                     : `Send it to ${waybill.recipient.name}: they show it at ${waybill.destination_hub_name} to collect the package.`
-                  : "Share it only when you have your food. GudMeals will never ask for it by phone."}
+                  : "Share it only when you have your food. Yummy Chops will never ask for it by phone."}
               </p>
             </div>
           </Card>
@@ -147,7 +147,7 @@ function OrderDetail({ id }: { id: string }) {
           </ul>
           <div className="flex justify-between border-t border-border pt-2 font-bold"><span>Total</span><Price kobo={o.breakdown.total_kobo} /></div>
           {o.payment.provider === "wallet" && o.payment.status !== "unpaid" && (
-            <p className="flex items-center gap-1.5 text-xs text-muted"><Wallet className="size-4" aria-hidden="true" /> Paid from your GudMeals wallet</p>
+            <p className="flex items-center gap-1.5 text-xs text-muted"><Wallet className="size-4" aria-hidden="true" /> Paid from your Yummy Chops wallet</p>
           )}
           {payOnDelivery && o.payment.status === "paid" && (
             <p className="flex items-center gap-1.5 text-xs text-muted"><Banknote className="size-4" aria-hidden="true" /> Paid in cash on delivery</p>

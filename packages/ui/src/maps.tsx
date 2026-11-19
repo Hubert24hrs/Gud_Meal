@@ -246,7 +246,7 @@ function GoogleCanvas({ apiKey, pins, route, label, onFail, onPinClick }: {
 
 // ------------------------------------------------------------------------------------- AddressSearch
 export interface AddressSearchProps {
-  /** Calls the GudMeals API (Google Places behind it when configured); never Google directly. */
+  /** Calls the Yummy Chops API (Google Places behind it when configured); never Google directly. */
   search: (query: string, session: string) => Promise<PlaceSuggestion[]>;
   details: (placeId: string, session: string) => Promise<PlaceLookup>;
   /** "Use my current location": the browser's fix is sent once to find the address. */

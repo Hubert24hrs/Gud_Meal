@@ -1,4 +1,4 @@
-"""Gudy on WhatsApp (ADR-0017): the API's channel tokens work end to end, customer-only; Gudy proves itself to the
+"""Yummy on WhatsApp (ADR-0017): the API's channel tokens work end to end, customer-only; Yummy proves itself to the
 API with a service credential; WhatsApp chats get a short-reply hint."""
 
 from __future__ import annotations
@@ -28,15 +28,15 @@ def channel_token(uid: str, *, secret: str = DEV_SECRET, name: str | None = "Ada
 
 async def test_whatsapp_chat_runs_as_the_linked_customer_end_to_end(offline_stack):
     client = offline_stack["client"]
-    token = channel_token("cust-1")  # minted by the API, verified by Gudy, accepted again by the API's tools
+    token = channel_token("cust-1")  # minted by the API, verified by Yummy, accepted again by the API's tools
     r = await client.post(
         "/v1/chat",
-        json={"message": "How much have I spent on GudMeals?", "channel": "whatsapp"},
+        json={"message": "How much have I spent on Yummy Chops?", "channel": "whatsapp"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 200, r.text
     body = r.json()
-    # Gudy called the spending tool as cust-1 and the API accepted the same token (a new account: no orders).
+    # Yummy called the spending tool as cust-1 and the API accepted the same token (a new account: no orders).
     assert body["reply"] == "You haven't placed any orders yet. Shall I find you something nice?"
     assert body["status"] == "completed"
     threads = await client.get("/v1/threads", headers={"Authorization": f"Bearer {token}"})
@@ -153,5 +153,5 @@ async def test_whatsapp_orders_are_tagged_and_approvals_say_where_they_go(stack)
         assert preview["deliver_to"] == where and preview["message"].startswith(f"Delivering to {where}. ")
         # ...while the order summaries the model reads still leave the street address out.
         assert "Bisola" not in json.dumps(draft)
-    # The owner can count WhatsApp orders; Gudy in the app and on the website stays "ai_agent".
+    # The owner can count WhatsApp orders; Yummy in the app and on the website stays "ai_agent".
     assert channels == {"whatsapp": "whatsapp", "app": "ai_agent"}

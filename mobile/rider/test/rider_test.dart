@@ -323,7 +323,7 @@ class _HubLegApi extends GudMealApi {
           deliveryAddress: DeliveryAddress(line1: 'Admiralty Way', area: 'Lekki Phase 1', location: GeoPoint(lat: 6.4478, lng: 3.4723)),
           parcel: ParcelDetails(
             pickup: ParcelStop(name: 'Ada', phone: '+2348011111111', line1: '5 Bisola Durosinmi-Etti Drive', location: GeoPoint(lat: 6.44, lng: 3.46)),
-            dropoff: ParcelStop(name: 'GudMeals Hub, Lekki', phone: '+234 000 000 0012', line1: 'Admiralty Way', location: GeoPoint(lat: 6.4478, lng: 3.4723)),
+            dropoff: ParcelStop(name: 'Yummy Chops Hub, Lekki', phone: '+234 000 000 0012', line1: 'Admiralty Way', location: GeoPoint(lat: 6.4478, lng: 3.4723)),
             size: 'small',
             category: 'clothing',
           ),

@@ -43,7 +43,7 @@ def parcel_quote_view(quote: ParcelQuote) -> dict[str, Any]:
 
 
 class CheckoutInput(BaseModel):
-    # None = card/transfer/USSD through the default gateway (with failover); "wallet" pays from the GudMeals
+    # None = card/transfer/USSD through the default gateway (with failover); "wallet" pays from the Yummy Chops
     # wallet; "cash" = pay on delivery (eligibility is checked by the server).
     provider: Literal["paystack", "flutterwave", "local_sandbox", "wallet", "cash"] | None = None
 
@@ -198,7 +198,7 @@ async def create_parcel(
 
 @router.get("/me/order-summary")
 async def my_order_summary(c: Ctr, principal: CurrentPrincipal) -> dict[str, Any]:
-    """Totals across all of the customer's paid orders (used by the Orders tab and Gudy)."""
+    """Totals across all of the customer's paid orders (used by the Orders tab and Yummy)."""
     return await c.orders.summary_for_customer(principal.uid)
 
 

@@ -45,9 +45,9 @@ FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 uv run --directory services/api pytho
 ```
 
 The password comes from `DEMO_USER_PASSWORD` (the script has an emulator-only default). Accounts:
-`customer@gudmeal.test`, `friend@gudmeal.test` (a second customer, for group orders and referrals),
-`owner@gudmeal.test` (Jollof Junction), `kitchen@gudmeal.test`, `rider@gudmeal.test` (demo-rider-1),
-`support@`, `finance@`, `hub@` (interstate hubs), `admin@gudmeal.test` (super admin).
+`customer@yummychops.test`, `friend@yummychops.test` (a second customer, for group orders and referrals),
+`owner@yummychops.test` (Jollof Junction), `kitchen@yummychops.test`, `rider@yummychops.test` (demo-rider-1),
+`support@`, `finance@`, `hub@` (interstate hubs), `admin@yummychops.test` (super admin).
 
 ## 3. Payments locally
 
@@ -57,15 +57,15 @@ HMAC-signed webhook through the same verification → ledger → order pipeline 
 To test real Paystack test mode, set `PAYSTACK_SECRET_KEY=sk_test_…` in `services/api/.env` and expose the
 webhook URL (`/v1/webhooks/paystack`) with a tunnel.
 
-## 3a. Gudy on WhatsApp locally
+## 3a. Yummy on WhatsApp locally
 
 `node scripts/dev.mjs api` switches WhatsApp on with the **sandbox sender**, so no Meta account is needed. Run the
-agents service too (`node scripts/dev.mjs agents`; without `GOOGLE_API_KEY`, Gudy runs in offline mode).
+agents service too (`node scripts/dev.mjs agents`; without `GOOGLE_API_KEY`, Yummy runs in offline mode).
 
 1. Open the **WhatsApp simulator** at http://localhost:8000/v1/dev/whatsapp (local and test only) and pick a
    phone number. Messages you send there are signed like Meta's webhooks and go through the real pipeline:
-   signature check, de-duplication, task, linking, Gudy, reply.
-2. Sign in on the website as `customer@gudmeal.test`, open Account → **Connect WhatsApp** and send the
+   signature check, de-duplication, task, linking, Yummy, reply.
+2. Sign in on the website as `customer@yummychops.test`, open Account → **Connect WhatsApp** and send the
    `LINK 123456` message it shows from the simulator.
 3. Chat: "What do you offer?", share a location, "I have ₦10,000, find me food for 2 people", "plan 1", then tap
    **Yes, go ahead** and pay on the sandbox payment page. `STOP` disconnects.
@@ -89,7 +89,7 @@ See the table in the root README. Rules tests: `npm run test:rules` (starts the 
 real emulator accounts, from browsing to food (including one checkout paying food, delivery fee, service fee and VAT
 together, and how that payment is split), beauty, pickup, wallet, pay on delivery, bike packages, interstate
 waybills, group orders, Plus, rewards, support, partner tools, sign-up approvals, payouts, the Command Centre,
-access control and Gudy. It prints PASS/FAIL per step:
+access control and Yummy. It prints PASS/FAIL per step:
 
 ```bash
 services/api/.venv/Scripts/python services/api/scripts/e2e_local.py            # Windows (bin/python elsewhere)
@@ -109,7 +109,7 @@ while it runs, anyone on that Wi-Fi can reach the test servers.
    ```bash
    node scripts/dev.mjs auth api agents downloads --lan --seed
    ```
-   That runs the sign-in emulator, the API, Gudy and the download page of step 3 together (when one stops, the
+   That runs the sign-in emulator, the API, Yummy and the download page of step 3 together (when one stops, the
    rest stop), and `--seed` creates the demo accounts of section 2 once the emulator is up. Or run them one by
    one, each in its own terminal (`node scripts/dev.mjs auth --lan`, `... api --lan`, `... agents --lan`), then
    seed the demo accounts (section 2) or run the end-to-end check once: it seeds them too.
@@ -123,7 +123,7 @@ while it runs, anyone on that Wi-Fi can reach the test servers.
 
 Test builds talk plain http to this computer and use the Auth emulator and the payment sandbox, so never publish
 them. After **Approve** on the sandbox payment page, the page says
-"Return to the GudMeals app": go back to the app, which confirms the payment. An order whose payment page was
+"Return to the Yummy Chops app": go back to the app, which confirms the payment. An order whose payment page was
 closed shows **Finish paying** on its order screen.
 
 **When the computer changes Wi-Fi** its address changes, and the test apps find it again by themselves
@@ -136,7 +136,7 @@ closed and opened again (the notice has the button). The payment page follows th
 (`SANDBOX_FOLLOWS_LAN_ADDRESS`, which `--lan` sets), so the stack needs no restart. Only the download page keeps
 the old address: make it again (`node scripts/build-test-apk.mjs --page`) before installing on another phone.
 
-**Rider jobs:** locally only `rider@gudmeal.test` is online among the demo riders (the API starts the others
+**Rider jobs:** locally only `rider@yummychops.test` is online among the demo riders (the API starts the others
 offline), so every job is offered to the rider app. Keep the app open and online: an offer lasts 45 seconds and
 the phone buzzes (the countdown comes from the server's `expires_in_seconds`, so it is right even when the
 phone's or this computer's clock is not). The app shares its position every minute even when standing still

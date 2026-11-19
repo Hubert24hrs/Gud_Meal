@@ -200,43 +200,43 @@ export function Dialog({ open, onClose, title, children, footer }: { open: boole
 
 // ------------------------------------------------------------------------------------- Brand
 /**
- * The GudMeals logo: the emblem (a chef's hat on a cloche) beside the name, both cut from the brand logo
- * (assets/brand/gudmeals-logo.webp; scripts/make-brand-assets.py writes them to each website's public/brand).
- * The name's dark-brown "Gud" turns cream wherever it sits on something dark: on the page in dark mode
+ * The Yummy Chops logo: the emblem (a chef's hat on a cloche) beside the name, both cut from the brand logo
+ * (assets/brand/yummychops-logo.webp; scripts/make-brand-assets.py writes them to each website's public/brand).
+ * The name's dark-brown "Yummy" turns cream wherever it sits on something dark: on the page in dark mode
  * (`surface="page"`), or on a panel drawn in the text colour, which is dark in light mode (`surface="inverse"`).
  */
 export function Logo({ className, withWordmark = true, surface = "page" }: {
   className?: string; withWordmark?: boolean; surface?: "page" | "inverse";
 }) {
-  const darkGud = "/brand/gudmeals-wordmark.png";
-  const creamGud = "/brand/gudmeals-wordmark-light.png";
-  const [normal, inDarkMode] = surface === "inverse" ? [creamGud, darkGud] : [darkGud, creamGud];
+  const darkName = "/brand/yummychops-wordmark.png";
+  const creamName = "/brand/yummychops-wordmark-light.png";
+  const [normal, inDarkMode] = surface === "inverse" ? [creamName, darkName] : [darkName, creamName];
   return (
     <span className={cn("inline-flex shrink-0 items-center gap-1.5", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element -- small static brand files, no image optimisation needed */}
-      <img src="/brand/gudmeals-emblem.png" alt="" width={69} height={36} className="h-9 w-auto" />
+      <img src="/brand/yummychops-emblem.png" alt="" width={69} height={36} className="h-9 w-auto" />
       {withWordmark ? (
         <picture>
           <source srcSet={inDarkMode} media="(prefers-color-scheme: dark)" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={normal} alt="GudMeals" width={123} height={28} className="h-7 w-auto" />
+          <img src={normal} alt="Yummy Chops" width={143} height={28} className="h-7 w-auto" />
         </picture>
       ) : (
-        <span className="sr-only">GudMeals</span>
+        <span className="sr-only">Yummy Chops</span>
       )}
     </span>
   );
 }
 
 /**
- * The whole GudMeals logo as the owner drew it (hat, name, tagline, rider and badges), for sign-in pages like the
+ * The whole Yummy Chops logo (hat, name, tagline, rider and badges), for sign-in pages like the
  * apps' sign-in screens. It sits on white, as in the apps, so its dark brown still reads in dark mode.
  */
 export function FullLogo({ className, size = 160 }: { className?: string; size?: number }) {
   return (
     <span className={cn("inline-block rounded-3xl bg-white p-2", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element -- a small static brand file, no image optimisation needed */}
-      <img src="/brand/gudmeals-logo.webp" alt="GudMeals" width={size} height={size} className="block" />
+      <img src="/brand/yummychops-logo.webp" alt="Yummy Chops" width={size} height={size} className="block" />
     </span>
   );
 }

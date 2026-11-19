@@ -1,4 +1,4 @@
-"""GudMeals Plus and group-order share payments
+"""Yummy Chops Plus and group-order share payments
 
 Revision ID: 0003
 Revises: 0002

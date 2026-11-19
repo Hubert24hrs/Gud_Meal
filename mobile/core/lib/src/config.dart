@@ -77,7 +77,7 @@ class AppConfig {
     return apiHost.isNotEmpty ? apiHost : _host;
   }
 
-  /// The same settings with the API, Gudy and the sign-in emulator on [host]: where a phone test found the computer
+  /// The same settings with the API, Yummy and the sign-in emulator on [host]: where a phone test found the computer
   /// that runs them.
   AppConfig onHost(String host) => AppConfig(
         apiUrl: _moved(apiUrl, host),

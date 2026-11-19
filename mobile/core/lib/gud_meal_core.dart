@@ -1,4 +1,4 @@
-/// Shared code for the GudMeals customer and rider apps: models, API clients, auth, theme and formatting.
+/// Shared code for the Yummy Chops customer and rider apps: models, API clients, auth, theme and formatting.
 library;
 
 export 'src/api_client.dart';

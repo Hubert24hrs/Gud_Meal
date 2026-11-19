@@ -3,10 +3,10 @@
 **Status:** Accepted · **Date:** 2026-11-15
 
 ## Context
-The owner decided (2026-11-15) that GudMeals offers three services in Lagos and Enugu: Food (restaurants),
+The owner decided (2026-11-15) that Yummy Chops offers three services in Lagos and Enugu: Food (restaurants),
 Beauty & Skin care (products from partner shops) and Package Delivery (bike courier; scheduled pickups now,
 cash-on-delivery for vendors and interstate waybill later), with a Glovo-style customer experience and an AI
-assistant, Gudy, that speaks English, Nigerian Pidgin, Igbo, Yoruba and Hausa.
+assistant, Yummy, that speaks English, Nigerian Pidgin, Igbo, Yoruba and Hausa.
 
 The existing pipeline (server quote → order → verified payment → merchant → dispatch → rider OTP → settlement in
 an append-only ledger) is the most valuable and most tested part of the system.
@@ -26,7 +26,7 @@ an append-only ledger) is the most valuable and most tested part of the system.
   merchant cuisines in `domain/catalog_groups.py`; promotions are merchant-specific vouchers.
 - **Neighbourhood gazetteer** (`domain/places.py`) places addresses without a map pin until Google Maps is
   configured; every listed area is tested to fall inside a delivery zone of its own city.
-- **Gudy offline mode**: without a Gemini key a deterministic, rule-based model drives the same LangGraph graph,
+- **Yummy offline mode**: without a Gemini key a deterministic, rule-based model drives the same LangGraph graph,
   so every action still goes through tool validation, permissions, rate limits, audit and approval screens.
 
 ## Consequences
@@ -34,4 +34,4 @@ an append-only ledger) is the most valuable and most tested part of the system.
 - (+) Customer totals (`/v1/me/order-summary`) and the assistant work across services from day one.
 - (−) Field names still say `restaurant_*`; a rename to `merchant_*` would touch every client and is deferred.
 - (−) Interstate waybill needs hub/partner states that do not fit this model; it gets its own design (Phase 3).
-- (−) Offline Gudy understands a fixed set of intents and replies fully only in English and Pidgin.
+- (−) Offline Yummy understands a fixed set of intents and replies fully only in English and Pidgin.

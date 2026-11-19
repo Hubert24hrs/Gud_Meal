@@ -1,4 +1,4 @@
-"""GudMeals Rider endpoints."""
+"""Yummy Chops Rider endpoints."""
 
 from __future__ import annotations
 

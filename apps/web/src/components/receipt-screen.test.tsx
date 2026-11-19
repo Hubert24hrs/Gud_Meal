@@ -15,7 +15,7 @@ const { ReceiptScreen } = await import("./receipt-screen");
 const { ReceiptPrinter } = await import("./ui/receipt-printer");
 
 const receipt = (over: Partial<Receipt> = {}): Receipt => ({
-  id: "o1", number: "GM-7K2M9P", order_id: "o1", order_code: "7K2M9P", customer_id: "u1", customer_name: "Ada Obi", service: "food",
+  id: "o1", number: "YC-7K2M9P", order_id: "o1", order_code: "7K2M9P", customer_id: "u1", customer_name: "Ada Obi", service: "food",
   service_name: "Food", seller: "Jollof Junction", seller_address: "12 Admiralty Way, Lekki Phase 1", summary: [],
   lines: [
     { name: "Party Jollof Rice", quantity: 2, amount_kobo: 1_100_000, details: ["Protein: Chicken"] },
@@ -28,7 +28,7 @@ const receipt = (over: Partial<Receipt> = {}): Receipt => ({
     { label: "VAT", amount_kobo: 12_000 },
     { label: "Discount", amount_kobo: -50_000 },
   ],
-  total_kobo: 1_522_000, savings_kobo: 0, refunded_kobo: 0, paid_with: "Card, bank transfer or USSD", payment_reference: "GM-ABC123",
+  total_kobo: 1_522_000, savings_kobo: 0, refunded_kobo: 0, paid_with: "Card, bank transfer or USSD", payment_reference: "YC-ABC123",
   paid_at: "2026-11-17T08:30:00Z", ordered_at: "2026-11-17T08:29:00Z", issued_at: "2026-11-17T08:30:05Z", printed_at: null,
   print_count: 0, saved: false, ...over,
 });
@@ -50,9 +50,9 @@ afterEach(() => {
 });
 
 describe("receipt printer", () => {
-  it("is a GudMeals printer that says what to do, in plain sight", () => {
+  it("is a Yummy Chops printer that says what to do, in plain sight", () => {
     render(<ReceiptPrinter receipt={receipt()} />);
-    expect(screen.getByText("GudMeals")).toBeTruthy(); // the maker's mark; nothing is printed yet
+    expect(screen.getByText("Yummy Chops")).toBeTruthy(); // the maker's mark; nothing is printed yet
     expect(screen.queryByText("Total paid")).toBeNull();
     const hint = screen.getByText("Press the red PRINT button to print your receipt");
     expect(hint.className).toContain("font-bold");
@@ -67,9 +67,9 @@ describe("receipt printer", () => {
 
     const paper = screen.getByRole("button", { name: /Pull it, or press Enter, to tear it off/ });
     for (const text of [
-      "Jollof Junction", "12 Admiralty Way, Lekki Phase 1", "Receipt GM-7K2M9P", "Order #7K2M9P", "Ada Obi", "2 x Party Jollof Rice",
+      "Jollof Junction", "12 Admiralty Way, Lekki Phase 1", "Receipt YC-7K2M9P", "Order #7K2M9P", "Ada Obi", "2 x Party Jollof Rice",
       "₦11,000", "Protein: Chicken", "2 x Chapman", "Subtotal", "₦14,000", "Delivery fee", "Service fee", "VAT", "-₦500",
-      "Total paid", "₦15,220", "Card, bank transfer or USSD", "Ref GM-ABC123", "THANK YOU",
+      "Total paid", "₦15,220", "Card, bank transfer or USSD", "Ref YC-ABC123", "THANK YOU",
     ]) {
       expect(within(paper).getByText(text), text).toBeTruthy();
     }
@@ -89,16 +89,16 @@ describe("receipt printer", () => {
 
   it("prints a package receipt, refunds and Plus savings", async () => {
     render(<ReceiptPrinter receipt={receipt({
-      seller: "GudMeals", seller_address: "Package Delivery", service_name: "Package Delivery", lines: [],
+      seller: "Yummy Chops", seller_address: "Package Delivery", service_name: "Package Delivery", lines: [],
       summary: ["From Lekki Phase 1 to Victoria Island", "Small package: documents"], charges: [{ label: "Delivery fee", amount_kobo: 150_000 }],
-      total_kobo: 150_000, paid_with: "GudMeals wallet", payment_reference: null, refunded_kobo: 150_000, savings_kobo: 20_000,
+      total_kobo: 150_000, paid_with: "Yummy Chops wallet", payment_reference: null, refunded_kobo: 150_000, savings_kobo: 20_000,
     })} />);
     fireEvent.click(screen.getByRole("button", { name: "Print receipt" }));
     const paper = await screen.findByRole("button", { name: /Pull it/ });
     expect(within(paper).getByText("From Lekki Phase 1 to Victoria Island")).toBeTruthy();
-    expect(within(paper).getByText("GudMeals wallet")).toBeTruthy();
+    expect(within(paper).getByText("Yummy Chops wallet")).toBeTruthy();
     expect(within(paper).getByText("Refunded")).toBeTruthy();
-    expect(within(paper).getByText("Saved with GudMeals Plus")).toBeTruthy();
+    expect(within(paper).getByText("Saved with Yummy Chops Plus")).toBeTruthy();
     expect(within(paper).queryByText(/^Ref /)).toBeNull();
   });
 });

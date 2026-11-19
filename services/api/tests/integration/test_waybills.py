@@ -161,7 +161,7 @@ async def test_door_to_door_waybill_with_riders_hubs_cod_and_ledger(client, cont
     rider = await accept_leg(client, container, leg_id)
     rider_view = (await client.get(f"/v1/orders/{leg_id}", headers=auth(rider))).json()
     assert rider_view["leg_kind"] == "first_mile" and rider_view["hub_handover"] is True
-    assert rider_view["parcel"]["dropoff"]["name"].startswith("GudMeals Hub, Lekki")
+    assert rider_view["parcel"]["dropoff"]["name"].startswith("Yummy Chops Hub, Lekki")
     assert (
         await client.post(f"/v1/rider/deliveries/{leg_id}/pickup", headers=auth(rider))
     ).status_code == 200
@@ -252,7 +252,7 @@ async def test_door_to_door_waybill_with_riders_hubs_cod_and_ledger(client, cont
     tracked = (await client.get(f"/v1/track/{code}")).json()
     assert tracked["delivered"] and tracked["label"] == "Delivered" and tracked["step"] == 4
     assert tracked["origin"] == "Lagos" and tracked["destination"] == "Enugu"
-    assert [m["place"] for m in tracked["milestones"]][2].startswith("GudMeals Hub, Lekki")
+    assert [m["place"] for m in tracked["milestones"]][2].startswith("Yummy Chops Hub, Lekki")
     text = json.dumps(tracked)
     assert "Chika" not in text and "+234" not in text and "Nike Lake" not in text
     assert (await client.get("/v1/track/GMW22222222")).status_code == 404

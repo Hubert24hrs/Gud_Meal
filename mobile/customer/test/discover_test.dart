@@ -147,7 +147,7 @@ void main() {
 
     await tester.tap(find.text('Order food · ₦5,500'));
     expect(ordered, jollofRice);
-    await tester.tap(find.text('Ask Gudy'));
+    await tester.tap(find.text('Ask Yummy'));
     expect(asked, jollofRice);
 
     // Ingredients tab lists what's in it; liking bumps the count.

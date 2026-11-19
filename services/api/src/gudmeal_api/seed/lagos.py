@@ -965,7 +965,7 @@ async def refresh_demo_riders(repos: Repositories) -> None:
 
 
 async def park_extra_demo_riders(repos: Repositories) -> None:
-    """Local dev: only demo-rider-1 (rider@gudmeal.test, the account people sign in to the rider app with) starts
+    """Local dev: only demo-rider-1 (rider@yummychops.test, the account people sign in to the rider app with) starts
     online. Otherwise job offers go to demo riders nobody is holding and run out before the app ever sees them."""
     now = datetime.now(UTC)
     for rider in [*demo_riders(now), *enugu_riders(now)]:

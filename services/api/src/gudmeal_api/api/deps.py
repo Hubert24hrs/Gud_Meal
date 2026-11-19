@@ -35,7 +35,7 @@ async def get_principal(
         if x_firebase_appcheck:
             await c.app_check.verify(x_firebase_appcheck)
         elif not await trusted_service(request, c):
-            # App Check proves a genuine client app; GudMeals' own services (Gudy's tool calls, the WhatsApp
+            # App Check proves a genuine client app; Yummy Chops' own services (Yummy's tool calls, the WhatsApp
             # channel) prove themselves with a service credential instead. The user's token is still required.
             raise Unauthenticated("App Check token required")
     if not authorization or not authorization.lower().startswith("bearer "):
@@ -117,7 +117,7 @@ async def _verify_service_oidc(token: str, c: Container, allowed: list[str]) -> 
 
 
 async def trusted_service(request: Request, c: Container) -> bool:
-    """A call made by one of GudMeals' own services (shared secret locally, service-account OIDC in the cloud)."""
+    """A call made by one of Yummy Chops' own services (shared secret locally, service-account OIDC in the cloud)."""
     s = c.settings
     if s.internal_auth_mode == "shared_secret":
         expected = s.internal_shared_secret.get_secret_value() if s.internal_shared_secret else None

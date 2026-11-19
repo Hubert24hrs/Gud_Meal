@@ -129,7 +129,7 @@ class DishOrbitCarousel extends StatefulWidget {
   /// "Order food" (and tapping the plate).
   final ValueChanged<DiscoverDish>? onOrder;
 
-  /// "Ask Gudy" about this dish.
+  /// "Ask Yummy" about this dish.
   final ValueChanged<DiscoverDish>? onAskGudy;
   final ValueChanged<int>? onChanged;
 
@@ -458,7 +458,7 @@ class DishOrbitCarouselState extends State<DishOrbitCarousel> with SingleTickerP
           style: style,
           onPressed: () => widget.onAskGudy!(dish),
           icon: const Icon(Icons.auto_awesome_rounded, size: 16),
-          label: const Text('Ask Gudy'),
+          label: const Text('Ask Yummy'),
         ),
       if (widget.onOrder != null)
         TextButton.icon(

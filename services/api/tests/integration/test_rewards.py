@@ -1,4 +1,4 @@
-"""Gud points and referrals end to end: earning, Plus double points, redeeming, refunds, referral rewards."""
+"""Yummy points and referrals end to end: earning, Plus double points, redeeming, refunds, referral rewards."""
 
 from __future__ import annotations
 
@@ -89,7 +89,7 @@ async def test_points_on_completed_orders_double_for_plus_and_redeeming(flow, cl
     r = await client.post(
         "/v1/rewards/redeem", json={"points": 1_000_000}, headers={**auth("customer"), **idem()}
     )
-    assert r.status_code == 422 and "enough Gud points" in r.json()["error"]["message"]
+    assert r.status_code == 422 and "enough Yummy points" in r.json()["error"]["message"]
 
     # The voucher is personal: it works in my quote, and nobody else's.
     mine = (await client.get("/v1/rewards/vouchers", headers=auth("customer"))).json()

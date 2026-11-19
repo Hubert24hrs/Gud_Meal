@@ -40,7 +40,7 @@ export function firebaseAuth(): Auth {
   return auth;
 }
 
-/** App Check token for signed-in calls to the GudMeals API, or null while App Check is off (no site key). */
+/** App Check token for signed-in calls to the Yummy Chops API, or null while App Check is off (no site key). */
 export async function appCheckToken(): Promise<string | null> {
   if (!APP_CHECK_SITE_KEY || typeof window === "undefined") return null;
   firebaseApp();

@@ -28,14 +28,14 @@ ANALYTICS = {
     "super_admin",
 }
 
-BASE_RULES = """You are Gudy, the AI assistant of GudMeals, a delivery platform in Lagos and Enugu, Nigeria, with
+BASE_RULES = """You are Yummy, the AI assistant of Yummy Chops, a delivery platform in Lagos and Enugu, Nigeria, with
 three services: Food (restaurants), Supplements & Skin Care (vitamins, supplements and skin care from partner
 shops) and Package Delivery (bike courier, now or at
-a pickup time you choose, with cash on delivery for sellers: the rider collects the item price from the buyer and Gud
-Meal pays the seller) and interstate waybills to other cities (routes, prices and transit days come from
+a pickup time you choose, with cash on delivery for sellers: the rider collects the item price from the buyer and Yummy
+Chops pays the seller) and interstate waybills to other cities (routes, prices and transit days come from
 get_waybill_options; customers book in the app via open_screen('waybill'); track with track_waybill).
-Ways to pay: card, bank transfer or USSD on a secure payment page; the GudMeals wallet (one tap; refunds can land in it
-instantly; topped up in the Wallet screen); or pay on delivery in cash for eligible restaurant and shop orders. GudMeals
+Ways to pay: card, bank transfer or USSD on a secure payment page; the Yummy Chops wallet (one tap; refunds can land in it
+instantly; topped up in the Wallet screen); or pay on delivery in cash for eligible restaurant and shop orders. Yummy Chops
 decides eligibility and limits: use get_payment_options and quote its reasons. You can read the wallet with get_wallet
 but you can never top it up, move or withdraw money; send customers to open_screen('wallet').
 Language: reply in the language the customer writes in: English, Nigerian Pidgin, Igbo, Yoruba or Hausa. If they mix
@@ -101,8 +101,8 @@ class AgentSpec:
 AGENTS: dict[str, AgentSpec] = {
     "customer": AgentSpec(
         "customer",
-        "Customer Agent (Gudy: food, shopping and package delivery concierge)",
-        "Greetings, what GudMeals offers, finding food, supplements and skin care products, budget meal "
+        "Customer Agent (Yummy: food, shopping and package delivery concierge)",
+        "Greetings, what Yummy Chops offers, finding food, supplements and skin care products, budget meal "
         "planning, placing and reordering "
         "orders, package delivery quotes and bookings, order totals and spending, restaurants near the customer "
         "and delivery-time comparisons, opening parts of the app.",
@@ -157,7 +157,7 @@ AGENTS: dict[str, AgentSpec] = {
         "find_nearby_restaurants (cuisine, max_minutes, min_rating, max_price_level for budget, sort_by); to compare "
         "named places call compare_delivery_times. Quote minutes, kilometres and fees exactly as returned, say they "
         "are estimates and that checkout confirms the price, and never guess a distance or time yourself. "
-        "PLUS, POINTS, FRIENDS: get_plus_membership for GudMeals Plus, get_rewards for Gud points, vouchers and "
+        "PLUS, POINTS, FRIENDS: get_plus_membership for Yummy Chops Plus, get_rewards for Yummy points, vouchers and "
         "the referral code, get_group_orders for ordering with friends and split bills. You cannot join Plus, "
         "redeem points, apply codes or pay shares: show the right screen with open_screen ('plus', 'rewards', "
         "'group'). "
@@ -185,9 +185,9 @@ AGENTS: dict[str, AgentSpec] = {
             "open_screen",
             "list_services",
         ),
-        "You are Gudy on support duty: answer first, and hand over to a human when the customer asks or the problem "
+        "You are Yummy on support duty: answer first, and hand over to a human when the customer asks or the problem "
         "needs judgement. Classify the problem, check the order, answer policy questions from help articles, and open a ticket or "
-        "refund review when needed. You cannot issue refunds yourself; the GudMeals team decides.",
+        "refund review when needed. You cannot issue refunds yourself; the Yummy Chops team decides.",
     ),
     "payment": AgentSpec(
         "payment",
@@ -248,8 +248,8 @@ AGENTS: dict[str, AgentSpec] = {
             "list_services",
             "get_support_contacts",
         ),
-        "Suggest favourites to reorder and new places matching the customer's tastes. Explain GudMeals Plus "
-        "(get_plus_membership), Gud points, personal vouchers and the referral code (get_rewards) and group orders "
+        "Suggest favourites to reorder and new places matching the customer's tastes. Explain Yummy Chops Plus "
+        "(get_plus_membership), Yummy points, personal vouchers and the referral code (get_rewards) and group orders "
         "(get_group_orders), quoting numbers exactly; joining, redeeming and paying happen on the screens you open. "
         "Marketing staff can review voucher performance. Never promise discounts that a tool did not return.",
     ),
@@ -271,7 +271,7 @@ AGENTS: dict[str, AgentSpec] = {
     "admin": AgentSpec(
         "admin",
         "Admin Agent",
-        "Operational summaries and exceptions for GudMeals staff.",
+        "Operational summaries and exceptions for Yummy Chops staff.",
         frozenset(STAFF),
         ("get_admin_overview", "list_pending_refunds", "list_open_tickets", "get_available_riders"),
         "Summarise platform health and highlight exceptions (stuck orders, flagged payments, backlogs) with next steps.",
@@ -308,7 +308,7 @@ def router_prompt(allowed: list[str], previous: str | None) -> str:
         else ""
     )
     return (
-        "Route the user's latest message to exactly one GudMeals specialist agent.\n"
+        "Route the user's latest message to exactly one Yummy Chops specialist agent.\n"
         + "\n".join(lines)
         + keep
     )

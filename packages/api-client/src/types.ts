@@ -9,7 +9,7 @@ export type OrderStatus =
 
 export type Fulfillment = "delivery" | "pickup";
 export type ItemKind = "main" | "combo" | "side" | "snack" | "drink" | "dessert" | "extra" | "product";
-/** GudMeals services: food and beauty are sold by merchants; parcels are courier jobs. */
+/** Yummy Chops services: food and beauty are sold by merchants; parcels are courier jobs. */
 /** A service that shops sell through: restaurants (food) and supplements & skin care shops (beauty). */
 export type MerchantVertical = "food" | "beauty";
 export type Vertical = MerchantVertical | "parcel" | "waybill";
@@ -110,7 +110,7 @@ export interface PriceBreakdown {
   cod_fee_kobo?: Kobo;
   /** Waybill: carrying the package between cities, and the rider pickup from the sender. */
   linehaul_fee_kobo?: Kobo; pickup_fee_kobo?: Kobo;
-  /** GudMeals Plus: fees and VAT the member did not pay on this order (informational). */
+  /** Yummy Chops Plus: fees and VAT the member did not pay on this order (informational). */
   plus_savings_kobo?: Kobo;
 }
 export interface Quote {
@@ -158,7 +158,7 @@ export interface Tracking {
   /** Only while a rider is on this delivery (the API enforces it). */
   rider_location: GeoPoint | null;
   eta_minutes: number | null; updated_at: string | null; estimated_delivery_at: string | null;
-  /** "google" = measured with live traffic, "estimate" = GudMeals' own estimate. */
+  /** "google" = measured with live traffic, "estimate" = Yummy Chops' own estimate. */
   eta_source?: MapSource | null;
   /** Current leg as a Google encoded polyline (decode with `decodePolyline`). */
   route_polyline?: string | null;
@@ -319,7 +319,7 @@ export interface Application {
 export interface Refund {
   id: string; order_id: string; payment_id: string; amount_kobo: Kobo; reason: string; liability: string; stage: string;
   status: string; requested_by: string; decided_by: string | null; decision_note: string | null; created_at: string;
-  /** "wallet" = refunded instantly into the customer's GudMeals wallet. */
+  /** "wallet" = refunded instantly into the customer's Yummy Chops wallet. */
   destination?: "original" | "wallet";
 }
 
@@ -405,7 +405,7 @@ export interface OrderSummary {
 export interface SupportContacts { whatsapp: string; phone: string; email: string; hours: string; placeholders: boolean }
 
 // ------------------------------------------------------------------------------------------ maps
-/** Where a distance, time or place came from: Google (measured) or GudMeals' own estimate. */
+/** Where a distance, time or place came from: Google (measured) or Yummy Chops' own estimate. */
 export type MapSource = "google" | "estimate" | "local";
 export type PlacePrecision = "rooftop" | "street" | "area" | "approximate";
 
@@ -418,7 +418,7 @@ export interface PlaceResult {
   precision: PlacePrecision; source: "google" | "local";
 }
 
-/** A place plus whether GudMeals delivers there. */
+/** A place plus whether Yummy Chops delivers there. */
 export interface PlaceLookup { place: PlaceResult; serviceable: boolean; zone: string | null; city: string | null }
 
 export interface DeliveryEstimate {
@@ -540,14 +540,14 @@ export interface GrowthStats {
 
 // ------------------------------------------------------------------------------------- WhatsApp (phase 5)
 export interface WhatsAppStatus {
-  /** False until GudMeals' WhatsApp Business number is live. */
+  /** False until Yummy Chops' WhatsApp Business number is live. */
   enabled: boolean;
   linked: boolean;
   /** Masked, e.g. "+234 801 ••• 1111". */
   number: string | null;
   linked_at: string | null;
   business_number: string;
-  /** wa.me link to chat with Gudy once linked. */
+  /** wa.me link to chat with Yummy once linked. */
   chat_link: string | null;
 }
 export interface WhatsAppLinkCode {

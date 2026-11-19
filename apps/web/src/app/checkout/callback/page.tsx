@@ -27,7 +27,7 @@ function CallbackGate() {
       <div className="container-page grid place-items-center py-20">
         <Card className="w-full max-w-md space-y-4 p-8 text-center">
           <Smartphone className="mx-auto size-12 text-primary" aria-hidden="true" />
-          <h1 className="font-display text-2xl">Return to the GudMeals app</h1>
+          <h1 className="font-display text-2xl">Return to the Yummy Chops app</h1>
           <p className="text-sm text-muted">
             You can close this page. The app checks the payment and updates your order automatically.
           </p>
@@ -82,7 +82,7 @@ function Callback() {
             <CheckCircle2 className="mx-auto size-12 text-secondary" />
             {verify.data?.purpose === "plus" ? (
               <>
-                <h1 className="font-display text-2xl">Welcome to GudMeals Plus</h1>
+                <h1 className="font-display text-2xl">Welcome to Yummy Chops Plus</h1>
                 <p className="text-sm text-muted">Free delivery and cheaper service fees start on your next order.</p>
                 <Link href="/plus"><Button size="lg" block>See my membership</Button></Link>
               </>
@@ -95,7 +95,7 @@ function Callback() {
             ) : isTopUp || verify.data?.purpose === "wallet_topup" ? (
               <>
                 <h1 className="font-display text-2xl">Wallet topped up</h1>
-                <p className="text-sm text-muted">The money is in your GudMeals wallet. Pay for orders in one tap.</p>
+                <p className="text-sm text-muted">The money is in your Yummy Chops wallet. Pay for orders in one tap.</p>
                 <Link href="/wallet"><Button size="lg" block>Go to my wallet</Button></Link>
               </>
             ) : (
@@ -115,7 +115,7 @@ function Callback() {
             {orderId && <Link href={`/orders/${orderId}`}><Button variant="outline" block>View order</Button></Link>}
             {isTopUp && <Link href="/wallet"><Button variant="outline" block>Back to my wallet</Button></Link>}
             {groupId && <Link href={`/group/${groupId}`}><Button variant="outline" block>Back to the group order</Button></Link>}
-            {params.get("purpose") === "plus" && <Link href="/plus"><Button variant="outline" block>Back to GudMeals Plus</Button></Link>}
+            {params.get("purpose") === "plus" && <Link href="/plus"><Button variant="outline" block>Back to Yummy Chops Plus</Button></Link>}
           </>
         )}
       </Card>

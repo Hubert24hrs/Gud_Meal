@@ -1,5 +1,5 @@
 /**
- * Receipt Printer. Original component designed & built by Aakash Mehra; adapted for GudMeals receipts (ADR-0019).
+ * Receipt Printer. Original component designed & built by Aakash Mehra; adapted for Yummy Chops receipts (ADR-0019).
  *
  * A thermal printer seen from above, its paper slot facing up the screen. Press the red PRINT button and the
  * feed motor whirs while the receipt of the order rises out of the slot, header first. The paper is one
@@ -351,7 +351,7 @@ export function ReceiptPrinter({ receipt, onPrint, notice, className, children }
                 filter: `drop-shadow(0 ${u(1)} 0 rgb(255 255 255 / 0.9)) drop-shadow(0 ${u(1)} ${u(1.5)} rgb(0 0 0 / 0.25))`,
               }}
             >
-              GudMeals
+              Yummy Chops
             </span>
           </div>
 
@@ -505,7 +505,7 @@ function Paper({ receipt, first }: { receipt: Receipt; first?: boolean }) {
         <Row l={receipt.paid_with} r="" wrap />
         {receipt.payment_reference && <Row l={`Ref ${receipt.payment_reference}`} r="" wrap />}
         {receipt.refunded_kobo > 0 && <Row l="Refunded" r={formatNaira(receipt.refunded_kobo)} />}
-        {receipt.savings_kobo > 0 && <Row l="Saved with GudMeals Plus" r={formatNaira(receipt.savings_kobo)} wrap />}
+        {receipt.savings_kobo > 0 && <Row l="Saved with Yummy Chops Plus" r={formatNaira(receipt.savings_kobo)} wrap />}
         <div className="flex items-stretch justify-center" style={{ height: u(46), gap: u(1.5), marginTop: u(14) }}>
           {bars.map((w, i) => (
             <span key={i} className="bg-[#262624]" style={{ width: u(w * 1.4), opacity: i % 5 === 0 ? 0.85 : 1 }} />
@@ -513,7 +513,7 @@ function Paper({ receipt, first }: { receipt: Receipt; first?: boolean }) {
         </div>
         <div className="text-center tracking-[0.3em]" style={{ fontSize: u(9.5), marginTop: u(4) }}>{receipt.number}</div>
         <div className="text-center font-bold tracking-[0.2em]" style={{ fontSize: u(12), marginTop: u(14) }}>THANK YOU</div>
-        <div className="text-center" style={{ fontSize: u(10) }}>GudMeals</div>
+        <div className="text-center" style={{ fontSize: u(10) }}>Yummy Chops</div>
       </div>
       {/* the top end of the strip curls a touch */}
       {first && (

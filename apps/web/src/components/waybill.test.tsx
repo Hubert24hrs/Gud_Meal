@@ -26,9 +26,9 @@ const base: WaybillTracking = {
   last_mile: "collect",
   collection_point: { name: "Partner terminal, Utako (sample)", address: "Utako District, Abuja", hours: "Mon–Sat, 8am–7pm" },
   milestones: [
-    { stage: "awaiting_dropoff", label: "Drop off at the hub", at: "2026-11-16T09:00:00Z", place: "GudMeals Hub, Lekki (sample)" },
-    { stage: "at_origin_hub", label: "At the Lagos hub", at: "2026-11-16T10:00:00Z", place: "GudMeals Hub, Lekki (sample)" },
-    { stage: "departed", label: "On the way to Abuja", at: "2026-11-16T18:00:00Z", place: "GudMeals Hub, Lekki (sample)" },
+    { stage: "awaiting_dropoff", label: "Drop off at the hub", at: "2026-11-16T09:00:00Z", place: "Yummy Chops Hub, Lekki (sample)" },
+    { stage: "at_origin_hub", label: "At the Lagos hub", at: "2026-11-16T10:00:00Z", place: "Yummy Chops Hub, Lekki (sample)" },
+    { stage: "departed", label: "On the way to Abuja", at: "2026-11-16T18:00:00Z", place: "Yummy Chops Hub, Lekki (sample)" },
   ],
   delivered: false,
 };
@@ -56,7 +56,7 @@ describe("waybill tracking", () => {
     expect(screen.queryByRole("list", { name: "Shipment progress" })).toBeNull();
   });
 
-  it("accepts tracking numbers however people type them, and routes Gudy's button to the interstate form", () => {
+  it("accepts tracking numbers however people type them, and routes Yummy's button to the interstate form", () => {
     expect(normaliseTrackingCode(" gmw-7k3p 9q2x ")).toBe("GMW7K3P9Q2X");
     expect(TRACKING_PATTERN.test("GMW7K3P9Q2X")).toBe(true);
     expect(TRACKING_PATTERN.test("GMW7K3P9Q2O")).toBe(false); // O and 0 are never used

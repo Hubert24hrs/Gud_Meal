@@ -470,7 +470,7 @@ class _ReceiptPrinterState extends State<ReceiptPrinter> with TickerProviderStat
           top: 182 * u,
           child: ExcludeSemantics(
             child: Stack(children: [
-              Transform.translate(offset: Offset(0, u), child: Text('GudMeals', style: _mark(u, const Color(0xE6FFFFFF)))),
+              Transform.translate(offset: Offset(0, u), child: Text('Yummy Chops', style: _mark(u, const Color(0xE6FFFFFF)))),
               ShaderMask(
                 blendMode: BlendMode.srcIn,
                 shaderCallback: (bounds) => const LinearGradient(
@@ -479,7 +479,7 @@ class _ReceiptPrinterState extends State<ReceiptPrinter> with TickerProviderStat
                   colors: [Color(0xFF6B6B70), Color(0xFF1C1C1F), Color(0xFF000000), Color(0xFF0B0B0D), Color(0xFF2A2A2E)],
                   stops: [0, 0.42, 0.5, 0.78, 1],
                 ).createShader(bounds),
-                child: Text('GudMeals', style: _mark(u, Colors.black)),
+                child: Text('Yummy Chops', style: _mark(u, Colors.black)),
               ),
             ]),
           ),
@@ -660,7 +660,7 @@ class ReceiptPaper extends StatelessWidget {
               row(r.paidWith),
               if (r.paymentReference != null) row('Ref ${r.paymentReference}'),
               if (r.refundedKobo > 0) row('Refunded', formatNaira(r.refundedKobo)),
-              if (r.savingsKobo > 0) row('Saved with GudMeals Plus', formatNaira(r.savingsKobo)),
+              if (r.savingsKobo > 0) row('Saved with Yummy Chops Plus', formatNaira(r.savingsKobo)),
               SizedBox(height: 14 * u),
               SizedBox(
                 height: 46 * u,
@@ -677,7 +677,7 @@ class ReceiptPaper extends StatelessWidget {
               Text(r.number, textAlign: TextAlign.center, style: base.copyWith(fontSize: 9.5 * u, letterSpacing: 2.85 * u)),
               SizedBox(height: 14 * u),
               Text('THANK YOU', textAlign: TextAlign.center, style: base.copyWith(fontWeight: FontWeight.w700, fontSize: 12 * u, letterSpacing: 2.4 * u)),
-              Text('GudMeals', textAlign: TextAlign.center, style: base.copyWith(fontSize: 10 * u)),
+              Text('Yummy Chops', textAlign: TextAlign.center, style: base.copyWith(fontSize: 10 * u)),
             ]),
           ),
         ),

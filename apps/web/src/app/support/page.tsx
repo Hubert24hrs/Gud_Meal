@@ -17,10 +17,10 @@ const CATEGORIES: Record<string, string> = {
 
 const FAQ = [
   ["How do refunds work?", "If a store rejects your order, or you cancel before it is accepted (or before a rider is assigned to your package), you get a full refund automatically. For anything else, open a ticket and our team reviews it within 24 hours."],
-  ["How do I pay?", "Card, bank transfer or USSD on a secure payment page (GudMeals never sees your card details), from your GudMeals wallet in one tap, or in cash on delivery once you have completed an order."],
+  ["How do I pay?", "Card, bank transfer or USSD on a secure payment page (Yummy Chops never sees your card details), from your Yummy Chops wallet in one tap, or in cash on delivery once you have completed an order."],
   ["What is the delivery code?", "A 4-digit code in your order. Only give it to the rider once you have your order. For packages, share it with the person receiving it."],
   ["Where do you deliver?", "Lagos and Enugu for now. Choose your area at the top of the page; more cities are coming."],
-  ["Is Gudy a real person?", "Gudy is GudMeals’ AI assistant. It always asks you to approve before placing an order or creating a payment, and you can ask for a person at any time."],
+  ["Is Yummy a real person?", "Yummy is Yummy Chops’ AI assistant. It always asks you to approve before placing an order or creating a payment, and you can ask for a person at any time."],
 ];
 
 export default function SupportPage() {
@@ -36,7 +36,7 @@ export default function SupportPage() {
       <Link href="/assistant" className="flex items-center gap-4 rounded-2xl border border-[#F3D7A6] bg-[#FEF1DA] p-4 text-[#2A0D06] hover:border-[#6B2410]">
         <GudyArt blink className="size-14 shrink-0" />
         <div className="flex-1">
-          <p className="text-lg font-extrabold text-[#3A0D05]">Chat with Gudy</p>
+          <p className="text-lg font-extrabold text-[#3A0D05]">Chat with Yummy</p>
           <p className="text-sm">Instant answers in English, Pidgin, Igbo, Yoruba or Hausa</p>
         </div>
         <ChevronRight className="size-5 text-[#3A0D05]" aria-hidden="true" />
@@ -76,7 +76,7 @@ function Contact({ icon, title, value, live, href }: { icon: React.ReactNode; ti
       <span className="grid size-10 place-items-center rounded-full bg-surface-muted" aria-hidden="true">{icon}</span>
       <span className="flex-1">
         <span className="block font-bold">{title}</span>
-        <span className="text-sm text-muted">{live ? value : "Coming soon. Use Gudy or open a ticket for now."}</span>
+        <span className="text-sm text-muted">{live ? value : "Coming soon. Use Yummy or open a ticket for now."}</span>
       </span>
     </>
   );
@@ -115,7 +115,7 @@ function TicketCard() {
         <span className="flex-1"><span className="block font-bold">Talk to a person</span><span className="text-sm text-muted">Open a ticket; our team replies in the app</span></span>
         <ChevronRight className={`size-5 transition-transform ${open ? "rotate-90" : ""}`} aria-hidden="true" />
       </button>
-      {send.isSuccess && !open && <p role="status" className="mt-3 text-sm font-semibold text-secondary">Ticket opened. A GudMeals support agent will reply in the app.</p>}
+      {send.isSuccess && !open && <p role="status" className="mt-3 text-sm font-semibold text-secondary">Ticket opened. A Yummy Chops support agent will reply in the app.</p>}
       {open && (
         <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); if (text.trim().length >= 5) send.mutate(); }}>
           <Field label="What is it about?" htmlFor="cat">

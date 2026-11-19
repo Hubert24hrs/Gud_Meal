@@ -103,7 +103,7 @@ class Repositories:
         self.tickets = TypedCollection(store, "support_tickets", SupportTicket)
         self.applications = TypedCollection(store, "applications", Application)
         self.notifications = TypedCollection(store, "notifications", Notification)
-        # Growth (ADR-0016): Plus memberships, Gud points and referrals, group orders.
+        # Growth (ADR-0016): Plus memberships, Yummy points and referrals, group orders.
         self.memberships = TypedCollection(store, "memberships", Membership, key="uid")
         self.rewards = TypedCollection(store, "loyalty_accounts", RewardsAccount, key="uid")
         self.group_orders = TypedCollection(store, "group_orders", GroupOrder)

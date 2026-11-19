@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy GudMeals to Cloud Run: gudmeal-api, gudmeal-agents and the three websites (gudmeal-web, gudmeal-partner,
+# Deploy Yummy Chops to Cloud Run: gudmeal-api, gudmeal-agents and the three websites (gudmeal-web, gudmeal-partner,
 # gudmeal-admin), from the images built with infra/cloudbuild/cloudbuild.yaml.
 # Usage: infra/scripts/deploy.sh <environment> <project> <region> <artifact-repo> <tag>
 # Secrets are referenced from Secret Manager (never passed on the command line).
@@ -17,9 +17,9 @@ esac
 
 # API_URL, AGENTS_URL, WEB_URL, PARTNER_URL and ADMIN_URL: Cloud Run's deterministic URLs unless overridden.
 source "$(dirname "$0")/urls.sh"
-SITES="[\"$WEB_URL\",\"$PARTNER_URL\",\"$ADMIN_URL\"]"  # browser origins allowed by the API and Gudy (CORS)
+SITES="[\"$WEB_URL\",\"$PARTNER_URL\",\"$ADMIN_URL\"]"  # browser origins allowed by the API and Yummy (CORS)
 
-# Gudy on WhatsApp (ADR-0017) uses Meta's paid WhatsApp Business messaging, so it stays off until the owner has
+# Yummy on WhatsApp (ADR-0017) uses Meta's paid WhatsApp Business messaging, so it stays off until the owner has
 # approved the cost and finished the Meta setup. To switch it on, fill the whatsapp-* secrets and run this script
 # with WHATSAPP_ENABLED=true, WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_BUSINESS_NUMBER set.
 WHATSAPP_ENV="WHATSAPP_ENABLED=false"
@@ -80,6 +80,6 @@ cat <<EOF
   Partner dashboard $PARTNER_URL
   Command Centre    $ADMIN_URL
   API               $API_URL
-  Gudy (agents)     $AGENTS_URL
+  Yummy (agents)     $AGENTS_URL
 Roll back a service with: gcloud run services update-traffic <service> --to-revisions=<previous>=100 --region $REGION --project $PROJECT
 EOF

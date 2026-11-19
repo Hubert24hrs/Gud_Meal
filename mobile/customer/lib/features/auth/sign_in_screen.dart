@@ -97,7 +97,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         appBar: AppBar(title: const Text('Sign in'), bottom: const TabBar(tabs: [Tab(text: 'Phone'), Tab(text: 'Email')])),
         body: TabBarView(children: [
           ListView(padding: const EdgeInsets.all(20), children: [
-            const Center(child: GudMealsLogo()),
+            const Center(child: YummyChopsLogo()),
             const SizedBox(height: 20),
             if (_verificationId == null) ...[
               TextField(
@@ -132,7 +132,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ],
           ]),
           ListView(padding: const EdgeInsets.all(20), children: [
-            const Center(child: GudMealsLogo()),
+            const Center(child: YummyChopsLogo()),
             const SizedBox(height: 20),
             TextField(controller: _email, keyboardType: TextInputType.emailAddress, autofillHints: const [AutofillHints.email], decoration: const InputDecoration(labelText: 'Email')),
             const SizedBox(height: 12),
@@ -143,7 +143,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               child: const Text('Sign in'),
             ),
             TextButton(
-              onPressed: _busy ? null : () => _run(() => auth.signUpWithEmail('GudMeals customer', _email.text.trim(), _password.text)),
+              onPressed: _busy ? null : () => _run(() => auth.signUpWithEmail('Yummy Chops customer', _email.text.trim(), _password.text)),
               child: const Text('Create an account'),
             ),
           ]),

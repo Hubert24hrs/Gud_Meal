@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers.dart';
 
-/// Connect WhatsApp: a one-time code the customer sends to GudMeals on WhatsApp, then chat with Gudy there.
+/// Connect WhatsApp: a one-time code the customer sends to Yummy Chops on WhatsApp, then chat with Yummy there.
 class WhatsAppSheet extends ConsumerStatefulWidget {
   const WhatsAppSheet({super.key});
 
@@ -73,20 +73,20 @@ class _WhatsAppSheetState extends ConsumerState<WhatsAppSheet> {
             Text('Order on WhatsApp', style: theme.textTheme.headlineSmall),
             const SizedBox(height: 6),
             if (!s.enabled)
-              const Text('Chatting with Gudy on WhatsApp is coming soon.')
+              const Text('Chatting with Yummy on WhatsApp is coming soon.')
             else if (s.linked) ...[
-              Text('Gudy knows your WhatsApp number ${s.number}. Order, track and get help in a chat; you still approve '
+              Text('Yummy knows your WhatsApp number ${s.number}. Order, track and get help in a chat; you still approve '
                   'every order and pay on the secure page.'),
               const SizedBox(height: 12),
               if (s.chatLink != null)
                 FilledButton.icon(
                   onPressed: () => launchUrl(Uri.parse(s.chatLink!), mode: LaunchMode.externalApplication),
                   icon: const Icon(Icons.chat_rounded),
-                  label: const Text('Chat with Gudy'),
+                  label: const Text('Chat with Yummy'),
                 ),
               OutlinedButton(key: const ValueKey('whatsapp-disconnect'), onPressed: _busy ? null : _disconnect, child: const Text('Disconnect')),
             ] else if (_code case final code?) ...[
-              Text('Send this code to GudMeals on WhatsApp (${code.businessNumber}) before ${formatLagosTime(code.expiresAt)}:'),
+              Text('Send this code to Yummy Chops on WhatsApp (${code.businessNumber}) before ${formatLagosTime(code.expiresAt)}:'),
               const SizedBox(height: 8),
               SelectableText(code.code,
                   key: const ValueKey('whatsapp-code'),
@@ -101,7 +101,7 @@ class _WhatsAppSheetState extends ConsumerState<WhatsAppSheet> {
               const SizedBox(height: 6),
               Text('WhatsApp opens with the message ready: just tap send.', style: theme.textTheme.bodySmall),
             ] else ...[
-              const Text('Order food, supplements, skin care and packages, track orders and get help by chatting with Gudy on WhatsApp.'),
+              const Text('Order food, supplements, skin care and packages, track orders and get help by chatting with Yummy on WhatsApp.'),
               const SizedBox(height: 12),
               FilledButton(key: const ValueKey('whatsapp-connect'), onPressed: _busy ? null : _connect, child: const Text('Connect WhatsApp')),
             ],

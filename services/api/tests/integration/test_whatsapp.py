@@ -1,4 +1,4 @@
-"""Gudy on WhatsApp end to end (ADR-0017), with a recording fake in place of the agents service:
+"""Yummy on WhatsApp end to end (ADR-0017), with a recording fake in place of the agents service:
 signed webhooks, de-duplication, linking by code, customer-only channel tokens, approvals, disconnecting,
 rate limits and service calls without App Check."""
 
@@ -21,14 +21,14 @@ TASKS = TASK_WHATSAPP_MESSAGE
 
 
 class FakeAgents:
-    """Stands in for Gudy: records every call (with its channel token) and returns scripted results."""
+    """Stands in for Yummy: records every call (with its channel token) and returns scripted results."""
 
     def __init__(self) -> None:
         self.calls: list[tuple[str, str, dict[str, Any]]] = []
         self.results: list[dict[str, Any] | AgentsError] = []
 
     def _next(self, thread: str | None) -> dict[str, Any]:
-        result = self.results.pop(0) if self.results else {"reply": "Hello from Gudy"}
+        result = self.results.pop(0) if self.results else {"reply": "Hello from Yummy"}
         if isinstance(result, AgentsError):
             raise result
         return {"thread_id": thread or f"t-{len(self.calls)}", "cards": [], "approval": None, **result}
@@ -144,7 +144,7 @@ async def test_webhook_verification_signatures_and_deduplication(client, contain
     assert (await post(client, body)).json() == {"queued": 0}  # Meta re-delivered the same message
     await container.tasks.run_all(TASKS)
     replies = container.whatsapp.sender.outbox[ADA_PHONE]
-    assert len(replies) == 1 and "connect your GudMeals account" in texts(replies)[0]
+    assert len(replies) == 1 and "connect your Yummy Chops account" in texts(replies)[0]
     assert "Profile → Connect WhatsApp" in texts(replies)[0]
 
     media = await say(client, container, ADA_PHONE, kind="image")
@@ -168,7 +168,7 @@ async def test_linking_by_code_and_disconnecting(client, container):
     assert status["linked"] is True and status["number"] == "+234 801 ••• 1111"
     reused = await say(client, container, "2348022222222", text=f"LINK {code}")
     assert "isn't valid" in texts(reused)[0]  # single use
-    assert agents.calls == []  # linking never involves Gudy
+    assert agents.calls == []  # linking never involves Yummy
 
     help_ = await say(client, container, ADA_PHONE, text="help")
     assert "Send STOP to disconnect" in texts(help_)[0]
@@ -176,7 +176,7 @@ async def test_linking_by_code_and_disconnecting(client, container):
     assert "disconnected" in texts(stop)[0]
     assert (await client.get("/v1/me/whatsapp", headers=auth("customer"))).json()["linked"] is False
     after = await say(client, container, ADA_PHONE, text="jollof please")
-    assert "connect your GudMeals account" in texts(after)[0]
+    assert "connect your Yummy Chops account" in texts(after)[0]
     audit = (await client.get("/v1/admin/audit?resource_type=customer", headers=auth("admin"))).json()
     assert [a["action"] for a in audit][:2] == ["whatsapp.unlinked", "whatsapp.linked"]
     assert all("2348011111111" not in json.dumps(a) for a in audit)  # numbers are masked in the audit log
@@ -188,7 +188,7 @@ async def test_linking_by_code_and_disconnecting(client, container):
         "number"
     ] == "+234 803 ••• 3333"
     old = await say(client, container, ADA_PHONE, text="hi")
-    assert "connect your GudMeals account" in texts(old)[0]
+    assert "connect your Yummy Chops account" in texts(old)[0]
     r = await client.delete("/v1/me/whatsapp", headers=auth("customer"))
     assert r.status_code == 200 and r.json()["linked"] is False
 
@@ -199,17 +199,17 @@ async def test_conversations_use_customer_only_tokens_and_approvals(client, cont
     agents.results.append(
         {
             "reply": "Here are 2 plans under ₦10,000.",
-            "cards": [{"type": "navigate", "screen": "plus", "params": {}, "label": "Open GudMeals Plus"}],
+            "cards": [{"type": "navigate", "screen": "plus", "params": {}, "label": "Open Yummy Chops Plus"}],
         }
     )
     replies = await say(client, container, ADA_PHONE, text="jollof for 2 under 10k")
     assert texts(replies) == [
-        "Here are 2 plans under ₦10,000.\n\nOpen GudMeals Plus: http://localhost:3000/plus"
+        "Here are 2 plans under ₦10,000.\n\nOpen Yummy Chops Plus: http://localhost:3000/plus"
     ]
     kind, token, call = agents.calls[-1]
     assert kind == "chat" and call == {"message": "jollof for 2 under 10k", "thread_id": None}
 
-    # The API accepts Gudy's delegated token as the customer, and only as a customer.
+    # The API accepts Yummy's delegated token as the customer, and only as a customer.
     me = await client.get("/v1/me", headers={"Authorization": f"Bearer {token}"})
     assert me.status_code == 200 and me.json()["uid"] == "cust-1"
     assert (
@@ -263,7 +263,7 @@ async def test_conversations_use_customer_only_tokens_and_approvals(client, cont
     await say(client, container, ADA_PHONE, text="No thanks")
     assert agents.calls[-1][2] == {"thread_id": "t-1", "approved": False, "tool_call_id": "call-2"}
 
-    # A conversation idle for a day starts afresh; a vanished thread is replaced; Gudy being down is explained.
+    # A conversation idle for a day starts afresh; a vanished thread is replaced; Yummy being down is explained.
     await container.repos.store.update(
         f"whatsapp_links/{ADA_PHONE}", {"last_at": datetime.now(UTC) - timedelta(days=2)}
     )
@@ -307,7 +307,7 @@ async def test_limits_and_disabled_channel(client, container):
         replies.append(texts(await say(client, container, ADA_PHONE, text="hi"))[0])
         if "sending messages quickly" in replies[-1]:
             break
-    assert replies[:18] == ["Hello from Gudy"] * 18 and "sending messages quickly" in replies[-1]
+    assert replies[:18] == ["Hello from Yummy"] * 18 and "sending messages quickly" in replies[-1]
     assert 20 <= len(replies) <= 25
     long = await say(client, container, "2348055555555", text="x" * 1001)
     assert "a bit long" in texts(long)[0]
@@ -369,13 +369,13 @@ async def test_cloud_api_sender_and_the_local_simulator(client, container):
 
     enable(container)
     page = await client.get("/v1/dev/whatsapp")
-    assert page.status_code == 200 and "Gudy on WhatsApp" in page.text
+    assert page.status_code == 200 and "Yummy on WhatsApp" in page.text
     r = await client.post(f"/v1/dev/whatsapp/{ADA_PHONE}/send", json={"text": "hello", "name": "Ada"})
     assert r.json() == {"queued": 1}
     await container.tasks.run_all(TASKS)
     convo = (await client.get(f"/v1/dev/whatsapp/{ADA_PHONE}/messages")).json()
     assert convo[0] == {"direction": "in", "type": "text", "text": {"body": "hello"}}
-    assert "connect your GudMeals account" in convo[1]["text"]["body"]
+    assert "connect your Yummy Chops account" in convo[1]["text"]["body"]
 
 
 async def test_shared_locations_become_the_delivery_address(client, container):
@@ -416,7 +416,7 @@ async def test_shared_locations_become_the_delivery_address(client, container):
         "Got it, I'll deliver to Independence Layout"
         in texts(container.whatsapp.sender.outbox[ADA_PHONE][-1:])[0]
     )
-    assert agents.calls == []  # remembering a place needs no Gudy call
+    assert agents.calls == []  # remembering a place needs no Yummy call
     await say(client, container, ADA_PHONE, text="rice for 2 under 8000")
     address = agents.calls[-1][2]["delivery_address"]
     assert address["city"] == "Enugu" and address["location"] == {"lat": 6.4473, "lng": 7.5214}

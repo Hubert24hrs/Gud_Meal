@@ -1,4 +1,4 @@
-"""GudMeals wallet, payment options and sellers' cash-on-delivery balances (signed-in customers)."""
+"""Yummy Chops wallet, payment options and sellers' cash-on-delivery balances (signed-in customers)."""
 
 from __future__ import annotations
 

@@ -32,21 +32,21 @@ void main() {
 
   setUp(() => HttpOverrides.global = null);
 
-  test('the GudMeals API is recognised by its health answer', () async {
+  test('the Yummy Chops API is recognised by its health answer', () async {
     final server = await _serve({'status': 'ok', 'service': 'gudmeal-api'});
     addTearDown(() => server.close(force: true));
     expect(await listensOnApiPort(here, port: server.port), isTrue);
     expect(await answersAsGudMeal(here, port: server.port), isTrue);
   });
 
-  test('another program on the same port is not GudMeals', () async {
+  test('another program on the same port is not Yummy Chops', () async {
     final server = await _serve({'status': 'ok'});
     addTearDown(() => server.close(force: true));
     expect(await listensOnApiPort(here, port: server.port), isTrue);
     expect(await answersAsGudMeal(here, port: server.port), isFalse);
   });
 
-  test('a program that does not speak HTTP is not GudMeals', () async {
+  test('a program that does not speak HTTP is not Yummy Chops', () async {
     final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
     addTearDown(server.close);
     server.listen((socket) {

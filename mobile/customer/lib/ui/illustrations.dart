@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Original GudMeals illustrations drawn in code (no image assets, no third-party artwork).
+/// Original Yummy Chops illustrations drawn in code (no image assets, no third-party artwork).
 /// Each painter draws in a 100×100 design space scaled to the widget size.
 abstract class _Illustration extends CustomPainter {
   const _Illustration();
@@ -171,7 +171,7 @@ class BeautyIllustration extends _Illustration {
   }
 }
 
-/// A delivery scooter carrying a GudMeals parcel box.
+/// A delivery scooter carrying a Yummy Chops parcel box.
 class ParcelIllustration extends _Illustration {
   const ParcelIllustration();
 
@@ -210,7 +210,7 @@ class ParcelIllustration extends _Illustration {
   }
 }
 
-/// Gudy, the GudMeals AI assistant: a friendly robot face in a disc of the logo's chocolate brown (the cloche),
+/// Yummy, the Yummy Chops AI assistant: a friendly robot face in a disc of the logo's chocolate brown (the cloche),
 /// with a gold antenna and a chat-bubble tail.
 class RobotPainter extends CustomPainter {
   const RobotPainter({this.eyeOpen = 1, this.ring = 0});

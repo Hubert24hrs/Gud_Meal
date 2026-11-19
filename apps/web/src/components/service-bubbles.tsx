@@ -33,7 +33,7 @@ const LAYOUT = [
 ];
 
 /**
- * GudMeals' services as animated, draggable bubbles (home hero). Bubbles float, follow the pointer when
+ * Yummy Chops' services as animated, draggable bubbles (home hero). Bubbles float, follow the pointer when
  * dragged (pushing neighbours aside) and spring back when released; a click or Enter opens the service.
  * Floating is off when the user prefers reduced motion.
  */

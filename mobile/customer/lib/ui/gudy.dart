@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'illustrations.dart';
 
-/// Gudy's face: the brown robot, blinking every few seconds (static when reduced motion is requested).
+/// Yummy's face: the brown robot, blinking every few seconds (static when reduced motion is requested).
 class GudyAvatar extends StatefulWidget {
   const GudyAvatar({super.key, this.size = 56, this.pulse = false});
   final double size;
@@ -40,7 +40,7 @@ class _GudyAvatarState extends State<GudyAvatar> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Gudy, your GudMeals assistant',
+      label: 'Yummy, your Yummy Chops assistant',
       image: true,
       child: AnimatedBuilder(
         animation: _c,
@@ -56,7 +56,7 @@ class _GudyAvatarState extends State<GudyAvatar> with SingleTickerProviderStateM
   }
 }
 
-/// Floating, draggable Gudy button shown on every tab. Snaps to the nearest side when released.
+/// Floating, draggable Yummy button shown on every tab. Snaps to the nearest side when released.
 class GudyFab extends StatefulWidget {
   const GudyFab({super.key, required this.onOpen, required this.bounds, this.bottomInset = 12});
   final VoidCallback onOpen;
@@ -123,7 +123,7 @@ class _GudyFabState extends State<GudyFab> with SingleTickerProviderStateMixin {
       borderRadius: BorderRadius.circular(14),
       child: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text('Hi, I’m Gudy!', maxLines: 1, softWrap: false, style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF2A0D06))),
+        child: Text('Hi, I’m Yummy!', maxLines: 1, softWrap: false, style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF2A0D06))),
       ),
     );
     // The button stays exactly at [pos]; the greeting floats beside it (towards the middle of the screen).
@@ -159,7 +159,7 @@ class _GudyFabState extends State<GudyFab> with SingleTickerProviderStateMixin {
             _settle(size, mq.padding);
           },
           child: Tooltip(
-            message: 'Chat with Gudy',
+            message: 'Chat with Yummy',
             child: AnimatedScale(
               scale: _dragging ? 1.12 : 1,
               duration: const Duration(milliseconds: 160),

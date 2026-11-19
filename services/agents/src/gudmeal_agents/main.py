@@ -117,7 +117,7 @@ def create_app(
         if model_factory is None and settings.llm_configured:
             model_factory = GeminiFactory(settings)
         if model_factory is None:
-            # No Gemini key: Gudy still works in rule-based offline mode (same tools, approvals and audit).
+            # No Gemini key: Yummy still works in rule-based offline mode (same tools, approvals and audit).
             model_factory = OfflineModels()
         saver = checkpointer
         if saver is None:
@@ -147,7 +147,7 @@ def create_app(
         app.state.ai_mode = "offline" if isinstance(model_factory, OfflineModels) else "llm"
 
     app = FastAPI(
-        title="GudMeals Agents",
+        title="Yummy Chops Agents",
         version="0.1.0",
         lifespan=lifespan,
         docs_url=None if settings.environment == "production" else "/docs",
@@ -181,7 +181,7 @@ def create_app(
             "status": "ok",
             "llm_configured": bool(getattr(request.app.state, "llm_ready", False)),
             "ai_mode": getattr(request.app.state, "ai_mode", "unknown"),
-            "assistant": "Gudy",
+            "assistant": "Yummy",
         }
 
     @app.post("/v1/chat")

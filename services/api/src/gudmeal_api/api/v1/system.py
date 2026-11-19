@@ -25,7 +25,7 @@ internal = APIRouter(prefix="/internal", tags=["internal"], include_in_schema=Fa
 dev = APIRouter(prefix="/v1/dev", tags=["dev"], include_in_schema=False)
 
 
-# Gudy on WhatsApp (ADR-0017). Registered before the payment route below, which matches any /{provider}.
+# Yummy on WhatsApp (ADR-0017). Registered before the payment route below, which matches any /{provider}.
 @webhooks.get("/whatsapp", response_class=PlainTextResponse)
 async def whatsapp_verify(
     c: Ctr,
@@ -79,7 +79,7 @@ async def reconcile_payments(c: Ctr, _caller: InternalCaller) -> dict[str, int]:
 
 @internal.post("/jobs/renew-plus")
 async def renew_plus(c: Ctr, _caller: InternalCaller) -> dict[str, int]:
-    """Daily (Cloud Scheduler): renew GudMeals Plus from wallets; remind members who can't be charged."""
+    """Daily (Cloud Scheduler): renew Yummy Chops Plus from wallets; remind members who can't be charged."""
     return await c.membership.renew_due()
 
 
@@ -106,7 +106,7 @@ async def sandbox_checkout(reference: str, c: Ctr) -> HTMLResponse:
     charge = c.sandbox.charges[reference]
     ref = html.escape(reference)
     return HTMLResponse(f"""<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>GudMeals · Sandbox checkout</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Yummy Chops · Sandbox checkout</title>
 <style>body{{font-family:system-ui,sans-serif;background:#FFFBF8;color:#2A0D06;display:grid;place-items:center;
 min-height:100vh;margin:0}}.card{{background:#fff;border-radius:16px;padding:32px;max-width:380px;width:90%;
 box-shadow:0 8px 30px rgba(0,0,0,.08)}}.amt{{font-size:32px;font-weight:700;margin:8px 0 24px}}
@@ -134,11 +134,11 @@ async def sandbox_complete(
         # the app verifies the payment itself, so send the tester back to it.
         title = "Payment approved" if success else "Payment declined"
         return HTMLResponse(f"""<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>GudMeals · {title}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Yummy Chops · {title}</title>
 <style>body{{font-family:system-ui,sans-serif;background:#FFFBF8;color:#2A0D06;display:grid;place-items:center;
 min-height:100vh;margin:0}}.card{{background:#fff;border-radius:16px;padding:32px;max-width:380px;width:90%;
 box-shadow:0 8px 30px rgba(0,0,0,.08);text-align:center}}h1{{font-size:24px;margin:0 0 12px}}</style>
-</head><body><div class="card"><h1>{title}</h1><p>Return to the GudMeals app: it confirms the payment and
+</head><body><div class="card"><h1>{title}</h1><p>Return to the Yummy Chops app: it confirms the payment and
 updates your order. You can close this page.</p></div></body></html>""")
     sep = "&" if "?" in callback else "?"
     return RedirectResponse(f"{callback}{sep}reference={reference}", status_code=303)
@@ -151,8 +151,8 @@ def _from_another_device(request: Request) -> bool:
 
 
 # ------------------------------------------------------------------------------------------------
-# WhatsApp simulator (ENVIRONMENT=local|test only): chat with Gudy as if from WhatsApp, through the real
-# signed-webhook → task → Gudy → reply pipeline, with the sandbox sender instead of Meta.
+# WhatsApp simulator (ENVIRONMENT=local|test only): chat with Yummy as if from WhatsApp, through the real
+# signed-webhook → task → Yummy → reply pipeline, with the sandbox sender instead of Meta.
 # ------------------------------------------------------------------------------------------------
 
 
@@ -232,7 +232,7 @@ async def whatsapp_simulator() -> HTMLResponse:
 
 
 SIMULATOR_PAGE = """<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>GudMeals · WhatsApp simulator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Yummy Chops · WhatsApp simulator</title>
 <style>body{font-family:system-ui,sans-serif;margin:0;background:#efeae2;color:#111}header{background:#075e54;color:#fff;
 padding:12px 16px}header input{width:12em}main{max-width:640px;margin:0 auto;padding:12px 12px 90px}
 .m{max-width:80%;margin:6px 0;padding:8px 10px;border-radius:8px;white-space:pre-wrap;box-shadow:0 1px 1px rgba(0,0,0,.1)}
@@ -240,7 +240,7 @@ padding:12px 16px}header input{width:12em}main{max-width:640px;margin:0 auto;pad
 border:1px solid #0a7cff;border-radius:16px;color:#0a7cff;background:#fff;cursor:pointer}form{position:fixed;bottom:0;
 left:0;right:0;display:flex;gap:8px;padding:10px;background:#f0f2f5}form input{flex:1;padding:10px;border-radius:20px;
 border:1px solid #ccc}form button{padding:10px 16px;border:0;border-radius:20px;background:#075e54;color:#fff}
-small{opacity:.8}</style></head><body><header><b>Gudy on WhatsApp</b> · local simulator<br><small>Your number
+small{opacity:.8}</style></head><body><header><b>Yummy on WhatsApp</b> · local simulator<br><small>Your number
 <input id="wa" value="2348011111111"> name <input id="nm" value="Ada"> — get a code in the app (Profile → Connect
 WhatsApp) and send <code>LINK 123456</code>.</small></header><main id="log"></main>
 <form id="f"><select id="loc" title="Share a location"><option value="">📍</option><option value="6.4478,3.4723,Lekki Phase 1">Lekki Phase 1</option><option value="6.5095,3.3711,Yaba">Yaba</option><option value="6.4473,7.5214,Independence Layout">Independence Layout, Enugu</option></select><input id="t" placeholder="Type a message" autocomplete="off"><button>Send</button></form>

@@ -3835,7 +3835,7 @@ as int,
 /// @nodoc
 mixin _$PriceBreakdown {
 
- int get subtotalKobo; int get deliveryFeeKobo; int get serviceFeeKobo; int get smallOrderFeeKobo; int get vatKobo; int get discountKobo; int get codFeeKobo; int get linehaulFeeKobo; int get pickupFeeKobo;/// GudMeals Plus: fees and VAT the member did not pay (informational).
+ int get subtotalKobo; int get deliveryFeeKobo; int get serviceFeeKobo; int get smallOrderFeeKobo; int get vatKobo; int get discountKobo; int get codFeeKobo; int get linehaulFeeKobo; int get pickupFeeKobo;/// Yummy Chops Plus: fees and VAT the member did not pay (informational).
  int get plusSavingsKobo; int get totalKobo; String? get voucherCode;
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
@@ -4058,7 +4058,7 @@ class _PriceBreakdown implements PriceBreakdown {
 @override@JsonKey() final  int codFeeKobo;
 @override@JsonKey() final  int linehaulFeeKobo;
 @override@JsonKey() final  int pickupFeeKobo;
-/// GudMeals Plus: fees and VAT the member did not pay (informational).
+/// Yummy Chops Plus: fees and VAT the member did not pay (informational).
 @override@JsonKey() final  int plusSavingsKobo;
 @override final  int totalKobo;
 @override final  String? voucherCode;

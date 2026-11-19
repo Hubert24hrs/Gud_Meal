@@ -22,11 +22,11 @@ export default function RidePage() {
   return (
     <div className="container-page grid gap-10 py-10 lg:grid-cols-2">
       <div className="space-y-4">
-        <h1 className="font-display text-4xl">Ride with GudMeals</h1>
+        <h1 className="font-display text-4xl">Ride with Yummy Chops</h1>
         <p className="text-muted">Flexible hours, transparent earnings per delivery, and withdrawals to your bank.
-          Download the GudMeals Rider app after approval to start receiving deliveries.</p>
+          Download the Yummy Chops Rider app after approval to start receiving deliveries.</p>
       </div>
-      <RequireAuth reason="Create an account first — it becomes your GudMeals Rider login."><RiderForm /></RequireAuth>
+      <RequireAuth reason="Create an account first — it becomes your Yummy Chops Rider login."><RiderForm /></RequireAuth>
     </div>
   );
 }

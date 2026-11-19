@@ -1,4 +1,4 @@
-"""Phase 2 money features end to end: GudMeals wallet, pay on delivery, vendor cash-on-delivery, failover."""
+"""Phase 2 money features end to end: Yummy Chops wallet, pay on delivery, vendor cash-on-delivery, failover."""
 
 from __future__ import annotations
 
@@ -120,7 +120,7 @@ async def test_wallet_topup_one_tap_pay_and_instant_refund(flow, client, contain
     order = await flow.order()
     total = order["breakdown"]["total_kobo"]
     started = await top_up(client, total + 150_000)
-    assert started["provider"] == "local_sandbox" and started["reference"].startswith("GM-TOPUP-")
+    assert started["provider"] == "local_sandbox" and started["reference"].startswith("YC-TOPUP-")
     w = await wallet(client)
     assert w["balance_kobo"] == total + 150_000
     assert w["transactions"][0] | {"created_at": None, "id": None} == {

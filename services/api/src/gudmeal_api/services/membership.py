@@ -1,4 +1,4 @@
-"""GudMeals Plus (ADR-0016): join by card or wallet, wallet auto-renewal, cancellation, member savings.
+"""Yummy Chops Plus (ADR-0016): join by card or wallet, wallet auto-renewal, cancellation, member savings.
 
 Benefits are applied by the pricing engine when a member's quote is priced (`QuoteService`); this service only
 manages who is a member and until when. A membership period is created per verified payment (idempotent), so a
@@ -66,7 +66,7 @@ def benefits_text(plan: PlusConfig) -> list[str]:
         pct = plan.service_fee_discount_bps / 100
         out.append(f"{pct:g}% off the service fee on {services} orders")
     if plan.points_multiplier > 1:
-        out.append(f"{plan.points_multiplier}× Gud points on every completed order")
+        out.append(f"{plan.points_multiplier}× Yummy points on every completed order")
     return out
 
 
@@ -143,11 +143,13 @@ class MembershipService:
         cfg = await self.repos.get_pricing_config()
         plan = cfg.plus
         if not plan.enabled:
-            raise ValidationFailed("GudMeals Plus is not available right now")
+            raise ValidationFailed("Yummy Chops Plus is not available right now")
         now = utcnow()
         m = await self.get(principal.uid)
         if m is not None and m.paid_through > now + RENEW_EARLY:
-            raise ValidationFailed(f"You're already a GudMeals Plus member until {lagos_day(m.paid_through)}")
+            raise ValidationFailed(
+                f"You're already a Yummy Chops Plus member until {lagos_day(m.paid_through)}"
+            )
         await self._remember_choice(principal.uid, auto_renew, now)
         if provider == "wallet":
             _, vat = vat_inclusive_split(plan.price_kobo, cfg.vat_bps)
@@ -235,14 +237,14 @@ class MembershipService:
             if updated.periods == 1:
                 await self.notifier.notify_user(
                     uid,
-                    "Welcome to GudMeals Plus",
+                    "Welcome to Yummy Chops Plus",
                     f"Your benefits are on until {lagos_day(updated.paid_through)}.",
                     {"screen": "plus"},
                 )
             else:
                 await self.notifier.notify_user(
                     uid,
-                    "GudMeals Plus renewed",
+                    "Yummy Chops Plus renewed",
                     f"Your membership now runs until {lagos_day(updated.paid_through)}.",
                     {"screen": "plus"},
                 )
@@ -252,7 +254,7 @@ class MembershipService:
         """Turning auto-renew off is how a member cancels: benefits last until the paid period ends."""
         m = await self.get(principal.uid)
         if m is None or m.periods == 0:
-            raise NotFound("You're not a GudMeals Plus member")
+            raise NotFound("You're not a Yummy Chops Plus member")
         now = utcnow()
         await self.repos.memberships.update(
             principal.uid,
@@ -291,7 +293,7 @@ class MembershipService:
                 short = int((exc.details or {}).get("short_by_kobo", plan.price_kobo))
                 await self.notifier.notify_user(
                     m.uid,
-                    "Keep GudMeals Plus",
+                    "Keep Yummy Chops Plus",
                     f"Top up {format_naira(short)} in your wallet to renew automatically. Your benefits end on "
                     f"{lagos_day(m.paid_through)}.",
                     {"screen": "plus"},

@@ -6,7 +6,7 @@ import { GudyArt } from "./illustrations";
 
 const SIZE = 62;
 
-/** Floating, draggable Gudy button on every page (snaps to the nearest side). Opens the assistant on click. */
+/** Floating, draggable Yummy button on every page (snaps to the nearest side). Opens the assistant on click. */
 export function GudyFab() {
   const router = useRouter();
   const path = usePathname();
@@ -36,13 +36,13 @@ export function GudyFab() {
         <span
           className={`pointer-events-none absolute top-3 whitespace-nowrap rounded-xl bg-white px-3 py-2 text-sm font-bold text-[#2A0D06] shadow-lg ${onRight ? "right-[70px]" : "left-[70px]"}`}
         >
-          Hi, I’m Gudy!
+          Hi, I’m Yummy!
         </span>
       )}
       <button
         type="button"
-        aria-label="Chat with Gudy, your AI assistant"
-        title="Chat with Gudy"
+        aria-label="Chat with Yummy, your AI assistant"
+        title="Chat with Yummy"
         className="gm-pulse block size-full touch-none rounded-full shadow-[0_6px_16px_rgba(58,13,5,.35)] outline-none transition-transform focus-visible:ring-4 focus-visible:ring-[#6B2410]/40 data-[dragging=true]:scale-110"
         data-dragging={dragging}
         onPointerDown={(e) => {

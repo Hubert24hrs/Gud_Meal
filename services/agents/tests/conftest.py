@@ -115,7 +115,7 @@ async def stack() -> AsyncIterator[dict[str, Any]]:
 
 @pytest.fixture
 async def offline_stack() -> AsyncIterator[dict[str, Any]]:
-    """Gudy without a Gemini key: the rule-based offline model drives the same graph and tools."""
+    """Yummy without a Gemini key: the rule-based offline model drives the same graph and tools."""
     from gudmeal_agents.offline import OfflineModels
 
     async with make_stack(OfflineModels()) as s:

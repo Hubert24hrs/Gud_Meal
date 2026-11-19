@@ -8,7 +8,7 @@ import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-// Headings: a heavy rounded face, like the lettering of the GudMeals logo.
+// Headings: a heavy rounded face, like the lettering of the Yummy Chops logo.
 const display = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: "swap", weight: ["600", "700", "800", "900"] });
 const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 
@@ -16,10 +16,10 @@ const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
-  title: { default: "GudMeals: food, supplements & skin care and package delivery", template: "%s · GudMeals" },
+  title: { default: "Yummy Chops: food, supplements & skin care and package delivery", template: "%s · Yummy Chops" },
   description:
-    "Order food from the best restaurants, supplements and skin care from partner shops, and send packages across Lagos and Enugu. Ask Gudy, our AI assistant, in English, Pidgin, Igbo, Yoruba or Hausa.",
-  openGraph: { type: "website", siteName: "GudMeals", locale: "en_NG" },
+    "Order food from the best restaurants, supplements and skin care from partner shops, and send packages across Lagos and Enugu. Ask Yummy, our AI assistant, in English, Pidgin, Igbo, Yoruba or Hausa.",
+  openGraph: { type: "website", siteName: "Yummy Chops", locale: "en_NG" },
   alternates: { canonical: "/" },
 };
 

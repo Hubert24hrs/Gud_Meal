@@ -7,7 +7,7 @@
 ## Context
 
 Package Delivery must also send packages **between cities** (Lagos ↔ Enugu ↔ other states) through partner
-logistics companies and hubs. GudMeals has riders only inside its launch cities (Lagos, Enugu). The trip between
+logistics companies and hubs. Yummy Chops has riders only inside its launch cities (Lagos, Enugu). The trip between
 cities is done by a line-haul carrier (an inter-city bus or truck company) on fixed departures. There are no real
 carrier contracts or hub addresses yet, so the feature ships with an original **sample network** that is labelled
 “(sample)” everywhere. Waybills move money, so the platform rules still apply:
@@ -73,7 +73,7 @@ The network lives in `platform_configuration/logistics`:
 | Element | Fields |
 |---|---|
 | Cities | Door service yes/no |
-| Hubs | GudMeals hubs and partner terminals; drop-off and collection flags; address and hours; `is_sample` |
+| Hubs | Yummy Chops hubs and partner terminals; drop-off and collection flags; address and hours; `is_sample` |
 | Carriers | Name and id |
 | Lanes | Carrier; transit days; departure weekdays; cut-off hour; base price by size; included kg; price per extra kg; carrier share |
 | Global | Booking fee; maximum weight by size |
@@ -93,10 +93,10 @@ Every lane departs Monday to Saturday with a 15:00 cut-off. The price includes 2
 
 Hubs:
 
-- **GudMeals hubs:** Lagos (Ikeja, Lekki) and Enugu (Independence Layout). They take drop-offs and hand
+- **Yummy Chops hubs:** Lagos (Ikeja, Lekki) and Enugu (Independence Layout). They take drop-offs and hand
   packages over to recipients.
-- **Partner terminals:** Abuja (Utako) and Port Harcourt (GRA Phase 2). They offer collection only, because Gud
-  Meal has no riders there yet. Door pickup and delivery exist only where GudMeals has riders.
+- **Partner terminals:** Abuja (Utako) and Port Harcourt (GRA Phase 2). They offer collection only, because Yummy
+  Chops has no riders there yet. Door pickup and delivery exist only where Yummy Chops has riders.
 
 ### Pricing and dates (deterministic, `pricing.py` / `logistics.py`)
 
@@ -139,7 +139,7 @@ document `waybill_tracking/{code}` maps it to the order. Collisions are retried 
 It never returns names, phone numbers or addresses. It is rate-limited per client address: 30 requests, then one
 every two seconds.
 
-The website has `/track` (no-index), the order screens show the history, and Gudy can track by number.
+The website has `/track` (no-index), the order screens show the history, and Yummy can track by number.
 
 ### Money
 
@@ -161,15 +161,15 @@ Cancellation:
   called off.
 - After that, support handles it as a dispute.
 
-### Gudy
+### Yummy
 
-Gudy has two read-only tools:
+Yummy has two read-only tools:
 
 - `get_waybill_options`: routes from the customer's city, from-prices, transit days, and door delivery or
   collection points
 - `track_waybill`: by tracking number, or the customer's latest waybill
 
-Booking happens in the app or on the website, so Gudy needs no booking tool and no new approval.
+Booking happens in the app or on the website, so Yummy needs no booking tool and no new approval.
 
 ## Consequences
 
@@ -184,7 +184,7 @@ Booking happens in the app or on the website, so Gudy needs no booking tool and 
     pass the money guard
 - **Unchanged rules:** packages and waybills can never take the pay-on-delivery `→ submitted_to_restaurant` step,
   and legs cannot be paid, cancelled or disputed by customers.
-- **Customer screens:** the website, the customer app and Gudy all book or track waybills from the same API.
+- **Customer screens:** the website, the customer app and Yummy all book or track waybills from the same API.
 - **Rider app:** it shows legs as “Interstate · to/from the hub”, with a hand-over card instead of the code form
   on first-mile jobs.
 

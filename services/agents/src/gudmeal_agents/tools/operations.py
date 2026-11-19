@@ -40,7 +40,7 @@ HELP_ARTICLES: list[dict[str, str]] = [
         "id": "payment",
         "title": "Paying for an order",
         "body": "Payments are processed securely by our payment partners (card, bank transfer or USSD where available). "
-        "GudMeals never asks for your card PIN or OTP in chat. Your order is confirmed once the payment is "
+        "Yummy Chops never asks for your card PIN or OTP in chat. Your order is confirmed once the payment is "
         "verified.",
     },
     {
@@ -151,7 +151,7 @@ async def create_support_ticket(args: TicketArgs, ctx: ToolContext) -> ToolOutpu
             "ticket_id": t["id"],
             "status": t["status"],
             "priority": t["priority"],
-            "message": "A GudMeals support specialist will review this.",
+            "message": "A Yummy Chops support specialist will review this.",
         },
         card={"type": "support_ticket", "ticket_id": t["id"]},
     )
@@ -183,7 +183,7 @@ async def request_refund_review(args: RefundReviewArgs, ctx: ToolContext) -> Too
         {
             "ticket_id": t["id"],
             "status": "submitted_for_review",
-            "message": "Refunds are decided by the GudMeals team, not the assistant.",
+            "message": "Refunds are decided by the Yummy Chops team, not the assistant.",
         }
     )
 
@@ -449,7 +449,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "request_refund_review",
-            "Ask the GudMeals team to review a refund. The assistant cannot issue "
+            "Ask the Yummy Chops team to review a refund. The assistant cannot issue "
             "refunds. Requires the customer's approval.",
             RefundReviewArgs,
             request_refund_review,
@@ -463,7 +463,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "search_help_articles",
-            "Search GudMeals help articles (fees, refunds, payments, cancellation, "
+            "Search Yummy Chops help articles (fees, refunds, payments, cancellation, "
             "delivery codes, scheduling).",
             HelpArgs,
             search_help_articles,

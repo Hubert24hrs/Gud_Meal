@@ -72,7 +72,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               },
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search_rounded),
-                hintText: 'Search GudMeals',
+                hintText: 'Search Yummy Chops',
                 filled: true,
                 fillColor: theme.colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(999), borderSide: BorderSide.none),

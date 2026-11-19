@@ -1,4 +1,4 @@
-"""Gudy: multi-service tools and the offline (no Gemini key) assistant, end to end against the real API."""
+"""Yummy: multi-service tools and the offline (no Gemini key) assistant, end to end against the real API."""
 
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ def test_budget_party_and_deadline_parsing():
     assert parse_deadline("whenever") is None
 
 
-# ------------------------------------------------------------------------------------------- offline Gudy
+# ------------------------------------------------------------------------------------------- offline Yummy
 async def chat(client, message: str, who: str = "customer", thread: str | None = None) -> dict:
     body = {"message": message, **({"thread_id": thread} if thread else {})}
     r = await client.post("/v1/chat", json=body, headers=bearer(who))
@@ -56,12 +56,12 @@ async def chat(client, message: str, who: str = "customer", thread: str | None =
 async def test_offline_gudy_greets_in_the_customers_language_and_lists_services(offline_stack):
     client = offline_stack["client"]
     health = (await client.get("/health")).json()
-    assert health["ai_mode"] == "offline" and health["assistant"] == "Gudy" and not health["llm_configured"]
+    assert health["ai_mode"] == "offline" and health["assistant"] == "Yummy" and not health["llm_configured"]
 
     hi = await chat(client, "How far, abeg wetin you fit do?")
-    assert hi["status"] == "completed" and hi["reply"].startswith("How far Ada! Na me be Gudy")
+    assert hi["status"] == "completed" and hi["reply"].startswith("How far Ada! Na me be Yummy")
     igbo = await chat(client, "Ndewo")
-    assert igbo["reply"].startswith("Ndewo Ada! Abụ m Gudy.") and "English for now" in igbo["reply"]
+    assert igbo["reply"].startswith("Ndewo Ada! Abụ m Yummy.") and "English for now" in igbo["reply"]
 
     services = await chat(client, "What services do you offer?")
     assert "Supplements & Skin Care" in services["reply"] and "Package Delivery" in services["reply"]
@@ -73,7 +73,7 @@ async def test_offline_gudy_greets_in_the_customers_language_and_lists_services(
 
 async def test_offline_gudy_totals_beauty_search_parcels_and_support(offline_stack):
     client, api = offline_stack["client"], offline_stack["api"]
-    none = await chat(client, "How much have I spent on GudMeals?")
+    none = await chat(client, "How much have I spent on Yummy Chops?")
     assert "haven't placed any orders" in none["reply"]
 
     # Pay for one order, then the totals come straight from the API (net of refunds).
@@ -143,7 +143,7 @@ async def test_offline_gudy_vision_flow_ends_on_an_approval_screen(offline_stack
     local = datetime.now(UTC).astimezone(LAGOS)
     when = " and have it delivered before 11:59pm" if local.hour < 22 else ""
     body = await chat(
-        client, f"GudMeals, I have ₦10,000. Find me the best meal for two people, order it{when}."
+        client, f"Yummy Chops, I have ₦10,000. Find me the best meal for two people, order it{when}."
     )
     assert body["status"] == "approval_required", body
     approval = body["approval"]
@@ -183,7 +183,7 @@ async def test_offline_gudy_plan_then_pick_and_decline(offline_stack):
 
 # ------------------------------------------------------------------------------------------- Gemini-style tools
 async def test_parcel_quote_and_booking_via_tools(stack):
-    """With the LLM: Gudy prices a parcel from free-text addresses, then books it only after approval."""
+    """With the LLM: Yummy prices a parcel from free-text addresses, then books it only after approval."""
     client, api, models = stack["client"], stack["api"], stack["models"]
     await api.post("/v1/me/addresses", json=LEKKI_ADDRESS, headers=bearer("customer"))
     models.steps = [
@@ -266,7 +266,7 @@ async def test_offline_gudy_reads_the_wallet_and_explains_cash_payments(offline_
 
     invocations = await offline_stack["store"].recent_invocations()
     assert "get_wallet" in {i["tool"] for i in invocations}
-    # Gudy has no tool that can move money in or out of a wallet.
+    # Yummy has no tool that can move money in or out of a wallet.
     from gudmeal_agents.tools.registry import FORBIDDEN_ARG_NAMES
 
     assert {"amount", "amount_kobo"} <= set(FORBIDDEN_ARG_NAMES)
@@ -319,7 +319,7 @@ async def test_offline_gudy_quotes_waybill_routes_and_tracks_a_waybill(offline_s
     assert "Collect it at Partner terminal, Utako" in tracked["reply"]
     latest = await chat(client, "where is my waybill?")
     assert code in latest["reply"]
-    totals = await chat(client, "How much have I spent on GudMeals?")
+    totals = await chat(client, "How much have I spent on Yummy Chops?")
     assert "Interstate waybill: 1 order(s)" in totals["reply"]
 
 
@@ -338,8 +338,8 @@ def test_offline_waybill_reply_drops_the_eta_once_delivered():
 
 async def test_offline_gudy_explains_plus_points_referrals_and_group_orders(offline_stack):
     client, api = offline_stack["client"], offline_stack["api"]
-    pitch = await chat(client, "Is GudMeals Plus worth it? Am I a member?")
-    assert "GudMeals Plus costs ₦1,500 every 30 days (VAT included):" in pitch["reply"]
+    pitch = await chat(client, "Is Yummy Chops Plus worth it? Am I a member?")
+    assert "Yummy Chops Plus costs ₦1,500 every 30 days (VAT included):" in pitch["reply"]
     assert "Free delivery on restaurant and shop orders of ₦3,000 or more" in pitch["reply"]
     assert next(c for c in pitch["cards"] if c["type"] == "plus")["member"] is False
 
@@ -356,10 +356,10 @@ async def test_offline_gudy_explains_plus_points_referrals_and_group_orders(offl
     )
     assert r.status_code == 201, r.text
     member = await chat(client, "my plus membership")
-    assert "You're a GudMeals Plus member until" in member["reply"] and "is on" in member["reply"]
+    assert "You're a Yummy Chops Plus member until" in member["reply"] and "is on" in member["reply"]
 
     points = await chat(client, "How many points do I have?")
-    assert "You have 0 Gud points (worth ₦0)" in points["reply"]
+    assert "You have 0 Yummy points (worth ₦0)" in points["reply"]
     assert "Your referral code is ADA" in points["reply"] and "500 more points" in points["reply"]
     pidgin = await chat(client, "abeg wetin be my referral code?")
     assert "Your referral code na ADA" in pidgin["reply"]

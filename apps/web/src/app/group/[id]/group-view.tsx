@@ -107,7 +107,7 @@ export function GroupView({ id }: { id: string }) {
         {g.status === "open" && (
           <div className="flex flex-wrap items-center gap-3">
             <CodeChip code={g.code} />
-            <ShareButton text={`Join my GudMeals group order at ${g.restaurant.name}, code ${g.code}:`} url={`${origin}/group?code=${g.code}`} label="Invite friends" />
+            <ShareButton text={`Join my Yummy Chops group order at ${g.restaurant.name}, code ${g.code}:`} url={`${origin}/group?code=${g.code}`} label="Invite friends" />
             <span className="text-xs text-muted">{g.members.length}/{g.max_members} people · open until {formatTime(g.expires_at)}</span>
           </div>
         )}

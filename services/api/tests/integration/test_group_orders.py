@@ -166,7 +166,7 @@ async def test_split_bill_end_to_end(flow, client, container):
     assert sorted(p["customer_id"] for p in payments) == ["cust-1", "cust-2", "cust-3"]
     assert sum(p["amount_kobo"] for p in payments) == order["total_kobo"]
 
-    # Completed: every payer earns Gud points on what they paid.
+    # Completed: every payer earns Yummy points on what they paid.
     await flow.deliver(order["id"])
     for who, name in (("customer", "Ada"), ("customer2", "Bayo"), ("customer3", "Chika")):
         points = (await client.get("/v1/rewards", headers=auth(who))).json()["points"]

@@ -102,9 +102,9 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
                 await c.close()
 
     app = FastAPI(
-        title="GudMeals API",
+        title="Yummy Chops API",
         version="0.1.0",
-        description="Core API for the GudMeals food delivery platform (catalog, pricing, orders, payments, "
+        description="Core API for the Yummy Chops food delivery platform (catalog, pricing, orders, payments, "
         "ledger, dispatch). All money values are integer kobo.",
         lifespan=lifespan,
         docs_url=None if settings.environment == "production" else "/docs",

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# One-time bootstrap of a GudMeals environment in an EXISTING Google Cloud project that already has
+# One-time bootstrap of a Yummy Chops environment in an EXISTING Google Cloud project that already has
 # Firebase added and billing enabled. Run it yourself, per environment (dev → staging → prod):
 #
-#   infra/scripts/bootstrap-gcp.sh gud-meal-dev europe-west1
-#   infra/scripts/bootstrap-gcp.sh gud-meal-dev europe-west1 --with-cloud-sql   # creates a billable Cloud SQL instance
+#   infra/scripts/bootstrap-gcp.sh yummy-chops-dev europe-west1
+#   infra/scripts/bootstrap-gcp.sh yummy-chops-dev europe-west1 --with-cloud-sql   # creates a billable Cloud SQL instance
 #
 # The script is idempotent where gcloud allows (existing resources are skipped) and NEVER creates
 # Cloud SQL unless --with-cloud-sql is passed and you confirm the cost prompt.
 set -euo pipefail
 
-PROJECT="${1:?project id required, e.g. gud-meal-dev}"
+PROJECT="${1:?project id required, e.g. yummy-chops-dev}"
 REGION="${2:-europe-west1}"
 WITH_SQL="${3:-}"
 ENV_NAME="${PROJECT##*-}"   # dev | staging | prod
@@ -46,7 +46,7 @@ gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudb
 say "Artifact Registry"
 exists gcloud artifacts repositories describe gudmeal --location "$REGION" ||
   gcloud artifacts repositories create gudmeal --repository-format docker --location "$REGION" \
-    --description "GudMeals service images"
+    --description "Yummy Chops service images"
 
 say "Service accounts (least privilege)"
 # gudmeal-web runs the three websites and gets no roles: they only call the public API.

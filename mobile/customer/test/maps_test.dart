@@ -139,7 +139,7 @@ void main() {
     await tester.tap(find.text('5 Admiralty Way'));
     await tester.pumpAndSettle();
 
-    expect(find.text('GudMeals delivers here'), findsOneWidget);
+    expect(find.text('Yummy Chops delivers here'), findsOneWidget);
     expect(find.byType(SchematicMap), findsOneWidget); // no key in tests: schematic map
     // One billing session: the search and the pick share a token.
     expect(api.searches.single.$2, api.details.single.$2);

@@ -1,4 +1,4 @@
-"""Cities GudMeals operates in. Delivery zones (pricing config) belong to a city via `ZoneConfig.city`."""
+"""Cities Yummy Chops operates in. Delivery zones (pricing config) belong to a city via `ZoneConfig.city`."""
 
 from __future__ import annotations
 

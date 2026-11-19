@@ -54,7 +54,7 @@ def account_type(code: str) -> str:
 OWNED_ACCOUNTS = {
     ("liability", "restaurant"),  # owed to a merchant
     ("liability", "rider"),  # owed to a rider (delivery pay)
-    ("liability", "wallet"),  # a customer's GudMeals wallet (closed-loop stored value)
+    ("liability", "wallet"),  # a customer's Yummy Chops wallet (closed-loop stored value)
     ("liability", "vendor"),  # cash-on-delivery money collected for a seller
     ("receivable", "rider_cash"),  # cash a rider collected at the door and still has to hand in
     ("liability", "carrier"),  # owed to a line-haul carrier for interstate waybills
@@ -230,7 +230,7 @@ def wallet_payment(uid: str, amount_kobo: int) -> list[Posting]:
 
 
 def plus_paid(source_account: str, amount_kobo: int, vat_kobo: int) -> list[Posting]:
-    """GudMeals Plus paid (price includes VAT) from a gateway (`cash:<provider>`) or a wallet."""
+    """Yummy Chops Plus paid (price includes VAT) from a gateway (`cash:<provider>`) or a wallet."""
     postings = net(
         [
             Posting(source_account, "debit", amount_kobo),
@@ -270,7 +270,7 @@ def rider_cash_remitted(
 
 
 def vendor_to_wallet(uid: str, amount_kobo: int) -> list[Posting]:
-    """A seller moves cash-on-delivery money into their own GudMeals wallet (instant, no bank transfer)."""
+    """A seller moves cash-on-delivery money into their own Yummy Chops wallet (instant, no bank transfer)."""
     return [
         Posting(vendor_account(uid), "debit", amount_kobo),
         Posting(wallet_account(uid), "credit", amount_kobo),

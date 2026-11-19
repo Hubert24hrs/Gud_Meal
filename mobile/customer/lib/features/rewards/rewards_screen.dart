@@ -5,7 +5,7 @@ import 'package:gud_meal_core/gud_meal_core.dart';
 
 import '../../providers.dart';
 
-/// Gud points, voucher redemption, personal vouchers and the referral code.
+/// Yummy points, voucher redemption, personal vouchers and the referral code.
 class RewardsScreen extends ConsumerStatefulWidget {
   const RewardsScreen({super.key});
 
@@ -75,7 +75,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
               child: DefaultTextStyle(
                 style: const TextStyle(color: Colors.white),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Gud points', style: TextStyle(fontWeight: FontWeight.w700)),
+                  const Text('Yummy points', style: TextStyle(fontWeight: FontWeight.w700)),
                   Text('${r.points}', style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w900)),
                   Text('Worth ${formatNaira(r.pointsValueKobo)} · 1 point per ₦100 on completed orders'),
                   if (steps == 0 && r.redeem.enabled)

@@ -30,9 +30,9 @@ class _RiderSignInScreenState extends ConsumerState<RiderSignInScreen> {
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(24), children: [
           const SizedBox(height: 24),
-          const Center(child: GudMealsLogo(height: 150)),
+          const Center(child: YummyChopsLogo(height: 150)),
           const SizedBox(height: 16),
-          Text('GudMeals Rider', style: Theme.of(context).textTheme.headlineLarge),
+          Text('Yummy Chops Rider', style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 4),
           const Text('Sign in with the account you applied with. Approved riders only.'),
           const SizedBox(height: 32),

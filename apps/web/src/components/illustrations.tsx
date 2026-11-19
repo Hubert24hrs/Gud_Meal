@@ -1,5 +1,5 @@
 /**
- * Original GudMeals illustrations (SVG, 100×100 design space). Shared look with the mobile app's painters.
+ * Original Yummy Chops illustrations (SVG, 100×100 design space). Shared look with the mobile app's painters.
  * No third-party artwork.
  */
 import type { SVGProps } from "react";
@@ -110,7 +110,7 @@ export function BeautyArt(props: ArtProps) {
   );
 }
 
-/** A delivery scooter carrying a GudMeals parcel box. */
+/** A delivery scooter carrying a Yummy Chops parcel box. */
 export function ParcelArt(props: ArtProps) {
   return (
     <Svg {...props}>
@@ -140,7 +140,7 @@ export function ParcelArt(props: ArtProps) {
   );
 }
 
-/** Gudy, the GudMeals AI assistant: a friendly robot in a disc of the logo's chocolate brown (the cloche), with a gold antenna and a chat-bubble tail. */
+/** Yummy, the Yummy Chops AI assistant: a friendly robot in a disc of the logo's chocolate brown (the cloche), with a gold antenna and a chat-bubble tail. */
 export function GudyArt({ blink = false, ...props }: ArtProps & { blink?: boolean }) {
   return (
     <Svg {...props}>

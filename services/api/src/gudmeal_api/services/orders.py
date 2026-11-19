@@ -403,7 +403,7 @@ class OrderService:
     async def checkout(
         self, principal: Principal, order_id: str, *, provider: str | None, idempotency_key: str
     ) -> dict[str, Any]:
-        """Pay for an order: gateway (card/transfer/USSD), GudMeals wallet, or cash on delivery."""
+        """Pay for an order: gateway (card/transfer/USSD), Yummy Chops wallet, or cash on delivery."""
         order = await self.get(order_id)
         if order.customer_id != principal.uid:
             raise NotFound("Order not found")

@@ -106,7 +106,7 @@ describe("dish carousel helpers", () => {
 describe("DishOrbitCarousel", () => {
   beforeEach(() => mockReducedMotion(true));
 
-  it("shows the first dish with its kitchen, price and the links to order or ask Gudy", () => {
+  it("shows the first dish with its kitchen, price and the links to order or ask Yummy", () => {
     render(<DishOrbitCarousel dishes={DISHES} orderHref={orderHref} askHref={askHref} />);
     const region = screen.getByRole("region", { name: "Featured dishes" });
     expect(region.getAttribute("aria-roledescription")).toBe("carousel");
@@ -115,7 +115,7 @@ describe("DishOrbitCarousel", () => {
     expect(part("in", "head")?.querySelector(".dsh-t2")?.textContent).toBe("Suya");
     expect(screen.getByRole("link", { name: "Order food · ₦4,500 for Beef Suya (250g) from Suya Lane" }).getAttribute("href"))
       .toBe("/restaurants/r-suya-lane?item=sl-beef-suya");
-    expect(screen.getByRole("link", { name: "Ask Gudy about Beef Suya (250g)" }).getAttribute("href")).toBe("/assistant?q=Beef%20Suya%20(250g)");
+    expect(screen.getByRole("link", { name: "Ask Yummy about Beef Suya (250g)" }).getAttribute("href")).toBe("/assistant?q=Beef%20Suya%20(250g)");
     expect(screen.getByRole("button", { name: "Show Chicken Shawarma" })).toBeTruthy();
     expect(screen.getByRole("img", { name: "Kitchen rated 4.8 out of 5" })).toBeTruthy();
     expect(screen.getByText("Victoria Island · 29 min · ₦600 delivery")).toBeTruthy();

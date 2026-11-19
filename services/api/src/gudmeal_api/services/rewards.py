@@ -1,4 +1,4 @@
-"""Gud points and referrals (ADR-0016). Rewards never create money: they become personal, platform-funded
+"""Yummy points and referrals (ADR-0016). Rewards never create money: they become personal, platform-funded
 vouchers that `pricing.py` prices and the ledger settles through `expense:promotions` like any voucher.
 
 Points live outside the ledger (they are not money) in `loyalty_accounts/{uid}` with an append-only `entries`
@@ -111,7 +111,7 @@ class RewardsService:
                 and account.referred_by is None
                 and not await self._has_ordered(principal.uid),
                 "share_text": (
-                    f"Get {format_naira(cfg.referee_reward_kobo)} off your first GudMeals order with my code "
+                    f"Get {format_naira(cfg.referee_reward_kobo)} off your first Yummy Chops order with my code "
                     f"{account.referral_code}."
                 ),
             },
@@ -168,7 +168,7 @@ class RewardsService:
             raise ValidationFailed("Referral rewards are not available right now")
         code = normalise_code(raw_code)
         if not re.match(REFERRAL_PATTERN, code):
-            raise ValidationFailed("That doesn't look like a GudMeals referral code")
+            raise ValidationFailed("That doesn't look like a Yummy Chops referral code")
         owner = await self.repos.store.get(f"referral_codes/{code}")
         if owner is None:
             raise ValidationFailed("We don't recognise that referral code")
@@ -179,7 +179,7 @@ class RewardsService:
             raise ValidationFailed("Referral codes are for new customers, before their first order")
         now = utcnow()
         voucher = Voucher(
-            code=f"GMR-{new_code(6)}",
+            code=f"YCR-{new_code(6)}",
             description="Welcome gift from a friend",
             kind="fixed",
             value=cfg.referee_reward_kobo,
@@ -222,7 +222,7 @@ class RewardsService:
         """The referred customer's first order completed: the friend who invited them gets a voucher."""
         now = utcnow()
         month = now.strftime("%Y-%m")
-        voucher_code = f"GMF-{new_code(6)}"
+        voucher_code = f"YCF-{new_code(6)}"
 
         async def fn(tx: Transaction) -> tuple[str, bool] | None:
             doc = await tx.get(self._account_path(referee_uid))
@@ -279,7 +279,7 @@ class RewardsService:
             await self.notifier.notify_user(
                 friend_uid,
                 "Your friend's first order is done",
-                f"Here's {format_naira(cfg.referrer_reward_kobo)} off your next order. Thanks for sharing GudMeals!",
+                f"Here's {format_naira(cfg.referrer_reward_kobo)} off your next order. Thanks for sharing Yummy Chops!",
                 {"screen": "rewards"},
             )
 
@@ -386,13 +386,13 @@ class RewardsService:
         """Turn points into a personal voucher (points × point value), in steps of `redeem_step_points`."""
         cfg = await self.repos.get_growth_config()
         if not cfg.points_enabled:
-            raise ValidationFailed("Gud points are not available right now")
+            raise ValidationFailed("Yummy points are not available right now")
         if points % cfg.redeem_step_points:
             raise ValidationFailed(f"Redeem points in steps of {cfg.redeem_step_points}")
         now = utcnow()
         voucher = Voucher(
-            code=f"GMP-{new_code(6)}",
-            description=f"{points:,} Gud points",
+            code=f"YCP-{new_code(6)}",
+            description=f"{points:,} Yummy points",
             kind="fixed",
             value=points * cfg.point_value_kobo,
             min_subtotal_kobo=cfg.redeem_min_subtotal_kobo,
@@ -417,7 +417,7 @@ class RewardsService:
             account = RewardsAccount.model_validate(doc) if doc else RewardsAccount(uid=principal.uid)
             if account.points < points:
                 raise ValidationFailed(
-                    "You don't have enough Gud points", details={"points": account.points, "needed": points}
+                    "You don't have enough Yummy points", details={"points": account.points, "needed": points}
                 )
             tx.create(f"{self._account_path(principal.uid)}/entries/{entry.id}", to_doc(entry))
             tx.create(self.repos.vouchers.path(voucher.code), to_doc(voucher))

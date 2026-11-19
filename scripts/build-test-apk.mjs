@@ -21,8 +21,8 @@ const wanted = args.filter((a) => !a.startsWith("-"));
 const arm64 = args.includes("--arm64");
 const pageOnly = args.includes("--page");
 const apps = [
-  { id: "customer", file: "gudmeal-customer.apk", title: "GudMeals", note: "Order food, supplements and skin care, and send packages" },
-  { id: "rider", file: "gudmeal-rider.apk", title: "GudMeals Rider", note: "Accept deliveries and confirm them with the customer's code" },
+  { id: "customer", file: "yummy-chops.apk", title: "Yummy Chops", note: "Order food, supplements and skin care, and send packages" },
+  { id: "rider", file: "yummy-chops-rider.apk", title: "Yummy Chops Rider", note: "Accept deliveries and confirm them with the customer's code" },
 ];
 
 const dist = join(root, "mobile/dist");
@@ -78,17 +78,17 @@ for (const app of apps) {
 const ready = apps.filter((a) => a.size);
 const built = new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 writeFileSync(join(dist, "index.html"), `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>GudMeals test apps</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Yummy Chops test apps</title>
 <style>body{font-family:system-ui,sans-serif;background:#FFFBF8;color:#2A0D06;margin:0;padding:24px}
 main{max-width:440px;margin:0 auto}h1{font-size:26px}a.app{display:flex;align-items:center;gap:14px;background:#E0040B;color:#fff;text-decoration:none;
 border-radius:14px;padding:18px 20px;margin:14px 0;font-weight:700;font-size:18px}a.app small{display:block;font-weight:400;
 font-size:14px;opacity:.9;margin-top:4px}a.app img{width:56px;height:56px;border-radius:13px;flex:none}ol{padding-left:20px;line-height:1.6}.note{font-size:13px;color:#7A625A}</style>
-</head><body><main><h1>GudMeals test apps</h1>
+</head><body><main><h1>Yummy Chops test apps</h1>
 ${ready.map((a) => `<a class="app" href="${a.file}" download>${a.icon ? `<img src="${a.icon}" alt="">` : ""}<span>${a.title} (${a.size})<small>${a.note}</small></span></a>`).join("\n")}
 <ol><li>Tap an app to download it, then open the download.</li>
 <li>If Android asks, allow your browser to <b>install unknown apps</b>, then tap <b>Install</b>.</li>
-<li>Keep this phone on the same Wi-Fi as the computer running GudMeals.</li></ol>
-<p class="note">Test builds made ${built}${arm64 ? " for 64-bit Android phones" : ""}. They find the computer running GudMeals on your Wi-Fi by themselves (it was at ${ip} when this page was made). They use test accounts and a payment sandbox: no real money moves.</p>
+<li>Keep this phone on the same Wi-Fi as the computer running Yummy Chops.</li></ol>
+<p class="note">Test builds made ${built}${arm64 ? " for 64-bit Android phones" : ""}. They find the computer running Yummy Chops on your Wi-Fi by themselves (it was at ${ip} when this page was made). They use test accounts and a payment sandbox: no real money moves.</p>
 </main></body></html>`);
 console.log(`\nReady: ${ready.map((a) => a.file).join(", ") || "no APKs yet"} in mobile/dist.`);
 console.log(`Serve them with: node scripts/dev.mjs downloads --lan   ->   http://${ip}:8090`);

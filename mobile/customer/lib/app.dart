@@ -133,7 +133,7 @@ class GudMealApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      title: 'GudMeals',
+      title: 'Yummy Chops',
       debugShowCheckedModeBanner: false,
       theme: buildGudMealTheme(Brightness.light),
       darkTheme: buildGudMealTheme(Brightness.dark),

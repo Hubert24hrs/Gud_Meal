@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// GudMeals — Cloud Storage rules. Deny by default; strict size and content-type limits.
+// Yummy Chops — Cloud Storage rules. Deny by default; strict size and content-type limits.
 service firebase.storage {
   match /b/{bucket}/o {
     function signedIn() { return request.auth != null; }

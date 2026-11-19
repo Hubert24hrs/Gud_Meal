@@ -18,12 +18,13 @@ const lan = process.argv.includes("--lan");
 const ip = lan ? lanIp() : null;
 
 // The web build of the customer app is served on 5050. `customer-web --port=5051` is the spare address, for a
-// browser that holds broken site data for 5050 and shows a blank page. The API and Gudy allow both.
+// browser that holds broken site data for 5050 and shows a blank page. The API and Yummy allow both.
 const WEB_APP_PORTS = ["5050", "5051"];
 const webPort = process.argv.find((arg) => arg.startsWith("--port="))?.slice("--port=".length) ?? WEB_APP_PORTS[0];
-// Web pages that may call the local services: the three websites and the web build of the customer app.
+// Web pages that may call the local services: the three websites (3010: the customer website when other
+// projects hold 3000-3002, preview server `web-3010`) and the web build of the customer app.
 const corsOrigins = process.env.CORS_ORIGINS
-  ?? JSON.stringify(["3000", "3001", "3002", ...WEB_APP_PORTS].map((port) => `http://localhost:${port}`));
+  ?? JSON.stringify(["3000", "3001", "3002", "3010", ...WEB_APP_PORTS].map((port) => `http://localhost:${port}`));
 
 // The Auth emulator reads its listen address from firebase.json; --lan uses a copy that listens on every interface.
 function lanFirebaseConfig() {
@@ -64,7 +65,7 @@ const targets = {
       // Phone tests (--lan) have nobody at the shop's dashboard: demo shops accept and pack orders by themselves
       // after a few seconds. Set DEMO_SHOP_AUTOPILOT=false to play the shop in the partner dashboard instead.
       DEMO_SHOP_AUTOPILOT: process.env.DEMO_SHOP_AUTOPILOT ?? (lan ? "true" : "false"),
-      // Gudy on WhatsApp with the sandbox sender: try it at http://localhost:8000/v1/dev/whatsapp
+      // Yummy on WhatsApp with the sandbox sender: try it at http://localhost:8000/v1/dev/whatsapp
       WHATSAPP_ENABLED: "true", WHATSAPP_PROVIDER: "sandbox", AGENTS_BASE_URL: "http://localhost:8100",
     },
   },
@@ -105,7 +106,7 @@ if (!names.length || names.some((name) => !targets[name])) {
   process.exit(2);
 }
 if (names.includes("customer-web") && !WEB_APP_PORTS.includes(webPort)) {
-  console.error(`customer-web runs on ${WEB_APP_PORTS.join(" or ")}: the local API and Gudy allow only those addresses`);
+  console.error(`customer-web runs on ${WEB_APP_PORTS.join(" or ")}: the local API and Yummy allow only those addresses`);
   process.exit(2);
 }
 if (lan) console.log(`LAN mode: phones on this Wi-Fi reach ${names.join(", ")} at http://${ip} (allow it if Windows Firewall asks)`);

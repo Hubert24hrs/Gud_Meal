@@ -1,7 +1,7 @@
 [project]
 name = "gudmeal-agents"
 version = "0.1.0"
-description = "GudMeals LangGraph multi-agent service (Gemini). Acts only through gudmeal-api tools."
+description = "Yummy Chops LangGraph multi-agent service (Gemini). Acts only through gudmeal-api tools."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

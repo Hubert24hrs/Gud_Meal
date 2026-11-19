@@ -70,15 +70,15 @@ function Account() {
             <span className="font-medium">My receipts</span><span aria-hidden="true">›</span>
           </Link>
           <Link href="/wallet" className="flex items-center justify-between p-4 hover:bg-surface-muted">
-            <span className="font-medium">GudMeals wallet</span>
+            <span className="font-medium">Yummy Chops wallet</span>
             <span className="rounded-full bg-secondary-soft px-3 py-1 text-sm font-bold text-secondary">
               {wallet.data ? formatNaira(wallet.data.balance_kobo) : "Open"}
             </span>
           </Link>
           <Link href="/food?category=promotions" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">Promo codes and deals</span><span aria-hidden="true">›</span></Link>
-          <button type="button" onClick={soon("Pay with card, bank transfer or USSD on a secure payment page (GudMeals never stores your card), from your GudMeals wallet, or in cash on delivery once you have completed your first order.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Payment methods</span><span aria-hidden="true">›</span></button>
-          <Link href="/plus" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">GudMeals Plus</span><span className="rounded-full bg-primary-soft px-3 py-1 text-sm font-bold text-primary-strong">Free delivery</span></Link>
-          <Link href="/rewards" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">Gud points and invite friends</span><span aria-hidden="true">›</span></Link>
+          <button type="button" onClick={soon("Pay with card, bank transfer or USSD on a secure payment page (Yummy Chops never stores your card), from your Yummy Chops wallet, or in cash on delivery once you have completed your first order.")} className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-muted"><span className="font-medium">Payment methods</span><span aria-hidden="true">›</span></button>
+          <Link href="/plus" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">Yummy Chops Plus</span><span className="rounded-full bg-primary-soft px-3 py-1 text-sm font-bold text-primary-strong">Free delivery</span></Link>
+          <Link href="/rewards" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">Yummy points and invite friends</span><span aria-hidden="true">›</span></Link>
           <Link href="/group" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">Group orders</span><span aria-hidden="true">›</span></Link>
           <Link href="/help" className="flex items-center justify-between p-4 hover:bg-surface-muted"><span className="font-medium">FAQ, privacy and terms</span><span aria-hidden="true">›</span></Link>
           <button type="button" onClick={() => signOut()} className="w-full p-4 text-left font-medium text-danger hover:bg-surface-muted">Sign out</button>
@@ -88,7 +88,7 @@ function Account() {
         <h2 className="font-semibold">Food preferences</h2>
         {profile.isLoading ? <Skeleton className="h-28" /> : (
           <>
-            <Field label="Allergies" htmlFor="allergens" hint="Comma separated, e.g. peanuts, shellfish. GudMeals' assistant never recommends these.">
+            <Field label="Allergies" htmlFor="allergens" hint="Comma separated, e.g. peanuts, shellfish. Yummy Chops' assistant never recommends these.">
               <Input id="allergens" value={allergens} onChange={(e) => setAllergens(e.target.value)} />
             </Field>
             <Field label="Dietary preferences" htmlFor="dietary" hint="e.g. vegetarian, halal">
@@ -117,7 +117,7 @@ function Account() {
         <Button variant="outline" size="sm" onClick={async () => {
           const data = await api.request<unknown>("GET", "/v1/me/export");
           const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-          const a = Object.assign(document.createElement("a"), { href: url, download: "gudmeal-my-data.json" });
+          const a = Object.assign(document.createElement("a"), { href: url, download: "yummy-chops-my-data.json" });
           a.click();
           URL.revokeObjectURL(url);
         }}>Download my data</Button>

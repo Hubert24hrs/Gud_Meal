@@ -1,7 +1,7 @@
 [project]
 name = "gudmeal-api"
 version = "0.1.0"
-description = "GudMeals core API: catalog, pricing, orders, payments, ledger, dispatch"
+description = "Yummy Chops core API: catalog, pricing, orders, payments, ledger, dispatch"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

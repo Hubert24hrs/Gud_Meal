@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useApi } from "@/lib/api";
 
-const SOURCES: Record<string, string> = { points: "Gud points", referral: "Friend's welcome gift", referrer: "Thanks for inviting" };
+const SOURCES: Record<string, string> = { points: "Yummy points", referral: "Friend's welcome gift", referrer: "Thanks for inviting" };
 
 export default function GrowthPage() {
   const api = useApi();
@@ -37,7 +37,7 @@ export default function GrowthPage() {
       <div>
         <h1 className="font-display text-3xl">Growth</h1>
         <p className="text-sm text-muted">
-          GudMeals Plus, Gud points, referrals and group orders. Amounts are product defaults until the owner confirms them;
+          Yummy Chops Plus, Yummy points, referrals and group orders. Amounts are product defaults until the owner confirms them;
           rewards are platform-funded vouchers that settle through promotions.
         </p>
       </div>
@@ -48,7 +48,7 @@ export default function GrowthPage() {
             <Stat label="Plus members" value={s.plus.active_members.toLocaleString()} hint={`${s.plus.auto_renew_on} renew from their wallet`} />
             <Stat label="Ending in 7 days" value={s.plus.ending_in_7_days.toLocaleString()} hint="Wallet renewals run daily" />
             <Stat label="Plus revenue" value={formatNaira(s.plus.revenue_kobo)} hint="Net of VAT, since launch" />
-            <Stat label="Gud points outstanding" value={s.rewards.points_outstanding.toLocaleString()}
+            <Stat label="Yummy points outstanding" value={s.rewards.points_outstanding.toLocaleString()}
               hint={`Worth ${formatNaira(s.rewards.points_outstanding_value_kobo)} in future discounts`} />
           </div>
           <Card className="space-y-3 p-5">
@@ -70,7 +70,7 @@ export default function GrowthPage() {
       {plus && pricing.data && (
         <Card className="space-y-4 p-5">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-semibold">GudMeals Plus plan</h2>
+            <h2 className="font-semibold">Yummy Chops Plus plan</h2>
             <Toggle checked={plus.enabled} label={plus.enabled ? "Open for new members" : "Paused"} onChange={(v) => setPlus({ ...plus, enabled: v })} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -89,9 +89,9 @@ export default function GrowthPage() {
 
       {cfg && (
         <Card className="space-y-5 p-5">
-          <h2 className="font-semibold">Gud points, referrals and group orders (v{cfg.version})</h2>
+          <h2 className="font-semibold">Yummy points, referrals and group orders (v{cfg.version})</h2>
           <section className="space-y-3">
-            <Toggle checked={cfg.points_enabled} label="Gud points" onChange={(v) => setCfg({ ...cfg, points_enabled: v })} />
+            <Toggle checked={cfg.points_enabled} label="Yummy points" onChange={(v) => setCfg({ ...cfg, points_enabled: v })} />
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Field label="Points per ₦100 spent" htmlFor="gp"><Input id="gp" type="number" value={cfg.points_per_100_naira} onChange={(e) => setCfg({ ...cfg, points_per_100_naira: num(e.target.value) })} /></Field>
               <Field label="Value of 1 point (₦)" htmlFor="gv"><Input id="gv" type="number" value={naira(cfg.point_value_kobo)} onChange={(e) => setCfg({ ...cfg, point_value_kobo: nairaToKobo(Number(e.target.value)) })} /></Field>

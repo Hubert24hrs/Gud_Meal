@@ -1,4 +1,4 @@
-"""Payment orchestration: gateway checkout (with failover), GudMeals wallet, pay on delivery, server-side
+"""Payment orchestration: gateway checkout (with failover), Yummy Chops wallet, pay on delivery, server-side
 verification, webhooks, refunds (to the card or into the wallet) and settlement postings."""
 
 from __future__ import annotations
@@ -188,7 +188,7 @@ class PaymentService:
             order_id=order.id,
             customer_id=order.customer_id,
             amount_kobo=order.breakdown.total_kobo,
-            reference_stem=f"GM-{order.short_code}",
+            reference_stem=f"YC-{order.short_code}",
             idempotency_key=f"{order.id}:{idempotency_key}",
             principal=principal,
             callback_url=f"{self.callback_url}?order_id={order.id}",
@@ -200,14 +200,14 @@ class PaymentService:
     ) -> dict[str, Any]:
         """Hosted checkout that credits the customer's wallet once the gateway confirms the payment."""
         if not self.wallet_enabled:
-            raise ValidationFailed("The GudMeals wallet is not available right now")
+            raise ValidationFailed("The Yummy Chops wallet is not available right now")
         return await self._hosted_checkout(
             self.gateways(provider_name),
             purpose="wallet_topup",
             order_id=None,
             customer_id=principal.uid,
             amount_kobo=amount_kobo,
-            reference_stem="GM-TOPUP",
+            reference_stem="YC-TOPUP",
             idempotency_key=f"topup:{principal.uid}:{idempotency_key}",
             principal=principal,
             callback_url=f"{self.callback_url}?purpose=wallet_topup",
@@ -217,14 +217,14 @@ class PaymentService:
     async def start_plus_checkout(
         self, principal: Principal, amount_kobo: int, provider_name: str | None, idempotency_key: str
     ) -> dict[str, Any]:
-        """Hosted checkout for GudMeals Plus; the membership starts once the gateway payment is verified."""
+        """Hosted checkout for Yummy Chops Plus; the membership starts once the gateway payment is verified."""
         return await self._hosted_checkout(
             self.gateways(provider_name),
             purpose="plus",
             order_id=None,
             customer_id=principal.uid,
             amount_kobo=amount_kobo,
-            reference_stem="GM-PLUS",
+            reference_stem="YC-PLUS",
             idempotency_key=f"plus:{principal.uid}:{idempotency_key}",
             principal=principal,
             callback_url=f"{self.callback_url}?purpose=plus",
@@ -234,8 +234,8 @@ class PaymentService:
     async def pay_plus_with_wallet(
         self, uid: str, amount_kobo: int, vat_kobo: int, idempotency_key: str, *, renewal: bool = False
     ) -> dict[str, Any]:
-        """Pay for GudMeals Plus from the wallet (joining, or an automatic renewal)."""
-        reference = f"GM-PLUS-W{secrets.token_hex(4).upper()}"
+        """Pay for Yummy Chops Plus from the wallet (joining, or an automatic renewal)."""
+        reference = f"YC-PLUS-W{secrets.token_hex(4).upper()}"
         return await self._wallet_debit(
             uid=uid,
             amount_kobo=amount_kobo,
@@ -245,10 +245,10 @@ class PaymentService:
             idempotency_key=f"plus:{uid}:{idempotency_key}",
             ledger_kind="plus_payment",
             entries=postings.plus_paid(postings.wallet_account(uid), amount_kobo, vat_kobo),
-            description="GudMeals Plus renewal" if renewal else "GudMeals Plus",
+            description="Yummy Chops Plus renewal" if renewal else "Yummy Chops Plus",
             event_type="plus.paid",
             event_payload={"customer_id": uid, "renewal": renewal},
-            what="GudMeals Plus",
+            what="Yummy Chops Plus",
         )
 
     async def start_share_checkout(
@@ -266,7 +266,7 @@ class PaymentService:
             order_id=order.id,
             customer_id=principal.uid,
             amount_kobo=amount_kobo,
-            reference_stem=f"GM-{order.short_code}-G",
+            reference_stem=f"YC-{order.short_code}-G",
             idempotency_key=f"share:{order.id}:{principal.uid}:{idempotency_key}",
             principal=principal,
             callback_url=f"{self.callback_url}?group_order_id={order.group_order_id}",
@@ -287,7 +287,7 @@ class PaymentService:
             amount_kobo=amount_kobo,
             purpose="group_share",
             order_id=order.id,
-            reference=f"GM-{order.short_code}-GW{secrets.token_hex(3).upper()}",
+            reference=f"YC-{order.short_code}-GW{secrets.token_hex(3).upper()}",
             idempotency_key=f"share:{order.id}:{uid}:{idempotency_key}",
             ledger_kind="wallet_payment",
             entries=postings.wallet_payment(uid, amount_kobo),
@@ -343,7 +343,7 @@ class PaymentService:
         """Charge a customer's wallet under its account lock: balance check, succeeded payment record, ledger
         posting and outbox event in one database transaction (the same request twice charges once)."""
         if not self.wallet_enabled:
-            raise ValidationFailed("The GudMeals wallet is not available right now")
+            raise ValidationFailed("The Yummy Chops wallet is not available right now")
         now = utcnow()
         account = postings.wallet_account(uid)
         async with self.db.transaction() as s:
@@ -356,7 +356,7 @@ class PaymentService:
             balance = await self.ledger.balance(s, account)
             if balance < amount_kobo:
                 raise ValidationFailed(
-                    f"Your GudMeals wallet balance is too low for {what}",
+                    f"Your Yummy Chops wallet balance is too low for {what}",
                     details={
                         "balance_kobo": balance,
                         "needed_kobo": amount_kobo,
@@ -516,7 +516,7 @@ class PaymentService:
     ) -> dict[str, Any]:
         """Pay the whole order from the wallet: balance check and debit happen under one account lock."""
         if not self.wallet_enabled:
-            raise ValidationFailed("The GudMeals wallet is not available right now")
+            raise ValidationFailed("The Yummy Chops wallet is not available right now")
         now = utcnow()
         key = f"{order.id}:{idempotency_key}"
         account = postings.wallet_account(order.customer_id)
@@ -536,7 +536,7 @@ class PaymentService:
             balance = await self.ledger.balance(s, account)
             if balance < total:
                 raise ValidationFailed(
-                    "Your GudMeals wallet balance is too low for this order",
+                    "Your Yummy Chops wallet balance is too low for this order",
                     details={"balance_kobo": balance, "needed_kobo": total, "short_by_kobo": total - balance},
                 )
             rec = PaymentRecord(
@@ -545,7 +545,7 @@ class PaymentService:
                 customer_id=order.customer_id,
                 purpose="order",
                 provider="wallet",
-                reference=f"GM-{order.short_code}-W{secrets.token_hex(3).upper()}",
+                reference=f"YC-{order.short_code}-W{secrets.token_hex(3).upper()}",
                 amount_kobo=total,
                 currency="NGN",
                 status="succeeded",
@@ -607,7 +607,7 @@ class PaymentService:
                 customer_id=order.customer_id,
                 purpose="order",
                 provider="cash",
-                reference=f"GM-{order.short_code}-C{secrets.token_hex(3).upper()}",
+                reference=f"YC-{order.short_code}-C{secrets.token_hex(3).upper()}",
                 amount_kobo=order.breakdown.total_kobo,
                 currency="NGN",
                 status="pending",
@@ -720,7 +720,9 @@ class PaymentService:
     ) -> dict[str, Any]:
         rec = await self.get_payment(reference)
         if rec.status == "succeeded" or rec.provider in INTERNAL_PROVIDERS:
-            return payment_view(rec)  # wallet and cash payments are settled inside GudMeals, not by a gateway
+            return payment_view(
+                rec
+            )  # wallet and cash payments are settled inside Yummy Chops, not by a gateway
         provider = self.provider(rec.provider)
         result = await provider.verify(reference)
         now = utcnow()
@@ -825,7 +827,7 @@ class PaymentService:
                             postings=postings.plus_paid(f"cash:{row.provider}", row.amount_kobo, vat),
                             created_by=f"payments:{source}",
                             reference=row.reference,
-                            description="GudMeals Plus",
+                            description="Yummy Chops Plus",
                         )
                         add_outbox_event(
                             s,

@@ -1,4 +1,4 @@
-"""Gudy on WhatsApp (ADR-0017): channel tokens, webhook signatures, inbound parsing and reply rendering."""
+"""Yummy on WhatsApp (ADR-0017): channel tokens, webhook signatures, inbound parsing and reply rendering."""
 
 import json
 import time
@@ -171,8 +171,8 @@ class TestRendering:
         result = {
             "reply": "Here are two plans.",
             "cards": [
-                {"type": "navigate", "screen": "plus", "params": {}, "label": "Open GudMeals Plus"},
-                {"type": "navigate", "screen": "plus", "params": {}, "label": "Open GudMeals Plus"},
+                {"type": "navigate", "screen": "plus", "params": {}, "label": "Open Yummy Chops Plus"},
+                {"type": "navigate", "screen": "plus", "params": {}, "label": "Open Yummy Chops Plus"},
                 {
                     "type": "navigate",
                     "screen": "order",
@@ -194,7 +194,7 @@ class TestRendering:
         }
         text, pay, approve = render_result(result, "https://gudmeal.example/")
         assert text["text"]["body"] == (
-            "Here are two plans.\n\nOpen GudMeals Plus: https://gudmeal.example/plus\n"
+            "Here are two plans.\n\nOpen Yummy Chops Plus: https://gudmeal.example/plus\n"
             "Track this order: https://gudmeal.example/orders/o1"
         )
         assert pay["interactive"]["type"] == "cta_url"

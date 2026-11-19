@@ -63,13 +63,13 @@ class FakeApi extends GudMealApi {
 
   @override
   Future<List<WaybillOrigin>> waybillOrigins() async => const [
-        WaybillOrigin(id: 'lagos', name: 'Lagos', homePickup: true, dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'GudMeals Hub, Lekki', city: 'lagos')]),
+        WaybillOrigin(id: 'lagos', name: 'Lagos', homePickup: true, dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'Yummy Chops Hub, Lekki', city: 'lagos')]),
         WaybillOrigin(id: 'enugu', name: 'Enugu', homePickup: true),
       ];
 
   @override
   Future<WaybillDestinations> waybillDestinations(String origin) async => const WaybillDestinations(
-        dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'GudMeals Hub, Lekki', city: 'lagos')],
+        dropoffHubs: [WaybillHub(id: 'lagos-lekki', name: 'Yummy Chops Hub, Lekki', city: 'lagos')],
         destinations: [
           WaybillDestination(city: 'enugu', name: 'Enugu', doorDelivery: true, fromKobo: 505300),
           WaybillDestination(
@@ -207,18 +207,18 @@ void main() {
     expect(find.text('STORE r-jollof'), findsOneWidget);
   });
 
-  testWidgets('Gudy floats over the app and opens the chat when tapped', (tester) async {
+  testWidgets('Yummy floats over the app and opens the chat when tapped', (tester) async {
     await pumpRouted(tester, Scaffold(body: LayoutBuilder(builder: (context, c) => Stack(children: [
           const SizedBox.expand(),
           GudyFab(bounds: c.biggest, onOpen: () => GoRouter.of(context).push('/assistant')),
         ]))));
-    expect(find.text('Hi, I’m Gudy!'), findsOneWidget);
+    expect(find.text('Hi, I’m Yummy!'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('gudy-fab')));
     await tester.pumpAndSettle();
     expect(find.text('PAGE /assistant'), findsOneWidget);
   });
 
-  test('Gudy navigation cards map to app routes', () {
+  test('Yummy navigation cards map to app routes', () {
     expect(routeForScreen('parcel', const {}), '/send');
     expect(routeForScreen('food', const {'category': 'local'}), '/food?category=local');
     expect(routeForScreen('merchant', const {'merchant_id': 'b-shea'}), '/restaurants/b-shea');
@@ -317,7 +317,7 @@ void main() {
     expect(find.text('₦380'), findsOneWidget);
     expect(find.text('The rider collects ₦25,000 from Ngozi for you.'), findsOneWidget);
     // Packages are prepaid: card or wallet, never cash at the door.
-    expect(find.text('GudMeals wallet'), findsOneWidget);
+    expect(find.text('Yummy Chops wallet'), findsOneWidget);
     expect(find.text('Pay on delivery'), findsNothing);
   });
 
@@ -342,7 +342,7 @@ void main() {
     expect(find.text('Balance ₦5,000 · top up ₦2,500 more'), findsOneWidget);
     expect(find.text('Unlocks after your first order'), findsOneWidget);
     expect(find.text('Top up your wallet'), findsOneWidget);
-    await tester.tap(find.text('GudMeals wallet'));
+    await tester.tap(find.text('Yummy Chops wallet'));
     await tester.pumpAndSettle();
     expect(chosen, PayMethod.card); // disabled options can't be picked
     expect(PayMethod.wallet.provider, 'wallet');

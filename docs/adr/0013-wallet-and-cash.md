@@ -1,4 +1,4 @@
-# ADR-0013: GudMeals wallet, pay on delivery and vendor cash-on-delivery
+# ADR-0013: Yummy Chops wallet, pay on delivery and vendor cash-on-delivery
 
 - **Status:** Accepted (product), legal review pending before launch
 - **Date:** 2026-11-15
@@ -6,7 +6,7 @@
 
 ## Context
 
-The owner chose four payment methods: Paystack (card/transfer/USSD), a **GudMeals wallet**, **pay on delivery**
+The owner chose four payment methods: Paystack (card/transfer/USSD), a **Yummy Chops wallet**, **pay on delivery**
 and Flutterwave as a backup, plus **cash-on-delivery collection for vendors** sending packages. Nigerian
 customers often prefer cash; small online sellers depend on COD; instant refunds build trust. All of this touches
 money, so it must keep the platform's rules: integer kobo, prices only from `pricing.py`, append-only balanced
@@ -36,7 +36,7 @@ computed from ledger entries; `RiderProfile.cash_held_kobo` is only a copy used 
 - **Refunds** go into the wallet instantly (no gateway) for wallet and cash payments, and for card payments when
   the customer opts in (`refund_to_wallet`). `refund_records.destination` records where a refund went.
 - **No withdrawals** to bank or cash. Limits (settings): top-up ₦500–₦100,000, balance ≤ ₦300,000.
-- Gudy can read the wallet but has **no tool that moves wallet money**.
+- Yummy can read the wallet but has **no tool that moves wallet money**.
 
 ### Pay on delivery
 

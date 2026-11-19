@@ -11,7 +11,7 @@ import 'package:gud_meal_customer/providers.dart';
 /// The receipt printer shown after a payment (ADR-0019).
 const sample = Receipt(
   id: 'o1',
-  number: 'GM-7K2M9P',
+  number: 'YC-7K2M9P',
   orderId: 'o1',
   orderCode: '7K2M9P',
   customerName: 'Ada Obi',
@@ -32,7 +32,7 @@ const sample = Receipt(
   ],
   totalKobo: 1522000,
   paidWith: 'Card, bank transfer or USSD',
-  paymentReference: 'GM-ABC123',
+  paymentReference: 'YC-ABC123',
 );
 
 class _Api extends GudMealApi {
@@ -71,7 +71,7 @@ class _Api extends GudMealApi {
   @override
   Future<CheckoutResult> checkout(String orderId, String idempotencyKey, {String? provider}) async {
     if (provider == 'wallet') paid = true;
-    return CheckoutResult(orderId: orderId, reference: 'GM-7K2M9P-1', amountKobo: 1522000, provider: provider ?? 'local_sandbox');
+    return CheckoutResult(orderId: orderId, reference: 'YC-7K2M9P-1', amountKobo: 1522000, provider: provider ?? 'local_sandbox');
   }
 }
 
@@ -104,10 +104,10 @@ final printButton = find.byKey(const ValueKey('receipt-print'));
 final strip = find.byKey(const ValueKey('receipt-strip'));
 
 void main() {
-  testWidgets('a GudMeals printer that says what to do, then prints what was paid for', (tester) async {
+  testWidgets('a Yummy Chops printer that says what to do, then prints what was paid for', (tester) async {
     var prints = 0;
     await _pump(tester, Scaffold(body: ReceiptPrinter(receipt: sample, onPrint: () => prints++)));
-    expect(find.text('GudMeals'), findsNWidgets(2)); // the maker's mark (drawn twice for its engraved look)
+    expect(find.text('Yummy Chops'), findsNWidgets(2)); // the maker's mark (drawn twice for its engraved look)
     expect(find.text('PRINT'), findsOneWidget);
     expect(find.text('Press the red PRINT button to print your receipt'), findsOneWidget);
     expect(find.text('Total paid'), findsNothing);
@@ -118,9 +118,9 @@ void main() {
     expect(prints, 1);
     expect(find.text('Printing your receipt… press PRINT to stop'), findsOneWidget);
     for (final text in [
-      'JOLLOF JUNCTION', '12 Admiralty Way, Lekki Phase 1', 'Receipt GM-7K2M9P', 'Order #7K2M9P', 'Ada Obi', '2 x Party Jollof Rice',
+      'JOLLOF JUNCTION', '12 Admiralty Way, Lekki Phase 1', 'Receipt YC-7K2M9P', 'Order #7K2M9P', 'Ada Obi', '2 x Party Jollof Rice',
       '₦11,000', 'Protein: Chicken', '2 x Chapman', 'Subtotal', '₦14,000', 'Delivery fee', 'Service fee', 'VAT', '-₦500',
-      'Total paid', '₦15,220', 'Card, bank transfer or USSD', 'Ref GM-ABC123', 'THANK YOU',
+      'Total paid', '₦15,220', 'Card, bank transfer or USSD', 'Ref YC-ABC123', 'THANK YOU',
     ]) {
       expect(find.text(text), findsOneWidget, reason: text);
     }
@@ -153,9 +153,9 @@ void main() {
   });
 
   testWidgets('the same receipt always has the same barcode; a package receipt has no items', (tester) async {
-    expect(ReceiptPaper.barsFor('GM-7K2M9P'), ReceiptPaper.barsFor('GM-7K2M9P'));
-    expect(ReceiptPaper.barsFor('GM-7K2M9P'), isNot(ReceiptPaper.barsFor('GM-AAAAAA')));
-    expect(ReceiptPaper.barsFor('GM-7K2M9P').every((w) => w >= 1 && w <= 3), isTrue);
+    expect(ReceiptPaper.barsFor('YC-7K2M9P'), ReceiptPaper.barsFor('YC-7K2M9P'));
+    expect(ReceiptPaper.barsFor('YC-7K2M9P'), isNot(ReceiptPaper.barsFor('YC-AAAAAA')));
+    expect(ReceiptPaper.barsFor('YC-7K2M9P').every((w) => w >= 1 && w <= 3), isTrue);
 
     await _pump(
       tester,
@@ -163,20 +163,20 @@ void main() {
         body: SingleChildScrollView(
           child: ReceiptPaper(
             receipt: Receipt(
-              id: 'p1', number: 'GM-PKG001', orderId: 'p1', orderCode: 'PKG001', service: 'parcel', serviceName: 'Package Delivery',
-              seller: 'GudMeals', sellerAddress: 'Package Delivery', summary: ['From Lekki Phase 1 to Victoria Island', 'Small package: documents'],
-              charges: [ReceiptCharge(label: 'Delivery fee', amountKobo: 150000)], totalKobo: 150000, paidWith: 'GudMeals wallet',
+              id: 'p1', number: 'YC-PKG001', orderId: 'p1', orderCode: 'PKG001', service: 'parcel', serviceName: 'Package Delivery',
+              seller: 'Yummy Chops', sellerAddress: 'Package Delivery', summary: ['From Lekki Phase 1 to Victoria Island', 'Small package: documents'],
+              charges: [ReceiptCharge(label: 'Delivery fee', amountKobo: 150000)], totalKobo: 150000, paidWith: 'Yummy Chops wallet',
               refundedKobo: 150000, savingsKobo: 20000,
             ),
           ),
         ),
       ),
     );
-    expect(find.text('GUDMEALS'), findsOneWidget);
+    expect(find.text('YUMMY CHOPS'), findsOneWidget);
     expect(find.text('From Lekki Phase 1 to Victoria Island'), findsOneWidget);
-    expect(find.text('GudMeals wallet'), findsOneWidget);
+    expect(find.text('Yummy Chops wallet'), findsOneWidget);
     expect(find.text('Refunded'), findsOneWidget);
-    expect(find.text('Saved with GudMeals Plus'), findsOneWidget);
+    expect(find.text('Saved with Yummy Chops Plus'), findsOneWidget);
     expect(find.textContaining('Ref '), findsNothing);
   });
 
@@ -201,7 +201,7 @@ void main() {
     await tester.tap(find.text('Saved in My receipts')); // the green button is the way to the list
     await tester.pumpAndSettle();
     expect(find.text('Jollof Junction'), findsOneWidget);
-    expect(find.textContaining('Food · GM-7K2M9P'), findsOneWidget);
+    expect(find.textContaining('Food · YC-7K2M9P'), findsOneWidget);
     expect(find.text('₦15,220'), findsOneWidget);
     await tester.tap(find.text('Jollof Junction'));
     await tester.pumpAndSettle();
@@ -253,7 +253,7 @@ void main() {
     await _pump(tester, const OrderScreen(id: 'o1'), api: api, still: true);
     await tester.pumpAndSettle();
     expect(find.text('Print my receipt'), findsNothing);
-    await tester.tap(find.text('Pay from my GudMeals wallet'));
+    await tester.tap(find.text('Pay from my Yummy Chops wallet'));
     await tester.pumpAndSettle();
     expect(find.text('RECEIPT o1'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());

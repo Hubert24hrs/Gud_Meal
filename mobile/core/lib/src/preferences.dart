@@ -1,8 +1,8 @@
-/// What a customer told GudMeals about how they eat (the "Food preferences" part of the profile).
+/// What a customer told Yummy Chops about how they eat (the "Food preferences" part of the profile).
 class FoodPreferences {
   const FoodPreferences({this.allergens = const [], this.dietary = const [], this.personalise = false});
 
-  /// Things the customer must not eat; Gudy never recommends dishes that list them.
+  /// Things the customer must not eat; Yummy never recommends dishes that list them.
   final List<String> allergens;
 
   /// "vegetarian", "halal" ...

@@ -17,7 +17,7 @@ interface Turn { role: "user" | "assistant"; text: string; cards?: ChatCard[]; a
 
 export function Chat() {
   return (
-    <RequireAuth reason="Sign in so Gudy can use your saved address, preferences and orders.">
+    <RequireAuth reason="Sign in so Yummy can use your saved address, preferences and orders.">
       <ChatInner />
     </RequireAuth>
   );
@@ -63,7 +63,7 @@ function ChatInner() {
       const delivery_address = saved ?? { label: area.name, line1: `${area.name}, ${city}`, area: area.name, city, state: city, location: area.location };
       apply(await agents.chat({ message, thread_id: threadId, channel: "web", delivery_address: threadId ? undefined : delivery_address }));
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Gudy is unavailable right now.");
+      setError(e instanceof ApiError ? e.message : "Yummy is unavailable right now.");
     } finally {
       setBusy(false);
     }
@@ -109,7 +109,7 @@ function ChatInner() {
       <div className="mb-4 flex items-center gap-3">
         <GudyArt blink className="size-11 shrink-0" />
         <div>
-          <h1 className="text-2xl font-extrabold">Gudy</h1>
+          <h1 className="text-2xl font-extrabold">Yummy</h1>
           <p className="text-xs text-muted">AI assistant · replies in your language · delivering to {addresses.data?.[0]?.line1 ?? area.name} · you approve every order before paying</p>
         </div>
       </div>
@@ -117,7 +117,7 @@ function ChatInner() {
       <div className="flex-1 space-y-4" aria-live="polite">
         {turns.length === 0 && (
           <Card className="space-y-2 p-5 text-sm">
-            <p className="font-semibold">Hi! I’m Gudy. I can find food, supplements and skin care, plan a meal within your budget, send packages across Lagos and Enugu, track orders and tell you how much you’ve spent. Write in English, Pidgin, Igbo, Yoruba or Hausa.</p>
+            <p className="font-semibold">Hi! I’m Yummy. I can find food, supplements and skin care, plan a meal within your budget, send packages across Lagos and Enugu, track orders and tell you how much you’ve spent. Write in English, Pidgin, Igbo, Yoruba or Hausa.</p>
             <p className="pt-1 text-muted">Try asking:</p>
             {["I have ₦10,000. Find me the best meal for two people, order it, and deliver before 8pm.",
               "What do you offer?", "How much have I spent?", "Find me a good sunscreen", "Abeg, where my order dey?", "I want to talk to a person"].map((s) => (
@@ -136,7 +136,7 @@ function ChatInner() {
             </div>
           </div>
         ))}
-        {busy && <div className="flex items-center gap-2 text-sm text-muted"><Spinner className="size-4" /> Gudy is thinking…</div>}
+        {busy && <div className="flex items-center gap-2 text-sm text-muted"><Spinner className="size-4" /> Yummy is thinking…</div>}
         {error && <p role="alert" className="rounded-md bg-accent-soft p-3 text-sm">{error}</p>}
         <div ref={bottom} />
       </div>
@@ -144,7 +144,7 @@ function ChatInner() {
       <form onSubmit={(e) => { e.preventDefault(); void send(text); }}
         className="sticky bottom-4 mt-4 flex items-center gap-2 rounded-full border border-border bg-surface p-1.5 pl-4 shadow-raised">
         <label htmlFor="msg" className="sr-only">Message</label>
-        <input id="msg" value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} placeholder="Ask Gudy anything…"
+        <input id="msg" value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} placeholder="Ask Yummy anything…"
           className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none" disabled={busy} />
         <button type="button" onClick={listen} aria-label="Speak" className={cn("rounded-full p-2 hover:bg-surface-muted", listening && "text-primary")}>
           <Mic className="size-5" />
@@ -162,7 +162,7 @@ const SCREENS: Record<string, string> = {
   plus: "/plus", rewards: "/rewards", group: "/group",
 };
 
-/** Route for a screen Gudy points to (`open_screen` card). */
+/** Route for a screen Yummy points to (`open_screen` card). */
 export function routeForScreen(screen: string, params: Record<string, string | undefined> = {}): string | null {
   if (screen === "merchant") return params.merchant_id ? `/restaurants/${params.merchant_id}` : null;
   if (screen === "order") return params.order_id ? `/orders/${params.order_id}` : "/orders";
@@ -198,7 +198,7 @@ function CardView({ card }: { card: ChatCard }) {
     const recent = (card.recent as { what: string; amount: string }[]) ?? [];
     return (
       <Link href="/wallet" className="block rounded-md bg-gradient-to-b from-[#F25C22] to-primary p-3 text-white">
-        <p className="text-xs font-semibold">GudMeals wallet</p>
+        <p className="text-xs font-semibold">Yummy Chops wallet</p>
         <p className="text-2xl font-black">{String(card.balance)}</p>
         {recent.slice(0, 3).map((t, i) => <p key={i} className="text-xs">{t.what}: {t.amount}</p>)}
         {card.cash_on_delivery_balance ? <p className="text-xs">Cash on delivery: {String(card.cash_on_delivery_balance)}</p> : null}
@@ -210,7 +210,7 @@ function CardView({ card }: { card: ChatCard }) {
     const benefits = (card.benefits as string[]) ?? [];
     return (
       <Link href="/plus" className="block rounded-md bg-gradient-to-br from-[#3A1A0C] to-primary p-3 text-white">
-        <p className="text-xs font-semibold">GudMeals Plus · {String(card.price)}</p>
+        <p className="text-xs font-semibold">Yummy Chops Plus · {String(card.price)}</p>
         {card.member ? <p className="text-sm font-black">Member until {String(card.member_until)} · saved {String(card.saved)}</p>
           : benefits.map((b) => <p key={b} className="text-xs">✓ {b}</p>)}
         <p className="mt-1 text-xs font-bold underline">{card.member ? "Open Plus" : "Join Plus"}</p>
@@ -221,7 +221,7 @@ function CardView({ card }: { card: ChatCard }) {
     const vouchers = (card.vouchers as { code: string; worth: string }[]) ?? [];
     return (
       <Link href="/rewards" className="block space-y-1 rounded-md border border-border bg-background p-3 text-xs">
-        <p className="text-sm font-black">{Number(card.points).toLocaleString()} Gud points</p>
+        <p className="text-sm font-black">{Number(card.points).toLocaleString()} Yummy points</p>
         <p>Referral code <span className="font-mono font-bold">{String(card.referral_code)}</span></p>
         {vouchers.map((v) => <p key={v.code}>{v.worth} off · <span className="font-mono">{v.code}</span></p>)}
         <p className="font-bold text-primary underline">Open Rewards</p>

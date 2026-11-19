@@ -1,6 +1,6 @@
 """WhatsApp Business Cloud API (ADR-0017): webhook signatures, inbound parsing and outbound message building.
 
-Pure functions, no I/O. Replies are built only from Gudy's result (text, payment links, screen buttons and the
+Pure functions, no I/O. Replies are built only from Yummy's result (text, payment links, screen buttons and the
 server-side approval preview), so amounts shown on WhatsApp come from the API, never from the model.
 """
 
@@ -140,7 +140,7 @@ CITY_CENTRES = {"Lagos": (6.5244, 3.3792), "Enugu": (6.4584, 7.5464)}
 
 
 def shared_location_address(location: dict[str, Any]) -> dict[str, Any]:
-    """A location the customer shared on WhatsApp, as the delivery address Gudy plans and quotes with.
+    """A location the customer shared on WhatsApp, as the delivery address Yummy plans and quotes with.
     The API still checks that the point is inside a delivery zone."""
     lat, lng = float(location["lat"]), float(location["lng"])
     city = min(CITY_CENTRES, key=lambda c: (CITY_CENTRES[c][0] - lat) ** 2 + (CITY_CENTRES[c][1] - lng) ** 2)
@@ -215,7 +215,7 @@ def web_route(screen: str, params: dict[str, Any]) -> str | None:
 
 
 def approval_message(approval: dict[str, Any]) -> dict[str, Any]:
-    """Gudy's approval screen as Yes/No buttons. The summary (and its exact total) is the server's preview."""
+    """Yummy's approval screen as Yes/No buttons. The summary (and its exact total) is the server's preview."""
     preview = approval.get("preview") or {}
     lines = [str(preview.get("title") or "Shall I go ahead?")]
     if preview.get("message"):
@@ -227,7 +227,7 @@ def approval_message(approval: dict[str, Any]) -> dict[str, Any]:
 
 
 def render_result(result: dict[str, Any], web_url: str) -> list[dict[str, Any]]:
-    """Gudy's reply for WhatsApp: the text (plus links for screen buttons), a payment link, an approval."""
+    """Yummy's reply for WhatsApp: the text (plus links for screen buttons), a payment link, an approval."""
     messages: list[dict[str, Any]] = []
     links: list[str] = []
     payment: dict[str, Any] | None = None
@@ -237,7 +237,7 @@ def render_result(result: dict[str, Any], web_url: str) -> list[dict[str, Any]]:
         elif card.get("type") == "navigate":
             route = web_route(str(card.get("screen")), dict(card.get("params") or {}))
             if route:
-                links.append(f"{card.get('label') or 'Open GudMeals'}: {web_url.rstrip('/')}{route}")
+                links.append(f"{card.get('label') or 'Open Yummy Chops'}: {web_url.rstrip('/')}{route}")
     text = (result.get("reply") or "").strip()
     if links:
         text = (text + "\n\n" if text else "") + "\n".join(dict.fromkeys(links))

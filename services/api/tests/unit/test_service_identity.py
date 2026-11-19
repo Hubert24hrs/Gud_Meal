@@ -1,4 +1,4 @@
-"""GudMeals' own services (ADR-0017): the agents service may skip App Check with its service-account token, and
+"""Yummy Chops' own services (ADR-0017): the agents service may skip App Check with its service-account token, and
 that token never opens the internal job and task endpoints. Cloud Tasks and Scheduler are the reverse."""
 
 from __future__ import annotations

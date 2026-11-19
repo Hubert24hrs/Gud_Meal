@@ -114,7 +114,7 @@ Future<void> _pump(WidgetTester tester, Widget home, {List overrides = const [],
 Finder get page => find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first;
 
 void main() {
-  test('the nearest delivery area to a GPS position, or none when GudMeals is not there', () {
+  test('the nearest delivery area to a GPS position, or none when Yummy Chops is not there', () {
     const areas = [lekki, yaba, independence];
     expect(nearestArea(const GeoPoint(lat: 6.45, lng: 3.47), areas), lekki);
     expect(nearestArea(const GeoPoint(lat: 6.50, lng: 3.38), areas), yaba);
@@ -128,8 +128,8 @@ void main() {
     for (final service in ['Food', 'Supplements & Skin Care', 'Package Delivery']) {
       expect(find.text(service), findsOneWidget, reason: service);
     }
-    for (final gone in ['Groceries', 'Pharmacy', 'Market Shopping', 'Ask Gudy', 'Send a package', 'Gudy plans to your budget',
-        'Transparent, safe payments', 'Live tracking to your door', 'Sell on GudMeals. Ride with GudMeals.']) {
+    for (final gone in ['Groceries', 'Pharmacy', 'Market Shopping', 'Ask Yummy', 'Send a package', 'Yummy plans to your budget',
+        'Transparent, safe payments', 'Live tracking to your door', 'Sell on Yummy Chops. Ride with Yummy Chops.']) {
       expect(find.text(gone), findsNothing, reason: gone);
     }
     // "See all" beside the picks opens Discover.
@@ -178,9 +178,9 @@ void main() {
     expect(ref.read(areaProvider), yaba);
     expect(find.text('Deliver to Yaba'), findsOneWidget);
 
-    // Somewhere GudMeals does not deliver, or no GPS: the picker says so and stays open.
+    // Somewhere Yummy Chops does not deliver, or no GPS: the picker says so and stays open.
     for (final (here, message) in [
-      (_Here(const GeoPoint(lat: 9.07, lng: 7.40)), 'GudMeals does not deliver where you are yet. Choose the area to deliver to.'),
+      (_Here(const GeoPoint(lat: 9.07, lng: 7.40)), 'Yummy Chops does not deliver where you are yet. Choose the area to deliver to.'),
       (_Here(const GeoPoint(lat: 0, lng: 0), fails: 'Location permission is off. Search for your address instead.'), 'Location permission is off. Search for your address instead.'),
     ]) {
       await _pump(tester, opener, overrides: [customerLocationProvider.overrideWithValue(here)]);
@@ -226,7 +226,7 @@ void main() {
     await _pump(tester, const ProfileScreen(), api: api, tall: true, overrides: [
       walletProvider.overrideWith((ref) async => const WalletOverview(balanceKobo: 500000)),
     ]);
-    for (final tile in ['My receipts', 'Food preferences', 'Track a package', 'Add your business', 'Ride with GudMeals', 'FAQ, privacy and terms', 'Download my data']) {
+    for (final tile in ['My receipts', 'Food preferences', 'Track a package', 'Add your business', 'Ride with Yummy Chops', 'FAQ, privacy and terms', 'Download my data']) {
       await tester.scrollUntilVisible(find.text(tile), 200, scrollable: page);
       expect(find.text(tile), findsOneWidget, reason: tile);
     }
@@ -252,7 +252,7 @@ void main() {
     await tester.scrollUntilVisible(find.text('Download my data'), 200, scrollable: page);
     await tester.tap(find.text('Download my data'));
     await tester.pumpAndSettle();
-    expect(find.text('Everything GudMeals holds about you: profile, orders.'), findsOneWidget);
+    expect(find.text('Everything Yummy Chops holds about you: profile, orders.'), findsOneWidget);
     expect(find.text('Copy my data'), findsOneWidget);
     expect(find.textContaining('"display_name": "Ada Obi"'), findsOneWidget);
   });
@@ -272,7 +272,7 @@ void main() {
     expect(find.textContaining('Full terms will be published before launch'), findsOneWidget);
   });
 
-  testWidgets('a business applies to sell on GudMeals', (tester) async {
+  testWidgets('a business applies to sell on Yummy Chops', (tester) async {
     final api = _Api();
     await _pump(tester, const BusinessApplyScreen(), api: api, tall: true);
     await tester.tap(find.text('Send application'));
@@ -297,7 +297,7 @@ void main() {
     expect(find.text('Application received'), findsOneWidget);
   });
 
-  testWidgets('a rider applies to ride with GudMeals', (tester) async {
+  testWidgets('a rider applies to ride with Yummy Chops', (tester) async {
     final api = _Api();
     await _pump(tester, const RiderApplyScreen(), api: api);
     await tester.tap(find.text('Apply to ride'));

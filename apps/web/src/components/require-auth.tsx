@@ -14,7 +14,7 @@ export function RequireAuth({ children, reason }: { children: ReactNode; reason?
     return (
       <div className="container-page flex flex-col items-center gap-4 py-20 text-center">
         <h1 className="font-display text-3xl">Sign in to continue</h1>
-        <p className="max-w-md text-muted">{reason ?? "You need a GudMeals account for this."}</p>
+        <p className="max-w-md text-muted">{reason ?? "You need a Yummy Chops account for this."}</p>
         <Link href={`/login?next=${encodeURIComponent(path)}`}><Button size="lg">Sign in or create account</Button></Link>
       </div>
     );

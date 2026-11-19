@@ -50,19 +50,19 @@ for _url in (API, AGENTS, f"http://{EMULATOR}"):
     _local_only(_url)
 
 EMAILS = {
-    "customer": "customer@gudmeal.test",
-    "friend": "friend@gudmeal.test",
-    "owner": "owner@gudmeal.test",
-    "kitchen": "kitchen@gudmeal.test",
-    "rider1": "rider@gudmeal.test",
-    "rider2": "rider2@gudmeal.test",
-    "rider3": "rider3@gudmeal.test",
-    "rider4": "rider4@gudmeal.test",
-    "support": "support@gudmeal.test",
-    "finance": "finance@gudmeal.test",
-    "hub": "hub@gudmeal.test",
-    "admin": "admin@gudmeal.test",
-    "beauty": "beauty@gudmeal.test",
+    "customer": "customer@yummychops.test",
+    "friend": "friend@yummychops.test",
+    "owner": "owner@yummychops.test",
+    "kitchen": "kitchen@yummychops.test",
+    "rider1": "rider@yummychops.test",
+    "rider2": "rider2@yummychops.test",
+    "rider3": "rider3@yummychops.test",
+    "rider4": "rider4@yummychops.test",
+    "support": "support@yummychops.test",
+    "finance": "finance@yummychops.test",
+    "hub": "hub@yummychops.test",
+    "admin": "admin@yummychops.test",
+    "beauty": "beauty@yummychops.test",
 }
 RIDERS = {
     "rider1": "demo-rider-1",
@@ -195,7 +195,7 @@ def restore_hours() -> None:
 
 def park_extra_riders() -> None:
     """Riders 2-4 only exist for this check: take them offline again so job offers reach the rider app
-    (rider@gudmeal.test) when someone tests on a phone."""
+    (rider@yummychops.test) when someone tests on a phone."""
     for rider in ("rider2", "rider3", "rider4"):
         try:
             call("PUT", "/v1/rider/availability", rider, {"online": False})
@@ -553,7 +553,7 @@ def naira(kobo: int) -> str:
 def food_one_payment_covers_everything() -> None:
     """Food in one checkout: the customer pays food + delivery fee + service fee (+VAT) once; a rider is then found"""
     riders_online()
-    who = "friend"  # not a GudMeals Plus member, so the full delivery and service fees are charged
+    who = "friend"  # not a Yummy Chops Plus member, so the full delivery and service fees are charged
     check("this customer pays full fees (no Plus membership)", not call("GET", "/v1/plus", who).get("member"))
     q = quote(who)
     b = q["breakdown"]
@@ -618,13 +618,13 @@ def food_one_payment_covers_everything() -> None:
     print(
         f"    split of the one payment: kitchen {naira(s['restaurant_earning_kobo'])}"
         f" (food minus {s['commission_bps'] / 100:g}% commission), rider {naira(s['rider_pay_kobo'])},"
-        f" GudMeals {naira(platform)} (commission + fees, including {naira(b['vat_kobo'])} VAT held for the tax office)",
+        f" Yummy Chops {naira(platform)} (commission + fees, including {naira(b['vat_kobo'])} VAT held for the tax office)",
         flush=True,
     )
     check("the kitchen gets the food minus commission", s["restaurant_earning_kobo"] == kitchen, s)
     check("the rider is paid from the delivery fee", 0 < s["rider_pay_kobo"] <= b["delivery_fee_kobo"], s)
     check(
-        "kitchen + rider + GudMeals = exactly what the customer paid",
+        "kitchen + rider + Yummy Chops = exactly what the customer paid",
         platform == s["commission_kobo"] + fees - s["platform_funded_discount_kobo"] - s["rider_pay_kobo"],
         (platform, s, b),
     )
@@ -934,7 +934,7 @@ def group_order_split_bill() -> None:
 
 @flow
 def plus_and_rewards() -> None:
-    """GudMeals Plus and rewards: subscribe, member benefit on a quote, referral code, points"""
+    """Yummy Chops Plus and rewards: subscribe, member benefit on a quote, referral code, points"""
     plus = call("GET", "/v1/plus", "customer")
     if not plus.get("member"):
         complete_sandbox(call("POST", "/v1/plus/subscribe", "customer", {}, idem=True))
@@ -1033,7 +1033,7 @@ def partner_tools() -> None:
 @flow
 def onboarding_applications() -> None:
     """Sign-ups: a brand-new person signs up, applies to ride and to list a shop; admin approves both"""
-    email = f"applicant-{uuid.uuid4().hex[:8]}@gudmeal.test"
+    email = f"applicant-{uuid.uuid4().hex[:8]}@yummychops.test"
     r = httpx.post(
         f"http://{EMULATOR}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-key",
         json={"email": email, "password": PASSWORD, "returnSecureToken": True},
@@ -1198,8 +1198,8 @@ def access_control() -> None:
 
 @flow
 def gudy_assistant() -> None:
-    """Gudy, the AI assistant: answers a food request for the signed-in customer"""
-    check("Gudy service healthy", call("GET", f"{AGENTS}/health"))
+    """Yummy, the AI assistant: answers a food request for the signed-in customer"""
+    check("Yummy service healthy", call("GET", f"{AGENTS}/health"))
     chat = call(
         "POST",
         f"{AGENTS}/v1/chat",
@@ -1208,7 +1208,7 @@ def gudy_assistant() -> None:
     )
     text = str(chat)
     check(
-        "Gudy replies with suggestions",
+        "Yummy replies with suggestions",
         len(text) > 40 and ("jollof" in text.lower() or "restaurant" in text.lower()),
         text[:400],
     )

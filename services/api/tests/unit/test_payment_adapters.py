@@ -38,7 +38,7 @@ class TestPaystack:
                     "data": {
                         "authorization_url": "https://checkout.paystack.com/abc",
                         "access_code": "abc",
-                        "reference": "GM-1",
+                        "reference": "YC-1",
                     },
                 },
             )
@@ -46,30 +46,30 @@ class TestPaystack:
         async with httpx.AsyncClient(transport=transport(routes, seen)) as http:
             p = PaystackProvider(SK, http=http)
             res = await p.initialize(
-                reference="GM-1",
+                reference="YC-1",
                 amount_kobo=945_000,
                 email="a@b.co",
                 currency="NGN",
-                callback_url="https://gudmeal.ng/cb",
+                callback_url="https://yummy247.com/cb",
                 metadata={"order_id": "o1"},
             )
         assert res.authorization_url == "https://checkout.paystack.com/abc"
         body = json.loads(seen[0].content)
-        assert body["amount"] == "945000" and body["reference"] == "GM-1" and body["currency"] == "NGN"
+        assert body["amount"] == "945000" and body["reference"] == "YC-1" and body["currency"] == "NGN"
         assert seen[0].headers["Authorization"] == f"Bearer {SK}"
         assert json.loads(body["metadata"])["order_id"] == "o1"
 
     async def test_verify_maps_status_and_amount(self):
         seen: list[httpx.Request] = []
         routes = {
-            ("GET", "/transaction/verify/GM-1"): (
+            ("GET", "/transaction/verify/YC-1"): (
                 200,
                 {
                     "status": True,
                     "data": {
                         "id": 4099,
                         "status": "success",
-                        "reference": "GM-1",
+                        "reference": "YC-1",
                         "amount": 945000,
                         "currency": "NGN",
                         "channel": "card",
@@ -80,7 +80,7 @@ class TestPaystack:
             )
         }
         async with httpx.AsyncClient(transport=transport(routes, seen)) as http:
-            res = await PaystackProvider(SK, http=http).verify("GM-1")
+            res = await PaystackProvider(SK, http=http).verify("YC-1")
         assert (res.status, res.amount_kobo, res.currency, res.provider_transaction_id) == (
             "success",
             945000,
@@ -103,14 +103,14 @@ class TestPaystack:
         routes = {("POST", "/refund"): (200, {"status": True, "data": {"id": 77, "status": "pending"}})}
         async with httpx.AsyncClient(transport=transport(routes, seen)) as http:
             res = await PaystackProvider(SK, http=http).refund(
-                reference="GM-1", provider_transaction_id="4099", amount_kobo=50_000
+                reference="YC-1", provider_transaction_id="4099", amount_kobo=50_000
             )
         assert res.provider_refund_id == "77" and res.status == "pending"
         assert json.loads(seen[0].content) == {"transaction": "4099", "amount": "50000"}
 
     def test_webhook_signature_hmac_sha512(self):
         p = PaystackProvider(SK, http=httpx.AsyncClient())
-        body = json.dumps({"event": "charge.success", "data": {"id": 1, "reference": "GM-1"}}).encode()
+        body = json.dumps({"event": "charge.success", "data": {"id": 1, "reference": "YC-1"}}).encode()
         good = hmac.new(SK.encode(), body, hashlib.sha512).hexdigest()
         assert p.verify_webhook(body, {"x-paystack-signature": good}, "1.2.3.4")
         assert not p.verify_webhook(body, {"x-paystack-signature": good[:-1] + "0"}, None)
@@ -119,7 +119,7 @@ class TestPaystack:
         event = p.parse_webhook(body)
         assert (event.event_type, event.reference, event.dedupe_key) == (
             "charge.success",
-            "GM-1",
+            "YC-1",
             "charge.success:1",
         )
 
@@ -140,17 +140,17 @@ class TestFlutterwave:
         async with httpx.AsyncClient(transport=transport(routes, seen)) as http:
             p = FlutterwaveProvider("FLWSECK_TEST-x", "hash", http=http)
             res = await p.initialize(
-                reference="GM-2",
+                reference="YC-2",
                 amount_kobo=945_025,
                 email="a@b.co",
                 currency="NGN",
-                callback_url="https://gudmeal.ng/cb",
+                callback_url="https://yummy247.com/cb",
                 metadata={},
                 customer_phone="+234800",
             )
         body = json.loads(seen[0].content)
         assert res.authorization_url == "https://checkout.flw/x"
-        assert body["amount"] == "9450.25" and body["tx_ref"] == "GM-2"
+        assert body["amount"] == "9450.25" and body["tx_ref"] == "YC-2"
         assert body["customer"] == {"email": "a@b.co", "phonenumber": "+234800"}
 
     async def test_verify_converts_back_to_kobo(self):
@@ -162,7 +162,7 @@ class TestFlutterwave:
                     "status": "success",
                     "data": {
                         "id": 555,
-                        "tx_ref": "GM-2",
+                        "tx_ref": "YC-2",
                         "status": "successful",
                         "amount": 9450.25,
                         "currency": "NGN",
@@ -171,20 +171,20 @@ class TestFlutterwave:
             )
         }
         async with httpx.AsyncClient(transport=transport(routes, seen)) as http:
-            res = await FlutterwaveProvider("k", "h", http=http).verify("GM-2")
+            res = await FlutterwaveProvider("k", "h", http=http).verify("YC-2")
         assert (res.status, res.amount_kobo, res.provider_transaction_id) == ("success", 945_025, "555")
-        assert seen[0].url.params["tx_ref"] == "GM-2"
+        assert seen[0].url.params["tx_ref"] == "YC-2"
 
     def test_webhook_verif_hash(self):
         p = FlutterwaveProvider("k", "s3cret-hash", http=httpx.AsyncClient())
         body = json.dumps(
-            {"event": "charge.completed", "data": {"id": 9, "tx_ref": "GM-2", "status": "successful"}}
+            {"event": "charge.completed", "data": {"id": 9, "tx_ref": "YC-2", "status": "successful"}}
         ).encode()
         assert p.verify_webhook(body, {"verif-hash": "s3cret-hash"}, None)
         assert not p.verify_webhook(body, {"verif-hash": "wrong"}, None)
         assert not p.verify_webhook(body, {}, None)
         ev = p.parse_webhook(body)
-        assert ev.event_type == "charge.success" and ev.reference == "GM-2"
+        assert ev.event_type == "charge.success" and ev.reference == "YC-2"
         failed = p.parse_webhook(
             json.dumps({"event": "charge.completed", "data": {"id": 9, "status": "failed"}}).encode()
         )

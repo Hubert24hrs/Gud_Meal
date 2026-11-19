@@ -332,7 +332,7 @@ class _GroupScreenState extends ConsumerState<GroupScreen> {
                     tooltip: 'Copy invite',
                     icon: const Icon(Icons.copy_rounded),
                     onPressed: () async {
-                      await Clipboard.setData(ClipboardData(text: 'Join my GudMeals group order at ${g.restaurant.name} with code ${g.code}'));
+                      await Clipboard.setData(ClipboardData(text: 'Join my Yummy Chops group order at ${g.restaurant.name} with code ${g.code}'));
                       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invite copied')));
                     },
                   ),

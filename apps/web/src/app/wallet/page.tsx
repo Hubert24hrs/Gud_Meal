@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/require-auth";
 import { WalletView } from "./wallet-view";
 
 export const metadata: Metadata = {
-  title: "GudMeals wallet",
+  title: "Yummy Chops wallet",
   description: "Top up once and pay for food, supplements & skin care and package deliveries in one tap. Refunds land instantly.",
   alternates: { canonical: "/wallet" },
   robots: { index: false },
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function WalletPage() {
   return (
-    <RequireAuth reason="Sign in to see your GudMeals wallet.">
+    <RequireAuth reason="Sign in to see your Yummy Chops wallet.">
       <WalletView />
     </RequireAuth>
   );

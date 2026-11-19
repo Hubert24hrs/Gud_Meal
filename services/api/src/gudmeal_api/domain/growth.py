@@ -1,4 +1,4 @@
-"""Growth features (phase 4, ADR-0016): GudMeals Plus, Gud points and referrals, group orders.
+"""Growth features (phase 4, ADR-0016): Yummy Chops Plus, Yummy points and referrals, group orders.
 
 Pure models and helpers, no I/O. Money stays in integer kobo; prices, savings and bill shares come only from
 `pricing.py`. Points are not money: they turn into platform-funded personal vouchers when redeemed.
@@ -21,7 +21,7 @@ GROUP_CODE_PATTERN = r"^[2-9A-HJ-NP-Z]{6}$"
 
 # ------------------------------------------------------------------------------------------- settings
 class PlusConfig(BaseModel):
-    """GudMeals Plus membership. Product defaults, to be confirmed by the owner (ADR-0016)."""
+    """Yummy Chops Plus membership. Product defaults, to be confirmed by the owner (ADR-0016)."""
 
     enabled: bool = True
     price_kobo: int = Field(default=150_000, gt=0, le=10_000_000)  # ₦1,500 per period, VAT included
@@ -29,15 +29,15 @@ class PlusConfig(BaseModel):
     free_delivery_min_subtotal_kobo: int = Field(default=300_000, ge=0)  # ₦3,000
     service_fee_discount_bps: int = Field(default=5_000, ge=0, le=10_000)  # 50% off the service fee
     verticals: list[str] = Field(default_factory=lambda: ["food", "beauty"], max_length=10)
-    points_multiplier: int = Field(default=2, ge=1, le=10)  # Gud points earned by members
+    points_multiplier: int = Field(default=2, ge=1, le=10)  # Yummy points earned by members
     renew_window_hours: int = Field(default=24, ge=1, le=168)  # wallet auto-renewal starts this early
 
 
 class GrowthConfig(BaseModel):
-    """Gud points, referrals and group orders (`platform_configuration/growth`)."""
+    """Yummy points, referrals and group orders (`platform_configuration/growth`)."""
 
     version: int = 1
-    # Gud points: earned on completed orders, redeemed for personal vouchers.
+    # Yummy points: earned on completed orders, redeemed for personal vouchers.
     points_enabled: bool = True
     points_per_100_naira: int = Field(default=1, ge=0, le=100)
     point_value_kobo: int = Field(default=100, ge=1, le=10_000)  # 1 point = ₦1 when redeemed
@@ -79,7 +79,7 @@ def membership_active(m: Membership | None, now: datetime) -> bool:
 
 # ------------------------------------------------------------------------------------------- rewards
 class RewardsAccount(Model):
-    """`loyalty_accounts/{uid}`: Gud points balance and referral state (points are not money)."""
+    """`loyalty_accounts/{uid}`: Yummy points balance and referral state (points are not money)."""
 
     uid: str
     points: int = 0  # may go below zero when a refund reverses points that were already redeemed

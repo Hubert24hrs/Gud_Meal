@@ -1,8 +1,8 @@
-# GudMeals — System Architecture
+# Yummy Chops — System Architecture
 
 > Status: living document. Decisions are recorded as ADRs in [`docs/adr`](../adr).
 
-GudMeals is a set of separately deployable applications that share one identity system
+Yummy Chops is a set of separately deployable applications that share one identity system
 (Firebase Authentication), one API (`gudmeal-api`), one real-time database (Cloud Firestore),
 one money database (Cloud SQL PostgreSQL) and one AI service (`gudmeal-agents`).
 
@@ -14,7 +14,7 @@ flowchart LR
     CA["Customer app<br/>Flutter (Android/iOS)"]
     RA["Rider app<br/>Flutter (Android/iOS)"]
     WEB["Customer website<br/>Next.js"]
-    PARTNER["GudMeals Partner<br/>Next.js"]
+    PARTNER["Yummy Chops Partner<br/>Next.js"]
     ADMIN["Command Centre<br/>Next.js"]
   end
 
@@ -71,14 +71,14 @@ flowchart LR
 
 ```
 apps/web            Customer website (Next.js)
-apps/partner        GudMeals Partner — restaurant dashboard (Next.js)
-apps/admin          GudMeals Command Centre — super admin (Next.js)
+apps/partner        Yummy Chops Partner — restaurant dashboard (Next.js)
+apps/admin          Yummy Chops Command Centre — super admin (Next.js)
 packages/ui         Shared React component library + Tailwind theme
 packages/api-client Typed TypeScript client for gudmeal-api
 packages/tokens     Design tokens (single source → CSS, TS, Dart)
 mobile/core         Shared Flutter package (models, API client, theme)
-mobile/customer     GudMeals customer app (Flutter)
-mobile/rider        GudMeals Rider app (Flutter)
+mobile/customer     Yummy Chops customer app (Flutter)
+mobile/rider        Yummy Chops Rider app (Flutter)
 services/api        gudmeal-api (FastAPI, Python)
 services/agents     gudmeal-agents (LangGraph, Python)
 firebase            Firestore/Storage rules, indexes, emulator config, rules tests
@@ -130,9 +130,9 @@ sequenceDiagram
 
 | Environment | GCP / Firebase project | Purpose |
 |---|---|---|
-| development | `gud-meal-dev` (+ local emulators) | Feature work, sandbox payment keys |
-| staging | `gud-meal-staging` | Pre-release verification with sandbox payments |
-| production | `gud-meal-prod` | Live traffic; deploys require explicit approval |
+| development | `yummy-chops-dev` (+ local emulators) | Feature work, sandbox payment keys |
+| staging | `yummy-chops-staging` | Pre-release verification with sandbox payments |
+| production | `yummy-chops-prod` | Live traffic; deploys require explicit approval |
 
 Each environment has its own Firebase project, Cloud SQL instance, service accounts and secrets.
 Nothing is shared across environments except container images in Artifact Registry.

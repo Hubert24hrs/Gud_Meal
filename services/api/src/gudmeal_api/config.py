@@ -53,13 +53,13 @@ class Settings(BaseSettings):
     flutterwave_secret_key: SecretStr | None = None
     flutterwave_secret_hash: SecretStr | None = None
     flutterwave_base_url: str = "https://api.flutterwave.com/v3"
-    customer_email_fallback_domain: str = "customers.gudmeal.ng"
+    customer_email_fallback_domain: str = "customers.yummy247.com"
     refund_auto_approve_limit_kobo: int = 0  # 0 = every refund needs finance approval
     payment_http_timeout_seconds: float = 15.0
     # Backup gateway tried when the default one fails to start a checkout (only if it is configured).
     payment_failover_provider: str | None = "flutterwave"
 
-    # --- GudMeals wallet (closed-loop stored value: spend on GudMeals only, no cash withdrawal) ---------
+    # --- Yummy Chops wallet (closed-loop stored value: spend on Yummy Chops only, no cash withdrawal) ---------
     # Limits are product defaults pending legal/CBN review (see docs/adr/0013-wallet-and-cash.md).
     wallet_enabled: bool = True
     wallet_min_topup_kobo: int = 50_000  # ₦500
@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     internal_shared_secret: SecretStr | None = None
     internal_oidc_audience: str | None = None
     internal_oidc_service_accounts: list[str] = Field(default_factory=list)
-    # GudMeals' own services (the agents service) that may call user endpoints without App Check. They still
+    # Yummy Chops' own services (the agents service) that may call user endpoints without App Check. They still
     # need the user's token, and this list does not open /internal/* (that is INTERNAL_OIDC_SERVICE_ACCOUNTS).
     trusted_service_accounts: list[str] = Field(default_factory=list)
 
@@ -96,7 +96,7 @@ class Settings(BaseSettings):
     # Placeholders until the owner provides real ones; `support_contacts_are_placeholders` lets apps flag them.
     support_whatsapp: str = "+234 000 000 0000"
     support_phone: str = "+234 000 000 0000"
-    support_email: str = "support@example.com"
+    support_email: str = "support@yummy247.com"
     support_hours: str = "Every day, 8am to 10pm"
     support_contacts_are_placeholders: bool = True
 
@@ -134,7 +134,7 @@ class Settings(BaseSettings):
     maps_timeout_seconds: float = 4.0
     maps_daily_request_cap: int = 20_000  # per instance; GCP quotas + budget alerts are the hard limit
 
-    # --- Gudy on WhatsApp (ADR-0017): off until the Meta account, number and keys exist -----------
+    # --- Yummy on WhatsApp (ADR-0017): off until the Meta account, number and keys exist -----------
     whatsapp_enabled: bool = False
     whatsapp_provider: Literal["sandbox", "cloud"] = "sandbox"
     whatsapp_access_token: SecretStr | None = None  # permanent system-user token (Secret Manager)
@@ -179,7 +179,7 @@ class Settings(BaseSettings):
             problems.append("APP_CHECK_ENFORCED must be true in production")
         if self.app_check_enforced and not self.trusted_service_accounts:
             problems.append(
-                "TRUSTED_SERVICE_ACCOUNTS must list the agents service account (Gudy's tool calls)"
+                "TRUSTED_SERVICE_ACCOUNTS must list the agents service account (Yummy's tool calls)"
             )
         if self.channel_token_secret.get_secret_value() == "local-dev-channel-secret-change-me":
             problems.append("CHANNEL_TOKEN_SECRET must be set from Secret Manager")

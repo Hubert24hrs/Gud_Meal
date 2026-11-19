@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// GudMeals — Cloud Firestore security rules.
+// Yummy Chops — Cloud Firestore security rules.
 // Principle: deny by default. Clients READ what they are entitled to; all business WRITES go through
 // gudmeal-api (Admin SDK bypasses rules). The only client-writable documents are a user's own cart and
 // the read-receipt on their own notifications.

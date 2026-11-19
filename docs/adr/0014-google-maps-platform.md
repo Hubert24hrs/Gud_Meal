@@ -8,7 +8,7 @@
 
 Customers need to see nearby restaurants, search addresses with pins, use GPS or saved addresses, and get
 distances and road-based arrival times. Restaurants need a checked location and coverage area. Delivery fees
-should follow road distance. Riders need navigation, customers need a live rider map, and Gudy should recommend
+should follow road distance. Riders need navigation, customers need a live rider map, and Yummy should recommend
 places by distance and arrival time.
 
 The owner's constraints:
@@ -44,7 +44,7 @@ keys to be visible. Each is restricted:
 
 - the Android key to the app's package name and signing certificate;
 - the iOS key to the bundle ID;
-- the browser key to GudMeals' web domains.
+- the browser key to Yummy Chops' web domains.
 
 Each key is limited to its display API only. Keys come from build configuration or environment variables, never
 source code. Without them, apps draw a simple schematic map from the same API data.
@@ -56,7 +56,7 @@ Without a key (local, tests, CI) or during an outage or over the daily cap, the 
 - its neighbourhood table;
 - straight-line distance × 1.35 road factor at 18 km/h.
 
-Every response carries `provider` / `source` (`google`, `local`, `estimate`) and `precision`, so apps and Gudy
+Every response carries `provider` / `source` (`google`, `local`, `estimate`) and `precision`, so apps and Yummy
 say "estimate". Reverse geocoding without Google keeps the device's own coordinates and only names the nearest
 neighbourhood ("Near Yaba, Lagos"). No position is invented.
 
@@ -105,9 +105,9 @@ neighbourhood ("Near Yaba, Lagos"). No position is invented.
   at most 30 days. Our caches are far shorter. Saved addresses keep the user-confirmed pin and the place ID.
   Legal review of the Service Specific Terms is still required before launch.
 
-### 7. Gudy
+### 7. Yummy
 
-Gudy gets two read-only tools, `find_nearby_restaurants` and `compare_delivery_times`:
+Yummy gets two read-only tools, `find_nearby_restaurants` and `compare_delivery_times`:
 
 - no identity or amount arguments;
 - they use the customer's saved address and copy minutes, kilometres and fees from the API;

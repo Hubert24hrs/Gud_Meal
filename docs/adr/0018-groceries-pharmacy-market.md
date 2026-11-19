@@ -9,7 +9,7 @@
 
 ## Context
 
-GudMeals sold Food and Beauty & Skin care through one order pipeline (ADR-0012) and carried packages. The owner
+Yummy Chops sold Food and Beauty & Skin care through one order pipeline (ADR-0012) and carried packages. The owner
 asked for three more services and named a reference app. What that reference does, as far as public pages and
 its vendor help show:
 
@@ -68,7 +68,7 @@ only through `OrderService.transition`; every seeded business is invented.
 - The partner dashboard lets a pharmacy keep such a product on its list with the flag set, and says that
   customers cannot see it.
 - The Pharmacy pages say "Over-the-counter products only".
-- Gudy never diagnoses and never picks a medicine or a dose for a symptom: it shows what the customer names, or
+- Yummy never diagnoses and never picks a medicine or a dose for a symptom: it shows what the customer names, or
   opens the matching Pharmacy category.
 
 ### 4. Apps and website
@@ -82,11 +82,11 @@ only through `OrderService.transition`; every seeded business is invented.
 - One place holds each service's wording: `mobile/core/lib/src/services.dart` and `apps/web/src/lib/services.ts`.
 - **Partner dashboard:** shops manage "Products" with brand, size or measure, a picture and, for pharmacies, the
   prescription flag.
-- **Gudy:** searches and opens the new services in the app, on the website and offline.
+- **Yummy:** searches and opens the new services in the app, on the website and offline.
 
 ### 5. Benefits and limits
 
-- GudMeals Plus covers all five merchant services with the same ₦3,000 minimum basket.
+- Yummy Chops Plus covers all five merchant services with the same ₦3,000 minimum basket.
 - Group orders stay with restaurants and beauty shops.
 - The local demo shop autopilot accepts and packs orders at every kind of shop.
 
@@ -120,4 +120,4 @@ only through `OrderService.transition`; every seeded business is invented.
   over-the-counter rule, partner product fields, orders end to end in both cities, Plus, the autopilot).
 - Live stack: `scripts/e2e_local.py grocery_order pharmacy_order market_order`.
 - Apps: `mobile/customer/test/retail_test.dart`, `apps/web/src/app/restaurants/[id]/shop.test.tsx`.
-- Gudy: `services/agents/tests/test_gudy.py` (finds shop products, opens the new services).
+- Yummy: `services/agents/tests/test_gudy.py` (finds shop products, opens the new services).

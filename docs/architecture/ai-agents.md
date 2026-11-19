@@ -76,9 +76,9 @@ flowchart TD
 - Approval cannot be bypassed: `confirm_order` without a matching approved interrupt is rejected.
 - Payment card details are never requested, stored or logged; checkout happens on the provider page.
 
-## Gudy: persona, languages and offline mode (2026-11-15)
+## Yummy: persona, languages and offline mode (2026-11-15)
 
-- **Persona.** Gudy is GudMeals' assistant for Food, Supplements & Skin Care and Package Delivery in Lagos and
+- **Persona.** Yummy is Yummy Chops' assistant for Food, Supplements & Skin Care and Package Delivery in Lagos and
   Enugu. It never gives health advice about supplements (no diagnosis, doses or health claims).
   It replies in the customer's language (English, Nigerian Pidgin, Igbo, Yoruba, Hausa), mirroring code-mixing,
   and keeps dish, product and store names exactly as tools return them.
@@ -96,7 +96,7 @@ flowchart TD
   templated: full English and Pidgin; Igbo, Yoruba and Hausa get a localised greeting/acknowledgement and English
   details. All numbers are copied from tool results. `/health` reports `ai_mode: offline | llm`.
 - **Money (phase 2).** `get_wallet` (balance, recent activity, seller COD balance; read-only) and
-  `get_payment_options` (card / wallet / pay on delivery with the server's reasons). Gudy can open the Wallet
+  `get_payment_options` (card / wallet / pay on delivery with the server's reasons). Yummy can open the Wallet
   screen but has no tool that tops up, moves or withdraws money. Offline mode answers wallet, pay-on-delivery
   and seller cash-on-delivery questions in English and Pidgin.
 - **Interstate waybill (phase 3).** Two read-only tools for the customer, delivery and support agents:
@@ -105,9 +105,9 @@ flowchart TD
   - `track_waybill`: by tracking number, or the customer's latest waybill; it uses the public tracking
     endpoint, so no personal data is involved.
 
-  Booking happens on the app or website screen that Gudy opens (`open_screen` → `waybill`), so no new
+  Booking happens on the app or website screen that Yummy opens (`open_screen` → `waybill`), so no new
   approval-gated tool was needed. Offline mode recognises tracking numbers, “send to Abuja”-style
-  questions and “where is my waybill”. Gudy now has 40 tools; as before, every price it states is copied
+  questions and “where is my waybill”. Yummy now has 40 tools; as before, every price it states is copied
   from a tool result.
 - **Plus, points and group orders (phase 4).** Three read-only tools for the customer, support and growth
   agents:
@@ -115,10 +115,10 @@ flowchart TD
   - `get_rewards`: points, redeem steps, personal vouchers, referral code
   - `get_group_orders`: my groups, status, join code, my share
 
-  `open_screen` gains `plus`, `rewards` and `group`. Gudy never joins Plus, redeems points, applies codes
-  or pays shares; the customer does that on the screen Gudy opens. Offline mode answers these questions in
-  English and Pidgin. Gudy now has 43 tools.
-- **WhatsApp (phase 5, [ADR-0017](../adr/0017-gudy-on-whatsapp.md)).** The API runs Gudy for linked WhatsApp
+  `open_screen` gains `plus`, `rewards` and `group`. Yummy never joins Plus, redeems points, applies codes
+  or pays shares; the customer does that on the screen Yummy opens. Offline mode answers these questions in
+  English and Pidgin. Yummy now has 43 tools.
+- **WhatsApp (phase 5, [ADR-0017](../adr/0017-assistant-on-whatsapp.md)).** The API runs Yummy for linked WhatsApp
   numbers through the normal `POST /v1/chat`, with `channel: "whatsapp"` and a short-lived channel token that
   carries only the `customer` role. There are no new tools.
   - **Style.** The `whatsapp` channel adds a prompt hint: short plain-text replies, and approvals answered with
@@ -126,12 +126,12 @@ flowchart TD
   - **Approvals.** The API turns them into WhatsApp reply buttons. The text comes from the tool's server-side
     preview, which now spells out where the order goes ("Delivering to Lekki Phase 1, Lagos") because WhatsApp has
     no order screen. The street address stays out of the order summaries the model reads.
-  - **Shared locations.** A location shared in the chat reaches Gudy as `delivery_address`, so plans, quotes
+  - **Shared locations.** A location shared in the chat reaches Yummy as `delivery_address`, so plans, quotes
     and drafts use it instead of the first saved address.
-  - **Order channel.** Orders and support tickets Gudy creates in a WhatsApp chat are saved with channel
+  - **Order channel.** Orders and support tickets Yummy creates in a WhatsApp chat are saved with channel
     `whatsapp`; from the app and website they stay `ai_agent`.
   - **Routing.** Food and budget requests ("I have ₦10,000, find me food for 2") go back to the customer agent
     even mid-way through a growth conversation.
-  - **Service identity.** Gudy's tool calls to the API carry a service credential (`INTERNAL_AUTH_MODE`: a
+  - **Service identity.** Yummy's tool calls to the API carry a service credential (`INTERNAL_AUTH_MODE`: a
     Google-signed OIDC token in the cloud, the shared secret locally) so they pass App Check. The customer's
     own token is still required on every call.

@@ -1,5 +1,5 @@
 // Maps and location models (plain Dart: no code generation). Every distance and time here comes from the API;
-// `source` says whether Google measured it ('google') or it is GudMeals' own estimate ('estimate' / 'local').
+// `source` says whether Google measured it ('google') or it is Yummy Chops' own estimate ('estimate' / 'local').
 
 import 'dart:math' as math;
 
@@ -72,7 +72,7 @@ class PlaceResult {
       );
 }
 
-/// A place plus whether GudMeals delivers there.
+/// A place plus whether Yummy Chops delivers there.
 class PlaceLookup {
   const PlaceLookup({required this.place, required this.serviceable, this.zone, this.city});
 
@@ -200,7 +200,7 @@ class LiveTracking {
       );
 }
 
-/// A restaurant or shop on the nearby map. Distance and arrival time are GudMeals' free local estimate.
+/// A restaurant or shop on the nearby map. Distance and arrival time are Yummy Chops' free local estimate.
 class MapPlace {
   const MapPlace({
     required this.id,

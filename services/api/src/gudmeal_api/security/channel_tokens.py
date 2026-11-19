@@ -1,7 +1,7 @@
 """Delegated channel tokens (ADR-0017).
 
 A WhatsApp message carries a phone number, not a Firebase ID token. For a number linked to an account, the API
-mints a short-lived token that lets Gudy act for that customer — and only as a customer: staff, merchant and
+mints a short-lived token that lets Yummy act for that customer — and only as a customer: staff, merchant and
 rider powers never travel over a chat channel. Format: ``gmc1.<base64url(json)>.<base64url(hmac_sha256)>``.
 
 The same verification lives in the agents service (``gudmeal_agents.identity``); both use CHANNEL_TOKEN_SECRET.

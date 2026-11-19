@@ -8,7 +8,7 @@ import '../features/location/address_picker.dart' show LocationUnavailable, cust
 import '../providers.dart';
 import 'illustrations.dart';
 
-/// The red of the GudMeals logo (design tokens), and the warm orange-red the header gradient starts from.
+/// The red of the Yummy Chops logo (design tokens), and the warm orange-red the header gradient starts from.
 const brandRed = GmLight.primary;
 const brandWarm = Color(0xFFF25C22);
 const brandGradient = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [brandWarm, brandRed]);
@@ -69,7 +69,7 @@ class AddressPill extends ConsumerWidget {
 }
 
 /// The delivery area nearest to [here], or null when even the nearest is more than [withinKm] away
-/// (GudMeals does not deliver there).
+/// (Yummy Chops does not deliver there).
 Area? nearestArea(GeoPoint here, List<Area> areas, {double withinKm = 25}) {
   Area? nearest;
   var best = double.infinity;
@@ -125,7 +125,7 @@ class _AreaPickerState extends ConsumerState<_AreaPicker> {
       final nearest = nearestArea(here, all);
       if (!mounted) return;
       if (nearest == null) {
-        setState(() => _gpsNote = 'GudMeals does not deliver where you are yet. Choose the area to deliver to.');
+        setState(() => _gpsNote = 'Yummy Chops does not deliver where you are yet. Choose the area to deliver to.');
       } else {
         Navigator.of(context).pop(nearest);
       }
@@ -148,7 +148,7 @@ class _AreaPickerState extends ConsumerState<_AreaPicker> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Where should we deliver?', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 4),
-            Text('GudMeals delivers in Lagos and Enugu.', style: Theme.of(context).textTheme.bodySmall),
+            Text('Yummy Chops delivers in Lagos and Enugu.', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 12),
             TextField(
               autofocus: false,

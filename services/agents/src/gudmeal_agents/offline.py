@@ -1,4 +1,4 @@
-"""Gudy offline: a deterministic, rule-based stand-in for the LLM.
+"""Yummy offline: a deterministic, rule-based stand-in for the LLM.
 
 Used when no Gemini key is configured (and usable as an emergency fallback). It implements the same ModelFactory
 protocol as Gemini, so it runs inside the normal graph — guard → router → agent ⇄ tools — and every action still
@@ -49,11 +49,11 @@ def detect_language(text: str) -> Lang:
 
 
 GREETING: dict[Lang, str] = {
-    "en": "Hi{name}! I'm Gudy, your GudMeals assistant.",
-    "pcm": "How far{name}! Na me be Gudy, your GudMeals paddy.",
-    "ig": "Ndewo{name}! Abụ m Gudy.",
-    "yo": "Ẹ n lẹ{name}! Èmi ni Gudy.",
-    "ha": "Sannu{name}! Ni ne Gudy.",
+    "en": "Hi{name}! I'm Yummy, your Yummy Chops assistant.",
+    "pcm": "How far{name}! Na me be Yummy, your Yummy Chops paddy.",
+    "ig": "Ndewo{name}! Abụ m Yummy.",
+    "yo": "Ẹ n lẹ{name}! Èmi ni Yummy.",
+    "ha": "Sannu{name}! Ni ne Yummy.",
 }
 ACK: dict[Lang, str] = {"en": "", "pcm": "", "ig": "Ọ dị mma. ", "yo": "Ó dáa. ", "ha": "To, shi ke nan. "}
 SORRY: dict[Lang, str] = {
@@ -75,13 +75,13 @@ T: dict[str, dict[str, str]] = {
         "Lagos and Enugu, track your order, and tell you how much you don spend. Wetin you wan do?",
     },
     "services": {
-        "en": "Here's what GudMeals does in Lagos and Enugu:",
-        "pcm": "See wetin GudMeals dey do for Lagos and Enugu:",
+        "en": "Here's what Yummy Chops does in Lagos and Enugu:",
+        "pcm": "See wetin Yummy Chops dey do for Lagos and Enugu:",
     },
     "coming_soon": {"en": "Coming soon: {items}.", "pcm": "E dey come soon: {items}."},
     "totals": {
-        "en": "You've paid for {n} order(s) on GudMeals: {total} in total ({month} this month).",
-        "pcm": "You don pay for {n} order(s) for GudMeals, total na {total} ({month} this month).",
+        "en": "You've paid for {n} order(s) on Yummy Chops: {total} in total ({month} this month).",
+        "pcm": "You don pay for {n} order(s) for Yummy Chops, total na {total} ({month} this month).",
     },
     "totals_none": {
         "en": "You haven't placed any orders yet. Shall I find you something nice?",
@@ -108,7 +108,7 @@ T: dict[str, dict[str, str]] = {
         "service {service}, VAT {vat}). Talk 'confirm' make I bring the payment link.",
     },
     "paylink": {
-        "en": "Here's your secure payment link for {amount}. GudMeals starts your order as soon as the payment is "
+        "en": "Here's your secure payment link for {amount}. Yummy Chops starts your order as soon as the payment is "
         "verified.",
         "pcm": "Correct! Na your secure payment link be this for {amount}. Once the payment land, we go start your "
         "order.",
@@ -136,9 +136,9 @@ T: dict[str, dict[str, str]] = {
         "pay.",
     },
     "support": {
-        "en": "You can reach GudMeals support on WhatsApp {whatsapp}, phone {phone} or email {email} ({hours}). Or "
+        "en": "You can reach Yummy Chops support on WhatsApp {whatsapp}, phone {phone} or email {email} ({hours}). Or "
         "chat with our team in the Support tab.",
-        "pcm": "You fit reach GudMeals support for WhatsApp {whatsapp}, call {phone} or email {email} ({hours}). Or "
+        "pcm": "You fit reach Yummy Chops support for WhatsApp {whatsapp}, call {phone} or email {email} ({hours}). Or "
         "chat with our team for the Support tab.",
     },
     "support_placeholder": {
@@ -146,8 +146,8 @@ T: dict[str, dict[str, str]] = {
         "pcm": "We still dey set up phone and WhatsApp, so Support tab na the fastest way to reach person.",
     },
     "ticket": {
-        "en": "I've opened support ticket {id}. A GudMeals specialist will reply in the app.",
-        "pcm": "I don open support ticket {id}. Person from GudMeals go reply you for the app.",
+        "en": "I've opened support ticket {id}. A Yummy Chops specialist will reply in the app.",
+        "pcm": "I don open support ticket {id}. Person from Yummy Chops go reply you for the app.",
     },
     "nearby": {
         "en": "Places that deliver to {near} ({order}):",
@@ -163,23 +163,23 @@ T: dict[str, dict[str, str]] = {
     },
     "button": {"en": "Tap the button below.", "pcm": "Tap the button wey dey below."},
     "wallet": {
-        "en": "Your GudMeals wallet balance is {balance}.",
-        "pcm": "Money wey dey your GudMeals wallet na {balance}.",
+        "en": "Your Yummy Chops wallet balance is {balance}.",
+        "pcm": "Money wey dey your Yummy Chops wallet na {balance}.",
     },
     "wallet_cod": {
         "en": "Cash-on-delivery money collected for you: {amount}.",
         "pcm": "Cash-on-delivery money wey we collect for you: {amount}.",
     },
     "wallet_topup": {
-        "en": "To top up, open your wallet (Profile → GudMeals wallet). I can't move money myself.",
-        "pcm": "To top up, open your wallet (Profile → GudMeals wallet). I no fit move money by myself.",
+        "en": "To top up, open your wallet (Profile → Yummy Chops wallet). I can't move money myself.",
+        "pcm": "To top up, open your wallet (Profile → Yummy Chops wallet). I no fit move money by myself.",
     },
     "pod": {
         "en": "Yes: pay on delivery lets you pay the rider in cash for restaurant and shop orders once you've completed "
-        "your first order (limits apply). Choose 'Pay on delivery' at checkout and GudMeals checks if your order "
+        "your first order (limits apply). Choose 'Pay on delivery' at checkout and Yummy Chops checks if your order "
         "qualifies.",
         "pcm": "Yes o: you fit pay the rider cash for restaurant and shop orders once you don complete your first order "
-        "(limit dey). Choose 'Pay on delivery' for checkout, GudMeals go check if your order qualify.",
+        "(limit dey). Choose 'Pay on delivery' for checkout, Yummy Chops go check if your order qualify.",
     },
     "cod": {
         "en": "Selling online? When you send a package, tick 'Collect cash from my buyer'. The rider collects the price "
@@ -207,19 +207,19 @@ T: dict[str, dict[str, str]] = {
     "waybill_collect": {"en": "Collect it at {place}.", "pcm": "Make dem collect am for {place}."},
     "waybill_none": {"en": "You don't have any waybills yet.", "pcm": "You never send any waybill yet."},
     "plus_member": {
-        "en": "You're a GudMeals Plus member until {until}. Auto-renew from your wallet is {renew}. You've saved "
+        "en": "You're a Yummy Chops Plus member until {until}. Auto-renew from your wallet is {renew}. You've saved "
         "{saved} so far.",
-        "pcm": "You be GudMeals Plus member till {until}. Auto-renew from your wallet dey {renew}. You don save "
+        "pcm": "You be Yummy Chops Plus member till {until}. Auto-renew from your wallet dey {renew}. You don save "
         "{saved} so far.",
     },
     "plus_join": {
-        "en": "GudMeals Plus costs {price}:",
-        "pcm": "GudMeals Plus na {price}:",
+        "en": "Yummy Chops Plus costs {price}:",
+        "pcm": "Yummy Chops Plus na {price}:",
     },
     "plus_tap": {"en": "Tap the button to join.", "pcm": "Tap the button make you join."},
     "rewards_points": {
-        "en": "You have {points} Gud points (worth {worth}). You earn {rate}.",
-        "pcm": "You get {points} Gud points (e worth {worth}). You dey earn {rate}.",
+        "en": "You have {points} Yummy points (worth {worth}). You earn {rate}.",
+        "pcm": "You get {points} Yummy points (e worth {worth}). You dey earn {rate}.",
     },
     "rewards_ready": {
         "en": "You can turn {points} points into vouchers now on the Rewards screen ({rule}).",
@@ -277,7 +277,7 @@ _TOTALS = re.compile(
     r"\b(total|totals|spent|spend|spending|how much (have|did) i|i don spend|my (order )?history|summary|ego ole)\b"
 )
 _SERVICES = re.compile(
-    r"\b(services?|what (do|can) (you|gud ?meals?) (do|offer|sell)|wetin (una|you) dey (do|sell)|what you offer|"
+    r"\b(services?|what (do|can) (you|yummy ?chops?) (do|offer|sell)|wetin (una|you) dey (do|sell)|what you offer|"
     r"what do you offer)\b"
 )
 _TRACK = re.compile(r"\b(where is my|where my|track|tracking|status|rider|eta|don reach|dey come|my order)\b")
@@ -296,10 +296,10 @@ _OPEN = re.compile(
 )
 _WALLET = re.compile(r"\b(wallet|my balance|top ?up|fund my account)\b")
 _PLUS = re.compile(
-    r"\b(gud ?meals? plus|plus member(ship)?|membership|subscription|subscribe|free delivery)\b"
+    r"\b(yummy ?chops? plus|plus member(ship)?|membership|subscription|subscribe|free delivery)\b"
 )
 _REWARDS = re.compile(
-    r"\b(gud points|my points|points|rewards?|referr?al( code)?|refer|invite (a |my )?friends?|my vouchers?|"
+    r"\b(yummy points|my points|points|rewards?|referr?al( code)?|refer|invite (a |my )?friends?|my vouchers?|"
     r"my coupons?)\b"
 )
 _GROUP = re.compile(
@@ -545,7 +545,7 @@ class _OfflineAgent:
     def _first_step(self, history: list[AnyMessage], text: str, lang: Lang, name: str) -> AIMessage:
         p = plain(text).strip()
 
-        # Follow-ups to the latest thing Gudy offered that is still open (a plan, a draft or a parcel quote).
+        # Follow-ups to the latest thing Yummy offered that is still open (a plan, a draft or a parcel quote).
         offer, prev = _latest_offer(history)
         data = prev.get("data") or {}
         pick = _PLAN_PICK.search(p)
@@ -766,7 +766,7 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
             return say("no_orders", lang)
         code = data.get("short_code") or data.get("order_id", "")
         label = data.get("status_label") or data.get("status", "")
-        out = say("status", lang, code=code, restaurant=data.get("restaurant", "GudMeals"), label=label)
+        out = say("status", lang, code=code, restaurant=data.get("restaurant", "Yummy Chops"), label=label)
         eta = data.get("estimated_arrival") or data.get("eta")
         if eta:
             out += " " + say("eta", lang, time=eta)

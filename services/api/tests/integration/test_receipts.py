@@ -43,7 +43,7 @@ async def test_a_receipt_repeats_what_was_paid_and_is_kept_once_printed(flow, cl
     # Ready to print, not kept yet.
     assert shown["saved"] is False and shown["print_count"] == 0
     assert await kept(client) == []
-    assert shown["number"] == f"GM-{order['short_code']}" and shown["order_id"] == order["id"]
+    assert shown["number"] == f"YC-{order['short_code']}" and shown["order_id"] == order["id"]
     assert shown["seller"] == "Jollof Junction" and shown["service_name"] == "Food"
     assert shown["seller_address"] == order["restaurant_address"]
 
@@ -121,7 +121,7 @@ async def test_a_package_delivery_has_a_receipt_too(client):
     r = await receipt(client, order["id"], method="post")
     assert r.status_code == 200, r.text
     shown = r.json()
-    assert shown["seller"] == "GudMeals" and shown["service_name"] == "Package Delivery"
+    assert shown["seller"] == "Yummy Chops" and shown["service_name"] == "Package Delivery"
     assert shown["lines"] == []
     assert (
         shown["summary"][0] == "From Lekki Phase 1 to Victoria Island"
@@ -144,7 +144,7 @@ async def test_receipt_wording_for_wallet_and_cash_and_rows_that_must_add_up(flo
         payment = order.payment.model_copy(update={"provider": provider})
         return build_receipt(order.model_copy(update={"payment": payment}), now).paid_with
 
-    assert paid_with("wallet") == "GudMeals wallet"
+    assert paid_with("wallet") == "Yummy Chops wallet"
     assert paid_with("cash") == "Cash on delivery"
     assert paid_with("paystack") == "Card, bank transfer or USSD"
 

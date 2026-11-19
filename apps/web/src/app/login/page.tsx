@@ -33,7 +33,7 @@ function Login() {
   const onSubmit = handleSubmit(async (v) => {
     setError(null);
     try {
-      if (mode === "signup") await signUp(v.name?.trim() || "GudMeals customer", v.email, v.password);
+      if (mode === "signup") await signUp(v.name?.trim() || "Yummy Chops customer", v.email, v.password);
       else await signIn(v.email, v.password);
       done();
     } catch (e) {
@@ -65,7 +65,7 @@ function Login() {
           Continue with Google
         </Button>
         <p className="text-center text-sm text-muted">
-          {mode === "signin" ? "New to GudMeals?" : "Already have an account?"}{" "}
+          {mode === "signin" ? "New to Yummy Chops?" : "Already have an account?"}{" "}
           <button className="font-semibold text-primary" onClick={() => setMode(mode === "signin" ? "signup" : "signin")}>
             {mode === "signin" ? "Create an account" : "Sign in"}
           </button>

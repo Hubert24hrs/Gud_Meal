@@ -1,4 +1,4 @@
-"""Gudy's multi-service tools: what GudMeals offers, order totals, Package Delivery, navigation, support contacts.
+"""Yummy's multi-service tools: what Yummy Chops offers, order totals, Package Delivery, navigation, support contacts.
 
 As everywhere else, tools never take identity or amount arguments: prices and totals come from the API.
 """
@@ -62,7 +62,7 @@ SCREEN_LABELS: dict[str, str] = {
     "order": "Track this order",
     "wallet": "Open my wallet",
     "waybill": "Send to another city",
-    "plus": "Open GudMeals Plus",
+    "plus": "Open Yummy Chops Plus",
     "rewards": "Open Rewards",
     "group": "Open group orders",
 }
@@ -155,7 +155,7 @@ async def get_order_totals(args: NoArgs, ctx: ToolContext) -> ToolOutput:
         "refunded": naira(s["refunded_kobo"]) if s["refunded_kobo"] else None,
         "by_service": by_service,
         "favourite": s["favourite_merchant"]["name"] if s.get("favourite_merchant") else None,
-        "note": "Totals are net of refunds and computed by GudMeals; quote them exactly.",
+        "note": "Totals are net of refunds and computed by Yummy Chops; quote them exactly.",
     }
     return ToolOutput(data, card={"type": "order_totals", **{k: v for k, v in data.items() if k != "note"}})
 
@@ -300,7 +300,7 @@ class OptionalOrderArgs(ToolArgs):
 
 
 async def get_wallet(args: NoArgs, ctx: ToolContext) -> ToolOutput:
-    """Read-only: Gudy can tell the balance but never tops up, moves or withdraws money."""
+    """Read-only: Yummy can tell the balance but never tops up, moves or withdraws money."""
     w = await ctx.api.get("/v1/wallet")
     recent = [
         {
@@ -316,7 +316,7 @@ async def get_wallet(args: NoArgs, ctx: ToolContext) -> ToolOutput:
         "refunds_go_to_wallet": w["refund_to_wallet"],
         "recent": recent,
         "top_up_limits": f"{naira(w['limits']['min_topup_kobo'])} to {naira(w['limits']['max_topup_kobo'])} per top-up",
-        "note": "Gudy cannot top up or move money. To top up, the customer opens the Wallet screen (open_screen).",
+        "note": "Yummy cannot top up or move money. To top up, the customer opens the Wallet screen (open_screen).",
     }
     if w.get("seller"):
         data["cash_on_delivery_balance"] = naira(w["seller"]["available_kobo"])
@@ -487,7 +487,7 @@ async def book_parcel(args: QuoteIdArgs, ctx: ToolContext) -> ToolOutput:
         "short_code": order["short_code"],
         "amount": naira(res["amount_kobo"]),
         "payment_url": res["authorization_url"],
-        "instruction": "Share the payment link. GudMeals finds a rider as soon as the payment is verified. "
+        "instruction": "Share the payment link. Yummy Chops finds a rider as soon as the payment is verified. "
         "The recipient must give the rider the delivery code shown in the order.",
     }
     return ToolOutput(
@@ -512,7 +512,7 @@ GROUP_STATUS = {
 
 
 async def get_plus_membership(args: NoArgs, ctx: ToolContext) -> ToolOutput:
-    """Read-only: Gudy explains Plus but never joins, renews or cancels it."""
+    """Read-only: Yummy explains Plus but never joins, renews or cancels it."""
     p = await ctx.api.get("/v1/plus")
     plan, m = p["plan"], p.get("membership")
     data: dict[str, Any] = {
@@ -520,7 +520,7 @@ async def get_plus_membership(args: NoArgs, ctx: ToolContext) -> ToolOutput:
         "available": plan["enabled"],
         "price": f"{naira(plan['price_kobo'])} every {plan['period_days']} days (VAT included)",
         "benefits": plan["benefits"],
-        "note": "Gudy cannot join, renew or cancel Plus: open_screen('plus') shows the Plus screen.",
+        "note": "Yummy cannot join, renew or cancel Plus: open_screen('plus') shows the Plus screen.",
     }
     if m:
         data.update(
@@ -552,7 +552,7 @@ async def get_rewards(args: NoArgs, ctx: ToolContext) -> ToolOutput:
     ]
     rate = f"{earn['points_per_100_naira']} point for every ₦100 spent on completed orders"
     if earn["plus_multiplier"] > 1:
-        rate += f" ({earn['plus_multiplier']}x for GudMeals Plus members)"
+        rate += f" ({earn['plus_multiplier']}x for Yummy Chops Plus members)"
     data: dict[str, Any] = {
         "points": r["points"],
         "points_worth": naira(r["points_value_kobo"]),
@@ -568,7 +568,7 @@ async def get_rewards(args: NoArgs, ctx: ToolContext) -> ToolOutput:
         "friends_rewarded": ref["friends_rewarded"],
         "share_text": ref["share_text"],
         "vouchers": vouchers,
-        "note": "Gudy cannot redeem points or apply referral codes: open_screen('rewards').",
+        "note": "Yummy cannot redeem points or apply referral codes: open_screen('rewards').",
     }
     card = {
         "type": "rewards",
@@ -616,7 +616,7 @@ async def get_group_orders(args: NoArgs, ctx: ToolContext) -> ToolOutput:
             "Open a Food or Supplements & Skin Care store and tap 'Order with friends', then share the "
             "6-character code."
         )
-    data["note"] = "Gudy cannot join, change or pay a group order: open_screen('group')."
+    data["note"] = "Yummy cannot join, change or pay a group order: open_screen('group')."
     return ToolOutput(data, card={"type": "group_orders", "groups": rows})
 
 
@@ -625,7 +625,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "list_services",
-            "What GudMeals offers (Food, Supplements & Skin Care, Package Delivery), where, "
+            "What Yummy Chops offers (Food, Supplements & Skin Care, Package Delivery), where, "
             "and what is coming soon.",
             NoArgs,
             list_services,
@@ -675,7 +675,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_wallet",
-            "The customer's GudMeals wallet: balance, recent activity, refund setting and any cash-on-delivery "
+            "The customer's Yummy Chops wallet: balance, recent activity, refund setting and any cash-on-delivery "
             "money collected for them as a seller. Read-only.",
             NoArgs,
             get_wallet,
@@ -685,8 +685,8 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_payment_options",
-            "How the customer can pay an order (card/transfer/USSD, GudMeals wallet, pay on delivery in cash) and "
-            "why an option is unavailable. GudMeals decides eligibility; quote the reasons exactly.",
+            "How the customer can pay an order (card/transfer/USSD, Yummy Chops wallet, pay on delivery in cash) and "
+            "why an option is unavailable. Yummy Chops decides eligibility; quote the reasons exactly.",
             OptionalOrderArgs,
             get_payment_options,
             EVERYONE,
@@ -695,7 +695,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_plus_membership",
-            "GudMeals Plus: price, member benefits, and the customer's membership (until when, auto-renew, "
+            "Yummy Chops Plus: price, member benefits, and the customer's membership (until when, auto-renew, "
             "savings). Read-only; customers join or cancel on the Plus screen.",
             NoArgs,
             get_plus_membership,
@@ -705,7 +705,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_rewards",
-            "The customer's Gud points, how to earn and redeem them, their personal vouchers and their referral "
+            "The customer's Yummy points, how to earn and redeem them, their personal vouchers and their referral "
             "code. Read-only; redeeming and applying codes happen on the Rewards screen.",
             NoArgs,
             get_rewards,
@@ -725,7 +725,7 @@ def register(reg: ToolRegistry) -> None:
     add(
         ToolSpec(
             "get_support_contacts",
-            "GudMeals support contacts (WhatsApp, phone, email) and hours.",
+            "Yummy Chops support contacts (WhatsApp, phone, email) and hours.",
             NoArgs,
             get_support_contacts,
             EVERYONE,

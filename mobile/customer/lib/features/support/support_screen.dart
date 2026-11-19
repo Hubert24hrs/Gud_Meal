@@ -12,13 +12,13 @@ const _faqs = [
   ('How do refunds work?',
       'If a store rejects your order, or you cancel before it is accepted (or before a rider is assigned to your package), you get a full refund automatically. For anything else, open a ticket and our team reviews it within 24 hours.'),
   ('How do I pay?',
-      'Card, bank transfer or USSD on a secure payment page (GudMeals never sees your card details), from your GudMeals wallet in one tap, or in cash on delivery once you have completed an order.'),
+      'Card, bank transfer or USSD on a secure payment page (Yummy Chops never sees your card details), from your Yummy Chops wallet in one tap, or in cash on delivery once you have completed an order.'),
   ('What is the delivery code?',
       'A 4-digit code in your order. Only give it to the rider once you have your order. For packages, share it with the person receiving it.'),
   ('Where do you deliver?', 'Lagos and Enugu for now. Choose your area at the top of Home; more cities are coming.'),
   ('Can I schedule a delivery?', 'Package pickups can be scheduled up to 7 days ahead, between 7am and 9pm.'),
-  ('Is Gudy a real person?',
-      'Gudy is GudMeals’ AI assistant. It always asks you to approve before placing an order or creating a payment, and you can ask for a person at any time.'),
+  ('Is Yummy a real person?',
+      'Yummy is Yummy Chops’ AI assistant. It always asks you to approve before placing an order or creating a payment, and you can ask for a person at any time.'),
 ];
 
 const _ticketCategories = {
@@ -61,7 +61,7 @@ class SupportScreen extends ConsumerWidget {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Chat with Gudy', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: const Color(0xFF3A0D05))),
+                      Text('Chat with Yummy', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: const Color(0xFF3A0D05))),
                       const SizedBox(height: 2),
                       const Text('Instant answers in English, Pidgin, Igbo, Yoruba or Hausa', style: TextStyle(color: Color(0xFF6B4A3A))),
                     ]),
@@ -130,7 +130,7 @@ class SupportScreen extends ConsumerWidget {
       builder: (_) => const _TicketForm(),
     );
     if (sent == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ticket opened. A GudMeals support agent will reply in the app.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ticket opened. A Yummy Chops support agent will reply in the app.')));
     }
   }
 }
@@ -151,7 +151,7 @@ class _ContactTile extends StatelessWidget {
       enabled: live,
       leading: CircleAvatar(backgroundColor: color.withValues(alpha: .14), child: Icon(icon, color: color)),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-      subtitle: Text(live ? (value ?? '') : 'Coming soon. Use Gudy or open a ticket for now.'),
+      subtitle: Text(live ? (value ?? '') : 'Coming soon. Use Yummy or open a ticket for now.'),
       trailing: live ? const Icon(Icons.open_in_new_rounded, size: 20) : null,
       onTap: live ? () => launchUrl(uri!, mode: LaunchMode.externalApplication) : null,
     );

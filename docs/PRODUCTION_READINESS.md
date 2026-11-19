@@ -41,7 +41,7 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 - ✅ LangGraph orchestrator, 8 agents, 43 tools, approvals, Postgres/SQLite checkpointers, cost tracking
 - ✅ Tool schemas convert to Gemini function declarations (offline test)
 - 👤 Provide `GOOGLE_API_KEY`; pin a stable Gemini Flash model id; run the live test (`pytest -m live_gemini`)
-- 👤 Gudy on WhatsApp: Meta account, number, keys and templates, and approval of Meta's messaging charges
+- 👤 Yummy on WhatsApp: Meta account, number, keys and templates, and approval of Meta's messaging charges
   ([DEPLOYMENT.md](DEPLOYMENT.md) section 4a)
 - ⬜ Evaluation set (routing accuracy, tool-call accuracy, refusal quality) before each model change
 - ⬜ LangSmith tracing in staging
@@ -72,7 +72,7 @@ Legend: ✅ done and verified · 🟡 implemented, needs cloud/credentials to ve
 
 ## Operations & compliance
 - ✅ Dockerfiles, CI, manual deploy workflow, bootstrap & deploy scripts, rollback procedure documented
-- 🟡 The three websites deploy to Cloud Run with the API and Gudy (images built and smoke-tested in CI; not yet
+- 🟡 The three websites deploy to Cloud Run with the API and Yummy (images built and smoke-tested in CI; not yet
   deployed)
 - 👤 Create GCP projects, billing, budgets; run bootstrap; add secrets; first deploy
 - ⬜ Monitoring dashboards & alerts (5xx rate, webhook failures, stuck orders, outbox backlog, AI cost/day)

@@ -1,4 +1,4 @@
-/* GudMeals shared theme for Tailwind v4. Apps import: tailwindcss, then this file. */
+/* Yummy Chops shared theme for Tailwind v4. Apps import: tailwindcss, then this file. */
 @import "@gudmeal/tokens/tokens.css";
 
 @theme inline {

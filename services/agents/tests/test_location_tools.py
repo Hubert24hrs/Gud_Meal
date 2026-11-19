@@ -1,4 +1,4 @@
-"""Gudy location intelligence: nearby recommendations and delivery-time comparisons.
+"""Yummy location intelligence: nearby recommendations and delivery-time comparisons.
 
 The test stack has no Google Maps key, so every time and distance is the API's labelled estimate; the tools must
 pass those numbers through unchanged and say they are estimates.
@@ -80,7 +80,7 @@ async def test_offline_gudy_recommends_nearby_kitchens_with_estimates(offline_st
     assert etas == sorted(etas)
     assert all(i["times_are"] == "estimate from distance" for i in items)  # no Google key in tests
 
-    # Numbers come straight from the API (never invented by Gudy).
+    # Numbers come straight from the API (never invented by Yummy).
     api_rows = await api_estimates(api, [i["restaurant_id"] for i in items])
     for item in items:
         row = api_rows[item["restaurant_id"]]

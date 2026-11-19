@@ -2,10 +2,10 @@
 
 A waybill moves a package between cities in three legs:
 
-- **first mile**: a GudMeals rider collects it from the sender (cities where GudMeals riders work) or the sender
+- **first mile**: a Yummy Chops rider collects it from the sender (cities where Yummy Chops riders work) or the sender
   drops it at a hub;
 - **line haul**: a partner carrier takes it from the origin hub to the destination hub on a scheduled departure;
-- **last mile**: a GudMeals rider delivers it to the door (Lagos, Enugu) or the recipient collects it at the hub.
+- **last mile**: a Yummy Chops rider delivers it to the door (Lagos, Enugu) or the recipient collects it at the hub.
 
 The default network below is **sample data** (placeholder hubs and carriers, flagged `is_sample`) until real logistics
 partners are signed. Lane prices are configuration; the arithmetic lives in `domain/pricing.py`.
@@ -31,7 +31,7 @@ class WaybillCity(BaseModel):
     name: str
     state: str
     center: GeoPoint
-    door_service: bool = False  # GudMeals riders work here: home pickup and door delivery
+    door_service: bool = False  # Yummy Chops riders work here: home pickup and door delivery
 
 
 class Hub(BaseModel):
@@ -258,7 +258,7 @@ def default_network() -> WaybillNetwork:
         hubs=[
             Hub(
                 id="lagos-ikeja",
-                name="GudMeals Hub, Ikeja (sample)",
+                name="Yummy Chops Hub, Ikeja (sample)",
                 city="lagos",
                 address="Sample address: Allen Avenue, Ikeja, Lagos",
                 location=GeoPoint(lat=6.6018, lng=3.3515),
@@ -266,7 +266,7 @@ def default_network() -> WaybillNetwork:
             ),
             Hub(
                 id="lagos-lekki",
-                name="GudMeals Hub, Lekki (sample)",
+                name="Yummy Chops Hub, Lekki (sample)",
                 city="lagos",
                 address="Sample address: Admiralty Way, Lekki Phase 1, Lagos",
                 location=GeoPoint(lat=6.4478, lng=3.4723),
@@ -274,7 +274,7 @@ def default_network() -> WaybillNetwork:
             ),
             Hub(
                 id="enugu-independence",
-                name="GudMeals Hub, Independence Layout (sample)",
+                name="Yummy Chops Hub, Independence Layout (sample)",
                 city="enugu",
                 address="Sample address: Nike Lake Road, Independence Layout, Enugu",
                 location=GeoPoint(lat=6.4440, lng=7.5180),

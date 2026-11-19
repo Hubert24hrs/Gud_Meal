@@ -50,7 +50,7 @@ export function LocationCard({ rid }: { rid: string }) {
       <MapView pins={pins} height={220} connect={false} googleKey={BROWSER_KEY} />
       <div className="text-sm">
         <p className="font-medium">{loc.address}</p>
-        <p className="text-muted">{loc.area} · delivers up to {loc.delivery_radius_km} km (set by GudMeals operations)</p>
+        <p className="text-muted">{loc.area} · delivers up to {loc.delivery_radius_km} km (set by Yummy Chops operations)</p>
       </div>
 
       <AddressSearch
@@ -95,7 +95,7 @@ export function LocationCard({ rid }: { rid: string }) {
           {save.error && !suggested && <p className="text-danger" role="alert">{(save.error as Error).message}</p>}
         </div>
       )}
-      <p className="text-xs text-muted">Moves of more than 2 km are checked by GudMeals before they go live. Every change is recorded.</p>
+      <p className="text-xs text-muted">Moves of more than 2 km are checked by Yummy Chops before they go live. Every change is recorded.</p>
     </Card>
   );
 }

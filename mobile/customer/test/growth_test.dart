@@ -96,7 +96,7 @@ class GrowthApi extends GudMealApi {
   Future<({TopUpResult payment, PlusOverview plus})> subscribePlus(String idempotencyKey, {String? provider, bool autoRenew = true}) async {
     subscribed.add((provider, autoRenew));
     member = true;
-    return (payment: const TopUpResult(reference: 'GM-PLUS-W1', provider: 'wallet', amountKobo: 150000), plus: await plus());
+    return (payment: const TopUpResult(reference: 'YC-PLUS-W1', provider: 'wallet', amountKobo: 150000), plus: await plus());
   }
 
   @override
@@ -105,13 +105,13 @@ class GrowthApi extends GudMealApi {
         pointsValueKobo: 124000,
         redeem: RewardsRedeem(stepPoints: 500, stepValueKobo: 50000, redeemablePoints: 1000, minSubtotalKobo: 200000),
         referral: RewardsReferral(code: 'ADAO7K2P', friendGetsKobo: 100000, youGetKobo: 100000, shareText: 'Get ₦1,000 off with ADAO7K2P'),
-        vouchers: [RewardVoucher(code: 'GMP-3K7P9Q', description: '500 Gud points', valueKobo: 50000, minSubtotalKobo: 200000)],
+        vouchers: [RewardVoucher(code: 'YCP-3K7P9Q', description: '500 Yummy points', valueKobo: 50000, minSubtotalKobo: 200000)],
       );
 
   @override
   Future<RewardVoucher> redeemPoints(int points, String idempotencyKey) async {
     redeemed.add(points);
-    return RewardVoucher(code: 'GMP-7Q2K9X', valueKobo: points * 100);
+    return RewardVoucher(code: 'YCP-7Q2K9X', valueKobo: points * 100);
   }
 
   @override
@@ -124,7 +124,7 @@ class GrowthApi extends GudMealApi {
   Future<({TopUpResult payment, GroupOrder group})> payGroupShare(String id, String idempotencyKey, {String? provider, bool coverRest = false}) async {
     shares.add((provider, coverRest));
     groupState = _group(myStatus: 'paid');
-    return (payment: const TopUpResult(reference: 'GM-G1', provider: 'wallet', amountKobo: 369231), group: groupState);
+    return (payment: const TopUpResult(reference: 'YC-G1', provider: 'wallet', amountKobo: 369231), group: groupState);
   }
 
   @override
@@ -169,12 +169,12 @@ void main() {
     await pump(tester, const RewardsScreen(), api);
     expect(find.text('1240'), findsOneWidget);
     expect(find.byKey(const ValueKey('redeem-500')), findsOneWidget);
-    expect(find.text('₦500 off · GMP-3K7P9Q'), findsOneWidget);
+    expect(find.text('₦500 off · YCP-3K7P9Q'), findsOneWidget);
     expect(find.text('ADAO7K2P'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('redeem-1000')));
     await tester.pumpAndSettle();
     expect(api.redeemed, [1000]);
-    expect(find.text('Your ₦1,000 voucher GMP-7Q2K9X is ready. Pick it at checkout.'), findsOneWidget);
+    expect(find.text('Your ₦1,000 voucher YCP-7Q2K9X is ready. Pick it at checkout.'), findsOneWidget);
   });
 
   testWidgets('Group order: the bill shows who has paid, and a member pays their share', (tester) async {

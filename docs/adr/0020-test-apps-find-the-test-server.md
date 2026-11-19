@@ -44,7 +44,7 @@ installed again, and the payment sandbox page kept pointing at the address the A
   it marks Public and on the phone's resolver. It could not be tested without the phone.
 - **A public tunnel:** needs an outside service and the internet, and puts a test server with demo accounts on the
   internet.
-- **The address from each request's `Host` header** for the payment link: right for the app, wrong for Gudy, which
+- **The address from each request's `Host` header** for the payment link: right for the app, wrong for Yummy, which
   calls the API from the same computer and hands the link to the phone.
 - **A discovery service** (the server announces itself): two new dependencies, and the multicast it needs is often
   blocked on hotspots.

@@ -1,4 +1,4 @@
-# ADR-0016: GudMeals Plus, Gud points and referrals, group orders with split bill
+# ADR-0016: Yummy Chops Plus, Yummy points and referrals, group orders with split bill
 
 - **Status:** Accepted (product defaults to be confirmed by the owner; legal review of subscription terms pending)
 - **Date:** 2026-11-15
@@ -8,7 +8,7 @@
 
 The owner wants three growth features:
 
-- a **GudMeals Plus** membership
+- a **Yummy Chops Plus** membership
 - **referral and loyalty rewards**
 - **group orders with split bill**
 
@@ -29,7 +29,7 @@ They must also avoid two regulatory traps:
 
 ## Decision
 
-### 1. GudMeals Plus (membership)
+### 1. Yummy Chops Plus (membership)
 
 **Plan.** The plan lives in `PricingConfig.plus` and is edited through the existing versioned, audited pricing
 endpoint. Defaults:
@@ -39,7 +39,7 @@ endpoint. Defaults:
 | Price | ₦1,500 per 30 days, VAT included |
 | Free delivery | Food and Beauty orders with a subtotal of ₦3,000 or more |
 | Service fee | 50% off on Food and Beauty orders |
-| Gud points | Double points on every completed order |
+| Yummy points | Double points on every completed order |
 
 **Benefits are priced in `pricing.py`.**
 
@@ -59,7 +59,7 @@ endpoint. Defaults:
   `liability:vat`, then emits `plus.paid`.
 - `MembershipService` activates the membership, or extends it from the current end date. Activation is idempotent
   per payment: one period per payment, recorded in `memberships/{uid}/periods/{n}`.
-- **Auto-renew uses the wallet only.** GudMeals stores no card authorisations. A daily job,
+- **Auto-renew uses the wallet only.** Yummy Chops stores no card authorisations. A daily job,
   `/internal/jobs/renew-plus`, charges the wallet in the last 24 hours of a period, with the idempotency key
   `plus:{uid}:period:{n}`. When the balance is too low, the member gets one reminder and the membership lapses at
   the end of the period.
@@ -67,14 +67,14 @@ endpoint. Defaults:
 - **Cancelling** turns auto-renew off. Benefits last until the end of the paid period, and there are no partial
   refunds.
 
-### 2. Gud points and referrals (no cash, only vouchers)
+### 2. Yummy points and referrals (no cash, only vouchers)
 
 Rewards never create money. They become **personal vouchers**: `Voucher.customer_id` restricts a voucher to one
 account. Vouchers are platform-funded discounts that `pricing.py` prices like any voucher and that settle through
 `expense:promotions` when the order completes. Personal vouchers work on Food and Beauty orders. The quote service
 reports an unknown code when someone else's personal voucher is used.
 
-**Gud points.** Settings live in `platform_configuration/growth` (`GrowthConfig`).
+**Yummy points.** Settings live in `platform_configuration/growth` (`GrowthConfig`).
 
 - **Earning:** 1 point per ₦100 of a completed order's total, for every service except internal rider jobs. Plus
   members earn double.
@@ -139,15 +139,15 @@ the shares add up exactly to the order total, and every share is positive.
   before any is paid out.
 - When finance must approve the refund, each payer's part is a separate request.
 
-### Gudy
+### Yummy
 
-Gudy gets three new read-only tools, and can open the Plus, Rewards and group order screens:
+Yummy gets three new read-only tools, and can open the Plus, Rewards and group order screens:
 
 - `get_plus_membership`
 - `get_rewards`: points, personal vouchers, referral code
 - `get_group_orders`: my open groups, and my share and its status
 
-No Gudy tool subscribes, redeems, joins or pays. Customers do those on the screen Gudy opens.
+No Yummy tool subscribes, redeems, joins or pays. Customers do those on the screen Yummy opens.
 
 ## Consequences
 

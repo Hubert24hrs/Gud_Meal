@@ -22,25 +22,25 @@ export function WhatsAppConnectView({ status, code, onConnect, onDisconnect, bus
         {status.linked && <Badge tone="success">Connected</Badge>}
       </h2>
       {!status.enabled ? (
-        <p className="text-sm text-muted">Chatting with Gudy on WhatsApp is coming soon.</p>
+        <p className="text-sm text-muted">Chatting with Yummy on WhatsApp is coming soon.</p>
       ) : status.linked ? (
         <>
-          <p className="text-sm">Gudy knows your WhatsApp number <strong>{status.number}</strong>. Order, track and ask for help in a chat; you still approve every order and pay on the secure page.</p>
+          <p className="text-sm">Yummy knows your WhatsApp number <strong>{status.number}</strong>. Order, track and ask for help in a chat; you still approve every order and pay on the secure page.</p>
           <div className="flex flex-wrap gap-2">
-            {status.chat_link && <a href={status.chat_link} target="_blank" rel="noreferrer"><Button>Chat with Gudy</Button></a>}
+            {status.chat_link && <a href={status.chat_link} target="_blank" rel="noreferrer"><Button>Chat with Yummy</Button></a>}
             <Button variant="outline" loading={busy} onClick={onDisconnect}>Disconnect</Button>
           </div>
         </>
       ) : code ? (
         <div className="space-y-2" role="status">
-          <p className="text-sm">Send this code to GudMeals on WhatsApp ({code.business_number}) before {formatTime(code.expires_at)}:</p>
+          <p className="text-sm">Send this code to Yummy Chops on WhatsApp ({code.business_number}) before {formatTime(code.expires_at)}:</p>
           <p className="font-mono text-3xl font-black tracking-[0.3em]" aria-label="Your WhatsApp code">{code.code}</p>
           <a href={code.wa_link} target="_blank" rel="noreferrer"><Button>Open WhatsApp</Button></a>
           <p className="text-xs text-muted">WhatsApp opens with the message ready: just tap send. This page updates once you&apos;re connected.</p>
         </div>
       ) : (
         <>
-          <p className="text-sm">Order food, supplements, skin care and packages, track orders and get help by chatting with Gudy on WhatsApp.</p>
+          <p className="text-sm">Order food, supplements, skin care and packages, track orders and get help by chatting with Yummy on WhatsApp.</p>
           <Button loading={busy} onClick={onConnect}>Connect WhatsApp</Button>
         </>
       )}

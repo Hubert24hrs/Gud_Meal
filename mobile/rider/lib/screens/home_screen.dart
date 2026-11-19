@@ -81,7 +81,7 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(p == null ? 'GudMeals Rider' : 'Hi, ${p.name.split(' ').first}'),
+        title: Text(p == null ? 'Yummy Chops Rider' : 'Hi, ${p.name.split(' ').first}'),
         actions: [
           IconButton(tooltip: 'Earnings', onPressed: () => context.push('/earnings'), icon: const Icon(Icons.account_balance_wallet_rounded)),
           IconButton(tooltip: 'Sign out', onPressed: () => ref.read(authRepositoryProvider).signOut(), icon: const Icon(Icons.logout_rounded)),
@@ -157,7 +157,7 @@ class _RiderHomeScreenState extends ConsumerState<RiderHomeScreen> {
         content: TextField(controller: controller, decoration: const InputDecoration(hintText: 'What is happening?'), maxLines: 3),
         actions: [
           TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Send to GudMeals')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Send to Yummy Chops')),
         ],
       ),
     );
@@ -253,7 +253,7 @@ class _OfferCardState extends ConsumerState<OfferCard> {
   }
 }
 
-/// Online switch, account line and whether the position is reaching GudMeals (dispatch only offers jobs to riders
+/// Online switch, account line and whether the position is reaching Yummy Chops (dispatch only offers jobs to riders
 /// it heard from in the last 3 minutes).
 class _StatusCard extends StatelessWidget {
   const _StatusCard({required this.profile, required this.reporter, required this.onChanged});

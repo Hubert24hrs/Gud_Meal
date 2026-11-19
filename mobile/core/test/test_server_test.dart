@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gud_meal_core/gud_meal_core.dart';
 
-/// A pretend Wi-Fi: which addresses run the GudMeals API, which have something else on the same port, which
+/// A pretend Wi-Fi: which addresses run the Yummy Chops API, which have something else on the same port, which
 /// addresses the phone itself has, and what the app remembers from last time.
 class _Wifi {
   _Wifi({this.gudMeal = const {}, this.other = const {}, this.own = const [], this.last});
@@ -101,7 +101,7 @@ void main() {
       expect(wifi.saved, [_hotspot]);
     });
 
-    test('something else on the same port is not mistaken for GudMeals', () async {
+    test('something else on the same port is not mistaken for Yummy Chops', () async {
       final wifi = _Wifi(gudMeal: {_hotspot}, other: {'10.221.34.5'}, own: ['10.221.34.7']);
       expect(await wifi.finder([_home]).find(), _hotspot);
       expect(wifi.asked, contains('10.221.34.5'));
@@ -127,7 +127,7 @@ void main() {
       expect(networks, ['192.168.1', '10.0.0', '192.168.100']);
     });
 
-    test('a typed address is accepted only when GudMeals answers there', () async {
+    test('a typed address is accepted only when Yummy Chops answers there', () async {
       final wifi = _Wifi(gudMeal: {_home});
       final finder = wifi.finder([]);
       expect(await finder.tryTyped('http://$_home:8090/'), _home);
@@ -193,7 +193,7 @@ void main() {
     Future<List<String>> show(WidgetTester tester, _Wifi wifi) async {
       final found = <String>[];
       await tester.pumpWidget(TestServerSearch(
-        appName: 'GudMeals',
+        appName: 'Yummy Chops',
         finder: wifi.finder([_home]),
         fallbackHost: _home,
         onFound: found.add,
@@ -216,7 +216,7 @@ void main() {
       expect(found, [_hotspot]);
     });
 
-    testWidgets('takes a typed address when GudMeals answers there', (tester) async {
+    testWidgets('takes a typed address when Yummy Chops answers there', (tester) async {
       final wifi = _Wifi(gudMeal: {'172.20.10.4'}, own: ['192.168.1.10']);
       final found = await show(tester, wifi);
       await tester.enterText(find.byKey(const Key('test-server-address')), 'not an address');
@@ -229,7 +229,7 @@ void main() {
       await tester.tap(find.byKey(const Key('test-server-use-address')));
       await tester.pump();
       await tester.pump();
-      expect(find.text('GudMeals did not answer at that address'), findsOneWidget);
+      expect(find.text('Yummy Chops did not answer at that address'), findsOneWidget);
       expect(found, isEmpty);
 
       await tester.enterText(find.byKey(const Key('test-server-address')), '172.20.10.4');

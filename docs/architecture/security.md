@@ -9,8 +9,8 @@
   `support_agent`, `operations_manager`, `finance_manager`, `marketing_manager`, `hub_agent`, `super_admin`.
 - The API verifies ID tokens with the Firebase Admin SDK (`check_revoked=True` for privileged routes)
   and maps roles to fine-grained permissions in `security/rbac.py` (deny by default).
-- **WhatsApp channel tokens** ([ADR-0017](../adr/0017-gudy-on-whatsapp.md)). A WhatsApp message has no ID
-  token, so for a linked number the API mints a short-lived token for Gudy:
+- **WhatsApp channel tokens** ([ADR-0017](../adr/0017-assistant-on-whatsapp.md)). A WhatsApp message has no ID
+  token, so for a linked number the API mints a short-lived token for Yummy:
   - HMAC-SHA256 signed with `CHANNEL_TOKEN_SECRET`, valid 10 minutes, with a unique id
   - **customer role only**, whatever roles the account has, so staff, merchant and rider powers never act over
     WhatsApp
@@ -29,7 +29,7 @@
 | Group orders | only members can read a group (others get 404); members change only their own items; the host alone locks, checks out, cancels or removes people; joining by code is rate-limited per user and groups expire |
 | Personal vouchers | a reward voucher carries `customer_id`; anyone else's quote reports an unknown code |
 | Waybill tracking | public `GET /v1/track/{code}` returns progress, places and dates only (no names, phones or addresses), rate-limited per client address; hub scans need `hubs:operate` and are accepted only at the package's booked hub for each step |
-| WhatsApp numbers | a number reaches an account only after the signed-in customer creates a one-time code and sends it from that number (single use, 10 minutes, 5 an hour). One number per account and one account per number. Unlinked numbers get instructions only, never Gudy. Numbers are masked in responses and audit events |
+| WhatsApp numbers | a number reaches an account only after the signed-in customer creates a one-time code and sends it from that number (single use, 10 minutes, 5 an hour). One number per account and one account per number. Unlinked numbers get instructions only, never Yummy. Numbers are masked in responses and audit events |
 
 ## Platform controls
 
@@ -39,7 +39,7 @@
 - **App Check**: enforced on Firestore/Storage; the API verifies App Check tokens (`X-Firebase-AppCheck`)
   when `APP_CHECK_ENFORCED=true`. The websites send tokens from reCAPTCHA Enterprise once
   `APP_CHECK_SITE_KEY` is set; the mobile apps do not send them yet, which blocks production for them.
-  GudMeals' own agents service proves itself instead with a Google-signed OIDC
+  Yummy Chops' own agents service proves itself instead with a Google-signed OIDC
   token (`X-Service-Authorization`, audience and service account checked; the shared internal secret locally),
   and still needs the user's own token on every call.
 - **Secrets**: Secret Manager only; `.env` files are git-ignored; the repo is public.
@@ -62,5 +62,5 @@
   location shared on WhatsApp is kept on the number's link and deleted when the customer disconnects.
 - WhatsApp: Meta processes the chat. The privacy notice must say so and explain how to disconnect (`STOP` or the
   app). Message ids used for de-duplication expire after 7 days.
-- Payment data: card data never touches GudMeals systems (provider-hosted checkout) — PCI DSS scope stays SAQ-A.
+- Payment data: card data never touches Yummy Chops systems (provider-hosted checkout) — PCI DSS scope stays SAQ-A.
 - These are engineering notes, not legal advice; a Nigerian data-protection counsel review is a launch gate.

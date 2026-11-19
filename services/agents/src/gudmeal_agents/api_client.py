@@ -27,7 +27,7 @@ class ApiError(Exception):
 
 
 class ServiceAuth:
-    """Proves to gudmeal-api that a call comes from this service. App Check is for client apps; Gudy's tool
+    """Proves to gudmeal-api that a call comes from this service. App Check is for client apps; Yummy's tool
     calls carry the user's token *and* this service credential (ADR-0017)."""
 
     def __init__(self, mode: str, *, secret: str | None = None, audience: str | None = None) -> None:
@@ -90,7 +90,7 @@ class GudMealApi:
                 method, f"{self._base}{path}", json=json, params=params, headers=headers
             )
         except httpx.HTTPError as exc:
-            raise ApiError(503, "api_unreachable", "GudMeals service is temporarily unreachable") from exc
+            raise ApiError(503, "api_unreachable", "Yummy Chops service is temporarily unreachable") from exc
         if resp.status_code == 204:
             return None
         try:

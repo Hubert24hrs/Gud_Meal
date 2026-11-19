@@ -1,17 +1,17 @@
 # Google Maps Platform: setup, keys, costs and privacy
 
-GudMeals uses Google Maps Platform for:
+Yummy Chops uses Google Maps Platform for:
 
 - address search;
 - distances and road-based arrival times;
 - delivery fees on road distance;
 - live delivery maps;
-- Gudy's "near me" answers.
+- Yummy's "near me" answers.
 
 The design is in [ADR-0014](adr/0014-google-maps-platform.md).
 
 **Nothing calls Google until you add a key.** Until then every feature still works on the built-in neighbourhood
-table and straight-line estimates. Screens and Gudy label those results as estimates.
+table and straight-line estimates. Screens and Yummy label those results as estimates.
 
 ## What uses which API
 
@@ -21,7 +21,7 @@ table and straight-line estimates. Screens and Gudy label those results as estim
 | Chosen address (pin, area) | Places API (New): Place Details (Essentials fields) | `/v1/places/details` | server key |
 | "Use my location" and checking a kitchen's address | Geocoding API | `/v1/places/reverse`, partner location | server key |
 | Delivery fee, arrival time, live arrival time | Routes API: Compute Routes | quotes, rider tracking | server key |
-| Comparing kitchens (Gudy, nearby) | Routes API: Compute Route Matrix | `/v1/delivery/estimates` | server key |
+| Comparing kitchens (Yummy, nearby) | Routes API: Compute Route Matrix | `/v1/delivery/estimates` | server key |
 | Map tiles in the customer app (Android / iOS) | Maps SDK for Android / iOS | the app | restricted app keys (optional) |
 | Map tiles on websites and the app's web build | Maps JavaScript API | the browser | restricted browser key (optional) |
 
@@ -39,11 +39,11 @@ Navigation for riders opens the Google Maps app with a link and needs no key.
 | Website | Checkout address search with "use my current location", pin preview, coverage and "delivery priced on a X km road trip"; order page live map |
 | Partner dashboard | Settings → **Kitchen location**: move the pin by address search, address check, edit the street line |
 | Command Centre | Riders → **Live riders** for Lagos or Enugu: live position only on a delivery, about 1 km areas otherwise, plus today's Google request count |
-| Gudy | "Restaurants near me", "what can reach me in 30 minutes", "which of these is faster" |
+| Yummy | "Restaurants near me", "what can reach me in 30 minutes", "which of these is faster" |
 
 ## 1. Enable the APIs (owner, in the Google Cloud console or gcloud)
 
-Use the same GCP project as the rest of GudMeals. Billing must be enabled.
+Use the same GCP project as the rest of Yummy Chops. Billing must be enabled.
 
 ```bash
 gcloud services enable places.googleapis.com geocoding-backend.googleapis.com routes.googleapis.com --project <PROJECT_ID>
@@ -62,7 +62,7 @@ gcloud services enable maps-android-backend.googleapis.com maps-ios-backend.goog
 | **Server** | Places API (New), Geocoding API, Routes API | None on Cloud Run (no fixed outbound IP). If you add Cloud NAT with a static IP, restrict to that IP | Secret Manager `google-maps-server-key` → env `GOOGLE_MAPS_API_KEY` on gudmeal-api only |
 | **Android** (customer app) | Maps SDK for Android | Package `ng.gudmeal.gud_meal_customer` + SHA-1 of the release and debug signing certificates | `mobile/customer/android/local.properties` (`MAPS_API_KEY=…`, git-ignored) or env `MAPS_API_KEY` in CI |
 | **iOS** (customer app) | Maps SDK for iOS | The customer app's bundle ID | `mobile/customer/ios/Flutter/Secrets.xcconfig` (copy `Secrets.xcconfig.example`; git-ignored) or CI secret |
-| **Browser** | Maps JavaScript API | Website referrers: `https://gudmeal.ng/*`, `https://*.gudmeal.ng/*`, `http://localhost:*/*` (dev key only) | Websites: `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` at build time. App web build: `--dart-define=MAPS_BROWSER_KEY=…` |
+| **Browser** | Maps JavaScript API | Website referrers: `https://yummy247.com/*`, `https://*.yummy247.com/*`, `http://localhost:*/*` (dev key only) | Websites: `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` at build time. App web build: `--dart-define=MAPS_BROWSER_KEY=…` |
 
 The rider app needs no Maps key: navigation opens the Google Maps app.
 
@@ -158,7 +158,7 @@ Each SKU has a free monthly allowance:
 | Quote route, live arrival time | Compute Routes Essentials / **Pro** (traffic-aware) | about $5 / **$10** per 1,000 |
 | Kitchen comparison | Compute Route Matrix (per element = kitchens × addresses) | Essentials or Pro per element; see the pricing page |
 
-What GudMeals does per action, with the defaults:
+What Yummy Chops does per action, with the defaults:
 
 | Action | Google calls |
 |---|---|
@@ -167,7 +167,7 @@ What GudMeals does per action, with the defaults:
 | Quote | 1 Compute Routes (cached 5 minutes for re-quotes) |
 | Order | none (reuses the quote's route) |
 | Live delivery, about 30 minutes | about 10–12 Compute Routes (one every 3 minutes, plus pickup) |
-| Gudy "near me" | 1 matrix call, up to 10 elements |
+| Yummy "near me" | 1 matrix call, up to 10 elements |
 | Restaurant lists and maps | none (they use the free local estimate) |
 
 Rough total: **about 12–15 Routes calls per delivered order plus about 5 Places calls per new address.**
@@ -193,7 +193,7 @@ Rough total: **about 12–15 Routes calls per delivered order plus about 5 Place
 ## 7. Testing
 
 - Unit and integration tests never call Google. They use recorded fake responses (`tests/unit/test_maps.py`,
-  `tests/integration/test_maps_api.py`) and the keyless fallback. Agent tests check that Gudy only repeats API
+  `tests/integration/test_maps_api.py`) and the keyless fallback. Agent tests check that Yummy only repeats API
   numbers (`services/agents/tests/test_location_tools.py`).
 - **Smoke test with a real key** (owner approval needed, it is billable):
   1. Set the key in `services/api/.env` and start the API.

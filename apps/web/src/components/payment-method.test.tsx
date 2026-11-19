@@ -41,7 +41,7 @@ describe("payment method picker", () => {
     api.orders.summary.mockResolvedValue({ completed_count: 2 });
     publicConfig.mockResolvedValue({ pay_on_delivery: { enabled: true, max_order_kobo: 2_500_000 } });
     renderPicker(750_000);
-    const walletOption = await screen.findByRole("radio", { name: /GudMeals wallet/ });
+    const walletOption = await screen.findByRole("radio", { name: /Yummy Chops wallet/ });
     await waitFor(() => expect(walletOption.textContent).toContain("top up ₦2,500 more"));
     expect((walletOption as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByRole("link", { name: "Top up your wallet" }).getAttribute("href")).toBe("/wallet");
@@ -57,7 +57,7 @@ describe("payment method picker", () => {
     api.orders.summary.mockResolvedValue({ completed_count: 0 });
     publicConfig.mockResolvedValue({ pay_on_delivery: { enabled: true, max_order_kobo: 2_500_000 } });
     renderPicker(750_000);
-    const walletOption = await screen.findByRole("radio", { name: /GudMeals wallet/ });
+    const walletOption = await screen.findByRole("radio", { name: /Yummy Chops wallet/ });
     await waitFor(() => expect((walletOption as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(walletOption);
     expect(screen.getByTestId("method").textContent).toBe("wallet");
@@ -69,7 +69,7 @@ describe("payment method picker", () => {
   it("hides pay on delivery for packages and maps methods to checkout providers", async () => {
     api.wallet.get.mockResolvedValue(wallet(0));
     renderPicker(300_000, false);
-    await screen.findByRole("radio", { name: /GudMeals wallet/ });
+    await screen.findByRole("radio", { name: /Yummy Chops wallet/ });
     expect(screen.queryByRole("radio", { name: /Pay on delivery/ })).toBeNull();
     expect(api.orders.summary).not.toHaveBeenCalled();
     expect([checkoutProvider("card"), checkoutProvider("wallet"), checkoutProvider("cash")]).toEqual([undefined, "wallet", "cash"]);

@@ -50,7 +50,7 @@ class RiderApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => MaterialApp.router(
-        title: 'GudMeals Rider',
+        title: 'Yummy Chops Rider',
         debugShowCheckedModeBanner: false,
         theme: buildGudMealTheme(Brightness.light),
         darkTheme: buildGudMealTheme(Brightness.dark),

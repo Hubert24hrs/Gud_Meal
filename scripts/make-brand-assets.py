@@ -1,10 +1,10 @@
-"""Makes every logo file and app icon of GudMeals from the one brand logo, assets/brand/gudmeals-logo.webp.
+"""Makes every logo file and app icon of Yummy Chops from the one brand logo, assets/brand/yummychops-logo.webp.
 
-    python scripts/make-brand-assets.py          (needs Pillow: pip install pillow)
+    python scripts/make-brand-assets.py          (needs Pillow and numpy: pip install pillow numpy)
 
-The logo is the square master: a chef's hat on a cloche with a fork and spoon (the emblem), the name "GudMeals",
-the line "Good Food. Great Mood.", a rider on a scooter and three small badges. Each place uses the part that
-reads at its size:
+The logo is the square master: a chef's hat on a cloche with a fork and spoon (the emblem), the name "Yummy Chops"
+(dark brown "Yummy", red "Chops") over a red underline, the line "Good Food. Great Mood.", a rider on a scooter
+and three small badges. Each place uses the part that reads at its size:
   - the whole logo: both apps' icons (the owner's choice: the customer app's on white, the rider app's on a white
     disc on chocolate brown so the two tell apart on one phone), the websites' home-screen icon, the sign-in
     screens of the apps and the websites, the app's launch screen, the install page, link previews;
@@ -12,8 +12,8 @@ reads at its size:
   - the emblem: browser-tab icons (favicons), where the whole logo would be a blur of 16 to 32 pixels;
   - the rider on the scooter: the rider app's browser-tab icon.
 Everything is cut from the logo itself; nothing is redrawn. The cut-outs keep the logo's own white where it is
-part of the drawing (the hat, the inside of letters) and lose the white around them, so they sit on any light
-background.
+part of the drawing (the hat) and lose the white around them, so they sit on any light background; the name
+loses all its white (also inside the letters), so it sits on dark backgrounds too.
 """
 
 from __future__ import annotations
@@ -21,15 +21,16 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 BRAND = ROOT / "assets" / "brand"
-LOGO = BRAND / "gudmeals-logo.webp"
+LOGO = BRAND / "yummychops-logo.webp"
 
-#: Colours read from the logo (see docs/adr/0022-gudmeals-brand.md).
+#: Colours read from the logo (see docs/adr/0022-brand.md and docs/adr/0023-yummy-chops.md).
 WHITE = (255, 255, 255, 255)
-CHOCOLATE = (58, 13, 5, 255)  # "Gud", the rider, the cloche
+CHOCOLATE = (58, 13, 5, 255)  # "Yummy", the rider, the cloche
 #: The website apps that get favicons and the logo files.
 WEBSITES = ("web", "partner", "admin")
 
@@ -85,39 +86,51 @@ def emblem(im: Image.Image) -> Image.Image:
             c = px[x, y]
             if not c[3] or oy <= 470:
                 continue
+            # The name "Yummy Chops" starts at row 528 (its tallest letters, Y, C and h; the rest at ~575).
             if ox >= 1000:
                 keep = is_green(c) or (is_orange(c) and oy <= 500)  # the leaf, the arc's end
             elif ox < 250:
-                keep = is_orange(c) and oy <= 500  # the arc's end; the "G" starts below it
+                keep = is_orange(c) and oy <= 500  # the arc's end
             elif 440 <= ox < 800:
-                keep = oy < 500  # the cloche's rim; "dM" start at 504
+                keep = oy < 500  # the cloche's rim
             else:
-                keep = oy < 519 and not (ox < 300 and oy >= 517)  # the rim's tips; "u", "a" start at 547
+                keep = oy < 519 and not (ox < 300 and oy >= 517)  # the rim's tips
             if not keep:
                 px[x, y] = (0, 0, 0, 0)
     return out.crop(out.getbbox())
 
 
+def white_to_alpha(im: Image.Image) -> Image.Image:
+    """Every bit of white becomes transparency, also the soft edges: a pixel that is the drawing's colour mixed
+    with white becomes that colour, partly transparent. For art with no white of its own (the name)."""
+    rgba = np.asarray(im.convert("RGBA"), dtype=np.float64) / 255
+    rgb, alpha_in = rgba[..., :3], rgba[..., 3]
+    lightest = rgb.min(axis=2)
+    alpha = 1 - lightest
+    alpha[alpha < 0.08] = 0  # the background's faint noise (off-white specks would become faint coloured dust)
+    safe = np.maximum(alpha, 1e-6)[..., None]
+    colour = np.clip(1 - (1 - rgb) / safe, 0, 1)
+    out = np.dstack([colour, alpha * alpha_in]) * 255
+    return Image.fromarray(out.round().astype(np.uint8), "RGBA").copy()  # a copy can be drawn on
+
+
 def wordmark(im: Image.Image) -> Image.Image:
-    """The name "GudMeals" with its red underline (no tagline, no emblem above it)."""
-    top, bottom = 486, 768
-    out = clear_background(im.crop((0, top, 1254, bottom)))
+    """The name "Yummy Chops" with its red underline (no tagline, no rim or leaf above it)."""
+    top, bottom = 520, 772  # the letters start at 528 (the rim ends at 516); the underline ends at 767
+    out = white_to_alpha(im.crop((0, top, 1254, bottom)))
     px = out.load()
     w, h = out.size
-    # Where the letters start in each column band: the cloche's rim and the leaf sit just above them.
-    starts = [(0, 250, 486), (250, 300, 540), (300, 480, 545), (480, 800, 490), (800, 1000, 540), (1000, 1254, 486)]
     for y in range(h):
         oy = y + top
         for x in range(w):
             c = px[x, y]
             if not c[3]:
                 continue
-            first = next(s for a, b, s in starts if a <= x < b)
-            drop = oy < first or is_green(c) or is_orange(c)
+            drop = is_green(c) or is_orange(c)  # the leaf, the rim's gold
             if x >= 1000 and oy < 560 and not is_red(c):
-                drop = True  # what is left of the leaf above "ls": only the red letters stay
-            if oy >= 730 and not is_red(c):
-                drop = True  # the tagline (dark) starts at 731; the red underline continues to 766
+                drop = True  # the leaf's tips above "ps": only the red letters stay
+            if oy >= 712 and not is_red(c):
+                drop = True  # the tagline (dark) starts at 730; the tails of "y" end at 702, the underline is red
             if drop:
                 px[x, y] = (0, 0, 0, 0)
     return out.crop(out.getbbox())
@@ -140,7 +153,7 @@ def rider(im: Image.Image) -> Image.Image:
 
 
 def on_dark(art: Image.Image) -> Image.Image:
-    """The same art for dark backgrounds: its dark brown ("Gud", outlines) turns cream; the red stays."""
+    """The same art for dark backgrounds: its dark brown ("Yummy", outlines) turns cream; the red stays."""
     out = art.copy()
     px = out.load()
     for y in range(out.height):
@@ -217,11 +230,11 @@ def main() -> None:
     mark, name, scooter = emblem(im), wordmark(im), rider(im)
 
     # Master cut-outs, kept next to the logo.
-    save(full, BRAND / "gudmeals-logo.png")
-    save(mark, BRAND / "gudmeals-emblem.png")
-    save(name, BRAND / "gudmeals-wordmark.png")
-    save(on_dark(name), BRAND / "gudmeals-wordmark-light.png")
-    save(scooter, BRAND / "gudmeals-rider.png")
+    save(full, BRAND / "yummychops-logo.png")
+    save(mark, BRAND / "yummychops-emblem.png")
+    save(name, BRAND / "yummychops-wordmark.png")
+    save(on_dark(name), BRAND / "yummychops-wordmark-light.png")
+    save(scooter, BRAND / "yummychops-rider.png")
     print(f"emblem {mark.size}, wordmark {name.size}, rider {scooter.size}")
 
     # Websites: the files their pages show, and favicons (Next.js picks up app/icon.png and app/apple-icon.png).
@@ -243,11 +256,11 @@ def main() -> None:
     lockup_h = 112  # 2x of the header's 56 px
     for app in WEBSITES:
         public = ROOT / "apps" / app / "public" / "brand"
-        save(mark.resize((round(mark.width * lockup_h / mark.height), lockup_h), Image.LANCZOS), public / "gudmeals-emblem.png")
-        save(name.resize((round(name.width * 96 / name.height), 96), Image.LANCZOS), public / "gudmeals-wordmark.png")
-        save(on_dark(name).resize((round(name.width * 96 / name.height), 96), Image.LANCZOS), public / "gudmeals-wordmark-light.png")
+        save(mark.resize((round(mark.width * lockup_h / mark.height), lockup_h), Image.LANCZOS), public / "yummychops-emblem.png")
+        save(name.resize((round(name.width * 96 / name.height), 96), Image.LANCZOS), public / "yummychops-wordmark.png")
+        save(on_dark(name).resize((round(name.width * 96 / name.height), 96), Image.LANCZOS), public / "yummychops-wordmark-light.png")
         # Sign-in pages show the whole logo at 160 px; WebP is under half the size of PNG for this artwork.
-        full.resize((320, 320), Image.LANCZOS).save(public / "gudmeals-logo.webp", quality=90, method=6)
+        full.resize((320, 320), Image.LANCZOS).save(public / "yummychops-logo.webp", quality=90, method=6)
         save(fit(mark, 192, 0.92), ROOT / "apps" / app / "src" / "app" / "icon.png")  # browser tab
         save(logo_icon(180, 0.45, WHITE), ROOT / "apps" / app / "src" / "app" / "apple-icon.png", opaque=True)  # home screen
 
@@ -261,8 +274,7 @@ def main() -> None:
     densities = {"mdpi": 1.0, "hdpi": 1.5, "xhdpi": 2.0, "xxhdpi": 3.0, "xxxhdpi": 4.0}
     for app in ("customer", "rider"):
         base = ROOT / "mobile" / app
-        save(full.resize((720, 720), Image.LANCZOS), base / "assets" / "brand" / "gudmeals-logo.png")
-        save(name.resize((round(name.width * 144 / name.height), 144), Image.LANCZOS), base / "assets" / "brand" / "gudmeals-wordmark.png")
+        save(full.resize((720, 720), Image.LANCZOS), base / "assets" / "brand" / "yummychops-logo.png")
         customer = app == "customer"
         ground = WHITE if customer else CHOCOLATE
         res = base / "android" / "app" / "src" / "main" / "res"
@@ -283,7 +295,7 @@ def main() -> None:
                    f'<resources>\n    <color name="ic_launcher_background">{hex_ground}</color>\n</resources>\n')
         write_text(res / "mipmap-anydpi-v26" / "ic_launcher.xml",
                    '<?xml version="1.0" encoding="utf-8"?>\n'
-                   "<!-- Made by scripts/make-brand-assets.py from assets/brand/gudmeals-logo.webp. -->\n"
+                   "<!-- Made by scripts/make-brand-assets.py from assets/brand/yummychops-logo.webp. -->\n"
                    '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n'
                    '    <background android:drawable="@color/ic_launcher_background" />\n'
                    '    <foreground android:drawable="@mipmap/ic_launcher_foreground" />\n'
@@ -291,7 +303,7 @@ def main() -> None:
         # Launch screen (before Flutter draws): the whole logo on white.
         save(full.resize((480, 480), Image.LANCZOS), res / "drawable-nodpi" / "launch_logo.png")
         launch = ('<?xml version="1.0" encoding="utf-8"?>\n'
-                  "<!-- Made by scripts/make-brand-assets.py: the GudMeals logo on white while the app starts. -->\n"
+                  "<!-- Made by scripts/make-brand-assets.py: the Yummy Chops logo on white while the app starts. -->\n"
                   '<layer-list xmlns:android="http://schemas.android.com/apk/res/android">\n'
                   '    <item android:drawable="@android:color/white" />\n'
                   "    <item>\n"

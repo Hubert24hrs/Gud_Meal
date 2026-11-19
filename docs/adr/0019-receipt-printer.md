@@ -15,7 +15,7 @@ sounds synthesised in the browser.
 
 Three things the request needed that the component did not have:
 
-- **The real receipt.** The component printed sample items in yen. A GudMeals receipt must repeat exactly what
+- **The real receipt.** The component printed sample items in yen. A Yummy Chops receipt must repeat exactly what
   the order was charged, for every service (shops, packages, interstate waybills).
 - **A place to keep receipts.** Nothing stored receipts; the order was the only record.
 - **A phone version.** The customer app is Flutter, not React.
@@ -28,7 +28,7 @@ append-only; a customer sees only their own data.
 ### 1. A receipt is the paid order, repeated; printing keeps it
 
 - `domain/receipts.py` builds a `Receipt` from an `Order` alone:
-  - the shop (or "GudMeals" for packages), the receipt number (`GM-` plus the order's short code), the lines
+  - the shop (or "Yummy Chops" for packages), the receipt number (`GM-` plus the order's short code), the lines
     with their choices, the charges, the total, how it was paid and the payment reference;
   - for packages and waybills, a short summary (route, size, recipient, tracking number) in place of lines.
 - **Nothing is priced.** Charges are the fields of the order's stored price breakdown. If they would not add up
@@ -50,7 +50,7 @@ append-only; a customer sees only their own data.
 ### 2. The printer
 
 - **Website:** `apps/web/src/components/ui/receipt-printer.tsx`, the supplied component adapted:
-  - the maker's mark reads **GudMeals**;
+  - the maker's mark reads **Yummy Chops**;
   - the hint under the printer is a large dark pill: "Press the red PRINT button to print your receipt";
   - the paper prints the real receipt in naira;
   - it needs the `motion` package (the component's own dependency), added to `apps/web`.
@@ -77,7 +77,7 @@ append-only; a customer sees only their own data.
 
 - **Printing on paper or saving a PDF to the phone.** The request was for the on-screen printer and stored
   receipts. A real print needs a print layout on the website and a PDF plugin in the app.
-- **Receipts for wallet top-ups, GudMeals Plus and a friend's share of a group order.** These are payments
+- **Receipts for wallet top-ups, Yummy Chops Plus and a friend's share of a group order.** These are payments
   without an order of the payer's own. The host of a group order gets the order's receipt.
 - **A tax invoice** (seller's tax number, VAT breakdown per line). To decide with the accountant.
 

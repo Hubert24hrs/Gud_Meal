@@ -68,7 +68,7 @@ describe("Discover dish feed", () => {
     expect(await screen.findByRole("heading", { name: "Most loved dishes" })).toBeTruthy();
   });
 
-  it("links Order food to the dish on the kitchen's menu and asks Gudy about it", () => {
+  it("links Order food to the dish on the kitchen's menu and asks Yummy about it", () => {
     const d = dish("sl beef/1", "Beef Suya (250g)", "Suya Lane");
     expect(orderHref(d)).toBe("/restaurants/r-sl beef/1?item=sl%20beef%2F1");
     expect(decodeURIComponent(askHref(d).split("q=")[1]!)).toBe(

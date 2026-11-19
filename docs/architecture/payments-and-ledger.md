@@ -55,7 +55,7 @@ Tables: `financial_accounts`, `financial_transactions`, `ledger_entries` (see [d
 | `expense:delivery_subsidy` | expense | Rider pay exceeding the delivery fee |
 | `expense:refunds` | expense | Refunds absorbed by the platform |
 | `expense:provider_fees` | expense | Payment processing fees |
-| `liability:wallet:{uid}` | liability | A customer's GudMeals wallet (closed-loop stored value) |
+| `liability:wallet:{uid}` | liability | A customer's Yummy Chops wallet (closed-loop stored value) |
 | `liability:vendor:{uid}` | liability | Cash-on-delivery money collected for a seller, not yet paid out |
 | `receivable:rider_cash:{uid}` | asset | Cash a rider collected at the door and has not handed in |
 | `revenue:cod_fee` | revenue | Cash-on-delivery collection fees on packages |
@@ -63,7 +63,7 @@ Tables: `financial_accounts`, `financial_transactions`, `ledger_entries` (see [d
 | `revenue:waybill` | revenue | Waybill line haul, pickup, door delivery and booking fees (net of VAT and the COD fee) |
 | `expense:linehaul` | expense | Carriers' share of waybill line haul |
 | `expense:waybill_riders` | expense | Rider pay for waybill pickups and door deliveries |
-| `revenue:plus` | revenue | GudMeals Plus membership fees (net of VAT) |
+| `revenue:plus` | revenue | Yummy Chops Plus membership fees (net of VAT) |
 
 ### Postings
 
@@ -126,7 +126,7 @@ All waybill postings are recorded against the waybill's order id. Rider jobs are
 `payment.provider = "internal"`: they hold no customer money and are never sent to a gateway. A customer
 cancellation before the package reaches a rider or a hub is refunded in full like any paid order.
 
-### GudMeals Plus, rewards and split bills (phase 4, [ADR-0016](../adr/0016-plus-rewards-group-orders.md))
+### Yummy Chops Plus, rewards and split bills (phase 4, [ADR-0016](../adr/0016-plus-rewards-group-orders.md))
 
 | Event | Debit | Credit |
 |---|---|---|

@@ -1,4 +1,4 @@
-# GudMeals — Implementation Roadmap
+# Yummy Chops — Implementation Roadmap
 
 Staged delivery, as agreed: **core marketplace → delivery infrastructure → AI → administration → launch.**
 Live status of each item is tracked in [PROGRESS.md](PROGRESS.md).
@@ -40,19 +40,19 @@ Live status of each item is tracked in [PROGRESS.md](PROGRESS.md).
 
 # Multi-service expansion (owner decisions of 2026-11-15)
 
-The owner asked for a Glovo-style customer experience in **GudMeals' own colours** (orange at first; the colours of the GudMeals logo since 2026-11-18, ADR-0022) (own logo and original
+The owner asked for a Glovo-style customer experience in **Yummy Chops' own colours** (orange at first; the colours of the Yummy Chops logo since 2026-11-18, ADR-0022) (own logo and original
 illustrations, no competitor branding) on **both the mobile app and the website, mobile app first**, with three
 services, two launch cities and a set of stand-out features. Answers to the product questionnaire:
 
 | Topic | Decision |
 |---|---|
-| Design | Animated, finger-draggable service bubbles; Food page with category bubbles, filters, popular brands; bottom bar Home · Discover · Orders · Support · Profile; Gudy robot button everywhere |
+| Design | Animated, finger-draggable service bubbles; Food page with category bubbles, filters, popular brands; bottom bar Home · Discover · Orders · Support · Profile; Yummy robot button everywhere |
 | Services | Food; **Supplements & Skin Care** (partner shops' products; named Beauty & Skin care until 2026-11-18); **Package Delivery** (instant bike, scheduled pickups, cash-on-delivery for vendors, interstate waybill) |
 | Cities | **Lagos and Enugu** first |
-| Payments | Paystack (card/transfer/USSD), **GudMeals wallet**, **pay on delivery**, Flutterwave backup |
-| AI assistant | **Gudy**; English, Nigerian Pidgin, Igbo, Yoruba, Hausa |
+| Payments | Paystack (card/transfer/USSD), **Yummy Chops wallet**, **pay on delivery**, Flutterwave backup |
+| AI assistant | **Yummy**; English, Nigerian Pidgin, Igbo, Yoruba, Hausa |
 | Support | AI first then a human in-app, WhatsApp, phone, email (contacts are placeholders until provided) |
-| Stand-out features | WhatsApp ordering with Gudy, group orders & split bill, GudMeals Plus membership, referral & loyalty rewards |
+| Stand-out features | WhatsApp ordering with Yummy, group orders & split bill, Yummy Chops Plus membership, referral & loyalty rewards |
 | Data | Original sample partners for Lagos and Enugu until real partners onboard |
 
 Added on 2026-11-17 at the owner's request, outside the numbered phases:
@@ -64,15 +64,15 @@ Added on 2026-11-17 at the owner's request, outside the numbered phases:
 Delivery phases (each tested, documented and pushed before the next):
 
 1. **Redesign + services** — API: verticals, cities, beauty shops, parcels (instant + scheduled), browse
-   categories, promotions, order totals, neighbourhood gazetteer, support contacts. Gudy: multi-service tools,
+   categories, promotions, order totals, neighbourhood gazetteer, support contacts. Yummy: multi-service tools,
    five languages, offline mode. Mobile app and website redesign. *(done 2026-11-15)*
-2. **Money** — GudMeals wallet (top-up, instant refunds, one-tap pay), pay on delivery with rider cash
+2. **Money** — Yummy Chops wallet (top-up, instant refunds, one-tap pay), pay on delivery with rider cash
    reconciliation, cash-on-delivery collection for vendors with seller payouts, Flutterwave failover.
    *(done 2026-11-15; legal review of the wallet pending, see ADR-0013)*
 3. **Logistics** — interstate waybill (Lagos ↔ Enugu ↔ other states) via partner logistics and hubs.
    *(done 2026-11-15 with a sample network of hubs and carriers; real partners pending, see ADR-0015)*
-4. **Growth** — GudMeals Plus membership, referral and loyalty rewards, group orders with split bill.
+4. **Growth** — Yummy Chops Plus membership, referral and loyalty rewards, group orders with split bill.
    *(done 2026-11-15 with product-default prices and rewards to be confirmed; see ADR-0016)*
-5. **WhatsApp** — Gudy on WhatsApp Business (ordering and support).
+5. **WhatsApp** — Yummy on WhatsApp Business (ordering and support).
    *(built 2026-11-16 and tested with a local WhatsApp sandbox; switching it on needs the Meta account and
    the owner's approval of the messaging charges, see ADR-0017)*

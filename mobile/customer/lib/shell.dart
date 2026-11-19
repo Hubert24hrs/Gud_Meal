@@ -6,7 +6,7 @@ import 'providers.dart';
 import 'ui/components.dart';
 import 'ui/gudy.dart';
 
-/// Tab shell: Home · Discover · Orders · Support · Profile, with Gudy floating above every tab.
+/// Tab shell: Home · Discover · Orders · Support · Profile, with Yummy floating above every tab.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.shell});
   final StatefulNavigationShell shell;

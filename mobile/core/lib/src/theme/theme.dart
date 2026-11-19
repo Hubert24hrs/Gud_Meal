@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'gm_tokens.dart';
 
-/// Material 3 theme built from the shared GudMeals design tokens (packages/tokens/tokens.json).
+/// Material 3 theme built from the shared Yummy Chops design tokens (packages/tokens/tokens.json).
 ThemeData buildGudMealTheme(Brightness brightness) {
   final dark = brightness == Brightness.dark;
   final scheme = ColorScheme(

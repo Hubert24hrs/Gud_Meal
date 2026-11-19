@@ -1,4 +1,4 @@
-// GudMeals API models (mirrors services/api JSON). All money values are integer kobo.
+// Yummy Chops API models (mirrors services/api JSON). All money values are integer kobo.
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'models.freezed.dart';
@@ -167,7 +167,7 @@ abstract class PriceBreakdown with _$PriceBreakdown {
     @Default(0) int codFeeKobo,
     @Default(0) int linehaulFeeKobo,
     @Default(0) int pickupFeeKobo,
-    /// GudMeals Plus: fees and VAT the member did not pay (informational).
+    /// Yummy Chops Plus: fees and VAT the member did not pay (informational).
     @Default(0) int plusSavingsKobo,
     required int totalKobo,
     String? voucherCode,
@@ -816,7 +816,7 @@ abstract class PromoBadge with _$PromoBadge {
   factory PromoBadge.fromJson(Map<String, dynamic> json) => _$PromoBadgeFromJson(json);
 }
 
-/// A GudMeals service: food, beauty (Supplements & Skin Care) or parcel (the home-screen bubbles).
+/// A Yummy Chops service: food, beauty (Supplements & Skin Care) or parcel (the home-screen bubbles).
 @freezed
 abstract class ServiceInfo with _$ServiceInfo {
   const factory ServiceInfo({

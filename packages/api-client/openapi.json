@@ -1152,7 +1152,7 @@
         "type": "object"
       },
       "GrowthConfig": {
-        "description": "Gud points, referrals and group orders (`platform_configuration/growth`).",
+        "description": "Yummy points, referrals and group orders (`platform_configuration/growth`).",
         "properties": {
           "group_max_members": {
             "default": 10,
@@ -2291,7 +2291,7 @@
         "type": "object"
       },
       "PlusConfig": {
-        "description": "GudMeals Plus membership. Product defaults, to be confirmed by the owner (ADR-0016).",
+        "description": "Yummy Chops Plus membership. Product defaults, to be confirmed by the owner (ADR-0016).",
         "properties": {
           "enabled": {
             "default": true,
@@ -4663,8 +4663,8 @@
     }
   },
   "info": {
-    "description": "Core API for the GudMeals food delivery platform (catalog, pricing, orders, payments, ledger, dispatch). All money values are integer kobo.",
-    "title": "GudMeals API",
+    "description": "Core API for the Yummy Chops food delivery platform (catalog, pricing, orders, payments, ledger, dispatch). All money values are integer kobo.",
+    "title": "Yummy Chops API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
@@ -10848,7 +10848,7 @@
     },
     "/v1/me/order-summary": {
       "get": {
-        "description": "Totals across all of the customer's paid orders (used by the Orders tab and Gudy).",
+        "description": "Totals across all of the customer's paid orders (used by the Orders tab and Yummy).",
         "operationId": "my_order_summary_v1_me_order_summary_get",
         "parameters": [
           {
@@ -17668,7 +17668,7 @@
     },
     "/v1/services": {
       "get": {
-        "description": "GudMeals' services (Food, Supplements & Skin Care, Package Delivery) and their availability.",
+        "description": "Yummy Chops' services (Food, Supplements & Skin Care, Package Delivery) and their availability.",
         "operationId": "services_v1_services_get",
         "parameters": [
           {

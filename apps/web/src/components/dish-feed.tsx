@@ -19,7 +19,7 @@ const SECTIONS: Record<DiscoverSectionId, { short: string; icon: ReactNode }> = 
 /** "Order food": the kitchen's menu with this dish open. */
 export const orderHref = (d: DiscoverDish) => `/restaurants/${d.restaurant_id}?item=${encodeURIComponent(d.item_id)}`;
 
-/** "Ask Gudy": the assistant, already asked about this dish (same question as the app). */
+/** "Ask Yummy": the assistant, already asked about this dish (same question as the app). */
 export const askHref = (d: DiscoverDish) =>
   `/assistant?q=${encodeURIComponent(`Tell me about the ${d.name} from ${d.restaurant_name}. What does it come with, and what would it cost delivered to me?`)}`;
 

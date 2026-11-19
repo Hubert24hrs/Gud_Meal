@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Home, kept minimal like the app's and Glovo's (ADR-0021): the delivery area, the three services as big floating
- * bubbles on the red header, then the places picked for the customer. Nothing else: Gudy floats over every page,
+ * bubbles on the red header, then the places picked for the customer. Nothing else: Yummy floats over every page,
  * deals show as a "Promo" tag on the shop tiles, and the business and rider sign-ups are in the footer.
  */
 export default async function HomePage() {
@@ -23,7 +23,7 @@ export default async function HomePage() {
       <section className="gm-hero pb-12">
         <div className="container-page pt-4 md:pt-8">
           <div className="mx-auto max-w-2xl">
-            <h1 className="sr-only">GudMeals: food, supplements & skin care and package delivery in Lagos and Enugu</h1>
+            <h1 className="sr-only">Yummy Chops: food, supplements & skin care and package delivery in Lagos and Enugu</h1>
             <div className="flex justify-center"><AddressPill onDark /></div>
             <ServiceBubbles
               height={372}

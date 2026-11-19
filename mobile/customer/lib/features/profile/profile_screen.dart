@@ -58,7 +58,7 @@ class ProfileScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            name ?? 'Welcome to GudMeals',
+                            name ?? 'Welcome to Yummy Chops',
                             style: theme.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
@@ -109,7 +109,7 @@ class ProfileScreen extends ConsumerWidget {
                       _tile(
                         context,
                         Icons.account_balance_wallet_outlined,
-                        'GudMeals wallet',
+                        'Yummy Chops wallet',
                         badge: ref.watch(walletProvider).asData?.value.balanceKobo == null ? null : formatNaira(ref.watch(walletProvider).asData!.value.balanceKobo),
                         onTap: () => context.push('/wallet'),
                       ),
@@ -118,8 +118,8 @@ class ProfileScreen extends ConsumerWidget {
                     if (user != null) _tile(context, Icons.restaurant_menu_outlined, 'Food preferences', onTap: () => showFoodPreferences(context)),
                     _tile(context, Icons.local_offer_outlined, 'Promo codes', onTap: () => _promos(context, ref)),
                     _tile(context, Icons.credit_card_outlined, 'Payments', onTap: () => _payments(context)),
-                    _tile(context, Icons.workspace_premium_outlined, 'GudMeals Plus', badge: 'Free delivery', onTap: () => context.push('/plus')),
-                    _tile(context, Icons.card_giftcard_rounded, 'Gud points and invite friends', onTap: () => context.push('/rewards')),
+                    _tile(context, Icons.workspace_premium_outlined, 'Yummy Chops Plus', badge: 'Free delivery', onTap: () => context.push('/plus')),
+                    _tile(context, Icons.card_giftcard_rounded, 'Yummy points and invite friends', onTap: () => context.push('/rewards')),
                     _tile(context, Icons.groups_outlined, 'Group orders', onTap: () => context.push('/group')),
                     _tile(
                       context,
@@ -130,7 +130,7 @@ class ProfileScreen extends ConsumerWidget {
                     _tile(context, Icons.settings_outlined, 'App settings', onTap: () => _settings(context, ref)),
                     _tile(context, Icons.local_shipping_outlined, 'Track a package', onTap: () => context.push('/track')),
                     _tile(context, Icons.storefront_outlined, 'Add your business', onTap: () => context.push('/partner-with-us')),
-                    _tile(context, Icons.pedal_bike_rounded, 'Ride with GudMeals', onTap: () => context.push('/ride')),
+                    _tile(context, Icons.pedal_bike_rounded, 'Ride with Yummy Chops', onTap: () => context.push('/ride')),
                     _tile(context, Icons.quiz_outlined, 'FAQ, privacy and terms', onTap: () => context.push('/help')),
                     if (user != null) _tile(context, Icons.download_outlined, 'Download my data', onTap: () => showMyData(context, ref)),
                     if (user != null) _tile(context, Icons.logout_rounded, 'Sign out', danger: true, onTap: () => ref.read(authRepositoryProvider).signOut()),
@@ -208,12 +208,12 @@ class ProfileScreen extends ConsumerWidget {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.lock_outline_rounded),
               title: Text('Card, bank transfer or USSD'),
-              subtitle: Text('Paid on a secure payment page. GudMeals never stores your card.'),
+              subtitle: Text('Paid on a secure payment page. Yummy Chops never stores your card.'),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.account_balance_wallet_outlined),
-              title: Text('GudMeals wallet'),
+              title: Text('Yummy Chops wallet'),
               subtitle: Text('Top up once, pay in one tap, and get refunds instantly. Open it from your profile.'),
             ),
             ListTile(
@@ -512,7 +512,7 @@ class _FoodPreferencesState extends ConsumerState<_FoodPreferencesSheet> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: _allergens,
-                  decoration: const InputDecoration(labelText: 'Allergies', helperText: 'Comma separated, e.g. peanuts, shellfish. Gudy never recommends these.', helperMaxLines: 2),
+                  decoration: const InputDecoration(labelText: 'Allergies', helperText: 'Comma separated, e.g. peanuts, shellfish. Yummy never recommends these.', helperMaxLines: 2),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -533,7 +533,7 @@ class _FoodPreferencesState extends ConsumerState<_FoodPreferencesSheet> {
   }
 }
 
-/// "Download my data" (the website's account page): everything GudMeals holds about the customer, to read and copy.
+/// "Download my data" (the website's account page): everything Yummy Chops holds about the customer, to read and copy.
 Future<void> showMyData(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
   try {
@@ -555,7 +555,7 @@ Future<void> showMyData(BuildContext context, WidgetRef ref) async {
             children: [
               const Text('Your data', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
-              Text('Everything GudMeals holds about you: ${data.keys.join(', ')}.'),
+              Text('Everything Yummy Chops holds about you: ${data.keys.join(', ')}.'),
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: () async {
