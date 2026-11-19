@@ -29,9 +29,14 @@ installed again, and the payment sandbox page kept pointing at the address the A
    running, a notice offers to look again. A server found at a new address needs the app closed and opened again;
    the notice has the button.
 4. **The server follows too.** With `SANDBOX_FOLLOWS_LAN_ADDRESS=true` (set by `dev.mjs --lan`) the payment
-   sandbox link is built from the address the computer has at that moment (`gudmeal_api/lan.py`), with
-   `PUBLIC_BASE_URL` as the fallback. In LAN mode every service already listens on every interface, so nothing
-   needs a restart.
+   sandbox link is built for the device that pays (`gudmeal_api/lan.py`): the address the phone reached the API
+   at; for a request through `localhost` (Yummy, the assistant, or a website on this computer), the address a
+   phone last reached the API at; before any phone, the computer's guess of its Wi-Fi address (a 192.168.x.x
+   address first); `PUBLIC_BASE_URL` last. In LAN mode every service already listens on every interface, so
+   nothing needs a restart.
+   *Fixed 2026-11-19:* the link used to be the computer's guess only. With a VPN connected (Proton VPN on the
+   owner's laptop) that guess is the VPN's tunnel address, 10.2.0.2, and "Pay by card, transfer or USSD" opened
+   a page the phone could never load.
 5. **Never in a store build.** `AppConfig.findTestServer` is true only with `FIND_TEST_SERVER=true` and the
    Firebase emulators on, and never in a browser. Only `scripts/build-test-apk.mjs` sets it. The payment sandbox
    exists only when `ENVIRONMENT` is local or test.
@@ -68,7 +73,8 @@ installed again, and the payment sandbox page kept pointing at the address the A
 - App: `mobile/core/test/test_server_test.dart` (the order of the search, private networks only, a typed address,
   both screens) and `test_server_connection_test.dart` (real connections against small servers on the test
   machine).
-- API: `tests/unit/test_phone_test_address.py`, `tests/integration/test_phone_test_server.py`.
+- API: `tests/unit/test_phone_test_address.py` (including a VPN), `tests/integration/test_phone_test_server.py`,
+  `tests/integration/test_phone_payment_address.py` (a phone pays at the address it reached the API at).
 - Live stack: `GUDMEAL_LIVE_SEARCH_AS=<an address on this Wi-Fi> flutter test test/test_server_live_test.dart` in
   `mobile/core` searches the real Wi-Fi from this computer the way a phone would.
 - Not run on a phone yet.

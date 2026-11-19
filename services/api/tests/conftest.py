@@ -63,16 +63,17 @@ def idem() -> dict[str, str]:
 
 
 async def make_container(
-    database_url: str = "sqlite+aiosqlite:///:memory:", db: Database | None = None
+    database_url: str = "sqlite+aiosqlite:///:memory:", db: Database | None = None, **overrides: Any
 ) -> Container:
-    settings = Settings(
-        environment="test",
-        database_url=database_url,
-        seed_demo_data=False,
-        internal_shared_secret="test-internal-secret",
-        public_base_url="http://test",  # type: ignore[arg-type]
-        payment_callback_url="http://web.test/checkout/callback",
-    )
+    options: dict[str, Any] = {
+        "environment": "test",
+        "database_url": database_url,
+        "seed_demo_data": False,
+        "internal_shared_secret": "test-internal-secret",
+        "public_base_url": "http://test",
+        "payment_callback_url": "http://web.test/checkout/callback",
+    }
+    settings = Settings(**(options | overrides))
     if db is not None:
         await db.create_all()
     c = await build_container(

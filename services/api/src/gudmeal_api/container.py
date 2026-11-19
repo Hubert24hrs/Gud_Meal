@@ -14,7 +14,7 @@ import httpx
 from .config import Settings
 from .domain.dispatch import DispatchConfig
 from .domain.money import format_naira
-from .lan import current_lan_address
+from .lan import reachable_base_url
 from .ledger.audit import AuditLog
 from .ledger.db import Database
 from .ledger.idempotency import IdempotencyService
@@ -155,17 +155,12 @@ def _payment_providers(
 
 
 def _sandbox_base_url(settings: Settings) -> str | Callable[[], str]:
-    """Where the payment sandbox page is served: PUBLIC_BASE_URL, or the address this computer has on its
-    Wi-Fi right now when SANDBOX_FOLLOWS_LAN_ADDRESS is on (phone tests)."""
+    """Where the payment sandbox page is served: PUBLIC_BASE_URL, or, with SANDBOX_FOLLOWS_LAN_ADDRESS on (phone
+    tests), an address the paying phone can reach: the one it reached this API at (see lan.reachable_base_url)."""
     if not settings.sandbox_follows_lan_address:
         return settings.public_base_url
     port = urlsplit(settings.public_base_url).port or 8000
-
-    def base_url() -> str:
-        address = current_lan_address()
-        return f"http://{address}:{port}" if address else settings.public_base_url
-
-    return base_url
+    return lambda: reachable_base_url(port, settings.public_base_url)
 
 
 async def build_container(

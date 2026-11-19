@@ -15,6 +15,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from . import lan
 from .api.v1 import (
     admin,
     channels,
@@ -130,11 +131,18 @@ def create_app(settings: Settings | None = None, *, container: Container | None 
         )
         rid = rid or uuid.uuid4().hex
         token = request_id_var.set(rid)
+        # Phone tests: remember the address the client reached this API at, so the payment sandbox page opens
+        # at an address that phone can reach (lan.reachable_base_url).
+        lan_token = (
+            lan.remember_request(str(request.base_url)) if settings.sandbox_follows_lan_address else None
+        )
         start = time.perf_counter()
         try:
             response = await call_next(request)
         finally:
             request_id_var.reset(token)
+            if lan_token is not None:
+                lan.forget_request(lan_token)
         elapsed = round((time.perf_counter() - start) * 1000, 1)
         response.headers["X-Request-ID"] = rid
         response.headers["X-Content-Type-Options"] = "nosniff"

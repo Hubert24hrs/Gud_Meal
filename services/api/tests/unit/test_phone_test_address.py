@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import socket
+from collections.abc import Iterator
 
 import httpx
 import pytest
@@ -31,11 +32,25 @@ class _FakeSocket:
         self.closed = True
 
 
-def _network(monkeypatch: pytest.MonkeyPatch, address: str | None) -> _FakeSocket:
+def _network(
+    monkeypatch: pytest.MonkeyPatch, address: str | None, others: tuple[str, ...] = ()
+) -> _FakeSocket:
+    """`address`: what the system would use for the internet; `others`: this computer's other addresses."""
     fake = _FakeSocket(address)
     monkeypatch.delenv("LAN_IP", raising=False)
     monkeypatch.setattr(socket, "socket", lambda *_a, **_k: fake)
+    infos = [
+        (socket.AF_INET, socket.SOCK_DGRAM, 0, "", (a, 0)) for a in ((address,) if address else ()) + others
+    ]
+    monkeypatch.setattr(socket, "getaddrinfo", lambda *_a, **_k: infos)
     return fake
+
+
+@pytest.fixture(autouse=True)
+def _no_device_seen_yet() -> Iterator[None]:
+    lan.forget_devices()
+    yield
+    lan.forget_devices()
 
 
 async def _checkout_url(provider: LocalSandboxProvider, reference: str = "ref-1") -> str:
@@ -73,6 +88,48 @@ class TestCurrentLanAddress:
         monkeypatch.setenv("LAN_IP", " 10.0.0.7 ")
         assert lan.current_lan_address() == "10.0.0.7"
 
+    def test_a_vpn_does_not_hide_the_wifi(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # The owner's laptop on 2026-11-19: Proton VPN routes everything through 10.2.0.2; Hyper-V has 172.27.192.1.
+        _network(monkeypatch, "10.2.0.2", others=("172.27.192.1", "192.168.100.8"))
+        assert lan.current_lan_address() == "192.168.100.8"
+
+    def test_a_wifi_outside_192_168_is_still_found(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        _network(monkeypatch, "10.221.34.228", others=("172.27.192.1",))
+        assert lan.current_lan_address() == "10.221.34.228"
+
+    def test_link_local_addresses_are_not_offered(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        _network(monkeypatch, None, others=("169.254.10.20",))
+        assert lan.current_lan_address() is None
+
+
+class TestReachableBaseUrl:
+    def test_the_address_the_phone_used_wins(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(lan, "current_lan_address", lambda: "10.2.0.2")
+        token = lan.remember_request("http://192.168.100.8:8000/")
+        try:
+            assert lan.reachable_base_url(8000, "http://start:8000") == "http://192.168.100.8:8000"
+        finally:
+            lan.forget_request(token)
+
+    def test_a_localhost_caller_gets_the_address_the_phone_last_used(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(lan, "current_lan_address", lambda: "10.2.0.2")
+        lan.forget_request(lan.remember_request("http://192.168.100.8:8000/"))  # the phone asked earlier
+        token = lan.remember_request("http://localhost:8000/")  # now Yummy (the assistant) asks for the phone
+        try:
+            assert lan.reachable_base_url(8000, "http://start:8000") == "http://192.168.100.8:8000"
+        finally:
+            lan.forget_request(token)
+
+    def test_before_any_device_the_guess_then_the_start_address(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(lan, "current_lan_address", lambda: "192.168.100.8")
+        assert lan.reachable_base_url(8000, "http://start:8000") == "http://192.168.100.8:8000"
+        monkeypatch.setattr(lan, "current_lan_address", lambda: None)
+        assert lan.reachable_base_url(8000, "http://start:8000") == "http://start:8000"
+
 
 class TestSandboxPageAddress:
     async def test_a_fixed_address_stays_fixed(self) -> None:
@@ -83,7 +140,7 @@ class TestSandboxPageAddress:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         where = {"address": "192.168.100.8"}
-        monkeypatch.setattr(container_mod, "current_lan_address", lambda: where["address"])
+        monkeypatch.setattr(lan, "current_lan_address", lambda: where["address"])
         settings = Settings(
             environment="test", public_base_url="http://192.168.100.8:8000", sandbox_follows_lan_address=True
         )
@@ -101,7 +158,7 @@ class TestSandboxPageAddress:
     async def test_without_the_switch_the_configured_address_is_used(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.setattr(container_mod, "current_lan_address", lambda: "10.221.34.228")
+        monkeypatch.setattr(lan, "current_lan_address", lambda: "10.221.34.228")
         settings = Settings(environment="test", public_base_url="http://localhost:8000")
         async with httpx.AsyncClient() as http:
             _providers, sandbox = container_mod._payment_providers(settings, http)
