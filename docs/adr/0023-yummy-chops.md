@@ -45,7 +45,8 @@
    - the app ids `ng.gudmeal.gud_meal_customer` and `ng.gudmeal.gud_meal_rider` (and the iOS bundle ids). With the
      same ids the new test builds install over the old ones. They become permanent with the first store release,
      so decide before then whether to move them to `com.yummy247.*` (a phone then treats them as new apps);
-   - the GitHub repository `Gud_Meal` and the local folder name.
+   - the local folder name (`Gud_meal`). The GitHub repository was renamed the same day, from `Gud_Meal` to
+     `yummy_chops` (https://github.com/Hubert24hrs/yummy_chops); GitHub forwards the old address.
 
 ## Consequences
 
