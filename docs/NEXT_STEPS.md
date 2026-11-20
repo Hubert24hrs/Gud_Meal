@@ -2,6 +2,20 @@
 
 Saved on 17 Nov 2026 to do later. Tick each one off as you go.
 
+- [x] **Domain, websites and email (20 Nov).** yummy247.com is yours (Namecheap). The customer website is at
+  https://yummy247.com (www goes there too), the partner dashboard at https://partner.yummy247.com and the
+  Command Centre at https://admin.yummy247.com, all on Vercel's free Hobby plan. The mailbox
+  customercare@yummy247.com is on Zoho Mail's Forever Free plan: read it at https://mail.zoho.com or in the
+  Zoho Mail phone app. Details: [DEPLOYMENT.md](DEPLOYMENT.md), sections 5a and 5b.
+- [ ] **Send the first test email yourself** from customercare@yummy247.com to your Gmail, and reply to it, to
+  check that mail goes both ways.
+- [ ] **Turn on two-step sign-in** on Namecheap, Vercel, Zoho and GitHub. Whoever gets into one of these
+  accounts controls the websites or the mail.
+- [ ] **Before Yummy Chops starts trading, move Vercel to Pro** ($20 per month). Vercel allows the free Hobby
+  plan only for personal, non-commercial use.
+- [ ] **The websites open, but they can't show shops, sign anyone in or take orders yet.** That needs the next
+  step: the Google Cloud and Firebase project, so the API and Yummy can run at api.yummy247.com and
+  assistant.yummy247.com.
 - [ ] **Test on your phone** and tell me what breaks.
   QR code page: https://claude.ai/artifact/G8H3KNWTrxetV8iwS7z5Kg. To start the test servers again after a restart,
   see [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md), section 6.

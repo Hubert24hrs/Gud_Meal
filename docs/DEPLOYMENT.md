@@ -1,7 +1,9 @@
 # Deployment guide
 
-Nothing has been deployed yet. These are the steps to stand up each environment; every billable step is
-yours to run and approve.
+Live since 2026-11-20: the three websites on Vercel at yummy247.com, partner.yummy247.com and
+admin.yummy247.com, and the customercare@yummy247.com mailbox on Zoho Mail (sections 5a and 5b). The API and
+Yummy are not deployed yet, so the websites cannot list shops, sign anyone in or take orders. These are the steps
+to stand up each environment; every billable step is yours to run and approve.
 
 ## 0. Prerequisites (per environment: dev, staging, prod)
 
@@ -119,6 +121,9 @@ The bootstrap script also turns on Firestore TTL for `whatsapp_messages` and `wh
 
 ## 5. Websites
 
+**Since 2026-11-20 the live websites are on Vercel (section 5a).** The Cloud Run setup below still works and is
+kept as an option: it puts the websites next to the API in one Google Cloud project.
+
 The customer website, the partner dashboard and the Command Centre run on Cloud Run as `gudmeal-web`,
 `gudmeal-partner` and `gudmeal-admin`.
 
@@ -139,12 +144,13 @@ The customer website, the partner dashboard and the Command Centre run on Cloud 
 - **App Check.** With `APP_CHECK_SITE_KEY` set, the sites send an App Check token (reCAPTCHA Enterprise) with
   every signed-in API call. The production API enforces App Check, so the deploy workflow refuses a production
   build without the key. Register the key for the Firebase Web app and list the three domains on it.
-- **Custom domains**: the owner will buy `yummy247.com` ([ADR-0023](adr/0023-yummy-chops.md)). The planned
+- **Custom domains**: the owner bought `yummy247.com` on 2026-11-20 ([ADR-0023](adr/0023-yummy-chops.md)). The
   addresses are `yummy247.com` and `www.yummy247.com` (customer website), `partner.yummy247.com`,
-  `admin.yummy247.com`, `api.yummy247.com` and `assistant.yummy247.com` (Yummy). Map them with Cloud Run domain
-  mapping or a load balancer, set the `*_URL` variables and redeploy. Then update the authorized domains, the
-  reCAPTCHA key's domains and the Maps browser key's referrers, and create the `support@yummy247.com` mailbox
-  (`SUPPORT_EMAIL`, shown in the apps and by Yummy).
+  `admin.yummy247.com`, `api.yummy247.com` and `assistant.yummy247.com` (Yummy). The first four point to Vercel
+  (sections 5a and 5b). For the API and Yummy, use Cloud Run domain mapping or a load balancer, add their records
+  at Namecheap, set the `*_URL` variables and redeploy. Then update the authorized domains, the reCAPTCHA key's
+  domains and the Maps browser key's referrers. The support mailbox is `customercare@yummy247.com`
+  (`SUPPORT_EMAIL`, the API's default, shown in the apps and by Yummy).
 
 To build an image yourself (CI does this for all three with demo settings):
 
@@ -154,6 +160,86 @@ docker build -f infra/docker/web.Dockerfile --build-arg APP=web --build-arg NEXT
   --build-arg NEXT_PUBLIC_FIREBASE_API_KEY=<key> --build-arg NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<project>.firebaseapp.com \
   --build-arg NEXT_PUBLIC_FIREBASE_PROJECT_ID=<project> --build-arg NEXT_PUBLIC_FIREBASE_APP_ID=<app id> -t gudmeal-web .
 ```
+
+## 5a. Websites on Vercel (live)
+
+The owner chose Vercel for the three websites on 2026-11-20. The API and Yummy stay on Cloud Run (sections 1–4).
+
+| Site | Vercel project | Root Directory | Address |
+|---|---|---|---|
+| Customer website | `yummy-chops-web` | `apps/web` | https://yummy247.com (`www` redirects to it, 308) |
+| Partner dashboard | `yummy-chops-partner` | `apps/partner` | https://partner.yummy247.com |
+| Command Centre | `yummy-chops-admin` | `apps/admin` | https://admin.yummy247.com |
+
+- **Account and cost.** The owner's Vercel account, signed in with GitHub. It is on the free **Hobby** plan, at
+  the owner's choice. Vercel's terms allow Hobby only for personal, non-commercial
+  use, so move to **Pro** ($20 per member per month, including $20 of usage) before the platform trades.
+- **Builds.** Each project builds from GitHub `main` of `Hubert24hrs/yummy_chops` on every push, and every
+  other branch or pull request gets a preview deployment. Each project uses the Next.js preset with the default
+  commands. Vercel installs the npm workspaces from the repository root (`package-lock.json`), so
+  `packages/ui`, `packages/api-client` and `packages/tokens` are built from source, as in CI. There is no
+  `vercel.json` and no `BUILD_STANDALONE`. Hobby runs one build at a time, so a push queues three builds (about a
+  minute each).
+- **Settings** (Project → Settings → Environment Variables, for Production and Preview). They are compiled into
+  the browser code at build time, so they are public: never put a secret in one. After changing a value, redeploy
+  (Deployments → ⋯ → Redeploy).
+
+  | Variable | web | partner | admin | Value |
+  |---|---|---|---|---|
+  | `NEXT_PUBLIC_API_URL` | ✓ | ✓ | ✓ | `https://api.yummy247.com` |
+  | `API_URL` (server-rendered pages) | ✓ | | | `https://api.yummy247.com` |
+  | `NEXT_PUBLIC_AGENTS_URL` | ✓ | | ✓ | `https://assistant.yummy247.com` |
+  | `NEXT_PUBLIC_SITE_URL` | ✓ | | | `https://yummy247.com` |
+  | `NEXT_PUBLIC_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_APP_ID` | ✓ | ✓ | ✓ | **not set**: no Firebase project yet |
+  | `NEXT_PUBLIC_APP_CHECK_SITE_KEY` | ✓ | ✓ | ✓ | **not set**: no reCAPTCHA Enterprise key yet |
+  | `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` | optional | optional | optional | **not set** (schematic maps until then) |
+  | `NEXT_PUBLIC_USE_FIREBASE_EMULATORS` | | | | **never set on Vercel** |
+
+  The API and Yummy addresses are the planned custom domains, so the sites need no rebuild when the backend goes
+  live there. Until it does, the sites load but cannot list shops, sign anyone in (the Firebase settings fall
+  back to the emulator demo project) or take orders.
+- **When the backend is deployed**, run `deploy.sh` with `WEB_URL=https://yummy247.com`,
+  `PARTNER_URL=https://partner.yummy247.com`, `ADMIN_URL=https://admin.yummy247.com`,
+  `API_URL=https://api.yummy247.com` and `AGENTS_URL=https://assistant.yummy247.com`. CORS, the payment
+  return page (`https://yummy247.com/checkout/callback`) and `PUBLIC_WEB_URL` then use the real addresses. The
+  script also deploys the Cloud Run copies of the websites, which are not needed while Vercel serves them. In
+  Firebase, add `yummy247.com`, `www.yummy247.com`, `partner.yummy247.com` and `admin.yummy247.com` to
+  Authentication → Settings → Authorized domains, to the reCAPTCHA Enterprise key and to the Maps browser key's
+  referrers. Then set the Firebase and App Check variables above and redeploy the three projects.
+
+## 5b. Domain and email: Namecheap DNS and Zoho Mail (live)
+
+`yummy247.com` is registered at Namecheap, with Namecheap BasicDNS (nameservers `dns1/dns2.registrar-servers.com`).
+Records are in Namecheap → Domain List → yummy247.com → Advanced DNS. The values come from the Vercel and Zoho
+consoles: copy them from there again if anything is re-created.
+
+| Type | Host | Value | For |
+|---|---|---|---|
+| A | `@` | `216.198.79.1` | customer website (Vercel) |
+| CNAME | `www` | `26564e387b6053cf.vercel-dns-017.com.` | redirect to yummy247.com (Vercel) |
+| CNAME | `partner` | `733ebc0d40410c82.vercel-dns-017.com.` | partner dashboard (Vercel) |
+| CNAME | `admin` | `d6db04535776b80d.vercel-dns-017.com.` | Command Centre (Vercel) |
+| MX | `@` | `mx.zoho.com` (10), `mx2.zoho.com` (20), `mx3.zoho.com` (50) | Zoho Mail |
+| TXT | `@` | `v=spf1 include:zohomail.com ~all` | SPF |
+| TXT | `zmail._domainkey` | `v=DKIM1; k=rsa; p=…` (Zoho → Domains → yummy247.com → DKIM) | DKIM |
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:customercare@yummy247.com` | DMARC, report only |
+| TXT | `@` | `zoho-verification=zb95984097.zmverify.zoho.com` | Zoho domain ownership |
+
+- **Removed** on 2026-11-20: Namecheap's parking records (`www` → `parkingpage.namecheap.com`, and a URL redirect
+  on `@`). Mail Settings were switched from Email Forwarding to **Custom MX**, which also removed Namecheap's
+  forwarding SPF record. A domain may have only one SPF record: add any new sender, such as a newsletter tool, to
+  the same record (`include:`).
+- **Zoho Mail**: the Forever Free plan (up to 5 users, 5 GB each, the web and the Zoho Mail phone app only, no
+  IMAP, POP or SMTP; Mail Lite is about $1 per user per month and adds them). It is in Zoho's US data centre
+  (zoho.com), organisation "Yummy247". The super admin is `customercare@yummy247.com`: read it at
+  https://mail.zoho.com and manage it at https://mailadmin.zoho.com. Zoho verified the domain, MX, SPF and DKIM on
+  2026-11-20.
+- **DMARC** only reports (`p=none`). Daily reports from the big mail providers arrive at customercare@ as zip or
+  xml attachments, and they can be filtered away. After a few weeks of clean reports, change the policy to
+  `p=quarantine`.
+- **Check** from any computer:
+  `nslookup -type=mx yummy247.com 8.8.8.8`, `nslookup -type=txt zmail._domainkey.yummy247.com 8.8.8.8`, and
+  Vercel → Project → Settings → Domains ("Valid Configuration").
 
 ## 6. Mobile releases
 

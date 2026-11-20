@@ -26,7 +26,9 @@ Switching it on needs the owner's Meta WhatsApp Business account, number and key
 messaging charges. **Google Maps Platform** is integrated ([ADR-0014](adr/0014-google-maps-platform.md), setup and costs in
 [GOOGLE_MAPS.md](GOOGLE_MAPS.md)): address search with exact pins, road-distance delivery fees, private live
 rider tracking, nearby maps, kitchen pins, an operations map and Yummy "near me" answers. It runs on clearly
-labelled estimates until the owner adds a key. **Nothing is deployed**, and the product is **not production-ready**: cloud resources, real payment
+labelled estimates until the owner adds a key. **Only the websites, the domain and the email are live** (since
+2026-11-20: Vercel at yummy247.com, mail at Zoho; the API and Yummy are not deployed yet), and the product is
+**not production-ready**: cloud resources, real payment
 test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) are still required.
 
 ## What has been built
@@ -219,11 +221,21 @@ test-mode, a Gemini key and the items in [PRODUCTION_READINESS.md](PRODUCTION_RE
 
 ## What has been deployed
 
-Nothing. No GCP or Firebase project was created or modified, no paid service was enabled.
+Since 2026-11-20 ([DEPLOYMENT.md](DEPLOYMENT.md) sections 5a and 5b):
+
+- **The three websites on Vercel**, on the owner's free Hobby plan, built from GitHub `main`:
+  https://yummy247.com (www redirects to it), https://partner.yummy247.com and https://admin.yummy247.com, over
+  HTTPS. They point at `api.yummy247.com` and `assistant.yummy247.com`, which do not exist yet, so they load
+  but cannot list shops, sign anyone in or take orders.
+- **The domain** `yummy247.com` (Namecheap, BasicDNS): records for Vercel and Zoho, and the parking records removed.
+- **Email**: `customercare@yummy247.com` on Zoho Mail's Forever Free plan. Zoho verified the domain, MX, SPF
+  and DKIM; DMARC is report-only (`p=none`).
+
+No GCP or Firebase project was created or modified, and no paid service was enabled.
 
 ## What has not been deployed
 
-All services, web apps, rules and indexes; Cloud SQL, Pub/Sub, Tasks, Scheduler, Secret Manager, Artifact
+The API, Yummy, Firebase rules and indexes; Cloud SQL, Pub/Sub, Tasks, Scheduler, Secret Manager, Artifact
 Registry; mobile store builds.
 
 ## Firebase configuration status
@@ -281,7 +293,10 @@ dependency scanning, distributed rate limiting, NDPA documentation.
    - Voice notes, photos and WhatsApp Flows are not supported.
    - A shared location is matched to the nearer of Lagos and Enugu; the API still checks the delivery
      zone.
-10. Support WhatsApp/phone/email are placeholders (flagged in the apps) until real contacts are provided.
+10. Support WhatsApp and phone are placeholders until real contacts are provided. The email is real
+    (`customercare@yummy247.com`, since 2026-11-20). While `SUPPORT_CONTACTS_ARE_PLACEHOLDERS` is true, the
+    websites and apps show all three as "coming soon" and Yummy calls them not live yet, because the one flag
+    covers all three.
 11. Store artwork is generated (gradient + illustration) until partners upload photos; field names still say
     `restaurant_*` for all merchants (rename deferred, see ADR-0012).
 12. The wallet is closed-loop stored value with product-default limits (top-up ₦500–₦100,000, balance ≤ ₦300,000);
@@ -342,7 +357,8 @@ dependency scanning, distributed rate limiting, NDPA documentation.
    - a permanent system-user token, the app secret and a verify token
    - approval of Meta's messaging charges, and Meta-approved templates for order updates
    - a privacy notice that covers WhatsApp
-9. Real support contacts (WhatsApp, phone, email) and real partner restaurants and beauty shops for both cities.
+9. Real support contacts (WhatsApp and phone; the email `customercare@yummy247.com` exists since 2026-11-20) and
+   real partner restaurants and beauty shops for both cities.
 10. Legal/CBN review of the Yummy Chops wallet (closed-loop stored value, limits, KYC, who holds the funds) and
     confirmation of the money limits: wallet top-up/balance, pay on delivery ₦25,000, rider cash ₦50,000, COD
     ₦100,000 and the 1.5% (min ₦100) collection fee.

@@ -25,8 +25,10 @@
    references `YC-…`, vouchers `YCP-` (from points), `YCR-` (referral reward) and `YCF-` (a friend's welcome
    gift). Nothing reads a payment's kind from its prefix, so older references still verify.
 4. **The domain will be `yummy247.com`.** Until the owner buys it and its mailbox exists, these are placeholders:
-   the support email `support@yummy247.com`, and `…@customers.yummy247.com` for customers without an email
-   address (the payment provider requires one). The planned addresses: `yummy247.com` and `www` (customer
+   the support email, and `…@customers.yummy247.com` for customers without an email address (the payment
+   provider requires one). *Update 2026-11-20:* the owner bought the domain. The support mailbox is
+   `customercare@yummy247.com` on Zoho Mail, and the websites are on Vercel (docs/DEPLOYMENT.md, sections 5a
+   and 5b). The planned addresses: `yummy247.com` and `www` (customer
    website), `partner.`, `admin.`, `api.` and `assistant.` (the assistant) (docs/DEPLOYMENT.md). The sites keep using
    their Cloud Run addresses until the domain is mapped (`NEXT_PUBLIC_SITE_URL` and the `*_URL` settings).
    The planned Google Cloud projects are `yummy-chops-dev`, `yummy-chops-staging` and `yummy-chops-prod`

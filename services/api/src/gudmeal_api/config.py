@@ -93,10 +93,12 @@ class Settings(BaseSettings):
     notifier: Literal["log", "fcm"] = "log"
 
     # --- customer support contacts (shown in the apps' Support tab) -------------------------------
-    # Placeholders until the owner provides real ones; `support_contacts_are_placeholders` lets apps flag them.
+    # The email is the real customer-care mailbox (Zoho Mail on yummy247.com, docs/DEPLOYMENT.md §5b). WhatsApp and
+    # phone are placeholders until the owner provides real ones; `support_contacts_are_placeholders` lets apps flag
+    # them.
     support_whatsapp: str = "+234 000 000 0000"
     support_phone: str = "+234 000 000 0000"
-    support_email: str = "support@yummy247.com"
+    support_email: str = "customercare@yummy247.com"
     support_hours: str = "Every day, 8am to 10pm"
     support_contacts_are_placeholders: bool = True
 
