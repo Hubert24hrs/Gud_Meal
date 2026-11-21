@@ -257,6 +257,20 @@ def render_result(result: dict[str, Any], web_url: str) -> list[dict[str, Any]]:
     return messages
 
 
+def support_line(contacts: dict[str, str]) -> str:
+    """'Need a person?' with only the support contacts that exist (Settings.support_contacts()), never a
+    placeholder number."""
+    ways = [
+        f"{label} {contacts[kind]}"
+        for kind, label in (("whatsapp", "WhatsApp"), ("phone", "call"), ("email", "email"))
+        if contacts.get(kind)
+    ]
+    if not ways:
+        return "Need a person? Open Support in the Yummy Chops app."
+    joined = ways[0] if len(ways) == 1 else ", ".join(ways[:-1]) + " or " + ways[-1]
+    return f"Need a person? {joined[0].upper()}{joined[1:]}."
+
+
 __all__ = [
     "HELP_COMMAND",
     "LINK_COMMAND",
@@ -275,6 +289,7 @@ __all__ = [
     "shared_location_address",
     "signature",
     "signature_ok",
+    "support_line",
     "text_message",
     "web_route",
 ]

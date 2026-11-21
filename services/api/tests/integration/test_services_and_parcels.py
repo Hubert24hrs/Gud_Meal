@@ -100,7 +100,24 @@ async def test_services_categories_and_cities(client):
     assert {i["vertical"] for i in found["items"]} == {"beauty"}
     assert [c["id"] for c in (await client.get("/v1/cities")).json()] == ["lagos", "enugu"]
     cfg = (await client.get("/v1/config/public")).json()
-    assert cfg["support"]["placeholders"] is True and {c["id"] for c in cfg["cities"]} == {"lagos", "enugu"}
+    assert {c["id"] for c in cfg["cities"]} == {"lagos", "enugu"}
+
+
+async def test_support_contacts_show_only_real_ones(client, container):
+    """Only the customer-care email exists so far: WhatsApp and phone come back empty, so the apps show them as
+    "coming soon" instead of a made-up number. `placeholders` stays true until all three exist, for app builds
+    that only read that flag."""
+    support = (await client.get("/v1/config/public")).json()["support"]
+    assert {k: v for k, v in support.items() if k != "hours"} == {
+        "whatsapp": "",
+        "phone": "",
+        "email": "customercare@yummy247.com",
+        "placeholders": True,
+    }
+    container.settings.support_whatsapp = "+234 812 345 6789"
+    container.settings.support_phone = "+234 1 234 5678"
+    support = (await client.get("/v1/config/public")).json()["support"]
+    assert support["whatsapp"] == "+234 812 345 6789" and support["placeholders"] is False
 
 
 async def test_beauty_order_uses_shop_wording(flow, client):

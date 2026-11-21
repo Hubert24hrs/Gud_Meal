@@ -349,15 +349,19 @@ async def get_payment_options(args: OptionalOrderArgs, ctx: ToolContext) -> Tool
 
 async def get_support_contacts(args: NoArgs, ctx: ToolContext) -> ToolOutput:
     support = (await ctx.api.get("/v1/config/public"))["support"]
-    data = {
-        "whatsapp": support["whatsapp"],
-        "phone": support["phone"],
-        "email": support["email"],
-        "hours": support["hours"],
-        "in_app": "Support tab → Chat with us (a person replies in the app)",
-    }
-    if support.get("placeholders"):
-        data["note"] = "These contacts are not live yet; suggest the in-app Support tab or a support ticket."
+    # Only the contacts that exist: the API sends an empty value for one that is not set up yet.
+    data: dict[str, Any] = {k: support[k] for k in ("whatsapp", "phone", "email") if support.get(k)}
+    data |= {"hours": support["hours"], "in_app": "Support tab → Chat with us (a person replies in the app)"}
+    missing = [
+        name
+        for k, name in (("whatsapp", "WhatsApp"), ("phone", "phone"), ("email", "email"))
+        if not data.get(k)
+    ]
+    if missing:
+        data["note"] = (
+            f"Not set up yet: {', '.join(missing)}. Never make up a contact; offer the ones listed here, the in-app "
+            "Support tab or a support ticket."
+        )
     return ToolOutput(data, card={"type": "support_contacts", **data})
 
 

@@ -120,8 +120,11 @@ async def test_offline_gudy_totals_beauty_search_parcels_and_support(offline_sta
 
     support = await chat(client, "I want to talk to a human")
     assert "Support tab" in support["reply"]
+    # Only the contact that exists is offered (the customer-care email), never a made-up WhatsApp or phone number.
+    assert "by email at customercare@yummy247.com" in support["reply"] and "WhatsApp" not in support["reply"]
     contacts = next(c for c in support["cards"] if c["type"] == "support_contacts")
-    assert contacts["note"]  # placeholders are flagged, not presented as live numbers
+    assert contacts["email"] == "customercare@yummy247.com" and not {"whatsapp", "phone"} & contacts.keys()
+    assert contacts["note"].startswith("Not set up yet: WhatsApp, phone.")
 
     track = await chat(client, "Where is my order?")
     assert order["short_code"] in track["reply"]

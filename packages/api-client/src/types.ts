@@ -402,6 +402,8 @@ export interface OrderSummary {
   favourite_merchant: { id: string; name: string; orders: number } | null;
   first_order_at: string | null; last_order_at: string | null;
 }
+/** Support contacts from `/v1/config/public`. A contact that is not set up yet is an empty string (show it as
+ * "coming soon"); `placeholders` is true while any of the three is missing (older app builds read only that). */
 export interface SupportContacts { whatsapp: string; phone: string; email: string; hours: string; placeholders: boolean }
 
 // ------------------------------------------------------------------------------------------ maps

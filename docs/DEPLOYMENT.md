@@ -150,7 +150,8 @@ The customer website, the partner dashboard and the Command Centre run on Cloud 
   (sections 5a and 5b). For the API and Yummy, use Cloud Run domain mapping or a load balancer, add their records
   at Namecheap, set the `*_URL` variables and redeploy. Then update the authorized domains, the reCAPTCHA key's
   domains and the Maps browser key's referrers. The support mailbox is `customercare@yummy247.com`
-  (`SUPPORT_EMAIL`, the API's default, shown in the apps and by Yummy).
+  (`SUPPORT_EMAIL`, the API's default, shown in the apps and by Yummy). Set `SUPPORT_WHATSAPP` and
+  `SUPPORT_PHONE` when the real numbers exist; until then they stay empty and show as "coming soon".
 
 To build an image yourself (CI does this for all three with demo settings):
 

@@ -74,8 +74,10 @@ Parcel quotes accept `cod_amount_kobo`; the breakdown then includes `cod_fee_kob
 
 Parcel orders are ordinary orders with `vertical: "parcel"` and a `parcel` object (pickup/drop-off contacts,
 size, contents); they skip the merchant (`paid → ready_for_pickup`) and are cancellable with a full refund until a
-rider is assigned. `GET /v1/config/public` also returns `cities` and `support` contacts (`placeholders: true` until
-real contacts are configured).
+rider is assigned. `GET /v1/config/public` also returns `cities` and the `support` contacts (`whatsapp`, `phone`,
+`email`, `hours`). A contact that is not set up yet is an empty string, and the apps show it as "coming soon".
+`placeholders` is true while any of the three is missing, for app builds from before 2026-11-21 that read only that
+flag.
 
 ## Maps and location (Google Maps Platform, see [GOOGLE_MAPS.md](GOOGLE_MAPS.md))
 

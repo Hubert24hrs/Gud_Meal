@@ -92,15 +92,14 @@ class Settings(BaseSettings):
     # --- notifications -------------------------------------------------------------------------
     notifier: Literal["log", "fcm"] = "log"
 
-    # --- customer support contacts (shown in the apps' Support tab) -------------------------------
-    # The email is the real customer-care mailbox (Zoho Mail on yummy247.com, docs/DEPLOYMENT.md §5b). WhatsApp and
-    # phone are placeholders until the owner provides real ones; `support_contacts_are_placeholders` lets apps flag
-    # them.
-    support_whatsapp: str = "+234 000 000 0000"
-    support_phone: str = "+234 000 000 0000"
+    # --- customer support contacts (the apps' Support tab, Yummy and WhatsApp messages) ------------
+    # An empty contact does not exist yet: the apps show it as "coming soon" and Yummy and WhatsApp leave it out,
+    # so no made-up number is ever shown. The email is the real customer-care mailbox (Zoho Mail on yummy247.com,
+    # docs/DEPLOYMENT.md §5b); set SUPPORT_WHATSAPP and SUPPORT_PHONE once the owner has real numbers.
+    support_whatsapp: str = ""
+    support_phone: str = ""
     support_email: str = "customercare@yummy247.com"
     support_hours: str = "Every day, 8am to 10pm"
-    support_contacts_are_placeholders: bool = True
 
     # --- business rules -----------------------------------------------------------------------
     quote_ttl_seconds: int = 600
@@ -153,6 +152,15 @@ class Settings(BaseSettings):
     @property
     def is_cloud(self) -> bool:
         return self.environment in ("development", "staging", "production")
+
+    def support_contacts(self) -> dict[str, str]:
+        """The support contacts that exist, in the order people see them: whatsapp, phone, email."""
+        contacts = {
+            "whatsapp": self.support_whatsapp.strip(),
+            "phone": self.support_phone.strip(),
+            "email": self.support_email.strip(),
+        }
+        return {kind: value for kind, value in contacts.items() if value}
 
     def validate_for_environment(self) -> None:
         """Fail fast on unsafe configuration outside local/test."""

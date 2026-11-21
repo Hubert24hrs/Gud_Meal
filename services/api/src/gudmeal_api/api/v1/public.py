@@ -151,6 +151,7 @@ async def cities() -> list[dict[str, Any]]:
 async def public_config(c: Ctr) -> dict[str, Any]:
     cfg = await c.repos.get_pricing_config()
     flags = await c.repos.list_feature_flags()
+    support = c.settings.support_contacts()
     return {
         "currency": "NGN",
         "service_fee_bps": cfg.service_fee_bps,
@@ -182,11 +183,13 @@ async def public_config(c: Ctr) -> dict[str, Any]:
             "points_multiplier": cfg.plus.points_multiplier,
         },
         "cities": [{"id": x.id, "name": x.name} for x in CITIES.values()],
+        # An empty contact is not set up yet: the apps show it as "coming soon". `placeholders` is true while any
+        # contact is missing; app builds from before 2026-11-21 read only that flag and grey out all three.
         "support": {
-            "whatsapp": c.settings.support_whatsapp,
-            "phone": c.settings.support_phone,
-            "email": c.settings.support_email,
+            "whatsapp": support.get("whatsapp", ""),
+            "phone": support.get("phone", ""),
+            "email": support.get("email", ""),
             "hours": c.settings.support_hours,
-            "placeholders": c.settings.support_contacts_are_placeholders,
+            "placeholders": len(support) < 3,
         },
     }

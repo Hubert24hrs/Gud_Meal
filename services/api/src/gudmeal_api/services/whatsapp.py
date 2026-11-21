@@ -32,6 +32,7 @@ from ..domain.whatsapp import (
     render_result,
     shared_location_address,
     signature_ok,
+    support_line,
     text_message,
 )
 from ..errors import Conflict, NotFound, PermissionDenied, RateLimited, Unauthenticated, ValidationFailed
@@ -231,8 +232,7 @@ class WhatsAppService:
         await self.sender.send(wa_id, text_message(text))
 
     def _support_line(self) -> str:
-        s = self.settings
-        return f"Need a person? WhatsApp {s.support_whatsapp}, call {s.support_phone} or email {s.support_email}."
+        return support_line(self.settings.support_contacts())
 
     async def handle(self, payload: dict[str, Any]) -> None:
         wa_id = str(payload["wa_id"])

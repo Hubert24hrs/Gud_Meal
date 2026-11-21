@@ -293,10 +293,10 @@ dependency scanning, distributed rate limiting, NDPA documentation.
    - Voice notes, photos and WhatsApp Flows are not supported.
    - A shared location is matched to the nearer of Lagos and Enugu; the API still checks the delivery
      zone.
-10. Support WhatsApp and phone are placeholders until real contacts are provided. The email is real
-    (`customercare@yummy247.com`, since 2026-11-20). While `SUPPORT_CONTACTS_ARE_PLACEHOLDERS` is true, the
-    websites and apps show all three as "coming soon" and Yummy calls them not live yet, because the one flag
-    covers all three.
+10. Support WhatsApp and phone numbers do not exist yet. The websites and apps show them as "coming soon", and
+    Yummy and the WhatsApp messages leave them out. The email `customercare@yummy247.com` is real, and it is shown
+    and offered everywhere since 2026-11-21. Set `SUPPORT_WHATSAPP` and `SUPPORT_PHONE` when the numbers exist.
+    Test APKs built before 2026-11-21 still show all three as "coming soon" until they are rebuilt.
 11. Store artwork is generated (gradient + illustration) until partners upload photos; field names still say
     `restaurant_*` for all merchants (rename deferred, see ADR-0012).
 12. The wallet is closed-loop stored value with product-default limits (top-up ₦500–₦100,000, balance ≤ ₦300,000);

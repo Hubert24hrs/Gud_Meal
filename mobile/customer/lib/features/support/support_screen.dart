@@ -81,29 +81,27 @@ class SupportScreen extends ConsumerWidget {
           onTap: () => _openTicket(context, ref),
         ),
         const Divider(indent: 16, endIndent: 16),
+        // A contact that is not set up yet comes back empty and shows as "coming soon".
         _ContactTile(
           icon: Icons.chat_rounded,
           color: const Color(0xFF2E8B1E),
           title: 'WhatsApp',
           value: contacts?.whatsapp,
-          placeholder: contacts?.placeholders ?? true,
-          uri: contacts == null ? null : Uri.parse('https://wa.me/${contacts.whatsapp.replaceAll(RegExp(r'[^0-9]'), '')}'),
+          uri: (contacts?.whatsapp ?? '').isEmpty ? null : Uri.parse('https://wa.me/${contacts!.whatsapp.replaceAll(RegExp(r'[^0-9]'), '')}'),
         ),
         _ContactTile(
           icon: Icons.call_rounded,
           color: brandRed,
           title: 'Call us',
           value: contacts?.phone,
-          placeholder: contacts?.placeholders ?? true,
-          uri: contacts == null ? null : Uri(scheme: 'tel', path: contacts.phone.replaceAll(' ', '')),
+          uri: (contacts?.phone ?? '').isEmpty ? null : Uri(scheme: 'tel', path: contacts!.phone.replaceAll(' ', '')),
         ),
         _ContactTile(
           icon: Icons.mail_rounded,
           color: const Color(0xFF2D6AA6),
           title: 'Email',
           value: contacts?.email,
-          placeholder: contacts?.placeholders ?? true,
-          uri: contacts == null ? null : Uri(scheme: 'mailto', path: contacts.email),
+          uri: (contacts?.email ?? '').isEmpty ? null : Uri(scheme: 'mailto', path: contacts!.email),
         ),
         if (contacts != null && contacts.hours.isNotEmpty)
           Padding(padding: const EdgeInsets.fromLTRB(72, 0, 16, 8), child: Text(contacts.hours, style: theme.textTheme.bodySmall)),
@@ -136,17 +134,18 @@ class SupportScreen extends ConsumerWidget {
 }
 
 class _ContactTile extends StatelessWidget {
-  const _ContactTile({required this.icon, required this.color, required this.title, required this.value, required this.placeholder, required this.uri});
+  const _ContactTile({required this.icon, required this.color, required this.title, required this.value, required this.uri});
   final IconData icon;
   final Color color;
   final String title;
   final String? value;
-  final bool placeholder;
+
+  /// Null while the contact is not set up yet (or still loading): the tile then says "coming soon".
   final Uri? uri;
 
   @override
   Widget build(BuildContext context) {
-    final live = !placeholder && uri != null;
+    final live = uri != null;
     return ListTile(
       enabled: live,
       leading: CircleAvatar(backgroundColor: color.withValues(alpha: .14), child: Icon(icon, color: color)),

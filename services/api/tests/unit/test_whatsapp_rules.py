@@ -5,6 +5,7 @@ import time
 
 import pytest
 
+from gudmeal_api.config import Settings
 from gudmeal_api.domain.whatsapp import (
     HELP_COMMAND,
     LINK_COMMAND,
@@ -19,6 +20,7 @@ from gudmeal_api.domain.whatsapp import (
     shared_location_address,
     signature,
     signature_ok,
+    support_line,
     text_message,
 )
 from gudmeal_api.errors import Unauthenticated
@@ -258,3 +260,24 @@ def test_shared_locations():
     assert (
         enugu["city"] == "Enugu" and enugu["line1"] == "Location shared on WhatsApp" and enugu["area"] is None
     )
+
+
+def test_support_contacts_offer_only_what_exists():
+    """No made-up support number reaches a customer: empty contacts are left out (ADR-0023 update, 2026-11-21)."""
+    defaults = Settings(_env_file=None).support_contacts()
+    assert defaults == {"email": "customercare@yummy247.com"}
+    assert support_line(defaults) == "Need a person? Email customercare@yummy247.com."
+
+    every = Settings(
+        _env_file=None,
+        support_whatsapp="+234 812 345 6789",
+        support_phone=" +234 1 234 5678 ",
+        support_email="",
+    ).support_contacts()
+    assert every == {"whatsapp": "+234 812 345 6789", "phone": "+234 1 234 5678"}
+    assert support_line(every) == "Need a person? WhatsApp +234 812 345 6789 or call +234 1 234 5678."
+    assert (
+        support_line(every | {"email": "customercare@yummy247.com"})
+        == "Need a person? WhatsApp +234 812 345 6789, call +234 1 234 5678 or email customercare@yummy247.com."
+    )
+    assert support_line({}) == "Need a person? Open Support in the Yummy Chops app."

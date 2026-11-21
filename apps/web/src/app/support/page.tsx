@@ -44,13 +44,14 @@ export default function SupportPage() {
 
       <TicketCard />
 
+      {/* A contact that is not set up yet comes back empty and shows as "coming soon". */}
       <div className="divide-y divide-border rounded-2xl border border-border">
-        <Contact icon={<MessageCircle className="size-5" />} title="WhatsApp" value={support?.whatsapp} live={support ? !support.placeholders : false}
-          href={support ? `https://wa.me/${support.whatsapp.replace(/[^0-9]/g, "")}` : undefined} />
-        <Contact icon={<Phone className="size-5" />} title="Call us" value={support?.phone} live={support ? !support.placeholders : false}
-          href={support ? `tel:${support.phone.replace(/\s/g, "")}` : undefined} />
-        <Contact icon={<Mail className="size-5" />} title="Email" value={support?.email} live={support ? !support.placeholders : false}
-          href={support ? `mailto:${support.email}` : undefined} />
+        <Contact icon={<MessageCircle className="size-5" />} title="WhatsApp" value={support?.whatsapp}
+          href={support?.whatsapp ? `https://wa.me/${support.whatsapp.replace(/[^0-9]/g, "")}` : undefined} />
+        <Contact icon={<Phone className="size-5" />} title="Call us" value={support?.phone}
+          href={support?.phone ? `tel:${support.phone.replace(/\s/g, "")}` : undefined} />
+        <Contact icon={<Mail className="size-5" />} title="Email" value={support?.email}
+          href={support?.email ? `mailto:${support.email}` : undefined} />
         {support?.hours && <p className="px-4 py-2 text-xs text-muted">{support.hours}</p>}
       </div>
 
@@ -70,7 +71,8 @@ export default function SupportPage() {
   );
 }
 
-function Contact({ icon, title, value, live, href }: { icon: React.ReactNode; title: string; value?: string; live: boolean; href?: string }) {
+function Contact({ icon, title, value, href }: { icon: React.ReactNode; title: string; value?: string; href?: string }) {
+  const live = Boolean(value && href);
   const body = (
     <>
       <span className="grid size-10 place-items-center rounded-full bg-surface-muted" aria-hidden="true">{icon}</span>

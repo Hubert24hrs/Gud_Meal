@@ -136,14 +136,20 @@ T: dict[str, dict[str, str]] = {
         "pay.",
     },
     "support": {
-        "en": "You can reach Yummy Chops support on WhatsApp {whatsapp}, phone {phone} or email {email} ({hours}). Or "
-        "chat with our team in the Support tab.",
-        "pcm": "You fit reach Yummy Chops support for WhatsApp {whatsapp}, call {phone} or email {email} ({hours}). Or "
-        "chat with our team for the Support tab.",
+        "en": "You can reach Yummy Chops support {ways} ({hours}). Or chat with our team in the Support tab.",
+        "pcm": "You fit reach Yummy Chops support {ways} ({hours}). Or chat with our team for the Support tab.",
+    },
+    # Only the contacts that exist are listed (the API leaves the others empty), joined with "or".
+    "support_whatsapp": {"en": "on WhatsApp {v}", "pcm": "for WhatsApp {v}"},
+    "support_phone": {"en": "by phone on {v}", "pcm": "for phone {v}"},
+    "support_email": {"en": "by email at {v}", "pcm": "for email {v}"},
+    "support_tab_only": {
+        "en": "Chat with our team in the Support tab: a person replies in the app.",
+        "pcm": "Chat with our team for the Support tab: person go reply you for the app.",
     },
     "support_placeholder": {
-        "en": "Our phone and WhatsApp lines are being set up, so the Support tab is the fastest way to reach a person.",
-        "pcm": "We still dey set up phone and WhatsApp, so Support tab na the fastest way to reach person.",
+        "en": "More ways to reach us are coming soon, so the Support tab is the fastest way to reach a person.",
+        "pcm": "More ways to reach us dey come soon, so Support tab na the fastest way to reach person.",
     },
     "ticket": {
         "en": "I've opened support ticket {id}. A Yummy Chops specialist will reply in the app.",
@@ -880,14 +886,11 @@ def render(tool: str, data: dict[str, Any], lang: Lang, text: str = "") -> str:
             lines.append(f"{mark} {m['method']}{why}")
         return "\n".join(lines)
     if tool == "get_support_contacts":
-        out = say(
-            "support",
-            lang,
-            whatsapp=data.get("whatsapp"),
-            phone=data.get("phone"),
-            email=data.get("email"),
-            hours=data.get("hours"),
-        )
+        ways = [say(f"support_{k}", lang, v=data[k]) for k in ("whatsapp", "phone", "email") if data.get(k)]
+        if not ways:
+            return say("support_tab_only", lang)
+        joined = ways[0] if len(ways) == 1 else ", ".join(ways[:-1]) + " or " + ways[-1]
+        out = say("support", lang, ways=joined, hours=data.get("hours"))
         if data.get("note"):
             out += " " + say("support_placeholder", lang)
         return out
